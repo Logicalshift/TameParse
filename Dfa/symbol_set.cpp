@@ -119,6 +119,7 @@ symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
     symbol_store::iterator finalValue  = m_Symbols.upper_bound(exclude.upper());
     
     // Change it to the final value in the range affected by this exclusion
+    symbol_store::iterator eraseTo = finalValue;
     finalValue--;
     
     // Get the initial and final ranges
@@ -126,7 +127,7 @@ symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
     symbol_range final   = *finalValue;
     
     // Erase the ranges with excluded characters
-    m_Symbols.erase(firstGreaterThan, finalValue);
+    m_Symbols.erase(firstGreaterThan, eraseTo);
     
     // Add new ranges
     if (initial.lower() < exclude.lower()) {
