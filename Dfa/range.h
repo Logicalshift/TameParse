@@ -22,16 +22,16 @@ namespace dfa {
         T m_Upper;
         
     public:
-        /// \brief Constructs a range consisting of a single value
+        /// \brief Constructs a range containing a single value
         inline range(T value) {
             m_Lower = value;
             m_Upper = value + 1;
         }
         
-        /// \brief Constructs a range from one value to another (inclusive)
+        /// \brief Constructs a range from one value to another (the upper value is excluded)
         inline range(T from, T to) {
             m_Lower = from;
-            m_Upper = to+1;
+            m_Upper = to;
         }
         
         inline range(const range<T>& copyFrom) {
@@ -76,14 +76,14 @@ namespace dfa {
         
         /// \brief Orders this range relative to another
         inline bool operator<=(const range<T>& compareTo) const {
-            return m_Lower <= compareTo.m_Lower || (m_Lower == compareTo.m_Lower && m_Upper <= compareTo.m_Upper);
+            return m_Lower < compareTo.m_Lower || (m_Lower == compareTo.m_Lower && m_Upper <= compareTo.m_Upper);
         }
         
         /// \brief Orders this range relative to another
         inline bool operator>(const range<T>& compareTo) const { return !operator<=(compareTo); }
         
         /// \brief Orders this range relative to another
-        inline bool operator>=(const range<T>& compareTo) const { return !operator>(compareTo); }
+        inline bool operator>=(const range<T>& compareTo) const { return !operator<(compareTo); }
         
         /// \brief Determines if this range overlaps another
         inline bool overlaps(const range<T>& compareTo) const {

@@ -8,11 +8,13 @@
 
 #include <iostream>
 
+#include "dfa_range.h"
+
 int main (int argc, const char * argv[])
 {
-
-    // insert code here...
-    std::cout << "Hello, World!\n";
+    // Run the DFA tests
+    test_dfa_range().run();
+    
     return 0;
 }
 
