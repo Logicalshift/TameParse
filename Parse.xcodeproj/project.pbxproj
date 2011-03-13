@@ -1,0 +1,214 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
+		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Parse-Prefix.pch"; sourceTree = "<group>"; };
+		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
+		4BD7FDFF132D05D600025433 /* ParseTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseTarget.xcconfig; sourceTree = "<group>"; };
+		4BD7FE00132D05D600025433 /* Parse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Parse.h; sourceTree = "<group>"; };
+		4BD7FE02132D05D600025433 /* ParsePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParsePriv.h; sourceTree = "<group>"; };
+		4BD7FE03132D05D600025433 /* Parse.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Parse.cp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4BD7FDF6132D05D600025433 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4BD7FDEE132D05D600025433 = {
+			isa = PBXGroup;
+			children = (
+				4BD7FDFB132D05D600025433 /* Parse */,
+				4BD7FDFA132D05D600025433 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4BD7FDFA132D05D600025433 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4BD7FDF9132D05D600025433 /* Parse.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4BD7FDFB132D05D600025433 /* Parse */ = {
+			isa = PBXGroup;
+			children = (
+				4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */,
+				4BD7FDFF132D05D600025433 /* ParseTarget.xcconfig */,
+				4BD7FE00132D05D600025433 /* Parse.h */,
+				4BD7FE02132D05D600025433 /* ParsePriv.h */,
+				4BD7FE03132D05D600025433 /* Parse.cp */,
+				4BD7FDFC132D05D600025433 /* Supporting Files */,
+			);
+			path = Parse;
+			sourceTree = "<group>";
+		};
+		4BD7FDFC132D05D600025433 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		4BD7FDF7132D05D600025433 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4BD7FE01132D05D600025433 /* Parse.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		4BD7FDF8132D05D600025433 /* Parse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "Parse" */;
+			buildPhases = (
+				4BD7FDF5132D05D600025433 /* Sources */,
+				4BD7FDF6132D05D600025433 /* Frameworks */,
+				4BD7FDF7132D05D600025433 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Parse;
+			productName = Parse;
+			productReference = 4BD7FDF9132D05D600025433 /* Parse.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4BD7FDF0132D05D600025433 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "Parse" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 4BD7FDEE132D05D600025433;
+			productRefGroup = 4BD7FDFA132D05D600025433 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4BD7FDF8132D05D600025433 /* Parse */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4BD7FDF5132D05D600025433 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4BD7FE04132D05D700025433 /* Parse.cp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		4BD7FE05132D05D700025433 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4BD7FE06132D05D700025433 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4BD7FE08132D05D700025433 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4BD7FE09132D05D700025433 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "Parse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4BD7FE05132D05D700025433 /* Debug */,
+				4BD7FE06132D05D700025433 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "Parse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4BD7FE08132D05D700025433 /* Debug */,
+				4BD7FE09132D05D700025433 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4BD7FDF0132D05D600025433 /* Project object */;
+}
