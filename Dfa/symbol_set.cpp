@@ -160,13 +160,32 @@ bool symbol_set::operator[](int symbol) {
 bool symbol_set::operator==(const symbol_set& compareTo) const {
     if (&compareTo == this) return true;
     
-    return false;
+    // The symbol sets must be the same size
+    if (compareTo.m_Symbols.size() != m_Symbols.size()) return false;
+    
+    // The contents of all of the sets must be the same
+    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+        if (*it1 != *it2) return false;
+    }
+    
+    return true;
 }
 
 /// \brief Orders this symbol set
 bool symbol_set::operator<(const symbol_set& compareTo) const {
     if (&compareTo == this) return false;
+    
+    // Is less than if there are fewer symbols
+    if (m_Symbols.size() < compareTo.m_Symbols.size()) return true;
+    if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
+    
+    // Is less than if there's a difference between any of the sets
+    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+        if (*it1 == *it2) continue;
+        return *it1 < *it2;
+    }
 
+    // Sets are the same
     return false;
 }
 
@@ -174,5 +193,16 @@ bool symbol_set::operator<(const symbol_set& compareTo) const {
 bool symbol_set::operator<=(const symbol_set& compareTo) const {
     if (&compareTo == this) return true;
     
-    return false;
+    // Is less than if there are fewer symbols
+    if (m_Symbols.size() < compareTo.m_Symbols.size()) return true;
+    if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
+    
+    // Is less than if there's a difference between any of the sets
+    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+        if (*it1 == *it2) continue;
+        return *it1 < *it2;
+    }
+    
+    // Sets are the same
+    return true;
 }

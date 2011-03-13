@@ -74,4 +74,9 @@ void test_dfa_symbol_set::run_tests() {
     report("Empty6", !empty[20]);
     report("Empty7", !empty[39]);
     report("Empty8", !empty[51]);
+    
+    report("Equality1", brokenUp == disjointSet);
+    report("Equality2", brokenUp <= disjointSet);
+    report("Equality3", empty != disjointSet);
+    report("Equality4", disjointSet != testSet);
 }
