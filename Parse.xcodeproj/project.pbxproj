@@ -21,6 +21,7 @@
 		4BD7FE39132D4F8200025433 /* Parse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* Parse.dylib */; };
 		4BD7FE3C132D526C00025433 /* test_fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3A132D526C00025433 /* test_fixture.cpp */; };
 		4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3D132D53AF00025433 /* dfa_range.cpp */; };
+		4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -57,6 +58,8 @@
 		4BD7FE3B132D526C00025433 /* test_fixture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = test_fixture.h; sourceTree = "<group>"; };
 		4BD7FE3D132D53AF00025433 /* dfa_range.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_range.cpp; sourceTree = "<group>"; };
 		4BD7FE3E132D53AF00025433 /* dfa_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_range.h; sourceTree = "<group>"; };
+		4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_symbol_set.cpp; sourceTree = "<group>"; };
+		4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_symbol_set.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +144,8 @@
 			children = (
 				4BD7FE3D132D53AF00025433 /* dfa_range.cpp */,
 				4BD7FE3E132D53AF00025433 /* dfa_range.h */,
+				4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */,
+				4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */,
 			);
 			name = Dfa;
 			sourceTree = "<group>";
@@ -240,6 +245,7 @@
 				4BD7FE34132D4F1F00025433 /* main.cpp in Sources */,
 				4BD7FE3C132D526C00025433 /* test_fixture.cpp in Sources */,
 				4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */,
+				4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

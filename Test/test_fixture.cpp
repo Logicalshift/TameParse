@@ -19,12 +19,15 @@ test_fixture::test_fixture(std::string name)
 
 /// \brief Reports on the result of an individual test
 void test_fixture::report(std::string test_name, bool result) {
+    m_TestsRun++;
+    
     string prefix   = m_Name + "." + test_name;
     string dots     = string(60 - prefix.length(), '.');
     
     if (result) {
         cout << prefix << dots << "ok" << endl;
     } else {
+        m_TestsFailed++;
         cerr << prefix << dots << "FAILED" << endl;
     }
 }
@@ -33,4 +36,8 @@ void test_fixture::report(std::string test_name, bool result) {
 void test_fixture::run() {
     cout << endl << "*** TESTS FROM " << m_Name << endl;
     run_tests();
+    
+    if (m_TestsFailed > 0) {
+        cerr << endl << "*** " << m_Name << ": " << m_TestsFailed << "/" << m_TestsRun << " FAILED" << endl;
+    }
 }

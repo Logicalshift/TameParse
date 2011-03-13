@@ -143,10 +143,13 @@ symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
 /// \brief True if the specified symbol is in this set
 bool symbol_set::operator[](int symbol) {
     // Find the item nearest this symbol
-    symbol_store::iterator nearestValue = m_Symbols.lower_bound(symbol);
+    symbol_store::iterator nearestValue = m_Symbols.upper_bound(symbol);
     
-    // Doesn't exist if this is at the end
-    if (nearestValue == m_Symbols.end()) return false;
+    // Doesn't exist if this is at the start
+    if (nearestValue == m_Symbols.begin()) return false;
+    
+    // Move back to the first value with a value <= the symbol
+    nearestValue--;
     
     // See if this character is contained in this range
     return (*nearestValue)[symbol];
