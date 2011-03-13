@@ -63,4 +63,15 @@ void test_dfa_symbol_set::run_tests() {
     report("RejoinedBrokenUp6", !rejoinedBrokenUp[20]);
     report("RejoinedBrokenUp7", !rejoinedBrokenUp[39]);
     report("RejoinedBrokenUp8", !rejoinedBrokenUp[51]);
+    
+    symbol_set empty = brokenUp & r(5, 60);
+    
+    report("Empty1", !empty[10]);
+    report("Empty2", !empty[19]);
+    report("Empty3", !empty[40]);
+    report("Empty4", !empty[49]);
+    report("Empty5", !empty[9]);
+    report("Empty6", !empty[20]);
+    report("Empty7", !empty[39]);
+    report("Empty8", !empty[51]);
 }
