@@ -25,8 +25,19 @@ namespace dfa {
         typedef range<int> symbol_range;
         
     private:
+        /// \brief Comparator functor for the symbol store set. 
+        /// 
+        /// We compare only by the lower bounds (so any range with the same lower bounds is considered equal; this works as we store a set of 
+        /// non-overlapping ranges)
+        class sort_by_lower {
+        public:
+            inline bool operator()(const symbol_range& a, const symbol_range& b) {
+                return a.lower() < b.lower();
+            }
+        };
+
         /// \brief Type of a set of symbols
-        typedef std::set<symbol_range> symbol_store;
+        typedef std::set<symbol_range, sort_by_lower> symbol_store;
         
         /// \brief The symbols in this set
         symbol_store m_Symbols;

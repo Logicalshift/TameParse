@@ -47,8 +47,15 @@ namespace dfa {
         }
         
     public:
+        /// \brief The first item included in this range
+        inline T lower() const { return m_Lower; }
+        
+        /// \brief The first item not included in this range
+        inline T upper() const { return m_Upper; }
+        
+    public:
         /// \brief Determines if this range contains a particular value
-        inline bool operator[](T value) {
+        inline bool operator[](T value) const {
             if (value < m_Lower) return false;
             if (value >= m_Upper) return false;
             return true;
