@@ -87,6 +87,7 @@ void test_dfa_symbol_set::run_tests() {
     report("Join3", (threeGroups | r(20, 50)) == symbol_set(r(10, 60)));
 
     report("Split1", (symbol_set(r(10, 60)).excluding(r(20, 30)).excluding(r(40, 50))) == threeGroups);
+    report("Split2", (symbol_set(r(10, 50)) & symbol_set(r(20, 40))) == symbol_set(r(20, 40)));
 
     report("Invert1", threeGroups == ~~threeGroups);
     report("Invert2", threeGroups != ~threeGroups);
