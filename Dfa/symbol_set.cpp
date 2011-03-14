@@ -80,18 +80,16 @@ symbol_set& symbol_set::operator|=(const symbol_range& mergeWith) {
 }
 
 /// \brief Excludes a range of symbols from this set
-symbol_set& symbol_set::operator&=(const symbol_set& exclude) {
+void symbol_set::exclude(const symbol_set& toExclude) {
     // Exclude each of the ranges in turn
     // TODO: this will perform a search for each range, we can take advantage of the ordering to improve performance here
-    for (symbol_store::const_iterator it = exclude.m_Symbols.begin(); it != exclude.m_Symbols.end(); it++) {
-        operator&=(*it);
+    for (symbol_store::const_iterator it = toExclude.m_Symbols.begin(); it != toExclude.m_Symbols.end(); it++) {
+        exclude(*it);
     }
-
-    return *this;
 }
 
 /// \brief Excludes a range of symbols from this set
-symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
+void symbol_set::exclude(const symbol_range& exclude) {
     // Find the first range >= the merge point
     symbol_store::iterator firstGreaterThan = m_Symbols.lower_bound(exclude);
     
@@ -110,7 +108,7 @@ symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
     
     // If we're at the end of the list, then there's nothing to do (there's no overlap)
     if (firstGreaterThan == m_Symbols.end() || !exclude.can_merge(*firstGreaterThan)) {
-        return *this;
+        return;
     }
     
     // There's some overlap between ranges
@@ -137,8 +135,32 @@ symbol_set& symbol_set::operator&=(const symbol_range& exclude) {
     if (final.upper() > exclude.upper()) {
         m_Symbols.insert(symbol_range(exclude.upper(), final.upper()));
     }
+}
+
+/// \brief Inverts this set
+void symbol_set::invert() {
+    // The last symbol range that we've seen
+    symbol_range last(0,0);
+    symbol_store newRanges;
     
-    return *this;
+    // Add the excluded values
+    for (symbol_store::iterator it = m_Symbols.begin(); it != m_Symbols.end(); it++) {
+        // Insert a range from the last known position to the next position
+        if (it->lower() != last.upper()) {
+            newRanges.insert(symbol_range(last.upper(), it->lower()));
+        }
+        
+        // Update the last position
+        last = *it;
+    }
+    
+    // Add a range from the last position to the maximum symbol number
+    if (last.upper() < c_MaxSymbol) {
+        newRanges.insert(symbol_range(last.upper(), c_MaxSymbol));
+    }
+    
+    // Store in this object
+    m_Symbols.swap(newRanges);
 }
 
 /// \brief True if the specified symbol is in this set

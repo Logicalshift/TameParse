@@ -42,7 +42,7 @@ void test_dfa_symbol_set::run_tests() {
     report("Rejoined7", rejoinedSet[39]);
     report("Rejoined8", !rejoinedSet[51]);
     
-    symbol_set brokenUp = symbol_set(r(10, 50)) & r(20, 40);
+    symbol_set brokenUp = symbol_set(r(10, 50)) & ~symbol_set(r(20, 40));
     
     report("BrokenUp1", brokenUp[10]);
     report("BrokenUp2", brokenUp[19]);
@@ -53,7 +53,7 @@ void test_dfa_symbol_set::run_tests() {
     report("BrokenUp7", !brokenUp[39]);
     report("BrokenUp8", !brokenUp[51]);
     
-    symbol_set rejoinedBrokenUp = rejoinedSet & r(20, 40);
+    symbol_set rejoinedBrokenUp = rejoinedSet.excluding(r(20, 40));
     
     report("RejoinedBrokenUp1", rejoinedBrokenUp[10]);
     report("RejoinedBrokenUp2", rejoinedBrokenUp[19]);
@@ -64,7 +64,7 @@ void test_dfa_symbol_set::run_tests() {
     report("RejoinedBrokenUp7", !rejoinedBrokenUp[39]);
     report("RejoinedBrokenUp8", !rejoinedBrokenUp[51]);
     
-    symbol_set empty = brokenUp & r(5, 60);
+    symbol_set empty = brokenUp.excluding(r(5, 60));
     
     report("Empty1", !empty[10]);
     report("Empty2", !empty[19]);
@@ -79,4 +79,18 @@ void test_dfa_symbol_set::run_tests() {
     report("Equality2", brokenUp <= disjointSet);
     report("Equality3", empty != disjointSet);
     report("Equality4", disjointSet != testSet);
+    
+    symbol_set threeGroups = symbol_set(r(10, 20)) | r(30, 40) | r(50, 60);
+    
+    report("Join1", (symbol_set(r(20, 40)) | r(10, 50)) == symbol_set(r(10, 50)));
+    report("Join2", (symbol_set(r(10, 50)) | r(20, 40)) == symbol_set(r(10, 50)));
+    report("Join3", (threeGroups | r(20, 50)) == symbol_set(r(10, 60)));
+
+    report("Split1", (symbol_set(r(10, 60)).excluding(r(20, 30)).excluding(r(40, 50))) == threeGroups);
+
+    report("Invert1", threeGroups == ~~threeGroups);
+    report("Invert2", threeGroups != ~threeGroups);
+    report("Invert3", ~(threeGroups | ~threeGroups) == empty);
+    report("Invert4", (threeGroups & ~threeGroups) == empty);
+    report("Invert5", (threeGroups | ~threeGroups) == ~empty);
 }

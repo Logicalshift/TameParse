@@ -25,6 +25,9 @@ namespace dfa {
         typedef range<int> symbol_range;
         
     private:
+        /// \brief Maximum possible symbol
+        static const int c_MaxSymbol = 0x7fffffff;
+        
         /// \brief Comparator functor for the symbol store set. 
         /// 
         /// We compare only by the lower bounds (so any range with the same lower bounds is considered equal; this works as we store a set of 
@@ -59,11 +62,31 @@ namespace dfa {
         /// \brief Merges this symbol set with a range of symbols
         symbol_set& operator|=(const symbol_range& mergeWith);
         
-        /// \brief Excludes a range of symbols from this set
-        symbol_set& operator&=(const symbol_set& exclude);
+        /// \brief Restricts this set to the symbols common between two sets
+        inline symbol_set& operator&=(const symbol_set& andWith) {
+            exclude(~andWith);
+            return *this;
+        }
+        
+        /// \brief Restricts this set to the symbols common between two sets
+        inline symbol_set& operator&=(const symbol_range& andWith) {
+            symbol_set notRange(andWith);
+            notRange.invert();
+            exclude(notRange);
+            return *this;
+        }
         
         /// \brief Excludes a range of symbols from this set
-        symbol_set& operator&=(const symbol_range& exclude);
+        void exclude(const symbol_set& exclude);
+
+        /// \brief Excludes a range of symbols from this set
+        void exclude(const symbol_range& exclude);
+        
+        /// \brief Inverts this set
+        void invert();
+        
+        /// \brief Returns an inverted set
+        inline symbol_set operator~() const { symbol_set result = *this; result.invert(); return result; }
         
         /// \brief Merges this symbol set with another
         inline symbol_set operator|(const symbol_set& mergeWith) const { symbol_set result = *this; result |= mergeWith; return result; }
@@ -71,11 +94,17 @@ namespace dfa {
         /// \brief Merges this symbol set with another
         inline symbol_set operator|(const symbol_range& mergeWith) const { symbol_set result = *this; result |= mergeWith; return result; }
         
+        /// \brief Restricts this set to the symbols common between two sets
+        inline symbol_set operator&(const symbol_set& andWith) const { symbol_set result = *this; result &= andWith; return result; }
+
+        /// \brief Restricts this set to the symbols common between two sets
+        inline symbol_set operator&(const symbol_range& andWith) const { symbol_set result = *this; result &= andWith; return result; }
+        
         /// \brief Excludes a range of symbols from this set
-        inline symbol_set operator&(const symbol_set& exclude) const { symbol_set result = *this; result &= exclude; return result; }
+        inline symbol_set excluding(const symbol_set& toExclude) const { symbol_set result = *this; result.exclude(toExclude); return result; }
 
         /// \brief Excludes a range of symbols from this set
-        inline symbol_set operator&(const symbol_range& exclude) const { symbol_set result = *this; result &= exclude; return result; }
+        inline symbol_set excluding(const symbol_range& toExclude) const { symbol_set result = *this; result.exclude(toExclude); return result; }
         
     public:
         /// \brief True if the specified symbol is in this set
