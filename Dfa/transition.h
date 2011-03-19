@@ -16,7 +16,9 @@ namespace dfa {
     class transition {
     private:
         /// \brief The range of symbols that this transition will occur on
-        int m_Symbol;
+        ///
+        /// This identifier usually maps into a symbol set in a symbol_map object
+        int m_SymbolSet;
     };
 }
 

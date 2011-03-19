@@ -22,6 +22,8 @@
 		4BD7FE3C132D526C00025433 /* test_fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3A132D526C00025433 /* test_fixture.cpp */; };
 		4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3D132D53AF00025433 /* dfa_range.cpp */; };
 		4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */; };
+		4BD7FE461335127A00025433 /* symbol_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE441335127800025433 /* symbol_map.cpp */; };
+		4BD7FE471335127A00025433 /* symbol_map.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE451335127900025433 /* symbol_map.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +62,8 @@
 		4BD7FE3E132D53AF00025433 /* dfa_range.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_range.h; sourceTree = "<group>"; };
 		4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_symbol_set.cpp; sourceTree = "<group>"; };
 		4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_symbol_set.h; sourceTree = "<group>"; };
+		4BD7FE441335127800025433 /* symbol_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = symbol_map.cpp; sourceTree = "<group>"; };
+		4BD7FE451335127900025433 /* symbol_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = symbol_map.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +123,8 @@
 				4BD7FE13132D08AA00025433 /* state.cpp */,
 				4BD7FE18132D098900025433 /* transition.h */,
 				4BD7FE17132D098900025433 /* transition.cpp */,
+				4BD7FE451335127900025433 /* symbol_map.h */,
+				4BD7FE441335127800025433 /* symbol_map.cpp */,
 				4BD7FE24132D0E4B00025433 /* symbol_set.h */,
 				4BD7FE23132D0E4B00025433 /* symbol_set.cpp */,
 				4BD7FE28132D0ED500025433 /* range.h */,
@@ -162,6 +168,7 @@
 				4BD7FE1A132D098A00025433 /* transition.h in Headers */,
 				4BD7FE26132D0E4B00025433 /* symbol_set.h in Headers */,
 				4BD7FE2A132D0ED600025433 /* range.h in Headers */,
+				4BD7FE471335127A00025433 /* symbol_map.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,6 +242,7 @@
 				4BD7FE19132D098A00025433 /* transition.cpp in Sources */,
 				4BD7FE25132D0E4B00025433 /* symbol_set.cpp in Sources */,
 				4BD7FE29132D0ED600025433 /* range.cpp in Sources */,
+				4BD7FE461335127A00025433 /* symbol_map.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
