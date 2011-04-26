@@ -15,6 +15,7 @@
 		4B1A91B113670B600018E595 /* ndfa_state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91AF13670B600018E595 /* ndfa_state.h */; };
 		4B1A91B413670BE30018E595 /* remapped_symbol_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B213670BE30018E595 /* remapped_symbol_map.cpp */; };
 		4B1A91B513670BE30018E595 /* remapped_symbol_map.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91B313670BE30018E595 /* remapped_symbol_map.h */; };
+		4B1A91B8136720DE0018E595 /* dfa_symbol_deduplicate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -55,6 +56,8 @@
 		4B1A91AF13670B600018E595 /* ndfa_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa_state.h; sourceTree = "<group>"; };
 		4B1A91B213670BE30018E595 /* remapped_symbol_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = remapped_symbol_map.cpp; sourceTree = "<group>"; };
 		4B1A91B313670BE30018E595 /* remapped_symbol_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = remapped_symbol_map.h; sourceTree = "<group>"; };
+		4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_symbol_deduplicate.cpp; sourceTree = "<group>"; };
+		4B1A91B7136720DE0018E595 /* dfa_symbol_deduplicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_symbol_deduplicate.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -176,6 +179,8 @@
 				4BD7FE3E132D53AF00025433 /* dfa_range.h */,
 				4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */,
 				4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */,
+				4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */,
+				4B1A91B7136720DE0018E595 /* dfa_symbol_deduplicate.h */,
 			);
 			name = Dfa;
 			sourceTree = "<group>";
@@ -286,6 +291,7 @@
 				4BD7FE3C132D526C00025433 /* test_fixture.cpp in Sources */,
 				4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */,
 				4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */,
+				4B1A91B8136720DE0018E595 /* dfa_symbol_deduplicate.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,6 +10,7 @@
 
 #include "dfa_range.h"
 #include "dfa_symbol_set.h"
+#include "dfa_symbol_deduplicate.h"
 
 using namespace std;
 
@@ -26,8 +27,9 @@ static void run(test_fixture& fixture) {
 int main (int argc, const char * argv[])
 {
     // Run the DFA tests
-    test_dfa_range dfa_range;       run(dfa_range);
-    test_dfa_symbol_set symbol_set; run(symbol_set);
+    test_dfa_range              dfa_range;  run(dfa_range);
+    test_dfa_symbol_set         symbol_set; run(symbol_set);
+    test_dfa_symbol_deduplicate dedupe;     run(dedupe);
     
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;
