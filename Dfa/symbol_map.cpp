@@ -13,6 +13,10 @@ using namespace dfa;
 
 static symbol_set nosymbols;
 
+/// \brief Destructor
+symbol_map::~symbol_map() {
+}
+
 /// \brief Returns an identifier for a set of symbols (assigning a new one as needed)
 int symbol_map::identifier_for_symbols(const symbol_set& symbols) {
     // Try to find this symbol set in this object

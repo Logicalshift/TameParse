@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _DFA_TRANISTION_H
+#ifndef _DFA_TRANSITION_H
 #define _DFA_TRANSITION_H
 
 #include "symbol_set.h"

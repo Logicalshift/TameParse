@@ -39,6 +39,9 @@ namespace dfa {
         /// \brief Creates a new state with the specified identifier
         explicit state(int identifier);
         
+        /// \brief Destructor
+        virtual ~state();
+        
     public:
         /// \brief Adds a new transition to this state
         void add(const transition& newTransition);

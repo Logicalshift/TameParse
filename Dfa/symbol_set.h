@@ -55,6 +55,9 @@ namespace dfa {
         /// \brief Creates a new symbol set by copying an old one
         symbol_set(const symbol_set& copyFrom);
         
+        /// \brief Destructor
+        virtual ~symbol_set();
+        
     public:
         /// \brief Merges this symbol set with another
         symbol_set& operator|=(const symbol_set& mergeWith);

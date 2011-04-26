@@ -29,6 +29,9 @@ namespace dfa {
         symbol_id_map m_IdForSymbols;
 
     public:
+        /// \brief Destructor
+        virtual ~symbol_map();
+        
         /// \brief Returns an identifier for a set of symbols (assigning a new one as needed)
         int identifier_for_symbols(const symbol_set& symbols);
         

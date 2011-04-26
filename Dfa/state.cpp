@@ -10,6 +10,10 @@
 
 using namespace dfa;
 
+/// \brief Destructor
+state::~state() {
+}
+
 /// \brief Copies a state
 state::state(const state& copyFrom) 
 : m_Identifier(copyFrom.m_Identifier) 

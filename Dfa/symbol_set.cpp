@@ -25,6 +25,11 @@ symbol_set::symbol_set(const symbol_set& copyFrom)
 : m_Symbols(copyFrom.m_Symbols) {
 }
 
+/// \brief Destructor
+symbol_set::~symbol_set() {
+}
+
+
 /// \brief Merges this symbol set with another
 symbol_set& symbol_set::operator|=(const symbol_set& mergeWith) {
     // Merge each of the ranges in turn
