@@ -9,7 +9,7 @@
 #ifndef _DFA_TRANSITION_H
 #define _DFA_TRANSITION_H
 
-#include "symbol_set.h"
+#include "Dfa/symbol_set.h"
 
 namespace dfa {
     /// \brief Description of a transition in a (N)DFA

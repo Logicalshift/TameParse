@@ -10,23 +10,34 @@
 #define _DFA_NDFA_H
 
 #include <vector>
+#include <map>
 
-#include "state.h"
-#include "symbol_set.h"
-#include "symbol_map.h"
+#include "Dfa/state.h"
+#include "Dfa/accept_action.h"
+#include "Dfa/symbol_set.h"
+#include "Dfa/symbol_map.h"
 
 namespace dfa {
-    // \brief Class representing a NDFA (non-deterministic finite state automaton)
+    /// \brief Class representing a NDFA (non-deterministic finite state automaton)
     class ndfa {
     private:
         /// \brief A structure containing the states making up this ndfa
         typedef std::vector<state> state_list;
+        
+        /// \brief List of acceptance actions for a state
+        typedef std::vector<accept_action*> accept_action_list;
+        
+        /// \brief List of acceptance actions for a state
+        typedef std::map<int, accept_action_list> accept_action_for_state;
         
         /// \brief The states in this NDFA
         state_list m_States;
         
         /// \brief The symbol sets in this NDFA
         symbol_map m_Symbols;
+        
+        /// \brief The acceptance actions for a particular state
+        accept_action_for_state m_Accept;
         
     private:
         /// \brief The current state (used while building up the NDFA)
@@ -36,10 +47,10 @@ namespace dfa {
         /// \brief Copies an existing NDFA
         ndfa(const ndfa& copyFrom);
         
-        // \brief Creates a new NDFA
+        /// \brief Creates a new NDFA
         ndfa();
         
-        // \brief Destructor
+        /// \brief Destructor
         virtual ~ndfa();
         
     public:
@@ -71,7 +82,13 @@ namespace dfa {
         ///
         /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
         /// when it is evaluated.
-        void accept(int state, int symbol, bool eager = false);
+        void accept(const accept_action& action);
+        
+        /// \brief Marks the current state as an accepting state, returning the specified symbol
+        ///
+        /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
+        /// when it is evaluated.
+        void accept(int state, const accept_action& action);
     };
 }
     

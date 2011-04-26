@@ -26,6 +26,12 @@ ndfa::ndfa()
 
 // \brief Destructor
 ndfa::~ndfa() {
+    // Destroy any accept actions that might be in this NDFA
+    for (accept_action_for_state::iterator acceptState = m_Accept.begin(); acceptState != m_Accept.end(); acceptState++) {
+        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); actionList++) {
+            delete *actionList;
+        }
+    }
 }
 
 /// \brief While building an NDFA: moves to the specified state
@@ -90,4 +96,30 @@ void ndfa::add_transition(int oldState, const symbol_set& symbols, int newState)
     
     // Add as a transition to the current state
     m_States[oldState].add(transition(symbolId, newState));
+}
+
+/// \brief Marks the current state as an accepting state (for the specified symbol)
+///
+/// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
+/// when it is evaluated.
+void ndfa::accept(int symbol, bool eager) {
+    accept(accept_action(symbol, eager));
+}
+
+/// \brief Marks the current state as an accepting state (for the specified symbol)
+///
+/// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
+/// when it is evaluated.
+void ndfa::accept(const accept_action& action) {
+    accept(m_CurrentState, action);
+}
+
+
+/// \brief Marks the current state as an accepting state, returning the specified symbol
+///
+/// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
+/// when it is evaluated.
+void ndfa::accept(int state, const accept_action& action) {
+    // Clone the action and store it
+    m_Accept[state].push_back(action.clone());
 }

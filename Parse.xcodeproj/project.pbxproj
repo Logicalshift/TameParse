@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4B1A91A71366FF1F0018E595 /* ndfa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91A51366FF1F0018E595 /* ndfa.cpp */; };
 		4B1A91A81366FF1F0018E595 /* ndfa.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91A61366FF1F0018E595 /* ndfa.h */; };
+		4B1A91AC136707680018E595 /* accept_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91AA136707680018E595 /* accept_action.cpp */; };
+		4B1A91AD136707680018E595 /* accept_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91AB136707680018E595 /* accept_action.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -43,6 +45,8 @@
 /* Begin PBXFileReference section */
 		4B1A91A51366FF1F0018E595 /* ndfa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ndfa.cpp; sourceTree = "<group>"; };
 		4B1A91A61366FF1F0018E595 /* ndfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa.h; sourceTree = "<group>"; };
+		4B1A91AA136707680018E595 /* accept_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = accept_action.cpp; sourceTree = "<group>"; };
+		4B1A91AB136707680018E595 /* accept_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = accept_action.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -125,6 +129,8 @@
 			children = (
 				4B1A91A61366FF1F0018E595 /* ndfa.h */,
 				4B1A91A51366FF1F0018E595 /* ndfa.cpp */,
+				4B1A91AB136707680018E595 /* accept_action.h */,
+				4B1A91AA136707680018E595 /* accept_action.cpp */,
 				4BD7FE14132D08AA00025433 /* state.h */,
 				4BD7FE13132D08AA00025433 /* state.cpp */,
 				4BD7FE18132D098900025433 /* transition.h */,
@@ -176,6 +182,7 @@
 				4BD7FE2A132D0ED600025433 /* range.h in Headers */,
 				4BD7FE471335127A00025433 /* symbol_map.h in Headers */,
 				4B1A91A81366FF1F0018E595 /* ndfa.h in Headers */,
+				4B1A91AD136707680018E595 /* accept_action.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +258,7 @@
 				4BD7FE29132D0ED600025433 /* range.cpp in Sources */,
 				4BD7FE461335127A00025433 /* symbol_map.cpp in Sources */,
 				4B1A91A71366FF1F0018E595 /* ndfa.cpp in Sources */,
+				4B1A91AC136707680018E595 /* accept_action.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
