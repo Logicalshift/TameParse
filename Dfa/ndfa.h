@@ -20,7 +20,7 @@
 namespace dfa {
     /// \brief Class representing a NDFA (non-deterministic finite state automaton)
     class ndfa {
-    private:
+    protected:
         /// \brief A structure containing the states making up this ndfa
         typedef std::vector<state> state_list;
         
@@ -30,18 +30,23 @@ namespace dfa {
         /// \brief List of acceptance actions for a state
         typedef std::map<int, accept_action_list> accept_action_for_state;
         
+    private:
         /// \brief The states in this NDFA
-        state_list m_States;
+        state_list* m_States;
         
         /// \brief The symbol sets in this NDFA
         symbol_map* m_Symbols;
         
         /// \brief The acceptance actions for a particular state
-        accept_action_for_state m_Accept;
+        accept_action_for_state* m_Accept;
         
     private:
         /// \brief The current state (used while building up the NDFA)
         int m_CurrentState;
+        
+    protected:
+        /// \brief Creates a new NDFA with the specified data
+        ndfa(state_list* states, symbol_map* symbols, accept_action_for_state* accept);
         
     public:
         /// \brief Copies an existing NDFA
@@ -89,6 +94,13 @@ namespace dfa {
         /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
         /// when it is evaluated.
         void accept(int state, const accept_action& action);
+        
+    public:
+        /// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
+        ///
+        /// This is the first stage along the road to producing a DFA that can be run as a lexer: note that if further transitions are added to the
+        /// new NDFA, it may lose the unique symbol sets
+        ndfa* ndfa_with_unique_symbols() const;
     };
 }
     
