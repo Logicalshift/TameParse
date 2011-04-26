@@ -109,15 +109,6 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
         justUs.insert(identifier);
 
         while (remaining.upper() != remaining.lower()) {
-            cout << "Remaining: " << remaining.lower() << "-" << remaining.upper() << endl;
-            cout << "Sets:";
-            for (sets_for_range::iterator it = sets.begin(); it != sets.end(); it++) {
-                cout << " " << it->first.lower() << "-" << it->first.upper();
-            }
-            cout << endl;
-            if (firstGreaterThan == sets.end()) cout << "At end" << endl;
-            else cout << "Position: " << firstGreaterThan->first.lower() << "-" << firstGreaterThan->first.upper() << endl;
-            
             // If we're at the end, we can just add the remaining set and stop
             if (firstGreaterThan == sets.end()) {
                 sets[remaining] = justUs;
@@ -162,13 +153,6 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             // Move on
             firstGreaterThan++;
         }
-                 
-        cout << "Done adding" << endl;
-        cout << "Sets:";
-        for (sets_for_range::iterator it = sets.begin(); it != sets.end(); it++) {
-            cout << " " << it->first.lower() << "-" << it->first.upper();
-        }
-        cout << endl;
     }
 }
 
