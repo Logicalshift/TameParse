@@ -34,7 +34,7 @@ namespace dfa {
         state_list m_States;
         
         /// \brief The symbol sets in this NDFA
-        symbol_map m_Symbols;
+        symbol_map* m_Symbols;
         
         /// \brief The acceptance actions for a particular state
         accept_action_for_state m_Accept;

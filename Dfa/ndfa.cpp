@@ -14,13 +14,14 @@ using namespace dfa;
 /// \brief Copies an existing NDFA
 ndfa::ndfa(const ndfa& copyFrom) 
 : m_States(copyFrom.m_States)
-, m_Symbols(copyFrom.m_Symbols)
+, m_Symbols(new symbol_map(*copyFrom.m_Symbols))
 , m_CurrentState(0) {
 }
 
 // \brief Creates a new NDFA
 ndfa::ndfa() 
-: m_CurrentState(0) {
+: m_CurrentState(0)
+, m_Symbols(new symbol_map()) {
     m_States.push_back(state(0));
 }
 
@@ -32,6 +33,9 @@ ndfa::~ndfa() {
             delete *actionList;
         }
     }
+    
+    // Destroy the symbol map
+    delete m_Symbols;
 }
 
 /// \brief While building an NDFA: moves to the specified state
@@ -92,7 +96,7 @@ void ndfa::add_transition(int oldState, const symbol_set& symbols, int newState)
     if (newState < 0 || newState >= m_States.size()) return;
     
     // Get the ID for this symbol set
-    int symbolId = m_Symbols.identifier_for_symbols(symbols);
+    int symbolId = m_Symbols->identifier_for_symbols(symbols);
     
     // Add as a transition to the current state
     m_States[oldState].add(transition(symbolId, newState));
