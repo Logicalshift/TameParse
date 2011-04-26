@@ -47,6 +47,9 @@ namespace dfa {
         void add(const transition& newTransition);
         
     public:
+        /// \brief The identifier for this state
+        inline int identifier() { return m_Identifier; }
+        
         /// \brief The first transition of this state
         inline iterator begin() const { return m_Transitions.begin(); }
         

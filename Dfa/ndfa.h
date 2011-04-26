@@ -10,6 +10,7 @@
 #define _DFA_NDFA_H
 
 #include <vector>
+#include <set>
 #include <map>
 
 #include "Dfa/state.h"
@@ -98,9 +99,24 @@ namespace dfa {
     public:
         /// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
         ///
-        /// This is the first stage along the road to producing a DFA that can be run as a lexer: note that if further transitions are added to the
-        /// new NDFA, it may lose the unique symbol sets
-        ndfa* ndfa_with_unique_symbols() const;
+        /// Note that if further transitions are added to the new NDFA, it may lose the unique symbol sets
+        ndfa* to_ndfa_with_unique_symbols() const;
+        
+        /// \brief Creates a DFA from this NDFA
+        inline ndfa* to_dfa(int initialState = 0) {
+            std::vector<int> initial;
+            initial.push_back(initialState);
+            
+            return to_dfa(initial);
+        }
+        
+        /// \brief Creates a DFA from this NDFA
+        ///
+        /// Note that if further transitions are added to the DFA, it may no longer be deterministic.
+        /// Use this call on the result of calling to_ndfa_with_unique_symbols.
+        ///
+        /// You can supply a list of initial states to create a DFA with multiple start conditions. These will become states 0, 1, 2, etc in the final DFA.
+        ndfa* to_dfa(const std::vector<int>& initialState) const;
     };
 }
     

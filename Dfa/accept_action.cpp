@@ -29,3 +29,15 @@ accept_action* accept_action::clone() const {
 
 /// \brief Destructor
 accept_action::~accept_action() { }
+
+/// \brief Determines if this action is equivalent to another
+bool accept_action::operator==(const accept_action* compareTo) const {
+    // Deal with the NULL case first
+    if (!compareTo) return false;
+    
+    // Compare the target state to this one
+    if (m_Symbol != compareTo->symbol())    return false;
+    if (m_Eager != compareTo->eager())      return false;
+    
+    return true;
+}
