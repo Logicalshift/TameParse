@@ -22,6 +22,18 @@ namespace dfa {
         T m_Upper;
         
     public:
+        /// \brief Comparator functor for the symbol store set. 
+        /// 
+        /// We compare only by the lower bounds (so any range with the same lower bounds is considered equal; this works as we store a set of 
+        /// non-overlapping ranges)
+        class sort_by_lower {
+        public:
+            inline bool operator()(const range<T>& a, const range<T>& b) {
+                return a.lower() < b.lower();
+            }
+        };
+        
+    public:
         /// \brief Constructs a range containing a single value
         inline range(T value) {
             m_Lower = value;

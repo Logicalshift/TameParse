@@ -29,6 +29,9 @@ namespace dfa {
         symbol_id_map m_IdForSymbols;
 
     public:
+        /// \brief Iterator
+        typedef symbol_id_map::const_iterator iterator;
+        
         /// \brief Destructor
         virtual ~symbol_map();
         
@@ -37,6 +40,12 @@ namespace dfa {
         
         /// \brief Returns the symbol set for a particular identifier
         const symbol_set& operator[](int identifier) const;
+        
+        /// \brief First symbol set/ID pair
+        inline iterator begin() const { return m_IdForSymbols.begin(); }
+        
+        /// \brief Last symbol set/ID pair
+        iterator end() const { return m_IdForSymbols.end(); }
     };
 }
 

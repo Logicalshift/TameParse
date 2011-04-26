@@ -27,20 +27,9 @@ namespace dfa {
     private:
         /// \brief Maximum possible symbol
         static const int c_MaxSymbol = 0x7fffffff;
-        
-        /// \brief Comparator functor for the symbol store set. 
-        /// 
-        /// We compare only by the lower bounds (so any range with the same lower bounds is considered equal; this works as we store a set of 
-        /// non-overlapping ranges)
-        class sort_by_lower {
-        public:
-            inline bool operator()(const symbol_range& a, const symbol_range& b) {
-                return a.lower() < b.lower();
-            }
-        };
 
         /// \brief Type of a set of symbols
-        typedef std::set<symbol_range, sort_by_lower> symbol_store;
+        typedef std::set<symbol_range, range<int>::sort_by_lower> symbol_store;
         
         /// \brief The symbols in this set
         symbol_store m_Symbols;
@@ -57,6 +46,16 @@ namespace dfa {
         
         /// \brief Destructor
         virtual ~symbol_set();
+        
+    public:
+        /// \brief Range iterator
+        typedef symbol_store::const_iterator iterator;
+        
+        /// \brief First range of symbols in this set
+        iterator begin() const { return m_Symbols.begin(); }
+        
+        // \brief Last range of symbols in this set
+        iterator end() const { return m_Symbols.end(); }
         
     public:
         /// \brief Merges this symbol set with another
