@@ -21,17 +21,24 @@
 namespace dfa {
     /// \brief Class representing a NDFA (non-deterministic finite state automaton)
     class ndfa {
+    public:
+        /// \brief List of acceptance actions for a state
+        typedef std::vector<accept_action*> accept_action_list;
+        
     protected:
         /// \brief A structure containing the states making up this ndfa
         typedef std::vector<state> state_list;
         
         /// \brief List of acceptance actions for a state
-        typedef std::vector<accept_action*> accept_action_list;
-        
-        /// \brief List of acceptance actions for a state
         typedef std::map<int, accept_action_list> accept_action_for_state;
         
     private:
+        /// \brief Empty action list
+        static const accept_action_list s_NoActions;
+        
+        /// \brief A placeholder 'no state' representation
+        static const state& s_NoState;
+        
         /// \brief The states in this NDFA
         state_list* m_States;
         
@@ -95,6 +102,38 @@ namespace dfa {
         /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
         /// when it is evaluated.
         void accept(int state, const accept_action& action);
+        
+    public:
+        /// \brief Number of states in this (N)DFA
+        inline int count_states() const { return (int)m_States->size(); }
+        
+        /// \brief The symbol map for this (N)DFA
+        inline symbol_map& symbols() { return *m_Symbols; }
+        
+        /// \brief The symbol map for this (N)DFA
+        inline const symbol_map& symbols() const { return *m_Symbols; }
+        
+        /// \brief The accept actions that apply to the specified state
+        inline const accept_action_list& actions_for_state(int state) const {
+            // No actions for an invalid state
+            if (state < 0 || state >= count_states()) return s_NoActions;
+            
+            // Find the state
+            accept_action_for_state::const_iterator found = m_Accept->find(state);
+            if (found == m_Accept->end()) return s_NoActions;
+         
+            // Produce the results
+            return found->second;
+        }
+        
+        /// \brief The state with the specified ID
+        inline const state& get_state(int stateNum) const {
+            // Use the empty state if the value is out of range
+            if (stateNum < 0 || stateNum >= count_states()) return s_NoState;
+            
+            // Find the state
+            return (*m_States)[stateNum];
+        }
         
     public:
         /// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets

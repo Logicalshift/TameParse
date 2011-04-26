@@ -15,6 +15,12 @@
 using namespace std;
 using namespace dfa;
 
+/// \brief Empty action list
+const ndfa::accept_action_list ndfa::s_NoActions;
+
+/// \brief A placeholder 'no state' representation
+const state& ndfa::s_NoState(-1);
+
 /// \brief Copies an existing NDFA
 ndfa::ndfa(const ndfa& copyFrom)
 : m_States(new state_list(*copyFrom.m_States))
