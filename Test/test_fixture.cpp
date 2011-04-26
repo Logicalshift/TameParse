@@ -14,7 +14,9 @@ using namespace std;
 
 /// \brief Creates a new test fixture with the specified name
 test_fixture::test_fixture(std::string name) 
-: m_Name(name) {
+: m_Name(name)
+, m_TestsRun(0)
+, m_TestsFailed(0) {
 }
 
 /// \brief Reports on the result of an individual test
