@@ -10,6 +10,12 @@
 
 using namespace dfa;
 
+/// \brief Creates a new DFA transition
+transition::transition(int symbolSet, int newState)
+: m_SymbolSet(symbolSet)
+, m_NewState(newState) {
+}
+
 /// \brief Determines if this set represents the same as another set
 bool transition::operator==(const transition& compareTo) const {
     return compareTo.m_NewState == m_NewState && compareTo.m_SymbolSet == m_SymbolSet;
