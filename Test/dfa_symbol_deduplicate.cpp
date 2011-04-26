@@ -64,6 +64,8 @@ void test_dfa_symbol_deduplicate::run_tests() {
     has0to10   = false;
     has10to20  = false;
     has20to30  = false;
+    bool has30to40 = false;
+    bool has40to50 = false;
     
     for (symbol_map::iterator it = no_duplicates->begin(); it != no_duplicates->end(); it++) {
         count++;
@@ -72,20 +74,26 @@ void test_dfa_symbol_deduplicate::run_tests() {
         
         if (it->first == range<int>(0, 10)) {
             has0to10 = true;
-            report("OldSet4", newSyms.find(firstSet) != newSyms.end() && newSyms.find(secondSet) == newSyms.end() && newSyms.size() == 1);
+            report("OldSet4", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
         } else if (it->first == range<int>(10, 20)) {
             has10to20 = true;
-            report("OldSet5", newSyms.find(firstSet) != newSyms.end() && newSyms.find(secondSet) != newSyms.end() && newSyms.size() == 2);
+            report("OldSet5", newSyms.find(firstSet) != newSyms.end() && newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 2);
         } else if (it->first == range<int>(20, 30)) {
             has20to30 = true;
-            report("OldSet6", newSyms.find(firstSet) == newSyms.end() && newSyms.find(secondSet) != newSyms.end() && newSyms.size() == 1);
+            report("OldSet6", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
+        } else if (it->first == range<int>(30, 40)) {
+            has30to40 = true;
+            report("OldSet7", newSyms.find(secondSet) != newSyms.end() && newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 2);
+        } else if (it->first == range<int>(40, 50)) {
+            has40to50 = true;
+            report("OldSet8", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
         } else {
             extras++;
         }
     }
     
-    report("HasAllSets2", has0to10 && has10to20 && has20to30);
-    report("NoExtras2", extras == 0 && count == 3);
+    report("HasAllSets2", has0to10 && has10to20 && has20to30 && has30to40 && has40to50);
+    report("NoExtras2", extras == 0 && count == 5);
     
     delete no_duplicates;
 }
