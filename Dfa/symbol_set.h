@@ -119,7 +119,7 @@ namespace dfa {
     public:
         /// \brief True if this is an empty symbol set
         inline bool empty() {
-            
+            return m_Symbols.empty();
         }
         
         /// \brief True if the specified symbol is in this set

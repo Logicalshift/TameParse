@@ -190,6 +190,11 @@ namespace dfa {
                 return *this;
             }
             
+            /// \brief Adds an accept action for the current state
+            inline void operator>>(const accept_action& accept) {
+                m_Ndfa->accept(accept);
+            }
+            
             /// \brief Returns the current state object represented by this constructor
             inline operator const state&() {
                 return m_Ndfa->get_state(m_CurrentState);

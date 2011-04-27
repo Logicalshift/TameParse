@@ -18,6 +18,7 @@
 		4B1A91B8136720DE0018E595 /* dfa_symbol_deduplicate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */; };
 		4B1A91BB136821CB0018E595 /* epsilon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B9136821CB0018E595 /* epsilon.cpp */; };
 		4B1A91BC136821CB0018E595 /* epsilon.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91BA136821CB0018E595 /* epsilon.h */; };
+		4B1A91C113682E050018E595 /* dfa_ndfa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91BD13682AAF0018E595 /* dfa_ndfa.cpp */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -62,6 +63,8 @@
 		4B1A91B7136720DE0018E595 /* dfa_symbol_deduplicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_symbol_deduplicate.h; sourceTree = "<group>"; };
 		4B1A91B9136821CB0018E595 /* epsilon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = epsilon.cpp; sourceTree = "<group>"; };
 		4B1A91BA136821CB0018E595 /* epsilon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = epsilon.h; sourceTree = "<group>"; };
+		4B1A91BD13682AAF0018E595 /* dfa_ndfa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_ndfa.cpp; sourceTree = "<group>"; };
+		4B1A91BE13682AAF0018E595 /* dfa_ndfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_ndfa.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -142,26 +145,26 @@
 		4BD7FE12132D087800025433 /* Dfa */ = {
 			isa = PBXGroup;
 			children = (
-				4B1A91A61366FF1F0018E595 /* ndfa.h */,
 				4B1A91A51366FF1F0018E595 /* ndfa.cpp */,
-				4B1A91AF13670B600018E595 /* ndfa_state.h */,
+				4B1A91A61366FF1F0018E595 /* ndfa.h */,
 				4B1A91AE13670B600018E595 /* ndfa_state.cpp */,
-				4B1A91AB136707680018E595 /* accept_action.h */,
+				4B1A91AF13670B600018E595 /* ndfa_state.h */,
 				4B1A91AA136707680018E595 /* accept_action.cpp */,
-				4BD7FE14132D08AA00025433 /* state.h */,
+				4B1A91AB136707680018E595 /* accept_action.h */,
 				4BD7FE13132D08AA00025433 /* state.cpp */,
-				4BD7FE18132D098900025433 /* transition.h */,
+				4BD7FE14132D08AA00025433 /* state.h */,
 				4BD7FE17132D098900025433 /* transition.cpp */,
-				4B1A91B313670BE30018E595 /* remapped_symbol_map.h */,
+				4BD7FE18132D098900025433 /* transition.h */,
 				4B1A91B213670BE30018E595 /* remapped_symbol_map.cpp */,
-				4BD7FE451335127900025433 /* symbol_map.h */,
+				4B1A91B313670BE30018E595 /* remapped_symbol_map.h */,
 				4BD7FE441335127800025433 /* symbol_map.cpp */,
-				4B1A91BA136821CB0018E595 /* epsilon.h */,
+				4BD7FE451335127900025433 /* symbol_map.h */,
 				4B1A91B9136821CB0018E595 /* epsilon.cpp */,
-				4BD7FE24132D0E4B00025433 /* symbol_set.h */,
+				4B1A91BA136821CB0018E595 /* epsilon.h */,
 				4BD7FE23132D0E4B00025433 /* symbol_set.cpp */,
-				4BD7FE28132D0ED500025433 /* range.h */,
+				4BD7FE24132D0E4B00025433 /* symbol_set.h */,
 				4BD7FE27132D0ED500025433 /* range.cpp */,
+				4BD7FE28132D0ED500025433 /* range.h */,
 			);
 			path = Dfa;
 			sourceTree = "<group>";
@@ -187,6 +190,8 @@
 				4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */,
 				4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */,
 				4B1A91B7136720DE0018E595 /* dfa_symbol_deduplicate.h */,
+				4B1A91BD13682AAF0018E595 /* dfa_ndfa.cpp */,
+				4B1A91BE13682AAF0018E595 /* dfa_ndfa.h */,
 			);
 			name = Dfa;
 			sourceTree = "<group>";
@@ -300,6 +305,7 @@
 				4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */,
 				4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */,
 				4B1A91B8136720DE0018E595 /* dfa_symbol_deduplicate.cpp in Sources */,
+				4B1A91C113682E050018E595 /* dfa_ndfa.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
