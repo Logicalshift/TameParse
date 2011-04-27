@@ -18,14 +18,19 @@ void test_dfa_ndfa::run_tests() {
     twoAs >> 'a' >> accept_action(0);
     twoAs >> 'a' >> accept_action(1);
     
+    // Check that it looks OK (should be 3 states)
+    report("DFA-create1", twoAs.count_states() == 3);
+    
     // Turn into a DFA
     ndfa* twoAsDfa = twoAs.to_dfa();
     
     // Should have two states
-    report("DFA-ndfa-reduced1", twoAsDfa->count_states() == 2);
+    int numStates = twoAsDfa->count_states();
+    report("DFA-ndfa-reduced1", numStates == 2);
     
     // Both accept actions should be in the second state
-    report("DFA-ndfa-accept1", twoAsDfa->actions_for_state(1).size() == 2);
+    size_t actionsForSecond = twoAsDfa->actions_for_state(1).size();
+    report("DFA-ndfa-accept1", actionsForSecond == 2);
     
     delete twoAsDfa;
 }

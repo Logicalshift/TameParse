@@ -176,7 +176,8 @@ namespace dfa {
                     nextState = m_Ndfa->add_state();
                 }
                 
-                m_Ndfa->add_transition(symbols, nextState);
+                m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
+                m_CurrentState = nextState;
                 
                 return *this;
             }
@@ -192,7 +193,7 @@ namespace dfa {
             
             /// \brief Adds an accept action for the current state
             inline void operator>>(const accept_action& accept) {
-                m_Ndfa->accept(accept);
+                m_Ndfa->accept(m_CurrentState, accept);
             }
             
             /// \brief Returns the current state object represented by this constructor
