@@ -23,10 +23,22 @@ const state& ndfa::s_NoState(-1);
 
 /// \brief Copies an existing NDFA
 ndfa::ndfa(const ndfa& copyFrom)
-: m_States(new state_list(*copyFrom.m_States))
+: m_States(new state_list())
 , m_Symbols(new symbol_map(*copyFrom.m_Symbols))
-, m_Accept(new accept_action_for_state(*copyFrom.m_Accept))
+, m_Accept(new accept_action_for_state())
 , m_CurrentState(0) {
+    // Copy the states
+    for (state_list::const_iterator it = copyFrom.m_States->begin(); it != copyFrom.m_States->end(); it++) {
+        m_States->push_back(new state(**it));
+    }
+    
+    // Copy the accept actions
+    for (accept_action_for_state::const_iterator it = copyFrom.m_Accept->begin(); it != copyFrom.m_Accept->end(); it++) {
+        accept_action_list& action = (*m_Accept)[it->first];
+        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
+            action.push_back((*actionIt)->clone());
+        }
+    }
 }
 
 // \brief Creates a new NDFA
@@ -35,7 +47,7 @@ ndfa::ndfa()
 , m_States(new state_list())
 , m_Accept(new accept_action_for_state())
 , m_Symbols(new symbol_map()) {
-    m_States->push_back(state(0));
+    m_States->push_back(new state(0));
 }
 
 /// \brief Creates a new NDFA with the specified data
@@ -54,6 +66,11 @@ ndfa::~ndfa() {
         for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); actionList++) {
             delete *actionList;
         }
+    }
+    
+    // Destroy any states
+    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+        delete *stateIt;
     }
     
     // Destroy the symbol map
@@ -84,8 +101,8 @@ int ndfa::goto_start() {
 
 /// \brief Adds a new state (with no transitions), and returns the ID for that state
 int ndfa::add_state() {
-    int     newStateId = (int)m_States->size();
-    state   newState(newStateId);
+    int     newStateId  = (int)m_States->size();
+    state*  newState    = new state(newStateId);
     
     m_States->push_back(newState);
     
@@ -123,7 +140,7 @@ void ndfa::add_transition(int oldState, const symbol_set& symbols, int newState)
     int symbolId = m_Symbols->identifier_for_symbols(symbols);
     
     // Add as a transition to the current state
-    (*m_States)[oldState].add(transition(symbolId, newState));
+    (*m_States)[oldState]->add(transition(symbolId, newState));
 }
 
 /// \brief Marks the current state as an accepting state (for the specified symbol)
@@ -166,11 +183,11 @@ ndfa* ndfa::to_ndfa_with_unique_symbols() const {
     // Recreate the states
     for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
         // Create a new state
-        states->push_back(state((int)states->size()));
-        state& newState = *(states->rbegin());
+        states->push_back(new state((int)states->size()));
+        state& newState = **(states->rbegin());
         
         // Create transitions for this state
-        for (state::iterator transit = stateIt->begin(); transit != stateIt->end(); transit++) {
+        for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); transit++) {
             // Get the new symbols for this transition
             const remapped_symbol_map::new_symbols& newSyms = symbols->old_symbols(transit->symbol_set());
             
@@ -260,7 +277,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         int stateId = (int)states->size();
         
         // Generate a state for this ID
-        states->push_back(state(stateId));
+        states->push_back(new state(stateId));
         
         // Add to the map
         if (stateMap.find(thisStateSet) == stateMap.end()) {
@@ -269,7 +286,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         }
         
         // Add to the list of states to process
-        remainingStates.push(remaining_entry(stateMap.find(thisStateSet)->first, (*states)[stateId]));
+        remainingStates.push(remaining_entry(stateMap.find(thisStateSet)->first, *(*states)[stateId]));
     }
     
     // Keep processing states until we stop generating new ones
@@ -284,7 +301,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         // For each state making up this state...
         for (state_set::const_iterator stateIt = next.first.begin(); stateIt != next.first.end(); stateIt++) {
             // Get this state
-            state& thisState = (*m_States)[*stateIt];
+            state& thisState = *(*m_States)[*stateIt];
             
             // For each transition in this state, add to the appropriate set
             for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
@@ -319,10 +336,10 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
                 targetState = stateMap.insert(pair<state_set, int>(transit->second, newStateId)).first;
                 
                 // Create the new state
-                states->push_back(state(newStateId));
+                states->push_back(new state(newStateId));
                 
                 // Add the new state to the list that need processiing
-                remainingStates.push(remaining_entry(targetState->first, (*states)[newStateId]));
+                remainingStates.push(remaining_entry(targetState->first, *(*states)[newStateId]));
             }
             
             // Add this transition

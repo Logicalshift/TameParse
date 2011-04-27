@@ -30,7 +30,7 @@ namespace dfa {
         
     protected:
         /// \brief A structure containing the states making up this ndfa
-        typedef std::vector<state> state_list;
+        typedef std::vector<state*> state_list;
         
         /// \brief List of acceptance actions for a state
         typedef std::map<int, accept_action_list> accept_action_for_state;
@@ -135,7 +135,7 @@ namespace dfa {
             if (stateNum < 0 || stateNum >= count_states()) return s_NoState;
             
             // Find the state
-            return (*m_States)[stateNum];
+            return *((*m_States)[stateNum]);
         }
         
     public:
