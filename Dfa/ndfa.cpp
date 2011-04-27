@@ -302,6 +302,8 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         transition_for_symbol statesForSymbol;
         
         // For each state making up this state...
+        bool isEager = false;
+        
         for (state_set::const_iterator stateIt = next.first.begin(); stateIt != next.first.end(); stateIt++) {
             // Get this state
             state& thisState = *(*m_States)[*stateIt];
@@ -319,10 +321,19 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             accept_action_for_state::const_iterator acceptForState = m_Accept->find(*stateIt);
             if (acceptForState != m_Accept->end()) {
                 for (accept_action_list::const_iterator acceptIt = acceptForState->second.begin(); acceptIt != acceptForState->second.end(); acceptIt++) {
+                    // Add this action
                     (*accept)[next.second.identifier()].push_back((*acceptIt)->clone());
+                    
+                    // Mark if it's eager
+                    if ((*acceptIt)->eager()) {
+                        isEager = true;
+                    }
                 }
             }
         }
+        
+        // If this state is 'eager' (ie, accepts immediately), then there's no point in generating any transitions from it
+        if (isEager) continue;
         
         // Generate the closures for epsilon transitions
         for (transition_for_symbol::iterator it = statesForSymbol.begin(); it != statesForSymbol.end(); it++) {
