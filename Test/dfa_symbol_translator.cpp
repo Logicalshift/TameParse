@@ -22,13 +22,14 @@ void test_dfa_symbol_translator::run_tests() {
     symbol_translator trans1(map1);
     
     // Check that it contains all symbols
-    report("size1", trans1.size() < 8192);
+    std::cout << trans1.size();
+    report("size1", trans1.size() < 32768);
     report("contains1-1", trans1.set_for_symbol(0) == allSymbols);
     report("contains1-2", trans1.set_for_symbol(256) == allSymbols);
     report("contains1-3", trans1.set_for_symbol(65536) == allSymbols);
     report("contains1-4", trans1.set_for_symbol(0x7ffffffe) == allSymbols);
     report("contains1-5", trans1.set_for_symbol(0x7fffffff) != allSymbols);
-    report_known_failure("contains1-6", trans1.set_for_symbol(-1) == symbol_set::null);
+    report("contains1-6", trans1.set_for_symbol(-1) == symbol_set::null);
 
     // Create a symbol map containing some symbol ranges
     symbol_map map2;
@@ -38,7 +39,7 @@ void test_dfa_symbol_translator::run_tests() {
     // Create a translator for it
     symbol_translator trans2(map2);
     
-    report("size2", trans2.size() < 8192);
+    report("size2", trans2.size() < 16384);
     report("contains2-1", trans2.set_for_symbol(0) == firstRange);
     report("contains2-2", trans2.set_for_symbol(31) == firstRange);
     report("contains2-3", trans2.set_for_symbol(32) == secondRange);

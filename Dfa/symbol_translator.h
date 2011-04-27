@@ -26,29 +26,36 @@ namespace dfa {
             static const int c_MaxIndex = (mask>>shift)+1;
             
             /// \brief null, or the symbols at this level
-            T* Symbols[c_MaxIndex];
+            T** Symbols;
             
             symbol_level() {
                 DefaultSymbol   = symbol_set::null;
-                
-                for (int x=0; x<c_MaxIndex; x++) {
-                    Symbols[x] = NULL;
-                }
+                Symbols         = NULL;
             }
             
             symbol_level(const symbol_level& copyFrom) {
-                for (int x=0; x<c_MaxIndex; x++) {
-                    if (copyFrom.Symbols[x]) {
-                        Symbols[x] = new T(*copyFrom.Symbols[x]);
-                    } else {
-                        Symbols[x] = NULL;
+                DefaultSymbol   = copyFrom.DefaultSymbol;
+                Symbols         = NULL;
+                
+                if (copyFrom.Symbols) {
+                    Symbols = new T*[c_MaxIndex];
+
+                    for (int x=0; x<c_MaxIndex; x++) {
+                        if (copyFrom.Symbols[x]) {
+                            Symbols[x] = new T(*copyFrom.Symbols[x]);
+                        } else {
+                            Symbols[x] = NULL;
+                        }
                     }
                 }
             }
             
             ~symbol_level() {
-                for (int x=0; x<c_MaxIndex; x++) {
-                    if (Symbols[x]) delete Symbols[x];
+                if (Symbols) {
+                    for (int x=0; x<c_MaxIndex; x++) {
+                        if (Symbols[x]) delete Symbols[x];
+                    }
+                    delete[] Symbols;
                 }
             }
             
@@ -80,6 +87,14 @@ namespace dfa {
                 
                 if (endIndex > c_MaxIndex-1) endIndex = c_MaxIndex-1;
                 
+                // Create the symbol set if needed
+                if (!Symbols) {
+                    Symbols = new T*[c_MaxIndex];
+                    for (int index=0; index < c_MaxIndex; index++) {
+                        Symbols[index] = NULL;
+                    }
+                }
+                
                 // Otherwise, create new entries (if needed) and add the range there as well
                 for (int index = startIndex; index <= endIndex; index++) {
                     // Create a new entry if needed
@@ -90,13 +105,9 @@ namespace dfa {
                 }
             }
             
-            /// \brief The range of this item
-            inline range<int> table_range(int base) {
-                return range<int>(base, ((mask>>shift)+1)<<shift);
-            }
-            
             /// \brief Looks up a value in this table
             inline int Lookup(int val) const {
+                if (!Symbols) return DefaultSymbol;
                 T* next = Symbols[(val&mask)>>shift];
                 if (!next) return DefaultSymbol;
                 
@@ -106,8 +117,11 @@ namespace dfa {
             /// \brief The size of this item in bytes (used when computing the required size in memory of a particular lexer)
             inline size_t size() const {
                 size_t mySize = sizeof(symbol_level<T, mask, shift>);
-                for (int index=0; index<c_MaxIndex; index++) {
-                    if (Symbols[index]) mySize += Symbols[index]->size();
+                if (Symbols) {
+                    mySize += sizeof(T*[c_MaxIndex]);
+                    for (int index=0; index<c_MaxIndex; index++) {
+                        if (Symbols[index]) mySize += Symbols[index]->size();
+                    }
                 }
                 return mySize;
             }
@@ -116,15 +130,17 @@ namespace dfa {
         /// \brief Structure representing a level of symbols stored in this translator
         template<unsigned int mask, int shift> struct symbol_level<int, mask, shift> {
             /// \brief Number of entries at this level in the table
-            static const int c_MaxIndex = mask>>shift;
+            static const int c_MaxIndex = (mask>>shift)+1;
+            
+            /// \brief The symbol to use if no symbols are defined for this object
+            int DefaultSymbol;
 
             /// \brief null, or the symbols at this level
-            int Symbols[c_MaxIndex];
+            int* Symbols;
             
             symbol_level() {
-                for (int x=0; x<(mask>>shift); x++) {
-                    Symbols[x] = symbol_set::null;
-                }                
+                DefaultSymbol   = symbol_set::null;
+                Symbols         = NULL;
             }
             
             /// \brief Sets all the symbols in the specified range to the specified symbol. The range must overlap this item.
@@ -132,14 +148,27 @@ namespace dfa {
                 // Work out the initial index in this table
                 int startIndex = range.lower() - base;
                 if (startIndex < 0) startIndex = 0;
+                int startOffset = (startIndex)&((1<<shift)-1);
                 startIndex >>= shift;
                 
                 // Work out the final index in this table
                 int endIndex = range.upper() - base;
                 if (endIndex < 0) endIndex = 0;
                 endIndex >>= shift;
-                                
-                if (endIndex >= c_MaxIndex) endIndex = c_MaxIndex;
+                
+                // If the range entirely covers this item, then set the default symbol and stop
+                if (startOffset == 0 && startIndex == 0 && endIndex >= c_MaxIndex) {
+                    DefaultSymbol = symbol;
+                    return;
+                }
+                
+                if (endIndex > c_MaxIndex) endIndex = c_MaxIndex;
+                
+                // Create the symbol array if needed
+                if (!Symbols) {
+                    Symbols = new int[c_MaxIndex];
+                    for (int index=0; index< c_MaxIndex; index++) Symbols[index] = symbol_set::null;
+                }
 
                 // Fill in the symbols between these indexes
                 for (int index=startIndex; index < endIndex; index++) {
@@ -149,11 +178,18 @@ namespace dfa {
             
             /// \brief Looks up a value in this table
             inline int Lookup(int val) {
+                if (!Symbols) return DefaultSymbol;
                 return Symbols[(val&mask)>>shift];
             }
             
             /// \brief The size of this item
-            inline size_t size() const { return sizeof(symbol_level<int, mask, shift>); }
+            inline size_t size() const { 
+                size_t mySize = sizeof(symbol_level<int, mask, shift>); 
+                if (Symbols) {
+                    mySize += sizeof(int[c_MaxIndex]);
+                }
+                return mySize;
+            }
         };
 
         /// \brief The table for this item
