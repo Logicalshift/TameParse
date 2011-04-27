@@ -8,6 +8,7 @@
 
 #include "dfa_symbol_deduplicate.h"
 #include "Dfa/remapped_symbol_map.h"
+#include "Dfa/epsilon.h"
 
 using namespace dfa;
 
@@ -31,7 +32,9 @@ void test_dfa_symbol_deduplicate::run_tests() {
 
         remapped_symbol_map::new_symbols newSyms = no_duplicates->old_symbols(it->second);
 
-        if (it->first == range<int>(0, 10)) {
+        if (it->first == epsilon()) {
+            count--;
+        } else if (it->first == range<int>(0, 10)) {
             has0to10 = true;
             report("OldSet1", newSyms.find(firstSet) != newSyms.end() && newSyms.find(secondSet) == newSyms.end() && newSyms.size() == 1);
         } else if (it->first == range<int>(10, 20)) {
@@ -72,7 +75,9 @@ void test_dfa_symbol_deduplicate::run_tests() {
         
         remapped_symbol_map::new_symbols newSyms = no_duplicates->old_symbols(it->second);
         
-        if (it->first == range<int>(0, 10)) {
+        if (it->first == epsilon()) {
+            count--;
+        } else if (it->first == range<int>(0, 10)) {
             has0to10 = true;
             report("OldSet4", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
         } else if (it->first == range<int>(10, 20)) {
