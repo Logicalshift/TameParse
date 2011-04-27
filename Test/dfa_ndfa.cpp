@@ -20,18 +20,18 @@ void test_dfa_ndfa::run_tests() {
     twoAs >> 'a' >> accept_action(1);
     
     // Check that it looks OK (should be 3 states)
-    report("DFA-create1", twoAs.count_states() == 3);
+    report("create1", twoAs.count_states() == 3);
     
     // Turn into a DFA
     ndfa* twoAsDfa = twoAs.to_dfa();
     
     // Should have two states
     int numStates = twoAsDfa->count_states();
-    report("DFA-ndfa-reduced1", numStates == 2);
+    report("reduced1", numStates == 2);
     
     // Both accept actions should be in the second state
     size_t actionsForSecond = twoAsDfa->actions_for_state(1).size();
-    report("DFA-ndfa-accept1", actionsForSecond == 2);
+    report("accept1", actionsForSecond == 2);
     
     delete twoAsDfa;
 
@@ -44,18 +44,18 @@ void test_dfa_ndfa::run_tests() {
     
     // Check that it looks OK (should be 3 states)
     numStates = twoEpsilonAs.count_states();
-    report("DFA-create2", numStates == 5);
+    report("create2", numStates == 5);
     
     // Turn into a DFA
     ndfa* twoEpsilonAsDfa = twoEpsilonAs.to_dfa();
     
     // Should have two states
     numStates = twoEpsilonAsDfa->count_states();
-    report("DFA-ndfa-reduced2", numStates == 2);
+    report("reduced2", numStates == 2);
     
     // Both accept actions should be in the second state
     actionsForSecond = twoEpsilonAsDfa->actions_for_state(1).size();
-    report("DFA-ndfa-accept2", actionsForSecond == 2);
+    report("accept2", actionsForSecond == 2);
     
     delete twoEpsilonAsDfa;
     
@@ -67,7 +67,7 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 3 states
     numStates = oneOrTwoAsAsDfa->count_states();
-    report("DFA-ndfa-regex1", numStates = 3);
+    report("regex1", numStates = 3);
     
     // States 1 and 2 should both be accepting
     
@@ -79,7 +79,7 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 3 states
     numStates = aOrBAsDfa->count_states();
-    report("DFA-ndfa-regex2", numStates = 3);
+    report("regex2", numStates = 3);
     
     // States 1 and 2 should both be accepting
 
@@ -91,5 +91,5 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 5 states
     numStates = aaOrBbAsDfa->count_states();
-    report("DFA-ndfa-regex3", numStates = 5);
+    report("regex3", numStates = 5);
 }
