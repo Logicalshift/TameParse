@@ -7,11 +7,18 @@
 //
 
 #include "symbol_map.h"
+#include "epsilon.h"
 
 using namespace std;
 using namespace dfa;
 
 static symbol_set nosymbols;
+
+/// \brief Constructor
+symbol_map::symbol_map() {
+    // Always have the epsilon set
+    identifier_for_symbols(epsilon());
+}
 
 /// \brief Destructor
 symbol_map::~symbol_map() {
@@ -38,6 +45,20 @@ int symbol_map::identifier_for_symbols(const symbol_set& symbols) {
     
     // Return the new ID
     return newId;
+}
+
+/// \brief Returns an identifier for a set of symbols (returns -1 if the symbols aren't present in this map)
+int symbol_map::identifier_for_symbols(const symbol_set& symbols) const {
+    // Try to find this symbol set in this object
+    symbol_id_map::const_iterator oldSymbols = m_IdForSymbols.find(symbols);
+    
+    // Use the old ID if there already was one
+    if (oldSymbols != m_IdForSymbols.end()) {
+        return oldSymbols->second;
+    }
+    
+    // Return -1 if the symbols weren't found
+    return -1;
 }
 
 /// \brief Returns the symbol set for a particular identifier

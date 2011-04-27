@@ -17,6 +17,7 @@
 #include "Dfa/accept_action.h"
 #include "Dfa/symbol_set.h"
 #include "Dfa/symbol_map.h"
+#include "Dfa/epsilon.h"
 
 namespace dfa {
     /// \brief Class representing a NDFA (non-deterministic finite state automaton)
@@ -102,7 +103,7 @@ namespace dfa {
         /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
         /// when it is evaluated.
         void accept(int state, const accept_action& action);
-        
+
     public:
         /// \brief Number of states in this (N)DFA
         inline int count_states() const { return (int)m_States->size(); }
@@ -133,6 +134,75 @@ namespace dfa {
             
             // Find the state
             return (*m_States)[stateNum];
+        }
+        
+    public:
+        /// \brief Class used for convenient construction of an NDFA
+        class constructor {
+        private:
+            friend class ndfa;
+            
+            /// \brief The NDFA that this constructor belongs to
+            mutable ndfa* m_Ndfa;
+            
+            /// \brief The current state ID for this constructor
+            int m_CurrentState;
+            
+            /// \brief -1, or the state that should be reached by the next transition
+            int m_NextState;
+            
+            /// \brief Creates a new constructor
+            inline constructor(ndfa* dfa)
+            : m_CurrentState(0)
+            , m_NextState(-1)
+            , m_Ndfa(dfa) {
+            }
+            
+        public:
+            /// \brief Copy constructor
+            inline constructor(const constructor& copyFrom)
+            : m_CurrentState(copyFrom.m_CurrentState)
+            , m_Ndfa(copyFrom.m_Ndfa) { 
+            }
+            
+            /// \brief Moves to a new state when the specified range of symbols are encountered
+            inline constructor& operator>>(const symbol_set& symbols) {
+                int nextState = m_NextState;
+                m_NextState = -1;
+                
+                if (nextState == -1) {
+                    nextState = m_Ndfa->add_state();
+                }
+                
+                m_Ndfa->add_transition(symbols, nextState);
+                
+                return *this;
+            }
+            
+            inline constructor& operator>>(char c)                  { return operator>>(range<int>((int)c, (int)c+1)); }
+            inline constructor& operator>>(wchar_t c)               { return operator>>(range<int>((int)c, (int)c+1)); }
+            
+            /// \brief Sets the state that the next transition will move to
+            inline constructor& operator>>(const state& nextState) {
+                m_NextState = nextState.identifier();
+                return *this;
+            }
+            
+            /// \brief Returns the current state object represented by this constructor
+            inline operator const state&() {
+                return m_Ndfa->get_state(m_CurrentState);
+            }
+        };
+        
+        /// \brief Starts a new chain of transitions, starting at state 0
+        inline constructor operator>>(const range<int>& symbols) {
+            return constructor(this) >> symbols;
+        }
+        
+        inline constructor operator>>(char c)      { return operator>>(range<int>((int)c, (int)c+1)); }
+        inline constructor operator>>(wchar_t c)   { return operator>>(range<int>((int)c, (int)c+1)); }
+        inline constructor operator>>(const state& firstState) {
+            return constructor(this) >> firstState;
         }
         
     public:

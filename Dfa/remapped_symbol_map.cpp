@@ -12,6 +12,7 @@
 
 #include "remapped_symbol_map.h"
 #include "range.h"
+#include "epsilon.h"
 
 using namespace std;
 using namespace dfa;
@@ -172,6 +173,14 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     
     // Create the result
     remapped_symbol_map* newSet = new remapped_symbol_map();
+    
+    // Remap the epsilon set
+    int epsVal = source.identifier_for_symbols(epsilon());
+    if (epsVal >= 0) {
+        new_symbols epsilonSet;
+        epsilonSet.insert(epsVal);
+        newSet->identifier_for_symbols(epsilon(), epsilonSet);
+    }
     
     // Create a new set for each range we got in the previous step
     for (sets_for_range::iterator it = setsContainingRange.begin(); it != setsContainingRange.end(); it++) {

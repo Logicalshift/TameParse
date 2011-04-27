@@ -15,6 +15,11 @@
 
 namespace dfa {
     ///
+    /// \brief Placeholder class that can represent an empty symbol set
+    ///
+    class epsilon;
+
+    ///
     /// \brief Class representing a set of symbols
     ///
     /// A symbol is represented as an integer value.
@@ -43,6 +48,9 @@ namespace dfa {
         
         /// \brief Creates a new symbol set by copying an old one
         symbol_set(const symbol_set& copyFrom);
+        
+        /// \brief Creates an empty symbol set
+        symbol_set(const epsilon& empty);
         
         /// \brief Destructor
         virtual ~symbol_set();
@@ -109,6 +117,11 @@ namespace dfa {
         inline symbol_set excluding(const symbol_range& toExclude) const { symbol_set result = *this; result.exclude(toExclude); return result; }
         
     public:
+        /// \brief True if this is an empty symbol set
+        inline bool empty() {
+            
+        }
+        
         /// \brief True if the specified symbol is in this set
         bool operator[](int symbol);
         

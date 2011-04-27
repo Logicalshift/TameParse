@@ -25,6 +25,10 @@ symbol_set::symbol_set(const symbol_set& copyFrom)
 : m_Symbols(copyFrom.m_Symbols) {
 }
 
+/// \brief Creates an empty symbol set
+symbol_set::symbol_set(const epsilon& empty) {
+}
+
 /// \brief Destructor
 symbol_set::~symbol_set() {
 }
