@@ -12,6 +12,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <stack>
 
 #include "Dfa/state.h"
 #include "Dfa/accept_action.h"
@@ -164,9 +165,22 @@ namespace dfa {
             /// \brief -1, or the state that should be reached by the next transition
             int m_NextState;
             
+            /// \brief The state before the most recent transition
+            int m_PreviousState;
+            
+            /// \brief Entry on the state stack
+            ///
+            /// First state is the pushed state ('initial' state)
+            /// Second state is either -1 or the final state (used for constructing or expressions)
+            typedef std::pair<int, int> stack_entry;
+            
+            /// \brief Stack of states
+            std::stack<stack_entry> m_Stack;
+            
             /// \brief Creates a new constructor
             inline constructor(ndfa* dfa)
             : m_CurrentState(0)
+            , m_PreviousState(0)
             , m_NextState(-1)
             , m_Ndfa(dfa) {
             }
@@ -176,7 +190,9 @@ namespace dfa {
             inline constructor(const constructor& copyFrom)
             : m_CurrentState(copyFrom.m_CurrentState)
             , m_NextState(copyFrom.m_NextState)
-            , m_Ndfa(copyFrom.m_Ndfa) { 
+            , m_PreviousState(copyFrom.m_PreviousState)
+            , m_Ndfa(copyFrom.m_Ndfa)
+            , m_Stack(copyFrom.m_Stack) { 
             }
             
             /// \brief Moves to a new state when the specified range of symbols are encountered
@@ -189,13 +205,15 @@ namespace dfa {
                 }
                 
                 m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
-                m_CurrentState = nextState;
+                m_PreviousState = m_CurrentState;
+                m_CurrentState  = nextState;
                 
                 return *this;
             }
             
             inline constructor& operator>>(char c)                  { return operator>>(range<int>((int)c, (int)c+1)); }
             inline constructor& operator>>(wchar_t c)               { return operator>>(range<int>((int)c, (int)c+1)); }
+            inline constructor& operator>>(int c)                   { return operator>>(range<int>((int)c, (int)c+1)); }
             
             /// \brief Sets the state that the next transition will move to
             inline constructor& operator>>(const state& nextState) {
@@ -209,10 +227,69 @@ namespace dfa {
             }
             
             /// \brief Returns the current state object represented by this constructor
-            inline operator const state&() {
+            inline operator const state&() { return current_state(); }
+            
+            /// \brief Returns the current state object represented by this constructor
+            inline const state& current_state() const {
                 return m_Ndfa->get_state(m_CurrentState);
             }
+            
+            ///
+            /// \brief Returns the state this was in before the most recent transition
+            ///
+            /// This is the state before the last transition, or the state that was last popped off of the stack.
+            ///
+            inline const state& previous_state() const {
+                return m_Ndfa->get_state(m_PreviousState);
+            }
+            
+            /// \brief Sets the state this constructor is in
+            inline void goto_state(const state& newState) {
+                m_CurrentState  = newState.identifier();
+                m_NextState     = -1;
+            }
+            
+            /// \brief Sets the state this constructor is in
+            inline void goto_state(const state& newState, const state& previousState) {
+                m_PreviousState = previousState.identifier();
+                m_CurrentState  = newState.identifier();
+                m_NextState     = -1;
+            }
+            
+            /// \brief Pushes the current state onto the stack
+            inline void push() { m_Stack.push(stack_entry(m_CurrentState, -1)); }
+            
+            /// \brief True if the state stack is empty
+            inline bool empty() const { return m_Stack.empty(); }
+            
+            /// \brief Returns the state on top of the stack
+            inline const state& top() const {
+                return m_Ndfa->get_state(m_Stack.top().first);
+            }
+            
+            ///
+            /// \brief Pops the state on top of the stack and discards it
+            ///
+            /// Returns false if the stack is empty.
+            /// The 'previous state' becomes the state on top of the stack.
+            /// If an 'or' is being constructed, this will move to the final state of the 'or' in the same way that rejoin does.
+            ///
+            bool pop();
+            
+            ///
+            /// \brief Begins or continues an 'or' expression
+            ///
+            /// This adds an epsilon transition to a final state, and moves back to whichever state is set as 'previous'. Calling rejoin or pop will
+            /// add a transition to the final state.
+            ///
+            void begin_or();
+            
+            /// \brief Moves to the state after the current 'or' expression, if there is one
+            void rejoin();
         };
+        
+        /// \brief Creates a new NDFA constructor
+        inline constructor get_cons() { return constructor(this); }
         
         /// \brief Starts a new chain of transitions, starting at state 0
         inline constructor operator>>(const symbol_set& symbols) {

@@ -169,6 +169,75 @@ void ndfa::accept(int state, const accept_action& action) {
     (*m_Accept)[state].push_back(action.clone());
 }
 
+/// \brief Pops the state on top of the stack and discards it
+///
+/// Returns false if the stack is empty.
+/// The 'previous state' becomes the state on top of the stack.
+/// If an 'or' is being constructed, this will move to the final state of the 'or' in the same way that rejoin does.
+bool ndfa::constructor::pop() { 
+    if (!m_Stack.empty()) {
+        // If there's a final state, then move there from the current state
+        if (m_Stack.top().second >= 0) {
+            int finalState = m_Stack.top().second;
+            *this >> m_Ndfa->get_state(finalState) >> epsilon();
+        }
+        
+        // Set the previous state to the 'initial' state on top of the stack
+        if (m_Stack.top().first >= 0) {
+            m_PreviousState = m_Stack.top().first;
+        }
+        
+        // Pop the state
+        m_Stack.pop();
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/// \brief Begins or continues an 'or' expression
+void ndfa::constructor::begin_or() {
+    // If the stack is empty then push a fake entry
+    if (m_Stack.empty()) {
+        m_Stack.push(stack_entry(-1, -1));
+    }
+    
+    // Remember the previous state (in case we change it)
+    int previousState = m_PreviousState;
+    
+    if (m_Stack.top().second < 0) {
+        // Create a 'final state' for the various alternatives by adding an epsilon transition
+        *this >> epsilon();
+        
+        // Set this on the stack
+        m_Stack.top().second = m_CurrentState;
+        
+        // Preserve the previous state
+        m_PreviousState = previousState;
+    }
+    
+    // Move back to the 'previous state' (either the last state popped from the stack, or the state before the most recent shift
+    m_CurrentState = previousState;
+}
+
+/// \brief Moves to the state after the current 'or' expression, if there is one
+void ndfa::constructor::rejoin() {
+    // Nothing to do if the top of the stack isn't building an 'or' expression
+    if (m_Stack.empty() || m_Stack.top().second < 0) return;
+    
+    // Move to the final state
+    int finalState = m_Stack.top().second;
+    *this >> m_Ndfa->get_state(finalState) >> epsilon();
+    
+    // Unset the final state
+    m_Stack.top().second = -1;
+    
+    // Pop the top stack entry if it was added by an or operation
+    if (m_Stack.top().first == -1) {
+        m_Stack.pop();
+    }
+}
+
 /// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
 ///
 /// Note that if further transitions are added to the new NDFA, it may lose the unique symbol sets
