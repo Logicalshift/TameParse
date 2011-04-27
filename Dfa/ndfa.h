@@ -23,6 +23,15 @@ namespace dfa {
     ///
     /// \brief Class representing a NDFA (non-deterministic finite state automaton)
     ///
+    /// This class is used to build representations of NDFAs and convert them to deterministic automatas. The most common use
+    /// of an NDFA is as an intermediate stage in building a lexer; however, it is possible to apply this class to other cases
+    /// where a state machine can be used.
+    ///
+    /// This class is more generally applicable than the DFAs typically found in regular expression engines: it can distinguish
+    /// accepting states (so it is suitable for use for building lexers), and it can have multiple start states (so it can
+    /// describe multiple languages in a compact fashion). Additionally, the input symbol set is any positive integer, so this
+    /// can be used to build state machines for entities other than strings.
+    ///
     class ndfa {
     public:
         /// \brief List of acceptance actions for a state
@@ -139,7 +148,9 @@ namespace dfa {
         }
         
     public:
+        ///
         /// \brief Class used for convenient construction of an NDFA
+        ///
         class constructor {
         private:
             friend class ndfa;

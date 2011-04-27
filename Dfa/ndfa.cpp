@@ -310,7 +310,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             
             // For each transition in this state, add to the appropriate set
             for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
-                // Ignore the epsilon set
+                // Ignore the epsilon set (covered by performing the closure)
                 if (transit->symbol_set() == epsilonSymbolSet) continue;
                 
                 // Otherwise, add this transition
