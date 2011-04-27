@@ -23,7 +23,7 @@ namespace dfa {
             int DefaultSymbol;
             
             /// \brief Number of entries at this level in the table
-            static const int c_MaxIndex = mask>>shift;
+            static const int c_MaxIndex = (mask>>shift)+1;
             
             /// \brief null, or the symbols at this level
             T* Symbols[c_MaxIndex];
@@ -31,7 +31,7 @@ namespace dfa {
             symbol_level() {
                 DefaultSymbol   = symbol_set::null;
                 
-                for (int x=0; x<(mask>>shift); x++) {
+                for (int x=0; x<c_MaxIndex; x++) {
                     Symbols[x] = NULL;
                 }
             }
@@ -64,6 +64,7 @@ namespace dfa {
                 // Work out the initial index in this table
                 int startIndex = range.lower() - base;
                 if (startIndex < 0) startIndex = 0;
+                int startOffset = (startIndex)&((1<<shift)-1);
                 startIndex >>= shift;
                 
                 // Work out the final index in this table
@@ -72,12 +73,12 @@ namespace dfa {
                 endIndex >>= shift;
                 
                 // If the range entirely covers this item, then set the default symbol and stop
-                if (startIndex == 0 && endIndex >= c_MaxIndex) {
+                if (startOffset == 0 && startIndex == 0 && endIndex >= c_MaxIndex) {
                     DefaultSymbol = symbol;
                     return;
                 }
                 
-                if (endIndex >= c_MaxIndex) endIndex = c_MaxIndex;
+                if (endIndex > c_MaxIndex-1) endIndex = c_MaxIndex-1;
                 
                 // Otherwise, create new entries (if needed) and add the range there as well
                 for (int index = startIndex; index <= endIndex; index++) {
