@@ -11,6 +11,7 @@
 #include "dfa_range.h"
 #include "dfa_symbol_set.h"
 #include "dfa_symbol_deduplicate.h"
+#include "dfa_symbol_translator.h"
 #include "dfa_ndfa.h"
 
 using namespace std;
@@ -32,6 +33,7 @@ int main (int argc, const char * argv[])
     test_dfa_symbol_set         symbol_set; run(symbol_set);
     test_dfa_symbol_deduplicate dedupe;     run(dedupe);
     test_dfa_ndfa               ndfa;       run(ndfa);
+    test_dfa_symbol_translator  trans;      run(trans);
     
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;

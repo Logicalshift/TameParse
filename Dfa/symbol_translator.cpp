@@ -22,8 +22,8 @@ symbol_translator::symbol_translator(const symbol_translator& copyFrom)
 symbol_translator::symbol_translator(const symbol_map& map) {
     // Iterate through the symbol sets in the map
     for (symbol_map::iterator setIt = map.begin(); setIt != map.end(); setIt++) {
-        // Iterate through the rangefs in each set
-        for (symbol_set::iterator rangeIt = setIt->first.begin(); rangeIt != setIt->first.end(); setIt++) {
+        // Iterate through the ranges in each set
+        for (symbol_set::iterator rangeIt = setIt->first.begin(); rangeIt != setIt->first.end(); rangeIt++) {
             // Add each range in turn
             add_range(*rangeIt, setIt->second);
         }

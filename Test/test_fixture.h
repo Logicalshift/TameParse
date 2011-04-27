@@ -30,6 +30,9 @@ public:
     /// \brief Reports on the result of an individual test
     void report(std::string test_name, bool result);
     
+    /// \brief Reports on the result of an individual test (which is known to fail)
+    void report_known_failure(std::string test_name, bool result);
+    
     /// \brief Runs this test
     void run();
     

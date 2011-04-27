@@ -80,7 +80,7 @@ namespace dfa {
                 if (endIndex >= c_MaxIndex) endIndex = c_MaxIndex;
                 
                 // Otherwise, create new entries (if needed) and add the range there as well
-                for (int index = startIndex; index < endIndex; index++) {
+                for (int index = startIndex; index <= endIndex; index++) {
                     // Create a new entry if needed
                     if (!Symbols[index]) Symbols[index] = new T();
                     
@@ -100,6 +100,15 @@ namespace dfa {
                 if (!next) return DefaultSymbol;
                 
                 return next->Lookup(val);
+            }
+            
+            /// \brief The size of this item in bytes (used when computing the required size in memory of a particular lexer)
+            inline size_t size() const {
+                size_t mySize = sizeof(symbol_level<T, mask, shift>);
+                for (int index=0; index<c_MaxIndex; index++) {
+                    if (Symbols[index]) mySize += Symbols[index]->size();
+                }
+                return mySize;
             }
         };
 
@@ -141,10 +150,13 @@ namespace dfa {
             inline int Lookup(int val) {
                 return Symbols[(val&mask)>>shift];
             }
+            
+            /// \brief The size of this item
+            inline size_t size() const { return sizeof(symbol_level<int, mask, shift>); }
         };
 
         /// \brief The table for this item
-        symbol_level<symbol_level<symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8>, 0xff0000, 16>, 0xff000000, 24> m_Table;
+        symbol_level<symbol_level<symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8>, 0xff0000, 16>, 0x7f000000, 24> m_Table;
         
     public:
         /// \brief Copy constructor
@@ -164,6 +176,11 @@ namespace dfa {
         /// \brief Returns the ID of the symbol set of the specified symbol
         inline int set_for_symbol(int symbol) const {
             return m_Table.Lookup(symbol);
+        }
+        
+        // \brief Returns the number of bytes required by the table
+        inline size_t size() const {
+            return m_Table.size();
         }
     };
 }

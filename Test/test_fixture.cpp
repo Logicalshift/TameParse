@@ -34,6 +34,20 @@ void test_fixture::report(std::string test_name, bool result) {
     }
 }
 
+/// \brief Reports on the result of an individual test
+void test_fixture::report_known_failure(std::string test_name, bool result) {
+    m_TestsRun++;
+    
+    string prefix   = m_Name + "." + test_name;
+    string dots     = string(60 - prefix.length(), '.');
+    
+    if (result) {
+        cout << prefix << dots << "SUCCEEDED (unexpectedly)" << endl;
+    } else {
+        cerr << prefix << dots << "known failure" << endl;
+    }
+}
+
 /// \brief Runs this test
 void test_fixture::run() {
     cout << endl << "*** TESTS FROM " << m_Name << endl;
