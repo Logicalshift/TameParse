@@ -260,6 +260,9 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     state_list*                 states  = new state_list();
     accept_action_for_state*    accept  = new accept_action_for_state();
     
+    // Get the epsilon set
+    int epsilonSymbolSet = m_Symbols->identifier_for_symbols(epsilon());
+    
     // Create a map saying which of our states are represented in each new state
     map<state_set, int> stateMap;
     
@@ -305,6 +308,10 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             
             // For each transition in this state, add to the appropriate set
             for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+                // Ignore the epsilon set
+                if (transit->symbol_set() == epsilonSymbolSet) continue;
+                
+                // Otherwise, add this transition
                 statesForSymbol[transit->symbol_set()].insert(transit->new_state());
             }
             
