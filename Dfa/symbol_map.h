@@ -15,7 +15,9 @@
 #include "Dfa/symbol_set.h"
 
 namespace dfa {
+    ///
     /// \brief Class that maps symbol sets to identifiers
+    ///
     class symbol_map {
     private:
         /// \brief Storage type

@@ -10,7 +10,9 @@
 #define _DFA_ACCEPT_ACTION_H
 
 namespace dfa {
+    ///
     /// \brief Class describing an accepting action in a DFA
+    ///
     class accept_action {
     private:
         /// \brief The symbol that a lexer should return for accepting this item

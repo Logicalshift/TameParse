@@ -12,7 +12,9 @@
 #include "Dfa/symbol_set.h"
 
 namespace dfa {
+    ///
     /// \brief Description of a transition in a (N)DFA
+    ///
     class transition {
     private:
         /// \brief The range of symbols that this transition will occur on

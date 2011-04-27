@@ -15,7 +15,9 @@
 #include "Dfa/symbol_map.h"
 
 namespace dfa {
+    ///
     /// \brief Class that represents a symbol map that has been remapped from another symbol map
+    ///
     class remapped_symbol_map : public symbol_map {
     public:
         /// \brief Represents the set of new symbol sets that an old symbol set was remapped to

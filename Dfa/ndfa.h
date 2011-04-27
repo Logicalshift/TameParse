@@ -20,7 +20,9 @@
 #include "Dfa/epsilon.h"
 
 namespace dfa {
+    ///
     /// \brief Class representing a NDFA (non-deterministic finite state automaton)
+    ///
     class ndfa {
     public:
         /// \brief List of acceptance actions for a state

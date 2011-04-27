@@ -12,7 +12,9 @@
 #include "symbol_set.h"
 
 namespace dfa {
+    ///
     /// \brief Placeholder class representing the empty symbol set
+    ///
     class epsilon {
     private:
         /// \brief The empty symbol set

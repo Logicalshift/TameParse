@@ -12,7 +12,9 @@
 #include <set>
 
 namespace dfa {
+    ///
     /// \brief Type representing the state of an NDFA parse
+    ///
     typedef std::set<int> ndfa_state;
 }
 
