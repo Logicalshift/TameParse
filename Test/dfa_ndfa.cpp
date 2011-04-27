@@ -33,4 +33,28 @@ void test_dfa_ndfa::run_tests() {
     report("DFA-ndfa-accept1", actionsForSecond == 2);
     
     delete twoAsDfa;
+
+    // NDFA with epsilons and two transitions on 'a'
+    ndfa twoEpsilonAs;
+    twoEpsilonAs >> epsilon() >> 'a' >> accept_action(0);
+    numStates = twoEpsilonAs.count_states();
+    twoEpsilonAs >> epsilon() >> 'a' >> accept_action(1);
+    numStates = twoEpsilonAs.count_states();
+    
+    // Check that it looks OK (should be 3 states)
+    numStates = twoEpsilonAs.count_states();
+    report("DFA-create2", numStates == 5);
+    
+    // Turn into a DFA
+    ndfa* twoEpsilonAsDfa = twoEpsilonAs.to_dfa();
+    
+    // Should have two states
+    numStates = twoEpsilonAsDfa->count_states();
+    report("DFA-ndfa-reduced2", numStates == 2);
+    
+    // Both accept actions should be in the second state
+    actionsForSecond = twoEpsilonAsDfa->actions_for_state(1).size();
+    report("DFA-ndfa-accept2", actionsForSecond == 2);
+    
+    delete twoEpsilonAsDfa;
 }

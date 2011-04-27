@@ -164,6 +164,7 @@ namespace dfa {
             /// \brief Copy constructor
             inline constructor(const constructor& copyFrom)
             : m_CurrentState(copyFrom.m_CurrentState)
+            , m_NextState(copyFrom.m_NextState)
             , m_Ndfa(copyFrom.m_Ndfa) { 
             }
             
@@ -203,7 +204,7 @@ namespace dfa {
         };
         
         /// \brief Starts a new chain of transitions, starting at state 0
-        inline constructor operator>>(const range<int>& symbols) {
+        inline constructor operator>>(const symbol_set& symbols) {
             return constructor(this) >> symbols;
         }
         
