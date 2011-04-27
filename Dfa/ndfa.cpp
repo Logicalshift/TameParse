@@ -184,6 +184,45 @@ ndfa* ndfa::to_ndfa_with_unique_symbols() const {
     return new ndfa(states, symbols, accept);
 }
 
+/// \brief Internal method: computes the closure of the specified set of states (modifies the set to include 
+/// all states reachable by epsilon transitions)
+void ndfa::closure(set<int>& states) const {
+    /// Set of states that need to be checked for epsilon transitions
+    set<int> newStates = states;
+    
+    // Get the symbol ID of the epsilon set
+    int epsSymbol = m_Symbols->identifier_for_symbols(epsilon());
+    if (epsSymbol == -1) return;
+    
+    // Iterate until we've added no new states
+    while (!newStates.empty()) {
+        // Create a set of states we're going to add
+        set<int> addedStates;
+        
+        for (set<int>::iterator stateIt = newStates.begin(); stateIt != newStates.end(); stateIt++) {
+            // Find any epsilon transitions in this state
+            const state& thisState = get_state(*stateIt);
+            
+            for (state::iterator transIt = thisState.begin(); transIt != thisState.end(); transIt++) {
+                // Ignore non-epsilon transitions
+                if (transIt->symbol_set() != epsSymbol) continue;
+                
+                // Ignore this state if it's already in the set
+                int newState = transIt->new_state();
+                if (states.find(newState) != states.end()) continue;
+                
+                // Add this state (and process it for further epsilons the next time through)
+                states.insert(newState);
+                addedStates.insert(newState);
+            }
+        }
+        
+        // The new states for the next iteration are the states we added in this iterator
+        newStates = addedStates;
+    }
+}
+
+
 /// \brief Creates a DFA from this NDFA
 ///
 /// Note that if further transitions are added to the DFA, it may no longer be deterministic.
@@ -215,6 +254,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         // Create a set for this initial state
         state_set thisStateSet;
         thisStateSet.insert(*initialIt);
+        closure(thisStateSet);
         
         // Put it in the state map
         int stateId = (int)states->size();
@@ -258,6 +298,11 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
                     (*accept)[next.second.identifier()].push_back((*acceptIt)->clone());
                 }
             }
+        }
+        
+        // Generate the closures for epsilon transitions
+        for (transition_for_symbol::iterator it = statesForSymbol.begin(); it != statesForSymbol.end(); it++) {
+            closure(it->second);
         }
         
         // Generate new transitions for each symbol

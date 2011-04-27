@@ -205,6 +205,11 @@ namespace dfa {
             return constructor(this) >> firstState;
         }
         
+    private:
+        /// \brief Internal method: computes the closure of the specified set of states (modifies the set to include 
+        /// all states reachable by epsilon transitions)
+        void closure(std::set<int>& states) const;
+        
     public:
         /// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
         ///
