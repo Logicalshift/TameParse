@@ -9,6 +9,7 @@
 #include "dfa_ndfa.h"
 
 #include "Dfa/ndfa.h"
+#include "Dfa/ndfa_regex.h"
 
 using namespace dfa;
 
@@ -57,4 +58,38 @@ void test_dfa_ndfa::run_tests() {
     report("DFA-ndfa-accept2", actionsForSecond == 2);
     
     delete twoEpsilonAsDfa;
+    
+    // NDFA from a regexp
+    ndfa_regex oneOrTwoAs;
+    int finalState = oneOrTwoAs.add_regex(0, "a?a", 1);
+    
+    ndfa* oneOrTwoAsAsDfa = oneOrTwoAs.to_dfa();
+    
+    // Should be 3 states
+    numStates = oneOrTwoAsAsDfa->count_states();
+    report("DFA-ndfa-regex1", numStates = 3);
+    
+    // States 1 and 2 should both be accepting
+    
+    // Simple 'or' regex
+    ndfa_regex aOrB;
+    finalState = aOrB.add_regex(0, "a|b", 1);
+
+    ndfa* aOrBAsDfa = aOrB.to_dfa();
+    
+    // Should be 3 states
+    numStates = aOrBAsDfa->count_states();
+    report("DFA-ndfa-regex2", numStates = 3);
+    
+    // States 1 and 2 should both be accepting
+
+    // Bracketed 'or' regex
+    ndfa_regex aaOrBb;
+    finalState = aaOrBb.add_regex(0, "(aa)|(bb)", 1);
+    
+    ndfa* aaOrBbAsDfa = aaOrBb.to_dfa();
+    
+    // Should be 5 states
+    numStates = aaOrBbAsDfa->count_states();
+    report("DFA-ndfa-regex3", numStates = 5);
 }

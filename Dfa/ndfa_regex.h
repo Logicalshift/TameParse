@@ -55,6 +55,13 @@ namespace dfa {
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(int initialState, const symbol_string& regex);
         
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state and adding an accepting action
+        inline int add_regex(int initialState, const symbol_string& regex, const accept_action& action) {
+            int finalState = add_regex(initialState, regex);
+            accept(finalState, action);
+            return finalState;
+        }
+        
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         inline int add_regex(int initialState, std::string regex) {
             return add_regex(initialState, convert(regex));
@@ -64,15 +71,15 @@ namespace dfa {
         inline int add_regex(int initialState, std::wstring regex) {
             return add_regex(initialState, convert(regex));
         }
-        
-        /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, char* regex) {
-            return add_regex(initialState, convert(regex));
-        }
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, wchar_t* regex) {
-            return add_regex(initialState, convert(regex));
+        inline int add_regex(int initialState, std::string regex, const accept_action& action) {
+            return add_regex(initialState, convert(regex), action);
+        }
+        
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_regex(int initialState, std::wstring regex, const accept_action& action) {
+            return add_regex(initialState, convert(regex), action);
         }
 
     protected:
