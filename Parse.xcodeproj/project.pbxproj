@@ -21,6 +21,10 @@
 		4B1A91C113682E050018E595 /* dfa_ndfa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91BD13682AAF0018E595 /* dfa_ndfa.cpp */; };
 		4B1A91C4136858720018E595 /* ndfa_regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91C2136858710018E595 /* ndfa_regex.cpp */; };
 		4B1A91C5136858720018E595 /* ndfa_regex.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91C3136858720018E595 /* ndfa_regex.h */; };
+		4B1A91C813687C1F0018E595 /* state_machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91C613687C1E0018E595 /* state_machine.cpp */; };
+		4B1A91C913687C1F0018E595 /* state_machine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91C713687C1E0018E595 /* state_machine.h */; };
+		4B1A91CC13688F3B0018E595 /* symbol_translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91CA13688F3A0018E595 /* symbol_translator.cpp */; };
+		4B1A91CD13688F3B0018E595 /* symbol_translator.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91CB13688F3A0018E595 /* symbol_translator.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -69,6 +73,10 @@
 		4B1A91BE13682AAF0018E595 /* dfa_ndfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_ndfa.h; sourceTree = "<group>"; };
 		4B1A91C2136858710018E595 /* ndfa_regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ndfa_regex.cpp; sourceTree = "<group>"; };
 		4B1A91C3136858720018E595 /* ndfa_regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa_regex.h; sourceTree = "<group>"; };
+		4B1A91C613687C1E0018E595 /* state_machine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state_machine.cpp; sourceTree = "<group>"; };
+		4B1A91C713687C1E0018E595 /* state_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state_machine.h; sourceTree = "<group>"; };
+		4B1A91CA13688F3A0018E595 /* symbol_translator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = symbol_translator.cpp; sourceTree = "<group>"; };
+		4B1A91CB13688F3A0018E595 /* symbol_translator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = symbol_translator.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -149,6 +157,10 @@
 		4BD7FE12132D087800025433 /* Dfa */ = {
 			isa = PBXGroup;
 			children = (
+				4B1A91C613687C1E0018E595 /* state_machine.cpp */,
+				4B1A91C713687C1E0018E595 /* state_machine.h */,
+				4B1A91CA13688F3A0018E595 /* symbol_translator.cpp */,
+				4B1A91CB13688F3A0018E595 /* symbol_translator.h */,
 				4B1A91C2136858710018E595 /* ndfa_regex.cpp */,
 				4B1A91C3136858720018E595 /* ndfa_regex.h */,
 				4B1A91A51366FF1F0018E595 /* ndfa.cpp */,
@@ -221,6 +233,8 @@
 				4B1A91B513670BE30018E595 /* remapped_symbol_map.h in Headers */,
 				4B1A91BC136821CB0018E595 /* epsilon.h in Headers */,
 				4B1A91C5136858720018E595 /* ndfa_regex.h in Headers */,
+				4B1A91C913687C1F0018E595 /* state_machine.h in Headers */,
+				4B1A91CD13688F3B0018E595 /* symbol_translator.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +315,8 @@
 				4B1A91B413670BE30018E595 /* remapped_symbol_map.cpp in Sources */,
 				4B1A91BB136821CB0018E595 /* epsilon.cpp in Sources */,
 				4B1A91C4136858720018E595 /* ndfa_regex.cpp in Sources */,
+				4B1A91C813687C1F0018E595 /* state_machine.cpp in Sources */,
+				4B1A91CC13688F3B0018E595 /* symbol_translator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

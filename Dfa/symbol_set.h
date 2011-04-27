@@ -29,6 +29,22 @@ namespace dfa {
         /// \brief Range of symbols
         typedef range<int> symbol_range;
         
+    public:
+        /// \brief Symbol ID representing 'no symbol'
+        static const int null = -1;
+        
+        /// \brief Special symbol representing 'start of input'
+        static const int start_of_input = -2;
+        
+        /// \brief Special symbol representing 'end of input'
+        static const int end_of_input = -3;
+        
+        /// \brief Special symbol representing 'start of line'
+        static const int start_of_line = -4;
+        
+        /// \brief Special symbol representing 'end of line'
+        static const int end_of_line = -5;
+        
     private:
         /// \brief Maximum possible symbol
         static const int c_MaxSymbol = 0x7fffffff;
