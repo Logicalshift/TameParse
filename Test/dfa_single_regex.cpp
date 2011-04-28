@@ -31,13 +31,7 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     // Get the first lexeme
     lexeme* first;
     (*stream) >> first;
-    
-    // Should be an accepting lexeme
-    report(name + "-accept", first != NULL && first->matched() == 1);
-    report(name + "-content", first != NULL && first->content<char>() == accepting);
-    
     delete stream;
-    delete first;
     
     // Try the rejecting phrase
     stringstream rejectIn(rejecting);
@@ -46,10 +40,21 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     lexeme* fail;
     (*stream) >> fail;
     
-    report(name + "-reject", fail != NULL && fail->matched() == -1);
-    report(name + "-rejectone", fail != NULL && fail->content().size() == 1);
-    
     delete stream;
+
+    // first lexeme should be an accepting lexeme, second should be a rejection
+    if (first != NULL && fail != NULL && first->matched() == 1 && first->content<char>() == accepting && fail->matched() == -1 && fail->content().size() == 1) {
+        report(name, true);
+    } else {
+        // Break things down if we get a failure
+        report(name + "-accept", first != NULL && first->matched() == 1);
+        report(name + "-content", first != NULL && first->content<char>() == accepting);
+            
+        report(name + "-reject", fail != NULL && fail->matched() == -1);
+        report(name + "-rejectone", fail != NULL && fail->content().size() == 1);
+    }
+
+    delete first;
     delete fail;
 }
 
@@ -57,4 +62,15 @@ void test_dfa_single_regex::run_tests() {
     test("basic", "a", "a", "b");
     test("sayaaaa", "a*", "aaaaa", "b");
     test("ababab", "(ab)+", "ababab", "aaaaaa");
+    test("a-or-b1", "a|b", "a", "c");
+    test("a-or-b2", "a|b", "b", "c");
+    test("a-or-b3", "a+|b+", "aaaaa", "c");
+    test("a-or-b4", "a+|b+", "bbbbb", "c");
+    test("a-or-b5", "a*|b*", "aaaaa", "c");
+    test("a-or-b6", "a*|b*", "bbbbb", "c");
+    test("a-or-b7", "(a*)|(b*)", "bbbbb", "c");
+    test("a-or-b8", "(a+)|(b+)", "bbbbb", "c");
+    test("ab-or-cd1", "(ab)+|(cd)+", "ababab", "c");
+    test("ab-or-cd2", "(ab)+|(cd)+", "cdcdcd", "c");
+    test("ab-or-cd3", "(ab)+|((cd)+)", "cdcdcd", "c");
 }
