@@ -34,6 +34,8 @@
 		4B1A91DC1369B7510018E595 /* position.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91DA1369B7500018E595 /* position.h */; };
 		4B1A91E7136A04C70018E595 /* basic_lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91E5136A04C70018E595 /* basic_lexer.cpp */; };
 		4B1A91E8136A04C70018E595 /* basic_lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91E6136A04C70018E595 /* basic_lexer.h */; };
+		4B1A91EC136A1A4E0018E595 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91EA136A1A4D0018E595 /* lexer.cpp */; };
+		4B1A91ED136A1A4E0018E595 /* lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91EB136A1A4D0018E595 /* lexer.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -96,6 +98,8 @@
 		4B1A91DA1369B7500018E595 /* position.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = position.h; sourceTree = "<group>"; };
 		4B1A91E5136A04C70018E595 /* basic_lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic_lexer.cpp; sourceTree = "<group>"; };
 		4B1A91E6136A04C70018E595 /* basic_lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basic_lexer.h; sourceTree = "<group>"; };
+		4B1A91EA136A1A4D0018E595 /* lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer.cpp; sourceTree = "<group>"; };
+		4B1A91EB136A1A4D0018E595 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -210,6 +214,8 @@
 				4B1A91DA1369B7500018E595 /* position.h */,
 				4B1A91E5136A04C70018E595 /* basic_lexer.cpp */,
 				4B1A91E6136A04C70018E595 /* basic_lexer.h */,
+				4B1A91EA136A1A4D0018E595 /* lexer.cpp */,
+				4B1A91EB136A1A4D0018E595 /* lexer.h */,
 			);
 			path = Dfa;
 			sourceTree = "<group>";
@@ -268,6 +274,7 @@
 				4B1A91D81369B4EC0018E595 /* lexeme.h in Headers */,
 				4B1A91DC1369B7510018E595 /* position.h in Headers */,
 				4B1A91E8136A04C70018E595 /* basic_lexer.h in Headers */,
+				4B1A91ED136A1A4E0018E595 /* lexer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +361,7 @@
 				4B1A91D71369B4EC0018E595 /* lexeme.cpp in Sources */,
 				4B1A91DB1369B7510018E595 /* position.cpp in Sources */,
 				4B1A91E7136A04C70018E595 /* basic_lexer.cpp in Sources */,
+				4B1A91EC136A1A4E0018E595 /* lexer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

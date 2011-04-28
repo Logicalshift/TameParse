@@ -1,5 +1,5 @@
 //
-//  lexer.cpp
+//  basic_lexer.cpp
 //  Parse
 //
 //  Created by Andrew Hunter on 28/04/2011.

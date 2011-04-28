@@ -1,17 +1,16 @@
 //
-//  lexer.h
+//  basic_lexer.h
 //  Parse
 //
 //  Created by Andrew Hunter on 28/04/2011.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _DFA_LEXER_H
-#define _DFA_LEXER_H
+#ifndef _DFA_BASIC_LEXER_H
+#define _DFA_BASIC_LEXER_H
 
 #include <iostream>
 #include <vector>
-#include <queue>
 
 #include "Dfa/symbol_set.h"
 #include "Dfa/ndfa_regex.h"
@@ -93,7 +92,7 @@ namespace dfa {
         ///
         /// The lexeme_stream should take ownership of the supplied lexer_symbol_stream and delete it once it has finished with it
         ///
-        virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) = 0;
+        virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const = 0;
         
         /// \brief Creates a new lexer that will read from the specified stream (which must not be destroyed while the lexer is in use)
         template<typename Char, typename Traits> inline lexeme_stream* create_stream(std::basic_istream<Char, Traits>& input) {
@@ -204,7 +203,7 @@ namespace dfa {
             : m_StateMachine(sm)
             , m_Accept(acc)
             , m_Stream(str)
-            , m_InitialState(0) {
+            , m_InitialState(firstState) {
             }
             
             /// \brief Destructor
@@ -212,6 +211,14 @@ namespace dfa {
                 delete m_Stream;
             }
             
+            /// \brief Sets the initial state to be used by the next run through of the state machine
+            ///
+            /// Might not do anything, the meaning of the 'initialState' is defined by the implementation of the lexer. However, the default initial 
+            /// state is always 0.
+            virtual void set_initial_state(int initialState) {
+                m_InitialState = initialState;
+            }
+
             /// \brief Fills in the contents of the specified pointer with the next lexeme (or NULL if the end of input has been reached)
             virtual lexeme_stream& operator>>(lexeme*& result) {
                 // Create the initial lexer state
@@ -269,6 +276,16 @@ namespace dfa {
                 // Create the lexeme for this item
                 result = new lexeme(m_Buffer.begin(), m_Buffer.begin() + acceptPos, m_Position, acceptSymbol);
                 
+                // Choose the new initial state
+                m_InitialState = 0;
+                if (newlineState != m_InitialState) {
+                    // Use the newline state if the last character in the lexeme is a newline
+                    int lastChar = m_Buffer[acceptPos-1];
+                    if (lastChar == 0x0a || lastChar == 0x0b || lastChar == 0x0c || lastChar == 0x0d || lastChar == 0x85 || lastChar == 0x2028 || lastChar == 0x2029) {
+                        m_InitialState = newlineState;
+                    }
+                }
+                
                 // Update the position to point after the accepted lexeme
                 m_Position.update_position(m_Buffer.begin(), m_Buffer.begin() + acceptPos);
                 
@@ -286,7 +303,7 @@ namespace dfa {
         ///
         /// The lexeme_stream should take ownership of the supplied lexer_symbol_stream and delete it once it has finished with it
         ///
-        virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) {
+        virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const {
             if (!stream) return NULL;
             return new dfa_stream(m_StateMachine, m_Accept, stream);
         }
