@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include "lexer.h"
+#include "basic_lexer.h"
 
 using namespace dfa;
 
