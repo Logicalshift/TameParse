@@ -247,8 +247,16 @@ ndfa* ndfa::to_ndfa_with_unique_symbols() const {
     
     // Rebuild the transition table with the new symbols
     state_list*                 states  = new state_list();
-    accept_action_for_state*    accept  = new accept_action_for_state(*m_Accept);
-    
+    accept_action_for_state*    accept  = new accept_action_for_state();
+
+    // Copy the accept actions
+    for (accept_action_for_state::const_iterator it = m_Accept->begin(); it != m_Accept->end(); it++) {
+        accept_action_list& action = (*accept)[it->first];
+        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
+            action.push_back((*actionIt)->clone());
+        }
+    }
+
     // Recreate the states
     for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
         // Create a new state

@@ -80,7 +80,8 @@ void lexer::compile() {
     
     // Turn the NDFA into a DFA. Delete the intermediate stages as we go.
     ndfa* symbols = m_Ndfa->to_ndfa_with_unique_symbols();
-    delete m_Ndfa; m_Ndfa = NULL;
+    delete m_Ndfa; 
+    m_Ndfa = NULL;
     
     ndfa* dfa = symbols->to_dfa();
     delete symbols;
