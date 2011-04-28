@@ -60,6 +60,9 @@ namespace dfa {
         virtual lexeme* clone() const;
         
     public:
+        /// \brief The ID of the symbol that was matched
+        inline int matched() const { return m_Matched; }
+        
         /// \brief The content that makes up this lexeme
         inline const symbols& content() const { return m_Symbols; }
         
@@ -76,7 +79,7 @@ namespace dfa {
         /// No encoding is done by this call, so the behaviour is just to convert ints to the symbol type
         template<typename symbol_type> inline std::basic_string<symbol_type> content() {
             // Create the result and reserve the appropriate amount of space
-            std::basic_string<symbol_type> result();
+            std::basic_string<symbol_type> result;
             result.reserve(m_Symbols.size());
             
             // Copy the symbols across, using a simple cast operation

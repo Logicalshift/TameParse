@@ -13,6 +13,7 @@
 #include "dfa_symbol_deduplicate.h"
 #include "dfa_symbol_translator.h"
 #include "dfa_ndfa.h"
+#include "dfa_single_regex.h"
 
 using namespace std;
 
@@ -29,11 +30,12 @@ static void run(test_fixture& fixture) {
 int main (int argc, const char * argv[])
 {
     // Run the DFA tests
-    test_dfa_range              dfa_range;  run(dfa_range);
-    test_dfa_symbol_set         symbol_set; run(symbol_set);
-    test_dfa_symbol_deduplicate dedupe;     run(dedupe);
-    test_dfa_ndfa               ndfa;       run(ndfa);
-    test_dfa_symbol_translator  trans;      run(trans);
+    test_dfa_range              dfa_range;      run(dfa_range);
+    test_dfa_symbol_set         symbol_set;     run(symbol_set);
+    test_dfa_symbol_deduplicate dedupe;         run(dedupe);
+    test_dfa_ndfa               ndfa;           run(ndfa);
+    test_dfa_symbol_translator  trans;          run(trans);
+    test_dfa_single_regex       singleregex;    run(singleregex);
     
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;
