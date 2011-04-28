@@ -274,7 +274,7 @@ namespace dfa {
                 if (acceptPos <= 0) acceptPos = 1;
                 
                 // Create the lexeme for this item
-                result = new lexeme(m_Buffer.begin(), m_Buffer.begin() + acceptPos, m_Position, acceptSymbol);
+                result = new lexeme(m_Buffer.begin(), m_Buffer.begin() + acceptPos, m_Position.current_position(), acceptSymbol, acceptPos);
                 
                 // Choose the new initial state
                 m_InitialState = 0;
