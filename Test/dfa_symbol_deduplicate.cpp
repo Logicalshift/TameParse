@@ -27,6 +27,8 @@ void test_dfa_symbol_deduplicate::run_tests() {
     bool has10to20  = false;
     bool has20to30  = false;
     
+    report("NoEpsilon1", ((const symbol_map*)no_duplicates)->identifier_for_symbols(epsilon()) < 0);
+    
     for (symbol_map::iterator it = no_duplicates->begin(); it != no_duplicates->end(); it++) {
         count++;
 

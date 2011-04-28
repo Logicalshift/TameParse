@@ -46,6 +46,9 @@ namespace dfa {
         /// \brief Returns an identifier for a set of symbols (returns -1 if the symbols aren't present in this map)
         int identifier_for_symbols(const symbol_set& symbols) const;
         
+        /// \brief Number of symbol sets in this map
+        inline int count_sets() const { return (int)m_SymbolsForId.size(); }
+        
         /// \brief Returns the symbol set for a particular identifier
         const symbol_set& operator[](int identifier) const;
         

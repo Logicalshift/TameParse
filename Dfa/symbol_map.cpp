@@ -16,8 +16,6 @@ static symbol_set nosymbols;
 
 /// \brief Constructor
 symbol_map::symbol_map() {
-    // Always have the epsilon set
-    identifier_for_symbols(epsilon());
 }
 
 /// \brief Destructor

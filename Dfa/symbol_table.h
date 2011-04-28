@@ -193,10 +193,10 @@ namespace dfa {
     /// \brief Default format of a symbol table
     ///
     /// (Single, level, can handle 255 symbols of a generic type)
-    template<class T> struct symbol_table {
+    template<class symbol_type> struct symbol_table {
         symbol_level<int, 0xff, 0> Table;
         
-        inline int Lookup(T val) const {
+        inline int Lookup(symbol_type val) const {
             return Table.Lookup(val);
         }
         
