@@ -17,7 +17,9 @@ namespace dfa {
     ///
     /// \brief Class that represents a deterministic finite automaton (DFA)
     ///
-    /// This class stores the 
+    /// This class stores the state machine associated with a DFA in a way that is efficient to run. It's efficient in memory if most states have 
+    /// transitions for most symbol sets (state machines for the lexers for many languages have this property, but state machines for matching
+    /// single regular expressions tend not to)
     ///
     template<class symbol_type> class state_machine {
     private:
@@ -39,7 +41,8 @@ namespace dfa {
         /// \brief Builds up a state machine from a DFA
         ///
         /// To prepare an NDFA for this call, you must call to_ndfa_with_unique_symbols and to_dfa on it first. This call will not produce
-        /// an error if this is not done, but the state machine will not be correct.
+        /// an error if this is not done, but the state machine will not be correct. An ndfa containing transitions with invalid states or
+        /// symbol set identifiers will produce a state machine that will generate a crash.
         state_machine(const ndfa& dfa) 
         : m_Translator(dfa.symbols())
         , m_MaxState(dfa.count_states())
