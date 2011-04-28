@@ -41,3 +41,10 @@ bool accept_action::operator==(const accept_action* compareTo) const {
     
     return true;
 }
+
+/// \brief Determines if this action is less important than another
+///
+/// By default, actions with lower symbol IDs are more important than those with higher symbol IDs
+bool accept_action::operator<(const accept_action& compareTo) const {
+    return symbol() > compareTo.symbol();
+}
