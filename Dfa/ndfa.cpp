@@ -217,6 +217,9 @@ void ndfa::constructor::begin_or() {
         
         // Preserve the previous state
         m_PreviousState = previousState;
+    } else {
+        // Create a transition from the current state to the final state
+        m_Ndfa->add_transition(m_CurrentState, epsilon(), m_Stack.top().second);
     }
     
     // Move back to the 'initial state' (the point where the or expression starts)
