@@ -202,7 +202,62 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             // Any symbol
             cons >> symbol_set::symbol_range(0, 0x7fffffff);
             break;
+
             
+        case '[':
+        {
+            // Group of symbols
+            pos++;
+            if (pos == end) return;
+            
+            // If the group begins '^', then we take the negative of this group
+            bool negate = false;
+            if (*pos == '^') {
+                negate = true;
+                pos++;
+                if (pos == end) return;
+            }
+            
+            // Go through the symbols until we encounter a ']'
+            symbol_set syms;
+            
+            while (pos != end && *pos != ']') {
+                // Get the symbol at this position
+                int initialSym = symbol_for_sequence(pos, end);
+                if (pos == end) break;
+                
+                // Check the next symbol to see if we've got a range
+                pos++;
+                if (pos == end) break;
+                
+                if (*pos == '-') {
+                    // Got a range of symbols
+                    pos++;
+                    if (pos == end) break;
+                    
+                    // Get the final symbol in the range
+                    int finalSym = symbol_for_sequence(pos, end);
+                    if (pos == end) break;
+                    pos++;
+                    
+                    // Ranges are inclusive
+                    syms |= range<int>(initialSym, finalSym+1);
+                } else {
+                    // Just a single symbol
+                    syms |= initialSym;
+                }
+            }
+            
+            // Negate the set if necessary
+            if (negate) {
+                syms = ~syms;
+            }
+            
+            // Append the transition
+            cons >> syms;
+            break;
+        }
+
         case '\\':
             // Quoted symbol (same as default behaviour, explicit case is here to make it clear overriding this is incorrect)
         default:

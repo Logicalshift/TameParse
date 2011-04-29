@@ -72,7 +72,7 @@ namespace dfa {
             /// \brief Reads the next symbol from this stream
             virtual lexer_symbol_stream& operator>>(int& result) {
                 Char next;
-                if (m_Stream.eof()) {
+                if (!m_Stream.good()) {
                     result = symbol_set::end_of_input;
                     return *this;
                 } else {

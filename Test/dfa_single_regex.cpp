@@ -114,4 +114,11 @@ void test_dfa_single_regex::run_tests() {
     test("escape8", "\\x41", "A", "b");
     test("escape9", "\\u0041", "A", "b");
     test("escape10", "\\o000101", "A", "b");
+
+    test("range1", "[a-z]", "a", "0");
+    test("range2", "[a-z]", "z", "0");
+    test("range3", "[^a-z]", "0", "a");
+    test("range4", "[abc]+", "abc", "d");
+    test("range5", "[a-zA-Z]+", "azAZ", "0");
+    test("range6", "[a-c]+", "abc", "d");
 }
