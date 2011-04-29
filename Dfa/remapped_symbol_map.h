@@ -21,14 +21,14 @@ namespace dfa {
     class remapped_symbol_map : public symbol_map {
     public:
         /// \brief Represents the set of new symbol sets that an old symbol set was remapped to
-        typedef std::set<int> new_symbols;
+        typedef std::set<int> new_symbol_set;
 
     private:
         /// \brief Constant value indicating 'no symbols'
-        static const new_symbols s_NoSymbols;
+        static const new_symbol_set s_NoSymbols;
         
         /// \brief Maps IDs in the old symbol set to IDs in this map
-        typedef std::map<int, new_symbols> old_to_new_map;
+        typedef std::map<int, new_symbol_set> old_to_new_map;
         
         /// \brief Maps IDs in the old set to IDs in this map
         old_to_new_map m_OldToNew;
@@ -41,11 +41,11 @@ namespace dfa {
         remapped_symbol_map(const remapped_symbol_map& copyFrom);
         
         /// \brief Finds or adds an identifier for the specified symbol, adding the specified set of new symbols as the new symbols for this set
-        int identifier_for_symbols(const symbol_set& symbols, const new_symbols& newSymbols);
+        int identifier_for_symbols(const symbol_set& symbols, const new_symbol_set& oldSymbols);
         
-        /// \brief Given a symbol set ID in this set, returns the old sets that contained it
-        inline const new_symbols& old_symbols(int newSetId) const { 
-            old_to_new_map::const_iterator found = m_OldToNew.find(newSetId);
+        /// \brief Given a symbol set ID in the old set, returns the symbols in this set that it maps to
+        inline const new_symbol_set& new_symbols(int oldSetId) const { 
+            old_to_new_map::const_iterator found = m_OldToNew.find(oldSetId);
             if (found != m_OldToNew.end()) return found->second;
             return s_NoSymbols;
         }

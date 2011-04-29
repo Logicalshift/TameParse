@@ -18,7 +18,7 @@ using namespace std;
 using namespace dfa;
 
 /// \brief Empty symbol set
-const remapped_symbol_map::new_symbols remapped_symbol_map::s_NoSymbols;
+const remapped_symbol_map::new_symbol_set remapped_symbol_map::s_NoSymbols;
 
 /// \brief Generates an empty remapped symbol map
 remapped_symbol_map::remapped_symbol_map() {
@@ -30,21 +30,13 @@ remapped_symbol_map::remapped_symbol_map(const remapped_symbol_map& copyFrom)
 }
 
 /// \brief Finds or adds an identifier for the specified symbol, adding the specified set of new symbols as the new symbols
-int remapped_symbol_map::identifier_for_symbols(const symbol_set& symbols, const new_symbols& newSymbols) {
+int remapped_symbol_map::identifier_for_symbols(const symbol_set& symbols, const new_symbol_set& oldSymbols) {
     // Get the set ID for these symbols
     int setId = symbol_map::identifier_for_symbols(symbols);
     
-    // Try to look up the existing set
-    old_to_new_map::iterator existing = m_OldToNew.find(setId);
-    
-    if (existing == m_OldToNew.end()) {
-        // Just add these symbols
-        m_OldToNew[setId] = newSymbols;
-    } else {
-        // Merge the sets
-        for (new_symbols::iterator it = newSymbols.begin(); it != newSymbols.end(); it++) {
-            existing->second.insert(*it);
-        }
+    // Add the set ID as a new symbol for each of the old symbols in this set
+    for (new_symbol_set::iterator old = oldSymbols.begin(); old != oldSymbols.end(); old++) {
+        m_OldToNew[*old].insert(setId);
     }
     
     // Return this as the result
@@ -177,7 +169,7 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     // Remap the epsilon set
     int epsVal = source.identifier_for_symbols(epsilon());
     if (epsVal >= 0) {
-        new_symbols epsilonSet;
+        new_symbol_set epsilonSet;
         epsilonSet.insert(epsVal);
         newSet->identifier_for_symbols(epsilon(), epsilonSet);
     }

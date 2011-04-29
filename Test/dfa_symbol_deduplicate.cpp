@@ -12,6 +12,19 @@
 
 using namespace dfa;
 
+// True if one of the specified set of symbol set IDs maps to the specified range in the specified map
+static bool contains_range(const symbol_map& map, const remapped_symbol_map::new_symbol_set& sets, range<int> chrs) {
+    for (remapped_symbol_map::new_symbol_set::const_iterator it = sets.begin(); it != sets.end(); it++) {
+        const symbol_set& thisSet = map[*it];
+        for (symbol_set::iterator it = thisSet.begin(); it != thisSet.end(); it++) {
+            if (chrs == *it) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void test_dfa_symbol_deduplicate::run_tests() {
     // Simple to start with
     symbol_map has_duplicates1;
@@ -21,38 +34,22 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     remapped_symbol_map* no_duplicates = remapped_symbol_map::deduplicate(has_duplicates1);
     
-    int  count      = 0;
-    int  extras     = 0;
-    bool has0to10   = false;
-    bool has10to20  = false;
-    bool has20to30  = false;
-    
     report("NoEpsilon1", ((const symbol_map*)no_duplicates)->identifier_for_symbols(epsilon()) < 0);
     
-    for (symbol_map::iterator it = no_duplicates->begin(); it != no_duplicates->end(); it++) {
-        count++;
-
-        remapped_symbol_map::new_symbols newSyms = no_duplicates->old_symbols(it->second);
-
-        if (it->first == epsilon()) {
-            count--;
-        } else if (it->first == range<int>(0, 10)) {
-            has0to10 = true;
-            report("OldSet1", newSyms.find(firstSet) != newSyms.end() && newSyms.find(secondSet) == newSyms.end() && newSyms.size() == 1);
-        } else if (it->first == range<int>(10, 20)) {
-            has10to20 = true;
-            report("OldSet2", newSyms.find(firstSet) != newSyms.end() && newSyms.find(secondSet) != newSyms.end() && newSyms.size() == 2);
-        } else if (it->first == range<int>(20, 30)) {
-            has20to30 = true;
-            report("OldSet3", newSyms.find(firstSet) == newSyms.end() && newSyms.find(secondSet) != newSyms.end() && newSyms.size() == 1);
-        } else {
-            extras++;
-        }
-    }
+    remapped_symbol_map::new_symbol_set newSyms;
     
-    report("HasAllSets1", has0to10 && has10to20 && has20to30);
-    report("NoExtras1", extras == 0 && count == 3);
-    
+    // First set should map to two sets, one containing 0-10, and one containing 10-20
+    newSyms = no_duplicates->new_symbols(firstSet);
+    report("FirstSet1.Size", newSyms.size() == 2);
+    report("FirstSet1.0to10", contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
+    report("FirstSet1.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
+
+    // Second set should map to two sets, 10 to 20 and 20 to 30
+    newSyms = no_duplicates->new_symbols(secondSet);
+    report("SecondSet1.Size", newSyms.size() == 2);
+    report("SecondSet1.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
+    report("SecondSet1.20to30", contains_range(*no_duplicates, newSyms, range<int>(20, 30)));
+
     delete no_duplicates;
 
     // Complex cases
@@ -64,40 +61,23 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     no_duplicates = remapped_symbol_map::deduplicate(has_duplicates2);
     
-    count      = 0;
-    extras     = 0;
-    has0to10   = false;
-    has10to20  = false;
-    has20to30  = false;
-    bool has30to40 = false;
-    bool has40to50 = false;
+    // First set should map to one set, containing 10-20
+    newSyms = no_duplicates->new_symbols(firstSet);
+    report("FirstSet2.Size", newSyms.size() == 1);
+    report("FirstSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
     
-    for (symbol_map::iterator it = no_duplicates->begin(); it != no_duplicates->end(); it++) {
-        count++;
-        
-        remapped_symbol_map::new_symbols newSyms = no_duplicates->old_symbols(it->second);
-        
-        if (it->first == epsilon()) {
-            count--;
-        } else if (it->first == range<int>(0, 10)) {
-            has0to10 = true;
-            report("OldSet4", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
-        } else if (it->first == range<int>(10, 20)) {
-            has10to20 = true;
-            report("OldSet5", newSyms.find(firstSet) != newSyms.end() && newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 2);
-        } else if (it->first == range<int>(30, 40)) {
-            has30to40 = true;
-            report("OldSet6", newSyms.find(secondSet) != newSyms.end() && newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 2);
-        } else if (it->first == range<int>(40, 50)) {
-            has40to50 = true;
-            report("OldSet7", newSyms.find(thirdSet) != newSyms.end() && newSyms.size() == 1);
-        } else {
-            extras++;
-        }
-    }
-    
-    report("HasAllSets2", has0to10 && has10to20 && has30to40 && has40to50);
-    report("NoExtras2", extras == 0 && count == 4);
+    // Second set should map to one set, containing 30-40
+    newSyms = no_duplicates->new_symbols(secondSet);
+    report("SecondSet2.Size", newSyms.size() == 1);
+    report("SecondSet2.30to40", contains_range(*no_duplicates, newSyms, range<int>(30, 40)));
+
+    // Third set should map to 0-10, 10-20, 30-40 and 40-50
+    newSyms = no_duplicates->new_symbols(thirdSet);
+    report("ThirdSet2.Size", newSyms.size() == 4);
+    report("ThirdSet2.0to10", contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
+    report("ThirdSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
+    report("ThirdSet2.30to40", contains_range(*no_duplicates, newSyms, range<int>(30, 40)));
+    report("ThirdSet2.40to50", contains_range(*no_duplicates, newSyms, range<int>(40, 50)));
     
     delete no_duplicates;
 }

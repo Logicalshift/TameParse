@@ -272,9 +272,9 @@ ndfa* ndfa::to_ndfa_with_unique_symbols() const {
         // Create transitions for this state
         for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); transit++) {
             // Get the new symbols for this transition
-            const remapped_symbol_map::new_symbols& newSyms = symbols->old_symbols(transit->symbol_set());
+            const remapped_symbol_map::new_symbol_set& newSyms = symbols->new_symbols(transit->symbol_set());
             
-            for (remapped_symbol_map::new_symbols::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); symIt++) {
+            for (remapped_symbol_map::new_symbol_set::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); symIt++) {
                 newState.add(transition(*symIt, transit->new_state()));
             }
         }
