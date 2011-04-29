@@ -316,6 +316,7 @@ int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const sy
             
         case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
             // Octal sequence (latin-1)
+            pos--;
             return oct(pos, end, 3);
             
         default:
