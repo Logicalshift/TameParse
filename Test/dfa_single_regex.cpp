@@ -22,7 +22,7 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     myLexer.add_symbol(regex, 1);
     
     // Compile it
-    myLexer.compile();
+    myLexer.compile(true);
     
     // Try the accepting phrase
     stringstream acceptIn(accepting);

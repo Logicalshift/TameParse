@@ -50,6 +50,9 @@ namespace dfa {
         /// \brief The identifier for this state
         inline int identifier() const { return m_Identifier; }
         
+        /// \brief The number of transitions in this state
+        inline int count_transitions() const { return (int)m_Transitions.size(); }
+        
         /// \brief The first transition of this state
         inline iterator begin() const { return m_Transitions.begin(); }
         

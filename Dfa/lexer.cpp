@@ -74,7 +74,7 @@ void lexer::add_symbol(const symbol_string& regex, int symbolId) {
 }
 
 /// \brief Compiles this lexer so that it is ready for use
-void lexer::compile() {
+void lexer::compile(bool compact) {
     if (m_Lexer) return;
     if (!m_Ndfa) return;
     
@@ -87,7 +87,11 @@ void lexer::compile() {
     delete symbols;
     
     // Create the lexer
-    m_Lexer = new dfa_lexer<wchar_t>(*dfa);
+    if (compact) {
+        m_Lexer = new dfa_lexer<wchar_t, state_machine_compact_table>(*dfa);        
+    } else {
+        m_Lexer = new dfa_lexer<wchar_t, state_machine_flat_table>(*dfa);
+    }
     
     // Done with the NDFA/DFA
     delete dfa;

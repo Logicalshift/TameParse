@@ -9,6 +9,8 @@
 #ifndef _DFA_STATE_MACHINE_H
 #define _DFA_STATE_MACHINE_H
 
+#include <algorithm>
+
 #include "Dfa/symbol_translator.h"
 #include "Dfa/ndfa.h"
 #include "Dfa/epsilon.h"
@@ -22,9 +24,6 @@ namespace dfa {
     /// expressions tend to work this way.
     ///
     /// Lookups in this kind of table will generally be very fast.
-    ///
-    /// This should really be an inner class of state_machine, but C++ just sucks too much to forward declare it so we can use
-    /// it as a template argument.
     ///
     class state_machine_flat_table {
     private:
@@ -61,6 +60,87 @@ namespace dfa {
         /// \brief Looks up the state for a given symbol set (which must be greater than 0 and less than the maxSet value passed into the constructor)
         inline int operator[](int symbolSet) const {
             return m_Row[symbolSet];
+        }
+        
+        /// \brief Total size of this row
+        inline size_t size(int maxSet) {
+            return sizeof(*this) + sizeof(int) * maxSet;
+        }
+    };
+    
+    
+    ///
+    /// \brief Row type that generates a compact table
+    ///
+    /// This requires a binary search to find a symbol in a row, so the resulting state machine will be slower than one with a flat table.
+    /// However, the size of the table will be much smaller in cases where the states are not fully populated (specifically, in cases where
+    /// the average number of transitions per state is less than 50% of the number of symbol sets)
+    ///
+    /// You can supply this class as the row_type parameter in the state_machine templated class.
+    ///
+    class state_machine_compact_table {
+    private:
+        /// \brief Symbol set, state pair
+        typedef std::pair<int, int> entry;
+        
+        /// \brief Number of entries in this row
+        int m_NumEntries;
+        
+        /// \brief List of symbol set, state pairs, sorted by symbol set
+        entry* m_Row;
+        
+    private:
+        /// \brief Orders two entries
+        inline static bool compare_entries(const entry& a, const entry& b) {
+            return a.first < b.first;
+        }
+        
+    public:
+        /// \brief Initialises an invalid row
+        inline state_machine_compact_table()
+        : m_Row(NULL) {
+        }
+        
+        /// \brief Initialises this row
+        void fill(int maxSet, const state& thisState) {
+            // Allocate the row
+            m_NumEntries    = thisState.count_transitions();
+            m_Row           = new entry[m_NumEntries];
+            
+            // Fill in the transitions
+            int pos = 0;
+            for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+                m_Row[pos].first    = transit->symbol_set();
+                m_Row[pos].second   = transit->new_state();
+            }
+            
+            // Sort the entries
+            std::sort(m_Row + 0, m_Row + m_NumEntries, compare_entries);
+        }
+        
+        /// \brief Destroys this row
+        inline ~state_machine_compact_table() {
+            delete[] m_Row;
+        }
+        
+        /// \brief Looks up the state for a given symbol set (which must be greater than 0 and less than the maxSet value passed into the constructor)
+        inline int operator[](int symbolSet) const {
+            // Perform a binary search for this item
+            entry* lowerBound = std::lower_bound(m_Row + 0, m_Row + m_NumEntries, entry(symbolSet, 0), compare_entries);
+            
+            // Return nothing if the symbol wasn't found
+            if (lowerBound == m_Row + m_NumEntries) return -1;
+            
+            // Return nothing if we didn't find the right symbol
+            if (lowerBound->first != symbolSet) return -1;
+            
+            // Return this transition
+            return lowerBound->second;
+        }
+        
+        /// \brief Total size of this row
+        inline size_t size(int maxSet) {
+            return sizeof(*this) + sizeof(entry) * m_NumEntries;
         }
     };
     
@@ -121,14 +201,13 @@ namespace dfa {
         inline size_t size() {
             size_t mySize = sizeof(*this);
             mySize += m_Translator.size() + sizeof(m_Translator);
-            mySize += sizeof(int*[m_MaxState]);
-            mySize += sizeof(int[m_MaxSet])*m_MaxState;
+            
+            for (int x=0; x<m_MaxState; x++) {
+                mySize += m_States[x].size();
+            }
+
             return mySize;
         }
-        
-    public:
-        /// \brief Row type that generates a flat table
-        typedef state_machine_flat_table flat_table;
 
     public:
         /// \brief Given a state and a symbol set, returns a new state

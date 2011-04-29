@@ -63,7 +63,10 @@ namespace dfa {
         inline void add_symbol(std::wstring regex, int symbolId) { add_symbol(ndfa_regex::convert(regex), symbolId); }
         
         /// \brief Compiles this lexer so that it is ready for use
-        void compile();
+        ///
+        /// Set compact to true if you want to build a compact lexer (these are smaller if the transition table is less than 50% full, but
+        /// execute more slowly)
+        void compile(bool compact = false);
     };
 }
 
