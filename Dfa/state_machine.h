@@ -112,6 +112,8 @@ namespace dfa {
             for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
                 m_Row[pos].first    = transit->symbol_set();
                 m_Row[pos].second   = transit->new_state();
+                
+                pos++;
             }
             
             // Sort the entries
