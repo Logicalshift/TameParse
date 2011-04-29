@@ -76,7 +76,7 @@ namespace dfa {
                     result = symbol_set::end_of_input;
                     return *this;
                 } else {
-                    m_Stream >> next;
+                    m_Stream.get(next);
                     result = (int)(unsigned)next;
                     return *this;
                 }
