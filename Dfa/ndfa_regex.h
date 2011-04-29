@@ -89,6 +89,10 @@ namespace dfa {
         /// Subclasses can override this to extend the grammar accepted by the regular expression.
         /// This class should update the supplied iterator and NDFA constructor object with the position of the next item.
         ///
+        /// Note that this will be called with pos == end at the end of the regular expression. Implementations should not
+        /// inspect the contents of pos in this case, but should instead perform any tidying up that's required at the end
+        /// of a regular expression.
+        ///
         virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, constructor& cons);
     };
 }

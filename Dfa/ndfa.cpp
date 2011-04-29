@@ -199,8 +199,11 @@ bool ndfa::constructor::pop() {
 void ndfa::constructor::begin_or() {
     // If the stack is empty then push a fake entry
     if (m_Stack.empty()) {
-        m_Stack.push(stack_entry(-1, -1));
+        m_Stack.push(stack_entry(0, -1));
     }
+    
+    // The initial state is the state on top of the stack
+    int initialState = m_Stack.top().first;
     
     // Remember the previous state (in case we change it)
     int previousState = m_PreviousState;
@@ -216,8 +219,8 @@ void ndfa::constructor::begin_or() {
         m_PreviousState = previousState;
     }
     
-    // Move back to the 'previous state' (either the last state popped from the stack, or the state before the most recent shift
-    m_CurrentState = previousState;
+    // Move back to the 'initial state' (the point where the or expression starts)
+    m_CurrentState = initialState;
 }
 
 /// \brief Moves to the state after the current 'or' expression, if there is one

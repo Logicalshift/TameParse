@@ -165,7 +165,7 @@ namespace dfa {
             /// \brief -1, or the state that should be reached by the next transition
             int m_NextState;
             
-            /// \brief The state before the most recent transition
+            /// \brief The state before the most recent transition, or sequence of transitions
             int m_PreviousState;
             
             /// \brief Entry on the state stack
@@ -256,7 +256,13 @@ namespace dfa {
                 m_NextState     = -1;
             }
             
+            ///
             /// \brief Pushes the current state onto the stack
+            ///
+            /// The pushed state becomes the initial state for an or state, so begin_or will start a new branch at this point.
+            /// Additionally, when pop is called, the pushed state becomes the 'previous' state, so this can be used to
+            /// implement things like brackets in regular expressions.
+            ///
             inline void push() { m_Stack.push(stack_entry(m_CurrentState, -1)); }
             
             /// \brief True if the state stack is empty
@@ -271,7 +277,7 @@ namespace dfa {
             /// \brief Pops the state on top of the stack and discards it
             ///
             /// Returns false if the stack is empty.
-            /// The 'previous state' becomes the state on top of the stack.
+            /// The 'previous state' becomes the state on top of the stack before the pop.
             /// If an 'or' is being constructed, this will move to the final state of the 'or' in the same way that rejoin does.
             ///
             bool pop();
@@ -279,12 +285,22 @@ namespace dfa {
             ///
             /// \brief Begins or continues an 'or' expression
             ///
-            /// This adds an epsilon transition to a final state, and moves back to whichever state is set as 'previous'. Calling rejoin or pop will
-            /// add a transition to the final state.
+            /// This adds an epsilon transition to a final state, and moves back to whichever state is on top of the stack 
+            /// (state 0 if the stack is empty). Ie, this will start to build up an alternative to the sequence of transitions
+            /// that follow the last push operation.
+            ///
+            /// If begin_or() has been previously called (and pop has not been called), the final state will be re-used, so 
+            /// there's no need to call rejoin() before this call.
             ///
             void begin_or();
             
+            ///
             /// \brief Moves to the state after the current 'or' expression, if there is one
+            ///
+            /// When begin_or() is called, it creates a 'final' state, which is reached once any of the alternatives is accepted.
+            /// This call creates an epsilon transition to this point, so following transitions will be after both sides of the
+            /// expression.
+            ///
             void rejoin();
         };
         

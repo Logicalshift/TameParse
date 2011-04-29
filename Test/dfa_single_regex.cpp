@@ -72,7 +72,17 @@ void test_dfa_single_regex::run_tests() {
     test("a-or-b7", "(a*)|(b*)", "bbbbb", "c");
     test("a-or-b8", "(a+)|(b+)", "bbbbb", "c");
     
-    test("ab-or-cd1", "(ab)+|(cd)+", "ababab", "a");
-    test("ab-or-cd2", "(ab)+|(cd)+", "cdcdcd", "c");
-    test("ab-or-cd3", "(ab)+|((cd)+)", "cdcdcd", "c");
+    test("ab-or-cd1", "ab|cd", "ab", "a");
+    test("ab-or-cd2", "ab|cd", "cd", "a");
+    test("ab-or-cd3", "(ab)+|(cd)+", "ababab", "a");
+    test("ab-or-cd4", "(ab)+|(cd)+", "cdcdcd", "c");
+    test("ab-or-cd5", "(ab)+|((cd)+)", "cdcdcd", "c");
+
+    test("ab-or-cd-or-ef1", "ab|cd|ef", "ab", "af");
+    test("ab-or-cd-or-ef2", "ab|cd|ef", "cd", "cf");
+    test("ab-or-cd-or-ef3", "ab|cd|ef", "ef", "bf");
+
+    test("a-or-b-c1", "(a|b?)c", "ac", "a");
+    test("a-or-b-c2", "(a|b?)c", "bc", "b");
+    test("a-or-b-c3", "(a|b?)c", "c", "b");
 }

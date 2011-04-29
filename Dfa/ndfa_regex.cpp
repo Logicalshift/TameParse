@@ -110,6 +110,9 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
         pos++;
     }
     
+    // Compile the end of the expression
+    compile(end, end, cons);
+    
     // Return the final state
     return ((state)cons).identifier();
 }
@@ -121,6 +124,12 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
 /// This class should update the supplied iterator and NDFA constructor object with the position of the next item.
 ///
 void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, constructor& cons) {
+    // Don't process the final character, but rejoin if there's an or section in effect
+    if (pos == end) {
+        cons.rejoin();
+        return;
+    }
+    
     // Default regex compiler
     switch (*pos) {
         case '(':           // Group start
@@ -140,9 +149,6 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             
         case '*':           // 0 or more of previous
         {
-            // Join up any or expressions that might be in effect
-            cons.rejoin();
-            
             // Get the previous and current state
             const state& previous = cons.previous_state();
             const state& current  = cons.current_state();
@@ -162,9 +168,6 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
 
         case '+':           // 1 or more of previous
         {
-            // Join up any or expressions that might be in effect
-            cons.rejoin();
-            
             // Get the previous and current state
             const state& previous = cons.previous_state();
             const state& current  = cons.current_state();
@@ -180,9 +183,6 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             
         case '?':           // 0 or 1 of previous
         {
-            // Join up any or expressions that might be in effect
-            cons.rejoin();
-            
             // Get the previous and current state
             const state& previous = cons.previous_state();
             const state& current  = cons.current_state();
@@ -199,13 +199,13 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
         case '.':
             // Any symbol
             cons >> symbol_set::symbol_range(0, 0x7fffffff);
-            cons.rejoin();
+            // cons.rejoin();
             break;
             
         default:
             // Most characters just go through unchanged
             cons >> *pos;
-            cons.rejoin();
+            // cons.rejoin();
             break;
     }
 }
