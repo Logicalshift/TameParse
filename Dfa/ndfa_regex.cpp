@@ -107,7 +107,9 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
         compile(pos, end, cons);
         
         // Move on
-        pos++;
+        if (pos != end) {
+            pos++;
+        }
     }
     
     // Compile the end of the expression
@@ -199,13 +201,125 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
         case '.':
             // Any symbol
             cons >> symbol_set::symbol_range(0, 0x7fffffff);
-            // cons.rejoin();
             break;
             
+        case '\\':
+            // Quoted symbol (same as default behaviour, explicit case is here to make it clear overriding this is incorrect)
         default:
             // Most characters just go through unchanged
-            cons >> *pos;
-            // cons.rejoin();
+            cons >> symbol_for_sequence(pos, end);
             break;
+    }
+}
+
+/// \brief Returns a hex number with maxDigits from the character after the current position
+static int hex(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, int maxDigits) {
+    int result = 0;
+    
+    for (int x=0; x<maxDigits; x++) {
+        // Get the next position
+        symbol_string::const_iterator next = pos;
+        next++;
+        
+        // Check that this is a hex character
+        if (next == end) break;
+        
+        int chr = *next;
+        if ((chr < '0' || chr > '9') && (chr < 'a' || chr > 'f') && (chr < 'A' || chr > 'F')) break;
+        
+        // Get the value of this character
+        int value = 0;
+        if (chr <= '9')         value = chr - '0';
+        else if (chr <= 'A')    value = chr - 'A' + 10;
+        else if (chr <= 'a')    value = chr - 'a' + 10;
+        
+        // Update the result
+        result *= 16;
+        result += value;
+        
+        // Update the position
+        pos = next;
+    }
+    
+    return result;
+}
+
+/// \brief Returns a octal number with maxDigits from the character after the current position
+static int oct(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, int maxDigits) {
+    int result = 0;
+    
+    for (int x=0; x<maxDigits; x++) {
+        // Get the next position
+        symbol_string::const_iterator next = pos;
+        next++;
+        
+        // Check that this is a hex character
+        if (next == end) break;
+        
+        int chr = *next;
+        if ((chr < '0' || chr > '7')) break;
+        
+        // Get the value of this character
+        int value = chr - '0';
+        
+        // Update the result
+        result *= 8;
+        result += value;
+        
+        // Update the position
+        pos = next;
+    }
+    
+    return result;
+}
+
+///
+/// \brief Returns the symbol at the specified position. Updates pos to point to the last character that makes up this symbol
+///
+/// This translates quoted symbols like '\n' to their symbolic equivalent (0x0a in this case). Subclasses can override this to
+/// add more quoting behaviour to the default.
+///
+int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end) {
+    // Shouldn't happen, but check anyway
+    if (pos == end) return 0;
+    
+    // Quoted symbols begin with '\': just return the symbol if this character isn't present
+    if (*pos != '\\') return *pos;
+    
+    // Move on to the character being quoted
+    pos++;
+
+    // Just use '\' if we fall off the end of the expression
+    if (pos == end) return '\\';
+    
+    switch (*pos) {
+            // Single-character escapes
+        case 'a':   return 0x7;
+        case 'e':   return 0x1b;
+        case 'n':   return 0xa;
+        case 'r':   return 0xd;
+        case 'f':   return 0xc;
+        case 't':   return 0x9;
+            
+            // Multi-character escapes
+        case 'u':
+            // Unicode character (0-4 hexadecimal digits)
+            return hex(pos, end, 4);
+            
+        case 'x':
+            // Latin-1 character (0-2 hexadecimal digits)
+            return hex(pos, end, 2);
+            
+        case 'o':
+            // Octal sequence (supporting unicode)
+            return oct(pos, end, 6);
+            
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            // Octal sequence (latin-1)
+            return oct(pos, end, 3);
+            
+        default:
+            // Default behaviour is to pass the 'quoted' character through untouched (so you can do things like \.)
+            return *pos;
     }
 }

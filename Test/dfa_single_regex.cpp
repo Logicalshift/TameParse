@@ -103,4 +103,15 @@ void test_dfa_single_regex::run_tests() {
     test("a-or-b-c1", "(a|b?)c", "ac", "a");
     test("a-or-b-c2", "(a|b?)c", "bc", "b");
     test("a-or-b-c3", "(a|b?)c", "c", "b");
+
+    test("escape1", "\\a", "\a", "b");
+    test("escape2", "\\e", "\e", "b");
+    test("escape3", "\\n", "\n", "b");
+    test("escape4", "\\r", "\r", "b");
+    test("escape5", "\\f", "\f", "b");
+    test("escape6", "\\t", "\t", "b");
+    test("escape7", "\\101", "A", "b");
+    test("escape8", "\\x41", "A", "b");
+    test("escape9", "\\u0041", "A", "b");
+    test("escape10", "\\o000101", "A", "b");
 }

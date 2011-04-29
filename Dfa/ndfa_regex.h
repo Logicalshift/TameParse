@@ -94,6 +94,14 @@ namespace dfa {
         /// of a regular expression.
         ///
         virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, constructor& cons);
+        
+        ///
+        /// \brief Returns the symbol at the specified position. Updates pos to point to the last character that makes up this symbol
+        ///
+        /// This translates quoted symbols like '\n' to their symbolic equivalent (0x0a in this case). Subclasses can override this to
+        /// add more quoting behaviour to the default.
+        ///
+        virtual int symbol_for_sequence(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end);
     };
 }
 
