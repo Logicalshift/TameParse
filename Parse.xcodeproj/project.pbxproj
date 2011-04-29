@@ -11,8 +11,6 @@
 		4B1A91A81366FF1F0018E595 /* ndfa.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91A61366FF1F0018E595 /* ndfa.h */; };
 		4B1A91AC136707680018E595 /* accept_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91AA136707680018E595 /* accept_action.cpp */; };
 		4B1A91AD136707680018E595 /* accept_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91AB136707680018E595 /* accept_action.h */; };
-		4B1A91B013670B600018E595 /* ndfa_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91AE13670B600018E595 /* ndfa_state.cpp */; };
-		4B1A91B113670B600018E595 /* ndfa_state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91AF13670B600018E595 /* ndfa_state.h */; };
 		4B1A91B413670BE30018E595 /* remapped_symbol_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B213670BE30018E595 /* remapped_symbol_map.cpp */; };
 		4B1A91B513670BE30018E595 /* remapped_symbol_map.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91B313670BE30018E595 /* remapped_symbol_map.h */; };
 		4B1A91B8136720DE0018E595 /* dfa_symbol_deduplicate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */; };
@@ -73,8 +71,6 @@
 		4B1A91A61366FF1F0018E595 /* ndfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa.h; sourceTree = "<group>"; };
 		4B1A91AA136707680018E595 /* accept_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = accept_action.cpp; sourceTree = "<group>"; };
 		4B1A91AB136707680018E595 /* accept_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = accept_action.h; sourceTree = "<group>"; };
-		4B1A91AE13670B600018E595 /* ndfa_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ndfa_state.cpp; sourceTree = "<group>"; };
-		4B1A91AF13670B600018E595 /* ndfa_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa_state.h; sourceTree = "<group>"; };
 		4B1A91B213670BE30018E595 /* remapped_symbol_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = remapped_symbol_map.cpp; sourceTree = "<group>"; };
 		4B1A91B313670BE30018E595 /* remapped_symbol_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = remapped_symbol_map.h; sourceTree = "<group>"; };
 		4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_symbol_deduplicate.cpp; sourceTree = "<group>"; };
@@ -193,8 +189,6 @@
 				4B1A91C3136858720018E595 /* ndfa_regex.h */,
 				4B1A91A51366FF1F0018E595 /* ndfa.cpp */,
 				4B1A91A61366FF1F0018E595 /* ndfa.h */,
-				4B1A91AE13670B600018E595 /* ndfa_state.cpp */,
-				4B1A91AF13670B600018E595 /* ndfa_state.h */,
 				4B1A91AA136707680018E595 /* accept_action.cpp */,
 				4B1A91AB136707680018E595 /* accept_action.h */,
 				4BD7FE13132D08AA00025433 /* state.cpp */,
@@ -269,7 +263,6 @@
 				4BD7FE471335127A00025433 /* symbol_map.h in Headers */,
 				4B1A91A81366FF1F0018E595 /* ndfa.h in Headers */,
 				4B1A91AD136707680018E595 /* accept_action.h in Headers */,
-				4B1A91B113670B600018E595 /* ndfa_state.h in Headers */,
 				4B1A91B513670BE30018E595 /* remapped_symbol_map.h in Headers */,
 				4B1A91BC136821CB0018E595 /* epsilon.h in Headers */,
 				4B1A91C5136858720018E595 /* ndfa_regex.h in Headers */,
@@ -356,7 +349,6 @@
 				4BD7FE461335127A00025433 /* symbol_map.cpp in Sources */,
 				4B1A91A71366FF1F0018E595 /* ndfa.cpp in Sources */,
 				4B1A91AC136707680018E595 /* accept_action.cpp in Sources */,
-				4B1A91B013670B600018E595 /* ndfa_state.cpp in Sources */,
 				4B1A91B413670BE30018E595 /* remapped_symbol_map.cpp in Sources */,
 				4B1A91BB136821CB0018E595 /* epsilon.cpp in Sources */,
 				4B1A91C4136858720018E595 /* ndfa_regex.cpp in Sources */,

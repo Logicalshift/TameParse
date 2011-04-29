@@ -23,10 +23,10 @@ bool transition::operator==(const transition& compareTo) const {
 
 /// \brief Orders this symbol set
 bool transition::operator<(const transition& compareTo) const {
-    return m_NewState < compareTo.m_NewState || m_SymbolSet < compareTo.m_NewState;
+    return m_NewState < compareTo.m_NewState || m_SymbolSet < compareTo.m_SymbolSet;
 }
 
 /// \brief Orders this symbol set
 bool transition::operator<=(const transition& compareTo) const {
-    return m_NewState < compareTo.m_NewState || m_SymbolSet < compareTo.m_NewState || operator==(compareTo);
+    return m_NewState < compareTo.m_NewState || m_SymbolSet < compareTo.m_SymbolSet || operator==(compareTo);
 }

@@ -120,6 +120,7 @@ void test_dfa_single_regex::run_tests() {
     test("range3", "[^a-z]", "0", "a");
     test("range4", "[abc]+", "abc", "d");
     test("range5", "[a-zA-Z]+", "azAZ", "0");
+    test("range5-withor", "([a-z]|[A-Z])+", "azAZ", "0");
     test("range6", "[a-c]+", "abc", "d");
     test("range7", "[azAZ]+", "azAZ", "0");
     test("range8", "[azAZ]+", "a", "0");
