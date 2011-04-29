@@ -21,8 +21,12 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     lexer myLexer;
     myLexer.add_symbol(regex, 1);
     
+    lexer myCompactLexer;
+    myCompactLexer.add_symbol(regex, 1);
+    
     // Compile it
-    myLexer.compile(true);
+    myLexer.compile(false);
+    myCompactLexer.compile(true);
     
     // Try the accepting phrase
     stringstream acceptIn(accepting);
@@ -31,6 +35,14 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     // Get the first lexeme
     lexeme* first;
     (*stream) >> first;
+    delete stream;
+    
+    // Try again with the compact lexer
+    stringstream acceptCompactIn(accepting);
+    stream = myCompactLexer.create_stream_from(acceptCompactIn);
+    
+    lexeme* firstCompact;
+    (*stream) >> firstCompact;
     delete stream;
     
     // Try the rejecting phrase
@@ -43,18 +55,24 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     delete stream;
 
     // first lexeme should be an accepting lexeme, second should be a rejection
-    if (first != NULL && fail != NULL && first->matched() == 1 && first->content<char>() == accepting && fail->matched() == -1 && fail->content().size() == 1) {
+    if (first != NULL && fail != NULL && first->matched() == 1 && first->content<char>() == accepting
+        && firstCompact != NULL && firstCompact->matched() == 1 && firstCompact->content<char>() == accepting
+        && fail != NULL && fail->matched() == -1 && fail->content().size() == 1) {
         report(name, true);
     } else {
         // Break things down if we get a failure
         report(name + "-accept", first != NULL && first->matched() == 1);
         report(name + "-content", first != NULL && first->content<char>() == accepting);
-            
+
+        report(name + "-compact-accept", firstCompact != NULL && firstCompact->matched() == 1);
+        report(name + "-compact-content", firstCompact != NULL && firstCompact->content<char>() == accepting);
+
         report(name + "-reject", fail != NULL && fail->matched() == -1);
         report(name + "-rejectone", fail != NULL && fail->content().size() == 1);
     }
 
     delete first;
+    delete firstCompact;
     delete fail;
 }
 
