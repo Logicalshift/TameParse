@@ -15,13 +15,65 @@
 
 namespace dfa {
     ///
+    /// \brief Table row for a state_machine, using a flat representation
+    ///
+    /// This row type is suitable for state machines that tend to have fully populated states. Lexers for most languages have this
+    /// property. This will be inefficient with state machines with states that tend to be partially populated: simple regular
+    /// expressions tend to work this way.
+    ///
+    /// Lookups in this kind of table will generally be very fast.
+    ///
+    /// This should really be an inner class of state_machine, but C++ just sucks too much to forward declare it so we can use
+    /// it as a template argument.
+    ///
+    class state_machine_flat_table {
+    private:
+        /// \brief Row data
+        int* m_Row;
+        
+    public:
+        /// \brief Initialises an invalid row
+        inline state_machine_flat_table()
+        : m_Row(NULL) {
+        }
+        
+        /// \brief Initialises this row
+        void fill(int maxSet, const state& thisState) {
+            // Allocate the row
+            m_Row = new int[maxSet];
+            
+            // Fill in the default values
+            for (int x=0; x<maxSet; x++) {
+                m_Row[x] = -1;
+            }
+            
+            // Fill in the transitions
+            for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+                m_Row[transit->symbol_set()] = transit->new_state();
+            }
+        }
+        
+        /// \brief Destroys this row
+        inline ~state_machine_flat_table() {
+            delete[] m_Row;
+        }
+        
+        /// \brief Looks up the state for a given symbol set (which must be greater than 0 and less than the maxSet value passed into the constructor)
+        inline int operator[](int symbolSet) const {
+            return m_Row[symbolSet];
+        }
+    };
+    
+    ///
     /// \brief Class that represents a deterministic finite automaton (DFA)
     ///
     /// This class stores the state machine associated with a DFA in a way that is efficient to run. It's efficient in memory if most states have 
     /// transitions for most symbol sets (state machines for the lexers for many languages have this property, but state machines for matching
     /// single regular expressions tend not to)
     ///
-    template<class symbol_type> class state_machine {
+    /// row_type can be adjusted to change how data for individual states are stored. The default type is 
+    ///
+    template<class symbol_type, class row_type = state_machine_flat_table> class state_machine {
     private:
         /// \brief The translator for the symbols 
         symbol_translator<symbol_type> m_Translator;
@@ -35,7 +87,7 @@ namespace dfa {
         /// \brief The state table (one row per state, m_MaxSet entries per row)
         ///
         /// Each entry can be -1 to indicate a rejection, or the state to move to
-        int** m_States;
+        row_type* m_States;
         
     public:
         /// \brief Builds up a state machine from a DFA
@@ -48,32 +100,20 @@ namespace dfa {
         , m_MaxState(dfa.count_states())
         , m_MaxSet(dfa.symbols().count_sets()) {
             // Allocate the states array
-            m_States = new int*[m_MaxState];
+            m_States = new row_type[m_MaxState];
             
             // Process the states
             for (int stateNum=0; stateNum<m_MaxState; stateNum++) {
                 // Fetch the next state
                 const state& thisState = dfa.get_state(stateNum);
                 
-                // Allocate the array for this state
-                int* stateData      = new int[m_MaxSet];
-                m_States[stateNum]  = stateData;
-                
-                // Fill in as blank
-                for (int x=0; x<m_MaxSet; x++) stateData[x] = -1;
-                
-                // Fill in the transitions
-                for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
-                    stateData[transit->symbol_set()] = transit->new_state();
-                }
+                // Fill this row in
+                m_States[stateNum].fill(m_MaxSet, thisState);
             }
         }
         
         /// \brief Destructor
         virtual ~state_machine() {
-            for (int x=0; x<m_MaxState; x++) {
-                delete[] m_States[x];
-            }
             delete[] m_States;
         }
         
@@ -85,7 +125,12 @@ namespace dfa {
             mySize += sizeof(int[m_MaxSet])*m_MaxState;
             return mySize;
         }
+        
+    public:
+        /// \brief Row type that generates a flat table
+        typedef state_machine_flat_table flat_table;
 
+    public:
         /// \brief Given a state and a symbol set, returns a new state
         ///
         /// Unlike run() this performs no bounds checking so might crash or perform strangely when supplied with invalid state IDs or symbol sets
