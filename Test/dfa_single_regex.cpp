@@ -127,4 +127,5 @@ void test_dfa_single_regex::run_tests() {
     test("range9", "[azAZ]+", "z", "0");
     test("range10", "[azAZ]+", "A", "0");
     test("range11", "[azAZ]+", "Z", "0");
+    test("range12", "([a-f][c-h])+", "ccah", "ha");
 }
