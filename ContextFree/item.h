@@ -14,9 +14,12 @@
 #include <vector>
 #include <typeinfo>
 
+#include "Util/container.h"
+
 namespace contextfree {
     /// \brief Forward declaration of a container for items
-    class item_container;
+    class item;
+    typedef util::container<item> item_container;
     
     /// \brief Forward declaration of a grammar
     class grammar;
@@ -141,144 +144,6 @@ namespace contextfree {
         
         /// \brief Comparison function, returns true if a is less than b
         static bool compare(const item& a, const item& b);
-    };
-    
-    /// \brief Class used to contain a reference to an item
-    class item_container {
-    private:
-        /// \brief Structure used to represent a reference to an item
-        struct item_reference {
-            /// \brief Creates a reference to an item, with a reference count of 1. The item will be deleted if the reference count reached 0 and willDelete is true
-            inline item_reference(item* it, bool willDelete)
-            : m_Item(it)
-            , m_RefCount(1)
-            , m_WillDelete(willDelete) {
-            }
-            
-            inline ~item_reference() {
-                if (m_WillDelete && m_Item) delete m_Item;
-            }
-            
-            item*       m_Item;
-            
-        private:
-            const bool m_WillDelete;
-            mutable int m_RefCount;
-            
-        public:
-            /// \brief Decreases the reference count and deletes this reference if it reaches 0
-            inline void release() const {
-                if (m_RefCount < 0) {
-                    delete this;
-                }
-                else {
-                    m_RefCount--;
-                }
-            }
-            
-            /// \brief Increases the reference count
-            inline void retain() const {
-                m_RefCount++;
-            }
-        };
-        
-        /// \brief Reference to the item in this container
-        item_reference* m_Ref;
-        
-    public:
-        /// \brief Dereferences the content of this container
-        inline item* operator->() {
-            return m_Ref->m_Item;
-        }
-
-        /// \brief Dereferences the content of this container
-        inline const item* operator->() const {
-            return m_Ref->m_Item;
-        }
-        
-        /// \brief Dereferences the content of this container
-        inline item& operator*() {
-            return *m_Ref->m_Item;
-        }
-        
-        /// \brief Dereferences the content of this container
-        inline const item& operator*() const {
-            return *m_Ref->m_Item;
-        }
-        
-        /// \brief Dereferences the content of this container
-        inline operator item*() {
-            return m_Ref->m_Item;
-        }
-        
-        /// \brief Dereferences the content of this container
-        inline operator const item*() const {
-            return m_Ref->m_Item;
-        }
-        
-        /// \brief Ordering operator
-        inline bool operator<(const item_container& compareTo) const {
-            return item::compare(m_Ref->m_Item, compareTo.m_Ref->m_Item);
-        }
-        
-        /// \brief Comparison operator
-        inline bool operator==(const item_container& compareTo) const {
-            if (m_Ref->m_Item == compareTo.m_Ref->m_Item)                   return true;
-            if (m_Ref->m_Item == NULL || compareTo.m_Ref->m_Item == NULL)   return false;
-            
-            return (*m_Ref->m_Item) == *compareTo;
-        }
-
-    public:
-        /// \brief Default constructor (creates a reference to a NULL item)
-        inline item_container() {
-            m_Ref = new item_reference(NULL, true);
-        }
-        
-        /// \brief Creates a new container (clones the item)
-        inline item_container(const item& it) {
-            m_Ref = new item_reference(it.clone(), true);
-        }
-
-        /// \brief Creates a new container (direct reference to an existing item)
-        inline item_container(item* it) {
-            if (it) {
-                m_Ref = new item_reference(it, false);
-            } else {
-                m_Ref = NULL;
-            }
-        }
-
-        /// \brief Creates a new container (clones the item)
-        inline item_container(const item* it) {
-            if (it) {
-                m_Ref = new item_reference(it->clone(), true);
-            } else {
-                m_Ref = NULL;
-            }
-        }
-        
-        /// \brief Creates a new container
-        inline item_container(const item_container& copyFrom) {
-            m_Ref = copyFrom.m_Ref;
-            m_Ref->retain();
-        }
-        
-        /// \brief Assigns the content of this container
-        inline item_container& operator=(const item_container& assignFrom) {
-            if (&assignFrom == this) return *this;
-            
-            assignFrom.m_Ref->retain();
-            m_Ref->release();
-            m_Ref = assignFrom.m_Ref;
-
-            return *this;
-        }
-
-        /// \brief Deletes the item in this container
-        inline ~item_container() {
-            m_Ref->release();
-        }
     };
 };
 
