@@ -12,7 +12,15 @@
 #include <cstdlib>
 
 namespace util {
+    ///
     /// \brief Class used as a container for other classes
+    ///
+    /// This class actually stores a reference to an object, and copying a container will do reference counting to avoid
+    /// having to copy the item or using extra memory.
+    ///
+    /// ItemType must implement a clone() method to create a copy of the class, and a static compare(ItemType, ItemType)
+    /// method to order them (it should return true if the first item is less than the second).
+    ///
     template<typename ItemType> class container {
     private:
         /// \brief Structure used to represent a reference to an item

@@ -13,6 +13,7 @@
 #define _CONTEXTFREE_RULE_H
 
 #include "ContextFree/item.h"
+#include "Util/container.h"
 
 namespace contextfree {
     /// \brief Forward declaration of grammar
@@ -21,13 +22,16 @@ namespace contextfree {
     /// \brief Forward declaration of a rule
     class rule;
     
+    /// \brief Class that can contain a reference to a rule
+    typedef util::container<rule> rule_container;
+    
     /// \brief Set of rules
-    typedef std::set<rule> rule_set;
+    typedef std::set<rule_container> rule_set;
     
     /// \brief Maps rules to (something)
     template<typename Value> struct rule_map
     {
-        typedef std::map<rule, Value> type;
+        typedef std::map<rule_container, Value> type;
     };
         
     ///
@@ -90,6 +94,23 @@ namespace contextfree {
         /// \brief Returns the identifier for this rule in the specified grammar
         int identifier(const grammar& gram) const;
         
+        /// \brief Clone operator, so this rule can act as part of a container
+        inline rule* clone() const { return new rule(*this); }
+        
+        /// \brief Comparison operator, so this rule can act as part of a container
+        static inline bool compare(const rule& a, const rule& b) {
+            return a < b;
+        }
+
+        /// \brief Comparison operator, so this rule can act as part of a container
+        static inline bool compare(const rule* a, const rule* b) {
+            if (a == b) return false;
+            if (!a)     return true;
+            if (!b)     return false;
+                
+            return compare(*a, *b);
+        }
+
     public:
         /// \brief Appends the specified item to this rule
         rule& operator<<(const item_container& item);

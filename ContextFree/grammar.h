@@ -24,7 +24,28 @@ namespace contextfree {
         typedef std::map<int, rule_set> nonterminal_rule_map;
         
         /// \brief Map of rules to identifiers (filled in on request)
-        typedef rule_map<int> rule_identifier_map;
+        typedef rule_map<int>::type rule_identifier_map;
+        
+        /// \brief Class that can map identifiers to their string equivalent
+        typedef std::map<int, std::wstring> identifier_to_string;
+        
+        /// \brief Class that can map strings to the equivalent identifiers
+        typedef std::map<std::wstring, int> string_to_identifier;
+        
+        /// \brief The highest known nonterminal ID
+        int m_MaxNonterminal;
+        
+        /// \brief The nonterminals in this class
+        nonterminal_rule_map m_Nonterminals;
+        
+        /// \brief Maps rules to their identifiers
+        mutable rule_identifier_map m_RuleIdentifiers;
+        
+        /// \brief Nonterminals for the names in this grammar
+        string_to_identifier m_NameToNonterminal;
+        
+        /// \brief Names for the nonterminals in this grammar
+        identifier_to_string m_NonterminalToName;
         
     public:
         /// \brief Creates an empty grammar
