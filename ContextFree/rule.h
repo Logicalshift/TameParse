@@ -8,6 +8,7 @@
 
 #include <set>
 #include <map>
+#include <vector>
 
 #ifndef _CONTEXTFREE_RULE_H
 #define _CONTEXTFREE_RULE_H
@@ -27,6 +28,9 @@ namespace contextfree {
     
     /// \brief Set of rules
     typedef std::set<rule_container> rule_set;
+    
+    /// \brief List of rules
+    typedef std::vector<rule_container> rule_list;
     
     /// \brief Maps rules to (something)
     template<typename Value> struct rule_map

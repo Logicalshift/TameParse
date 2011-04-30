@@ -21,7 +21,7 @@ namespace contextfree {
     class grammar {
     public:
         /// \brief Map of nonterminal identifiers to rules
-        typedef std::map<int, rule_set> nonterminal_rule_map;
+        typedef std::map<int, rule_list> nonterminal_rule_map;
         
         /// \brief Map of rules to identifiers (filled in on request)
         typedef rule_map<int>::type rule_identifier_map;
@@ -60,13 +60,13 @@ namespace contextfree {
         
     public:
         /// \brief Returns the rules for the nonterminal with the specified identifier
-        rule_set& rules_for_nonterminal(int id);
+        rule_list& rules_for_nonterminal(int id);
         
         /// \brief Returns the rules for the nonterminal with the specified identifier (or an empty rule set if the nonterminal is not defined)
-        const rule_set& rules_for_nonterminal(int id) const;
+        const rule_list& rules_for_nonterminal(int id) const;
         
         /// \brief Returns the rules for the nonterminal with the specified name
-        rule_set& rules_for_nonterminal(const std::wstring& name);
+        rule_list& rules_for_nonterminal(const std::wstring& name);
         
         /// \brief Returns the nonterminal identifier for the specified name
         int id_for_nonterminal(const std::wstring& name);
@@ -91,6 +91,41 @@ namespace contextfree {
         /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
         /// progress, the first set for the requested item will be set to be 
         const item_set& first(const item& item) const;
+        
+    public:
+        ///
+        /// \brief Class for building rules
+        ///
+        class builder {
+        private:
+            friend class grammar;
+            
+            /// \brief The grammar that this rule belongs to
+            grammar& m_Grammar;
+            
+            /// \brief The rule that this is building
+            rule& m_Target;
+            
+            inline builder(rule& rule, grammar& gram) 
+            : m_Target(rule)
+            , m_Grammar(gram) { }
+            
+        public:
+            /// \brief Appends an item to the rule that this is building
+            builder& operator<<(const item& item);
+            
+            /// \brief Appends an item to the rule that this is building
+            builder& operator<<(const item_container& item);
+            
+            /// \brief Appends a new nonterminal item to the rule that this building
+            builder& operator<<(const std::wstring& nonterminal);
+            
+            /// \brief Appends a new terminal item to the rule that this is building
+            builder& operator<<(int terminal);
+        };
+        
+        /// \brief Begins defining a new rule for the nonterminal with the specified name
+        builder operator+=(const std::wstring& newNonterminal);
     };
 }
 

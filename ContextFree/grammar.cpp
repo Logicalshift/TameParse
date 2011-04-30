@@ -17,17 +17,17 @@ grammar::grammar()
 }
 
 /// \brief Returns the rules for the nonterminal with the specified identifier
-rule_set& grammar::rules_for_nonterminal(int id) {
+rule_list& grammar::rules_for_nonterminal(int id) {
     if (id >= m_MaxNonterminal) m_MaxNonterminal = id + 1;
     
     return m_Nonterminals[id];
 }
 
 // The set of 'no rules'
-static const rule_set empty_rule_set;
+static const rule_list empty_rule_set;
 
 /// \brief Returns the rules for the nonterminal with the specified identifier (or an empty rule set if the nonterminal is not defined)
-const rule_set& grammar::rules_for_nonterminal(int id) const {
+const rule_list& grammar::rules_for_nonterminal(int id) const {
     // Try to find this identifier
     nonterminal_rule_map::const_iterator found = m_Nonterminals.find(id);
     
@@ -39,10 +39,9 @@ const rule_set& grammar::rules_for_nonterminal(int id) const {
 }
 
 /// \brief Returns the rules for the nonterminal with the specified name
-rule_set& grammar::rules_for_nonterminal(const wstring& name) {
+rule_list& grammar::rules_for_nonterminal(const wstring& name) {
     return rules_for_nonterminal(id_for_nonterminal(name));
 }
-
 
 /// \brief Returns the nonterminal identifier for the specified name
 int grammar::id_for_nonterminal(const wstring& name) {
@@ -110,4 +109,41 @@ const item_set& grammar::first(const item& item) const {
     
     // Return the newly added item (have to do another lookup as map doesn't have a replace operator)
     return m_CachedFirstSets[item];
+}
+
+/// \brief Appends an item to the rule that this is building
+grammar::builder& grammar::builder::operator<<(const item& item) {
+    m_Target << item;
+    return *this;
+}
+
+/// \brief Appends an item to the rule that this is building
+grammar::builder& grammar::builder::operator<<(const item_container& item) {
+    m_Target << item;
+    return *this;
+}
+
+/// \brief Appends a new nonterminal item to the rule that this building
+grammar::builder& grammar::builder::operator<<(const std::wstring& ntName) {
+    nonterminal nt(m_Grammar.id_for_nonterminal(ntName));
+    m_Target << item_container(nt);
+    return *this;
+}
+
+/// \brief Appends a new terminal item to the rule that this is building
+grammar::builder& grammar::builder::operator<<(int term) {
+    terminal termObj(term);
+    m_Target << item_container(termObj);
+    return *this;
+}
+
+/// \brief Begins defining a new rule for the nonterminal with the specified name
+grammar::builder grammar::operator+=(const std::wstring& newNonterminal) {
+    int nonTerminalId = id_for_nonterminal(newNonterminal);
+    
+    rule_list&  list = rules_for_nonterminal(nonTerminalId);
+    nonterminal newNt(nonTerminalId);
+    list.push_back(rule(newNt));
+    
+    return builder(**list.rbegin(), *this);
 }
