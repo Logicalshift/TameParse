@@ -9,6 +9,8 @@
 #ifndef _CONTEXTFREE_RULE_H
 #define _CONTEXTFREE_RULE_H
 
+#include "ContextFree/item.h"
+
 namespace contextfree {
     /// \brief Forward declaration of grammar
     class grammar;
@@ -25,4 +27,4 @@ namespace contextfree {
 
 #endif
 
-#include "grammar.h"
+#include "ContextFree/grammar.h"
