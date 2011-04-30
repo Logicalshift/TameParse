@@ -9,7 +9,7 @@
 #ifndef _CONTEXTFREE_EBNF_ITEMS_H
 #define _CONTEXTFREE_EBNF_ITEMS_H
 
-#include "item.h"
+#include "ContextFree/item.h"
 
 namespace contextfree {
     /// \brief Forward declaration of a rule

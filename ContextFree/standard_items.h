@@ -9,7 +9,7 @@
 #ifndef _CONTEXTFREE_STANDARD_ITEMS_H
 #define _CONTEXTFREE_STANDARD_ITEMS_H
 
-#include "item.h"
+#include "ContextFree/item.h"
 
 namespace contextfree {
     ///

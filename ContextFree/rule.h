@@ -6,6 +6,9 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <set>
+#include <map>
+
 #ifndef _CONTEXTFREE_RULE_H
 #define _CONTEXTFREE_RULE_H
 
@@ -15,6 +18,18 @@ namespace contextfree {
     /// \brief Forward declaration of grammar
     class grammar;
     
+    /// \brief Forward declaration of a rule
+    class rule;
+    
+    /// \brief Set of rules
+    typedef std::set<rule> rule_set;
+    
+    /// \brief Maps rules to (something)
+    template<typename Value> struct rule_map
+    {
+        typedef std::map<rule, Value> type;
+    };
+        
     ///
     /// \brief Class representing a rule in a context-free grammar
     ///
@@ -25,6 +40,16 @@ namespace contextfree {
         
         /// \brief The items that make up this rule
         item_list m_Items;
+        
+    private:
+        /// \brief The last grammar that identifier() was called for (or NULL)
+        mutable const grammar* m_LastGrammar;
+        
+        /// \brief The identifier that was supplied to this rule in the specified grammar
+        ///
+        /// We cache the identifier for the purposes of performance: this makes it easy to very quickly
+        /// compare rules to see if they're identical or not, or order rules arbitrarily within a grammar.
+        mutable int m_Identifier;
         
     public:
         /// \brief Creates a copy of a rule
@@ -62,12 +87,15 @@ namespace contextfree {
         /// \brief Determines if this rule is the same as another
         bool operator==(const rule& compareTo) const;
         
+        /// \brief Returns the identifier for this rule in the specified grammar
+        int identifier(const grammar& gram) const;
+        
     public:
         /// \brief Appends the specified item to this rule
         rule& operator<<(const item_container& item);
     };
 }
 
-#endif
-
 #include "ContextFree/grammar.h"
+
+#endif

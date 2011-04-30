@@ -282,8 +282,8 @@ namespace contextfree {
     };
 };
 
-#endif
-
 #include "ContextFree/standard_items.h"
 #include "ContextFree/ebnf_items.h"
 #include "ContextFree/rule.h"
+
+#endif
