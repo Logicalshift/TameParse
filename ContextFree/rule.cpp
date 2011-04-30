@@ -88,3 +88,11 @@ rule& rule::operator<<(const item_container& item) {
     
     return *this;
 }
+
+/// \brief Returns the identifier for this rule in the specified grammar
+int rule::identifier(const grammar& gram) const {
+    if (&gram == m_LastGrammar) return m_Identifier;
+    
+    m_LastGrammar = &gram;
+    return m_Identifier = gram.identifier_for_rule(*this);
+}
