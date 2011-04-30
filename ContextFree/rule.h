@@ -30,6 +30,9 @@ namespace contextfree {
         /// \brief Creates a copy of a rule
         rule(const rule& copyFrom);
         
+        /// \brief Creates a copy of a rule with an alternative nonterminal
+        rule(const rule& copyFrom, const item_container& nonTerminal);
+        
         /// \brief Creates an empty rule, which reduces to the specified item
         rule(const item_container& nonTerminal);
         
@@ -52,6 +55,12 @@ namespace contextfree {
         
         /// \brief Last item in this rule
         inline iterator end() const { return m_Items.end(); }
+        
+        /// \brief Orders this rule relative to another
+        bool operator<(const rule& compareTo) const;
+        
+        /// \brief Determines if this rule is the same as another
+        bool operator==(const rule& compareTo) const;
         
     public:
         /// \brief Appends the specified item to this rule

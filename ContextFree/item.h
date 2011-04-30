@@ -92,6 +92,18 @@ namespace contextfree {
             /// (a very common ambiguity thanks to the prevalence of C++ syntax in many languages)
             guard,
             
+            /// \brief Items 0x100-0x1ff represent various kinds of EBNF item
+            ebnf = 0x100,
+            
+            /// \brief EBNF rule representing an optional item
+            optional = ebnf,
+            
+            /// \brief EBNF rule representing an item that can repeat (1 or more times, combine with optional for 0 or more)
+            repeat = ebnf + 1,
+            
+            /// \brief EBNF rule representing an alternative (either one of two different rules)
+            alternative = ebnf + 2,
+            
             /// \brief Values of this value or greater are available for users who want to create custom items 
             ///
             /// Note that when comparing item
@@ -128,35 +140,7 @@ namespace contextfree {
         };
         
         /// \brief Comparison function, returns true if a is less than b
-        static inline bool compare(const item& a, const item& b) {
-            // Compare the kinds
-            kind aKind = a.type();
-            kind bKind = b.type();
-            
-            if (aKind < bKind) return true;
-            if (aKind > bKind) return false;
-            
-            // For objects with an 'other' type, use RTTI to compare the underlying types
-            if (aKind >= other) {
-                // Compare the types of these items
-                bool isBefore = typeid(a).before(typeid(b));
-                
-                // a is less than b if its type is before b
-                if (isBefore) return true;
-                
-                // a is greater than b if the types aren't equal
-                if (typeid(a) != typeid(b)) return false;
-
-                // Call through to the items own less-than operator
-                return a < b;
-            }
-            
-            // For well-known kinds, we can just compare the symbols
-            int aSym = a.symbol();
-            int bSym = b.symbol();
-            
-            return aSym < bSym;
-        }
+        static bool compare(const item& a, const item& b);
     };
     
     /// \brief Class used to contain a reference to an item
@@ -296,4 +280,5 @@ namespace contextfree {
 #endif
 
 #include "ContextFree/standard_items.h"
+#include "ContextFree/ebnf_items.h"
 #include "ContextFree/rule.h"

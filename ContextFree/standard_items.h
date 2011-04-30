@@ -43,6 +43,9 @@ namespace contextfree {
     /// \brief Item representing a non-terminal symbol
     ///
     class nonterminal : public item {
+    private:
+        nonterminal(const item& noCopying);
+        
     public:
         /// \brief Creates a non-terminal item that matches the specified symbol
         nonterminal(int sym);
