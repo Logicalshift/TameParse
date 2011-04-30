@@ -18,6 +18,8 @@ namespace contextfree {
     ///
     class rule {
     private:
+        /// \brief The ID of the non-terminal symbol that this rule reduces to
+        int m_NonTerminal;
     };
 }
 
