@@ -17,10 +17,6 @@ terminal::terminal(int sym)
 : item(sym) {
 }
 
-/// \brief Destructor
-terminal::~terminal() {
-}
-
 /// \brief Creates a clone of this item
 item* terminal::clone() const {
     return new terminal(symbol());
@@ -48,10 +44,6 @@ item_set terminal::first(const grammar& gram) const {
 /// \brief Creates a non-terminal item that matches the specified symbol
 nonterminal::nonterminal(int sym)
 : item(sym) {
-}
-
-/// \brief Destructor
-nonterminal::~nonterminal() {
 }
 
 /// \brief Creates a clone of this item
@@ -108,10 +100,6 @@ guard::guard(int sym)
 : item(sym) {
 }
 
-/// \brief Destructor
-guard::~guard() {
-}
-
 /// \brief Creates a clone of this item
 item* guard::clone() const {
     return new guard(symbol());
@@ -139,10 +127,6 @@ item_set guard::first(const grammar& gram) const {
 /// \brief Creates a terminal that matches the specified symbol
 empty_item::empty_item() 
 : item(symbol_set::null) {
-}
-
-/// \brief Destructor
-empty_item::~empty_item() {
 }
 
 /// \brief Compares this item to another. Returns true if they are the same

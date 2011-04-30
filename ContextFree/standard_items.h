@@ -20,9 +20,6 @@ namespace contextfree {
         /// \brief Creates a terminal that matches the specified symbol
         terminal(int sym);
         
-        /// \brief Destructor
-        virtual ~terminal();
-        
         /// \brief Creates a clone of this item
         virtual item* clone() const;
 
@@ -50,9 +47,6 @@ namespace contextfree {
         /// \brief Creates a non-terminal item that matches the specified symbol
         nonterminal(int sym);
         
-        /// \brief Destructor
-        virtual ~nonterminal();
-        
         /// \brief Creates a clone of this item
         virtual item* clone() const;
         
@@ -77,9 +71,6 @@ namespace contextfree {
         /// \brief Creates a guard item that matches the rule with the specified identifier
         guard(int sym);
         
-        /// \brief Destructor
-        virtual ~guard();
-        
         /// \brief Creates a clone of this item
         virtual item* clone() const;
         
@@ -103,9 +94,6 @@ namespace contextfree {
     public:
         /// \brief Creates a terminal that matches the specified symbol
         empty_item();
-        
-        /// \brief Destructor
-        virtual ~empty_item();
         
         /// \brief Compares this item to another. Returns true if they are the same
         virtual bool operator==(const item& compareTo) const;
