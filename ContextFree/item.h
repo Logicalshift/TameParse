@@ -74,9 +74,6 @@ namespace contextfree {
             /// This isn't really an item at all, but rather a representation of an absence of an item.
             empty,
             
-            /// \brief Placeholder item indicating the follow set or lookahead for the current rule
-            follow,
-            
             /// \brief This item represents a lexical symbol
             terminal,
             
@@ -115,8 +112,7 @@ namespace contextfree {
         /// This set will always include the item itself by definition. Things like non-terminals should include themselves and the first
         /// set for the rules that make them up.
         ///
-        /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
-        /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
+        /// The 'empty' item indicates the first set should be extended to include anything after in the rule.
         virtual item_set first(const grammar& gram) const = 0;
         
     public:
@@ -299,4 +295,5 @@ namespace contextfree {
 
 #endif
 
+#include "ContextFree/standard_items.h"
 #include "ContextFree/rule.h"
