@@ -68,6 +68,9 @@ namespace contextfree {
         /// \brief Returns the rules for the nonterminal with the specified name
         rule_list& rules_for_nonterminal(const std::wstring& name);
         
+        /// \brief Returns the rules for the nonterminal with the specified name
+        inline rule_list& operator[](std::wstring& nonterminalName) { return rules_for_nonterminal(nonterminalName); }
+        
         /// \brief Returns the nonterminal identifier for the specified name
         int id_for_nonterminal(const std::wstring& name);
         

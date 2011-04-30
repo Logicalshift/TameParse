@@ -47,6 +47,7 @@
 		4B1A9208136C5CC60018E595 /* ebnf_items.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A9206136C5CC60018E595 /* ebnf_items.h */; };
 		4B1A920C136C794D0018E595 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920A136C794D0018E595 /* container.cpp */; };
 		4B1A920D136C794D0018E595 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A920B136C794D0018E595 /* container.h */; };
+		4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920F136C97220018E595 /* contextfree_firstset.cpp */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -123,6 +124,8 @@
 		4B1A9206136C5CC60018E595 /* ebnf_items.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ebnf_items.h; sourceTree = "<group>"; };
 		4B1A920A136C794D0018E595 /* container.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = container.cpp; sourceTree = "<group>"; };
 		4B1A920B136C794D0018E595 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = container.h; sourceTree = "<group>"; };
+		4B1A920F136C97220018E595 /* contextfree_firstset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = contextfree_firstset.cpp; sourceTree = "<group>"; };
+		4B1A9210136C97220018E595 /* contextfree_firstset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextfree_firstset.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -200,6 +203,15 @@
 				4B1A920B136C794D0018E595 /* container.h */,
 			);
 			path = Util;
+			sourceTree = "<group>";
+		};
+		4B1A920E136C96250018E595 /* ContextFree */ = {
+			isa = PBXGroup;
+			children = (
+				4B1A920F136C97220018E595 /* contextfree_firstset.cpp */,
+				4B1A9210136C97220018E595 /* contextfree_firstset.h */,
+			);
+			name = ContextFree;
 			sourceTree = "<group>";
 		};
 		4BD7FDEE132D05D600025433 = {
@@ -285,6 +297,7 @@
 				4BD7FE3A132D526C00025433 /* test_fixture.cpp */,
 				4BD7FE3B132D526C00025433 /* test_fixture.h */,
 				4BD7FE40132D547E00025433 /* Dfa */,
+				4B1A920E136C96250018E595 /* ContextFree */,
 			);
 			path = Test;
 			sourceTree = "<group>";
@@ -446,6 +459,7 @@
 				4B1A91C113682E050018E595 /* dfa_ndfa.cpp in Sources */,
 				4B1A91D01368B8D70018E595 /* dfa_symbol_translator.cpp in Sources */,
 				4B1A91F2136A244D0018E595 /* dfa_single_regex.cpp in Sources */,
+				4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -81,10 +81,10 @@ item_set nonterminal::first(const grammar& gram) const {
     result.insert(this);
 
     // Ask the grammar for the rules for this nonterminal
-    const rule_set& rules = gram.rules_for_nonterminal(symbol());
+    const rule_list& rules = gram.rules_for_nonterminal(symbol());
     
     // Merge in the first set for each of the initial symbols
-    for (rule_set::const_iterator it = rules.begin(); it != rules.end(); it++) {
+    for (rule_list::const_iterator it = rules.begin(); it != rules.end(); it++) {
         // Get the items for this rule
         const item_list& ruleItems = (*it)->items();
         
