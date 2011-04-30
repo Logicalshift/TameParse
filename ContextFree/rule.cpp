@@ -29,14 +29,17 @@ rule::rule(const item_container& nonTerminal)
 }
 
 /// \brief Creates an empty rule with a nonterminal identifier
-rule::rule(const int nonTerminal)
-: m_NonTerminal(contextfree::nonterminal(nonTerminal)) {
+rule::rule(const int nonTerminal) {
+    contextfree::nonterminal nt(nonTerminal);
+    m_NonTerminal = item_container(nt);
 }
 
 /// \brief Copies the content of a rule into this one
 rule& rule::operator=(const rule& copyFrom) {
     m_NonTerminal   = copyFrom.m_NonTerminal;
     m_Items         = copyFrom.m_Items;
+    
+    return *this;
 }
 
 /// \brief Orders this rule relative to another
@@ -82,4 +85,6 @@ bool rule::operator==(const rule& compareTo) const {
 rule& rule::operator<<(const item_container& item) {
     // Add this item to the list of items
     m_Items.push_back(item);
+    
+    return *this;
 }

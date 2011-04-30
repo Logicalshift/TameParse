@@ -230,6 +230,11 @@ namespace contextfree {
         }
 
     public:
+        /// \brief Default constructor (creates a reference to a NULL item)
+        inline item_container() {
+            m_Ref = new item_reference(NULL, true);
+        }
+        
         /// \brief Creates a new container (clones the item)
         inline item_container(const item& it) {
             m_Ref = new item_reference(it.clone(), true);
