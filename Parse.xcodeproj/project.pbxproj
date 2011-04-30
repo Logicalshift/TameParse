@@ -35,6 +35,10 @@
 		4B1A91EC136A1A4E0018E595 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91EA136A1A4D0018E595 /* lexer.cpp */; };
 		4B1A91ED136A1A4E0018E595 /* lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91EB136A1A4D0018E595 /* lexer.h */; };
 		4B1A91F2136A244D0018E595 /* dfa_single_regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91EE136A21F50018E595 /* dfa_single_regex.cpp */; };
+		4B1A91F7136C201C0018E595 /* grammar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91F5136C201C0018E595 /* grammar.cpp */; };
+		4B1A91F8136C201C0018E595 /* grammar.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91F6136C201C0018E595 /* grammar.h */; };
+		4B1A91FB136C207F0018E595 /* rule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91F9136C207F0018E595 /* rule.cpp */; };
+		4B1A91FC136C207F0018E595 /* rule.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91FA136C207F0018E595 /* rule.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -99,6 +103,10 @@
 		4B1A91EB136A1A4D0018E595 /* lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer.h; sourceTree = "<group>"; };
 		4B1A91EE136A21F50018E595 /* dfa_single_regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_single_regex.cpp; sourceTree = "<group>"; };
 		4B1A91EF136A21F50018E595 /* dfa_single_regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_single_regex.h; sourceTree = "<group>"; };
+		4B1A91F5136C201C0018E595 /* grammar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grammar.cpp; sourceTree = "<group>"; };
+		4B1A91F6136C201C0018E595 /* grammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grammar.h; sourceTree = "<group>"; };
+		4B1A91F9136C207F0018E595 /* rule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rule.cpp; sourceTree = "<group>"; };
+		4B1A91FA136C207F0018E595 /* rule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rule.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -145,11 +153,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4B1A91F3136C1FEF0018E595 /* Grammar */ = {
+		4B1A91F3136C1FEF0018E595 /* ContextFree */ = {
 			isa = PBXGroup;
 			children = (
+				4B1A91F5136C201C0018E595 /* grammar.cpp */,
+				4B1A91F6136C201C0018E595 /* grammar.h */,
+				4B1A91F9136C207F0018E595 /* rule.cpp */,
+				4B1A91FA136C207F0018E595 /* rule.h */,
 			);
-			path = Grammar;
+			path = ContextFree;
 			sourceTree = "<group>";
 		};
 		4B1A91F4136C1FF00018E595 /* Lr */ = {
@@ -164,7 +176,7 @@
 			children = (
 				4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */,
 				4BD7FE12132D087800025433 /* Dfa */,
-				4B1A91F3136C1FEF0018E595 /* Grammar */,
+				4B1A91F3136C1FEF0018E595 /* ContextFree */,
 				4B1A91F4136C1FF00018E595 /* Lr */,
 				4BD7FDFB132D05D600025433 /* Parse */,
 				4BD7FE32132D4F1F00025433 /* Test */,
@@ -289,6 +301,8 @@
 				4B1A91DC1369B7510018E595 /* position.h in Headers */,
 				4B1A91E8136A04C70018E595 /* basic_lexer.h in Headers */,
 				4B1A91ED136A1A4E0018E595 /* lexer.h in Headers */,
+				4B1A91F8136C201C0018E595 /* grammar.h in Headers */,
+				4B1A91FC136C207F0018E595 /* rule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,6 +389,8 @@
 				4B1A91DB1369B7510018E595 /* position.cpp in Sources */,
 				4B1A91E7136A04C70018E595 /* basic_lexer.cpp in Sources */,
 				4B1A91EC136A1A4E0018E595 /* lexer.cpp in Sources */,
+				4B1A91F7136C201C0018E595 /* grammar.cpp in Sources */,
+				4B1A91FB136C207F0018E595 /* rule.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
