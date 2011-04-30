@@ -79,6 +79,9 @@ namespace contextfree {
         /// (Rules can be set to reduce to any kind of item, but only nonterminals are useful by default)
         inline item_container nonterminal() { return m_NonTerminal; }
         
+        /// \brief The items in this rule
+        inline const item_list& items() const { return m_Items; }
+        
         /// \brief First item in this rule
         inline iterator begin() const { return m_Items.begin(); }
         

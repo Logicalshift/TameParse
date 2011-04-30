@@ -19,7 +19,7 @@ namespace contextfree {
     /// \brief Class representing a context-free grammar
     ///
     class grammar {
-    private:
+    public:
         /// \brief Map of nonterminal identifiers to rules
         typedef std::map<int, rule_set> nonterminal_rule_map;
         
@@ -32,14 +32,15 @@ namespace contextfree {
         /// \brief Class that can map strings to the equivalent identifiers
         typedef std::map<std::wstring, int> string_to_identifier;
         
+        /// \brief Item 
+        typedef item_map<item_set>::type item_set_map;
+        
+    private:
         /// \brief The highest known nonterminal ID
         int m_MaxNonterminal;
         
         /// \brief The nonterminals in this class
         nonterminal_rule_map m_Nonterminals;
-        
-        /// \brief Maps rules to their identifiers
-        mutable rule_identifier_map m_RuleIdentifiers;
         
         /// \brief Nonterminals for the names in this grammar
         string_to_identifier m_NameToNonterminal;
@@ -47,6 +48,12 @@ namespace contextfree {
         /// \brief Names for the nonterminals in this grammar
         identifier_to_string m_NonterminalToName;
         
+        /// \brief Maps rules to their identifiers
+        mutable rule_identifier_map m_RuleIdentifiers;
+        
+        /// \brief Cached map of FIRST sets for this grammar
+        mutable item_set_map m_CachedFirstSets;
+
     public:
         /// \brief Creates an empty grammar
         grammar();
@@ -54,6 +61,9 @@ namespace contextfree {
     public:
         /// \brief Returns the rules for the nonterminal with the specified identifier
         rule_set& rules_for_nonterminal(int id);
+        
+        /// \brief Returns the rules for the nonterminal with the specified identifier (or an empty rule set if the nonterminal is not defined)
+        const rule_set& rules_for_nonterminal(int id) const;
         
         /// \brief Returns the rules for the nonterminal with the specified name
         rule_set& rules_for_nonterminal(const std::wstring& name);
@@ -64,6 +74,23 @@ namespace contextfree {
     public:
         /// \brief Returns an identifier given a rule
         int identifier_for_rule(const rule& rule) const;
+        
+    public:
+        /// \brief Clears the caches associated with this grammar
+        ///
+        /// This is necessary after adding new rules or items to this grammar, as doing this will cause things
+        /// like the cache of FIRST sets to become invalid. It is the responsibility of the object making modifications
+        /// to make this call at the appropriate time.
+        void clear_caches() const;
+        
+        /// \brief Retrieves the cached value, or calculates the set FIRST(item)
+        ///
+        /// This is the set of symbols that can appear at the beginning of the specified item. This is calculated recursively,
+        /// so if the item is a nonterminal, then the set will contain all of the terminals that can begin that item.
+        ///
+        /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
+        /// progress, the first set for the requested item will be set to be 
+        const item_set& first(const item& item) const;
     };
 }
 
