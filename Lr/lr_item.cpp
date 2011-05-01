@@ -25,6 +25,14 @@ lr0_item::lr0_item(const grammar* gram, contextfree::rule* r, int offset)
 , m_Grammar(gram) {
 }
 
+
+/// \brief Creates an LR(0) item by referencing an existing rule
+lr0_item::lr0_item(const contextfree::grammar* gram, const contextfree::rule_container& r, int offset)
+: m_Rule(r)
+, m_Offset(offset)
+, m_Grammar(gram) {
+}
+
 /// \brief Creates a copy of an existing LR(0) item
 lr0_item::lr0_item(const lr0_item& copyFrom)
 : m_Rule(copyFrom.m_Rule)
@@ -78,6 +86,12 @@ lr1_item::lr1_item(const grammar* gram, const contextfree::rule& rule, int offse
 
 /// \brief Constructs an LR(1) item by creating a reference to an existing rule
 lr1_item::lr1_item(const grammar* gram, contextfree::rule* rule, int offset, const lookahead_set& lookahead)
+: m_Lr0Item(gram, rule, offset)
+, m_LookAhead(lookahead) {
+}
+
+/// \brief Constructs an LR(1) item by creating a reference to an existing rule
+lr1_item::lr1_item(const contextfree::grammar* gram, const contextfree::rule_container& rule, int offset, const lookahead_set& lookahead) 
 : m_Lr0Item(gram, rule, offset)
 , m_LookAhead(lookahead) {
 }

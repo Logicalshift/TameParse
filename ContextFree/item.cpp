@@ -7,7 +7,9 @@
 //
 
 #include "item.h"
+#include "Lr/lr_item.h"
 
+using namespace lr;
 using namespace contextfree;
 
 /// \brief Destructor
@@ -58,4 +60,23 @@ bool item::compare(const item& a, const item& b) {
     int bSym = b.symbol();
     
     return aSym < bSym;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+///
+/// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
+/// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
+/// to which new items can be added (and the grammar so rules can be looked up).
+///
+/// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
+/// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
+void item::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+    // Nothing to do by default
+}
+/// \brief True if a transition (new state) should be generated for this item
+///
+/// Should return false for any item that acts like the empty item
+bool item::generate_transition() {
+    // True by default
+    return true;
 }

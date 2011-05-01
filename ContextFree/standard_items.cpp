@@ -8,8 +8,10 @@
 
 #include "standard_items.h"
 #include "symbol_set.h"
+#include "Lr/lr_item.h"
 
 using namespace dfa;
+using namespace lr;
 using namespace contextfree;
 
 /// \brief Creates a terminal that matches the specified symbol
@@ -54,6 +56,25 @@ item* nonterminal::clone() const {
 /// \brief The type of this item
 item::kind nonterminal::type() const {
     return item::nonterminal;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+///
+/// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
+/// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
+/// to which new items can be added (and the grammar so rules can be looked up).
+///
+/// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
+/// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
+void nonterminal::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+    // Get the rules for this nonterminal
+    const rule_list& ntRules = gram.rules_for_nonterminal(symbol());
+    
+    // Generate new rules for each of these, and add to the state
+    for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
+        lr0_item newItem(&gram, *it, 0);
+        state.insert(newItem);
+    }
 }
 
 /// \brief Constant empty item
@@ -163,6 +184,29 @@ item_set empty_item::first(const grammar& gram) const {
     item_set result;
     result.insert(this);
     return result;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+///
+/// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
+/// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
+/// to which new items can be added (and the grammar so rules can be looked up).
+///
+/// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
+/// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
+void empty_item::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+    // The empty item can always be immediately skipped
+    lr0_item newItem(&gram, item.rule(), item.offset()+1);
+    
+    // Insert the new item into the state
+    state.insert(newItem);
+}
+
+
+/// \brief True if a transition (new state) should be generated for this item
+bool empty_item::generate_transition() {
+    // The empty item never appears as a symbol by itself, so the parser should not generate a transition for it
+    return false;
 }
 
 /// \brief Creates a terminal that matches the specified symbol

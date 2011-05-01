@@ -25,6 +25,9 @@ namespace lr {
     /// \brief Container for an LR(1) item
     typedef util::container<lr1_item> lr1_item_container;
     
+    /// \brief Set of LR(0) items
+    typedef std::set<lr0_item_container> lr0_item_set;
+    
     ///
     /// \brief Representation of an LR(0) item
     ///
@@ -53,6 +56,9 @@ namespace lr {
         
         /// \brief Creates an LR(0) item by referencing an existing rule
         lr0_item(const contextfree::grammar* gram, contextfree::rule* rule, int offset);
+        
+        /// \brief Creates an LR(0) item by referencing an existing rule
+        lr0_item(const contextfree::grammar* gram, const contextfree::rule_container& rule, int offset);
         
         /// \brief Creates a copy of an existing LR(0) item
         lr0_item(const lr0_item& copyFrom);
@@ -127,6 +133,9 @@ namespace lr {
         
         /// \brief Constructs an LR(1) item by creating a reference to an existing rule
         lr1_item(const contextfree::grammar* gram, contextfree::rule* rule, int offset, const lookahead_set& lookahead);
+        
+        /// \brief Constructs an LR(1) item by creating a reference to an existing rule
+        lr1_item(const contextfree::grammar* gram, const contextfree::rule_container& rule, int offset, const lookahead_set& lookahead);
         
         /// \brief Creates a copy of an LR(1) item
         lr1_item(const lr1_item& copyFrom);

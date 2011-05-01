@@ -16,6 +16,17 @@
 
 #include "Util/container.h"
 
+namespace lr {
+    /// \brief Forward declaration of an LR(0) item
+    class lr0_item;
+    
+    /// \brief Class that can contain an reference to a LR(0) item
+    typedef util::container<lr0_item> lr0_item_container;
+    
+    /// \brief Set of LR(0) items
+    typedef std::set<lr0_item_container> lr0_item_set;    
+}
+
 namespace contextfree {
     /// \brief Forward declaration of a container for items
     class item;
@@ -132,6 +143,21 @@ namespace contextfree {
         ///
         /// The 'empty' item indicates the first set should be extended to include anything after in the rule.
         virtual item_set first(const grammar& gram) const = 0;
+        
+        /// \brief Computes the closure of this rule in the specified grammar
+        ///
+        /// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
+        /// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
+        /// to which new items can be added (and the grammar so rules can be looked up).
+        ///
+        /// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
+        /// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
+        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
+        
+        /// \brief True if a transition (new state) should be generated for this item
+        ///
+        /// Should return false for any item that acts like the empty item
+        virtual bool generate_transition();
         
     public:
         /// \brief Comparison function, returns true if a is less than b, by content

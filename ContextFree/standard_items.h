@@ -61,6 +61,9 @@ namespace contextfree {
         /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
+        
+        /// \brief Computes the closure of this item
+        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
     };
     
     ///
@@ -107,6 +110,9 @@ namespace contextfree {
         /// \brief The type of this item
         virtual kind type() const;
         
+        /// \brief Computes the closure of this item
+        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
+        
         /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
         ///
         /// This set will always include the item itself by definition. Things like non-terminals should include themselves and the first
@@ -115,6 +121,9 @@ namespace contextfree {
         /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
+        
+        /// \brief True if a transition (new state) should be generated for this item
+        virtual bool generate_transition();
     };
     
     ///
