@@ -12,21 +12,24 @@ using namespace contextfree;
 using namespace lr;
 
 /// \brief Creates an LR(0) item by copying a rule
-lr0_item::lr0_item(const contextfree::rule& r, int offset)
+lr0_item::lr0_item(const grammar* gram, const contextfree::rule& r, int offset)
 : m_Rule(r)
-, m_Offset(offset) {
+, m_Offset(offset)
+, m_Grammar(gram) {
 }
 
 /// \brief Creates an LR(0) item by referencing an existing rule
-lr0_item::lr0_item(const contextfree::rule* r, int offset)
+lr0_item::lr0_item(const grammar* gram, contextfree::rule* r, int offset)
 : m_Rule(r)
-, m_Offset(offset) {
+, m_Offset(offset)
+, m_Grammar(gram) {
 }
 
 /// \brief Creates a copy of an existing LR(0) item
 lr0_item::lr0_item(const lr0_item& copyFrom)
 : m_Rule(copyFrom.m_Rule)
-, m_Offset(copyFrom.m_Offset) {
+, m_Offset(copyFrom.m_Offset)
+, m_Grammar(copyFrom.m_Grammar) {
 }
 
 /// \brief Copies an LR(0) item into this one
@@ -35,6 +38,7 @@ lr0_item& lr0_item::operator=(const lr0_item& copyFrom) {
     
     m_Rule      = copyFrom.m_Rule;
     m_Offset    = copyFrom.m_Offset;
+    m_Grammar   = copyFrom.m_Grammar;
     
     return *this;
 }
@@ -44,13 +48,20 @@ bool lr0_item::operator<(const lr0_item& compareTo) const {
     if (m_Offset < compareTo.m_Offset) return true;
     if (m_Offset > compareTo.m_Offset) return false;
     
-    return *m_Rule < *compareTo.m_Rule;
+    int ourId   = m_Grammar->identifier_for_rule(rule());
+    int theirId = m_Grammar->identifier_for_rule(compareTo.rule());
+    
+    return ourId < theirId;
 }
 
 /// \brief Compares two LR(0) items
 bool lr0_item::operator==(const lr0_item& compareTo) const {
     if (m_Offset != compareTo.m_Offset) return false;
-    return *m_Rule == *compareTo.m_Rule;
+    
+    int ourId   = m_Grammar->identifier_for_rule(rule());
+    int theirId = m_Grammar->identifier_for_rule(compareTo.rule());
+    
+    return ourId == theirId;
 }
 
 /// \brief Constructs an LR(1) item by appending lookahead to an LR(0) item
@@ -60,14 +71,14 @@ lr1_item::lr1_item(const lr0_item& core, const lookahead_set& lookahead)
 }
 
 /// \brief Constructs an LR(1) item by copying a rule
-lr1_item::lr1_item(const contextfree::rule& rule, int offset, const lookahead_set& lookahead) 
-: m_Lr0Item(rule, offset)
+lr1_item::lr1_item(const grammar* gram, const contextfree::rule& rule, int offset, const lookahead_set& lookahead) 
+: m_Lr0Item(gram, rule, offset)
 , m_LookAhead(lookahead) {
 }
 
 /// \brief Constructs an LR(1) item by creating a reference to an existing rule
-lr1_item::lr1_item(const contextfree::rule* rule, int offset, const lookahead_set& lookahead)
-: m_Lr0Item(rule, offset)
+lr1_item::lr1_item(const grammar* gram, contextfree::rule* rule, int offset, const lookahead_set& lookahead)
+: m_Lr0Item(gram, rule, offset)
 , m_LookAhead(lookahead) {
 }
 

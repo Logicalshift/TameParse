@@ -10,7 +10,7 @@
 #define _LR_LR_ITEM_H
 
 #include "Util/container.h"
-#include "ContextFree/rule.h"
+#include "ContextFree/grammar.h"
 
 namespace lr {
     /// \brief Forward declaration of an LR(0) item
@@ -38,6 +38,9 @@ namespace lr {
     ///
     class lr0_item {
     private:
+        /// \brief The grammar that the rule was defined in
+        const contextfree::grammar* m_Grammar;
+        
         /// \brief The rule for this item
         contextfree::rule_container m_Rule;
         
@@ -46,10 +49,10 @@ namespace lr {
         
     public:
         /// \brief Creates an LR(0) item by copying a rule
-        lr0_item(const contextfree::rule& rule, int offset);
+        lr0_item(const contextfree::grammar* gram, const contextfree::rule& rule, int offset);
         
         /// \brief Creates an LR(0) item by referencing an existing rule
-        lr0_item(const contextfree::rule* rule, int offset);
+        lr0_item(const contextfree::grammar* gram, contextfree::rule* rule, int offset);
         
         /// \brief Creates a copy of an existing LR(0) item
         lr0_item(const lr0_item& copyFrom);
@@ -64,6 +67,9 @@ namespace lr {
         bool operator==(const lr0_item& compareTo) const;
         
     public:
+        /// \brief The grammar that the rule is represented in
+        inline const contextfree::grammar& gram() const { return *m_Grammar; }
+        
         /// \brief The rule for this item
         inline const contextfree::rule& rule() const { return *m_Rule; }
         
@@ -117,10 +123,10 @@ namespace lr {
         lr1_item(const lr0_item& core, const lookahead_set& lookahead);
         
         /// \brief Constructs an LR(1) item by copying a rule
-        lr1_item(const contextfree::rule& rule, int offset, const lookahead_set& lookahead);
+        lr1_item(const contextfree::grammar* gram, const contextfree::rule& rule, int offset, const lookahead_set& lookahead);
         
         /// \brief Constructs an LR(1) item by creating a reference to an existing rule
-        lr1_item(const contextfree::rule* rule, int offset, const lookahead_set& lookahead);
+        lr1_item(const contextfree::grammar* gram, contextfree::rule* rule, int offset, const lookahead_set& lookahead);
         
         /// \brief Creates a copy of an LR(1) item
         lr1_item(const lr1_item& copyFrom);
@@ -135,6 +141,9 @@ namespace lr {
         bool operator==(const lr1_item& compareTo) const;
 
     public:
+        /// \brief The grammar that the rule is represented in
+        inline const contextfree::grammar& gram() const { return m_Lr0Item.gram(); }
+
         /// \brief The rule for this item
         inline const contextfree::rule& rule() const { return m_Lr0Item.rule(); }
         
