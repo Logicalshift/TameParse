@@ -169,6 +169,12 @@ namespace lr {
         
         /// \brief The final item in this state
         inline iterator end() const { return m_Items.end(); }
+        
+        /// \brief Finds the item in this set that matches the specified item
+        inline iterator find(const container& target) const { return m_Items.find(target); }
+        
+        /// \brief Finds the item in this set that matches the specified item
+        inline typename item_set::iterator find(const container& target) { return m_Items.find(target); }
     };
 }
 

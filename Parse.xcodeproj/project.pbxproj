@@ -74,6 +74,8 @@
 		4BF31987136DBC0700C68ACB /* contextfree_followset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31983136DBA1100C68ACB /* contextfree_followset.cpp */; };
 		4BF3198A136DEC4C00C68ACB /* lalr_machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31988136DEC4C00C68ACB /* lalr_machine.cpp */; };
 		4BF3198B136DEC4C00C68ACB /* lalr_machine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF31989136DEC4C00C68ACB /* lalr_machine.h */; };
+		4BF3198E136DFFD100C68ACB /* lalr_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */; };
+		4BF3198F136DFFD100C68ACB /* lalr_builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF3198D136DFFD100C68ACB /* lalr_builder.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -170,6 +172,8 @@
 		4BF31984136DBA1100C68ACB /* contextfree_followset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextfree_followset.h; sourceTree = "<group>"; };
 		4BF31988136DEC4C00C68ACB /* lalr_machine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lalr_machine.cpp; sourceTree = "<group>"; };
 		4BF31989136DEC4C00C68ACB /* lalr_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lalr_machine.h; sourceTree = "<group>"; };
+		4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lalr_builder.cpp; sourceTree = "<group>"; };
+		4BF3198D136DFFD100C68ACB /* lalr_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lalr_builder.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +223,8 @@
 				4BF31980136DA5A000C68ACB /* lalr_state.h */,
 				4BF31988136DEC4C00C68ACB /* lalr_machine.cpp */,
 				4BF31989136DEC4C00C68ACB /* lalr_machine.h */,
+				4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */,
+				4BF3198D136DFFD100C68ACB /* lalr_builder.h */,
 			);
 			path = Lr;
 			sourceTree = "<group>";
@@ -385,6 +391,7 @@
 				4BF3197E136D9AE100C68ACB /* lr_state.h in Headers */,
 				4BF31982136DA5A000C68ACB /* lalr_state.h in Headers */,
 				4BF3198B136DEC4C00C68ACB /* lalr_machine.h in Headers */,
+				4BF3198F136DFFD100C68ACB /* lalr_builder.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +488,7 @@
 				4BF3197D136D9AE100C68ACB /* lr_state.cpp in Sources */,
 				4BF31981136DA5A000C68ACB /* lalr_state.cpp in Sources */,
 				4BF3198A136DEC4C00C68ACB /* lalr_machine.cpp in Sources */,
+				4BF3198E136DFFD100C68ACB /* lalr_builder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

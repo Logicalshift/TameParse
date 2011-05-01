@@ -49,7 +49,7 @@ namespace lr {
         
     public:
         /// \brief Instantiation of lr_state required to represent a LALR state
-        typedef lr_state<lr1_item> state;
+        typedef lr_state<lr1_item, compare_lr0, merge_lalr> state;
         
         /// \brief Container class
         typedef state::container container;
@@ -95,6 +95,9 @@ namespace lr {
     public:
         /// \brief Adds a new item to this object. Returns true if the operation modified this container
         bool add(const container& newItem);
+        
+        /// \brief Finds the item in this set corresponding to the supplied LR(0) item (or NULL if there is no such item)
+        lr1_item* find(const lr0_item& item);
 
         /// \brief The identifier for this state, or -1 if it's not set
         inline int identifier() const { return m_State.identifier(); }

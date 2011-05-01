@@ -41,3 +41,17 @@ lalr_state::iterator lalr_state::begin() const {
 lalr_state::iterator lalr_state::end() const {
     return m_State.end();
 }
+
+/// \brief Finds the item in this set corresponding to the supplied item
+lr1_item* lalr_state::find(const lr0_item& item) {
+    // Create an item with an empty lookahead set
+    lr1_item findItem(item, lr1_item::lookahead_set());
+    
+    // Find the item corresponding to this item
+    state::iterator found = m_State.find(findItem);
+    if (found != m_State.end()) return *found;
+    
+    // Return NULL otherwise
+    return NULL;
+}
+
