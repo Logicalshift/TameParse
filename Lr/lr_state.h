@@ -18,6 +18,7 @@ namespace lr {
     /// \brief Functor used in cases where LR states do not need to be merged
     ///
     template<typename item_type> class state_no_merge {
+    public:
         inline bool operator()(item_type& mergeInto, const item_type& mergeFrom) {
             return false;
         }
@@ -62,12 +63,18 @@ namespace lr {
         /// \brief The items making up this state
         item_set m_Items;
         
+        /// \brief The identifier for this state if set (-1 if not)
+        ///
+        /// Note that the identifier is not used when comparing states
+        int m_Identifier;
+        
     public:
         /// \brief Constructs an empty state
-        lr_state() { }
+        lr_state() : m_Identifier(-1) { }
         
         lr_state(const lr_state& copyFrom)
-        : m_Items(copyFrom.m_Items) {
+        : m_Items(copyFrom.m_Items)
+        , m_Identifier(copyFrom.m_Identifier){
         }
         
     public:
@@ -151,6 +158,12 @@ namespace lr {
         }
 
     public:
+        /// \brief The identifier for this state, or -1 if it's not set
+        inline int identifier() const { return m_Identifier; }
+        
+        /// \brief Changes the identifier for this state
+        inline void set_identifier(int newId) { m_Identifier = newId; }
+        
         /// \brief The first item in this state
         inline iterator begin() const { return m_Items.begin(); }
         
