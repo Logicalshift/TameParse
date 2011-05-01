@@ -41,7 +41,7 @@ namespace dfa {
         virtual bool operator==(const accept_action* compareTo) const;
         
         inline bool operator!=(const accept_action* compareTo) const { return !operator==(compareTo); }
-        inline bool operator==(const accept_action& compareTo) const { return !operator==(&compareTo); }
+        inline bool operator==(const accept_action& compareTo) const { return operator==(&compareTo); }
         inline bool operator!=(const accept_action& compareTo) const { return !operator==(compareTo); }
 
         inline bool operator<=(const accept_action& compareTo) const { return operator<(compareTo) || operator==(compareTo); }
