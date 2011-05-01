@@ -139,6 +139,12 @@ namespace lr {
         
         /// \brief Compares two LR(1) items
         bool operator==(const lr1_item& compareTo) const;
+        
+    public:
+        /// \brief Adds a new lookahead item (and returns true if it was successfully added)
+        inline bool add_lookahead(const contextfree::item_container& lookahead) {
+            return m_LookAhead.insert(lookahead).second;
+        }
 
     public:
         /// \brief The grammar that the rule is represented in

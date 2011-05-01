@@ -106,6 +106,23 @@ namespace util {
             return (*m_Ref->m_Item) == *compareTo;
         }
         
+        /// \brief Comparison functor adapter
+        ///
+        /// Adapts a function designed to compare two items to one to compare a container of those items
+        /// Returns true if the a is less than b.
+        template<typename compare_item> class compare_adapter {
+        public:
+            inline bool operator()(const container& a, const container& b) {
+                static compare_item less_than;
+                
+                if (a.m_Ref->m_Item == b.m_Ref->m_Item) return false;
+                if (!a.m_Ref->m_Item)                   return true;
+                if (!b.m_Ref->m_Item)                   return false;
+                
+                return less_than(*a, *b);
+            }
+        };
+        
     public:
         /// \brief Default constructor (creates a reference to a NULL item)
         inline container() {
