@@ -26,6 +26,12 @@ rule_list& grammar::rules_for_nonterminal(int id) {
 // The set of 'no rules'
 static const rule_list empty_rule_set;
 
+// An empty item
+static const empty_item an_empty_item;
+
+// An empty item set
+static const item_set empty_item_set;
+
 /// \brief Returns the rules for the nonterminal with the specified identifier (or an empty rule set if the nonterminal is not defined)
 const rule_list& grammar::rules_for_nonterminal(int id) const {
     // Try to find this identifier
@@ -85,6 +91,7 @@ int grammar::identifier_for_rule(const rule& rule) const {
 /// to make this call at the appropriate time.
 void grammar::clear_caches() const {
     m_CachedFirstSets.clear();
+    m_CachedFollowSets.clear();
 }
 
 /// \brief Retrieves the cached value, or calculates the set FIRST(item)
@@ -109,6 +116,105 @@ const item_set& grammar::first(const item& item) const {
     
     // Return the newly added item (have to do another lookup as map doesn't have a replace operator)
     return m_CachedFirstSets[item];
+}
+
+/// \brief Computes the follow set for the item with the specified identifier
+///
+/// This is the set of symbols that can follow a particular item, in any position in the grammar.
+/// For performance reasons, terminal items are excluded from this set (they will always have an empty follow set)
+const item_set& grammar::follow(const item& nonterminal) const {
+    // Fill in the list of follow sets for the entire grammar if it's empty
+    if (m_CachedFollowSets.empty()) {
+        // Map from items to the items 
+        item_map<item_set>::type dependencies;
+        
+        // Iterate through all of the rules in this grammar and build up the follow set for each one
+        for (nonterminal_rule_map::const_iterator it = m_Nonterminals.begin(); it != m_Nonterminals.end(); it++) {
+            for (rule_list::const_iterator ruleIt = it->second.begin(); ruleIt != it->second.end(); it++) {
+                fill_follow(**ruleIt, dependencies);
+            }
+        }
+        
+        // Fill in all of the dependencies
+        bool changed = true;
+        while (changed) {
+            changed = false;
+            
+            // Iterate through all of the dependencies
+            for (item_map<item_set>::type::iterator depend = dependencies.begin(); depend != dependencies.end(); depend++) {
+                // First item is the nonterminal that depends on other nonterminal
+                const item_container& nonterminal = depend->first;
+                
+                // Iterate through each nonterminal for this item
+                for (item_set::iterator dependency = depend->second.begin(); dependency != depend->second.end(); dependency++) {
+                    if (*dependency == nonterminal) continue;
+                    
+                    // Get the follow set for this dependency
+                    item_set    follow      = m_CachedFollowSets[*dependency];
+                    item_set&   ntFollow    = m_CachedFollowSets[nonterminal];
+                    
+                    // Add the items contained within this set to this dependency, and set changed if any of them cause a change
+                    for (item_set::iterator newFollow = follow.begin(); newFollow != follow.end(); newFollow++) {
+                        if (ntFollow.insert(*newFollow).second) changed = true;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Find the set for this item
+    item_set_map::const_iterator found = m_CachedFollowSets.find(nonterminal);
+    if (found == m_CachedFollowSets.end()) return empty_item_set;
+    
+    return found->second;
+}
+
+/// \brief Updates the follow set cache using the content of a particular rule
+void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependencies) const {
+    // Empty rules don't change the follow set for anything
+    if (rule.items().size() == 0) return;
+    
+    // Iterate through the items in this rule
+    for (size_t pos=0; pos<rule.items().size(); pos++) {
+        // Get the current item
+        const item& thisItem = *rule.items()[pos];
+        
+        // Terminal items aren't processed by this call (we don't bother to generate follow sets for them)
+        if (thisItem.type() == item::terminal) continue;
+        
+        // Retrieve the follow set for this item
+        item_set& followSet = m_CachedFollowSets[thisItem];
+        
+        // The follow set of this item is the combination of the first sets for all of the following items
+        // If it's at the end, it also includes the follow set for the nonterminal for this rule
+        size_t nextPos = pos+1;
+        for (;nextPos < rule.items().size(); nextPos++) {
+            // Get this following item
+            const item& followingItem = *rule.items()[nextPos];
+            
+            // Get the set FIRST(followingItem)
+            const item_set& firstSet = first(followingItem);
+            
+            // Add to the follow set
+            followSet.insert(firstSet.begin(), firstSet.end());
+            
+            // Finished if the first set doesn't include the empty set
+            if (firstSet.find(an_empty_item) == firstSet.end()) break;
+        }
+        
+        // If we reach the end, then we need to include FOLLOW(rule.nonterminal) in the set for FOLLOW(thisItem)
+        if (nextPos >= rule.items().size()) {
+            dependencies[thisItem].insert(rule.nonterminal());
+        }
+        
+        // If this item is an EBNF rule, then we need to process each of its children
+        const ebnf* ebnfItem = dynamic_cast<const ebnf*>(&thisItem);
+        if (ebnfItem) {
+            for (ebnf::rule_iterator subRule = ebnfItem->first_rule(); subRule != ebnfItem->last_rule(); subRule++) {
+                fill_follow(**subRule, dependencies);
+            }
+        }
+    }
 }
 
 /// \brief Appends an item to the rule that this is building

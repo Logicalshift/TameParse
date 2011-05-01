@@ -81,7 +81,7 @@ namespace contextfree {
         /// \brief The nonterminal that this rule reduces to
         ///
         /// (Rules can be set to reduce to any kind of item, but only nonterminals are useful by default)
-        inline item_container nonterminal() { return m_NonTerminal; }
+        inline item_container nonterminal() const { return m_NonTerminal; }
         
         /// \brief The items in this rule
         inline const item_list& items() const { return m_Items; }

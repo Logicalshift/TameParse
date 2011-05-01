@@ -53,6 +53,9 @@ namespace contextfree {
         
         /// \brief Cached map of FIRST sets for this grammar
         mutable item_set_map m_CachedFirstSets;
+        
+        /// \brief Cached map of FOLLOW sets for this grammar
+        mutable item_set_map m_CachedFollowSets;
 
     public:
         /// \brief Creates an empty grammar
@@ -94,6 +97,16 @@ namespace contextfree {
         /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
         /// progress, the first set for the requested item will be set to be 
         const item_set& first(const item& item) const;
+        
+        /// \brief Computes the follow set for the item with the specified identifier
+        ///
+        /// This is the set of symbols that can follow a particular item, in any position in the grammar.
+        /// For performance reasons, terminal items are excluded from this set (they will always have an empty follow set)
+        const item_set& follow(const item& item) const;
+        
+    private:
+        /// \brief Updates the follow set cache using the content of a particular rule
+        void fill_follow(const rule& rule, item_map<item_set>::type& dependencies) const;
         
     public:
         ///
