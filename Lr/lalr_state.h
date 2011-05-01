@@ -16,6 +16,8 @@ namespace lr {
     ///
     /// \brief Representation of a state in a LALR parser
     ///
+    /// LALR states are LR(1) states where the lookahead isn't used to distinguish them in the state machine.
+    ///
     class lalr_state {
     public:
         ///

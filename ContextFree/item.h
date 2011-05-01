@@ -77,6 +77,9 @@ namespace contextfree {
             /// This isn't really an item at all, but rather a representation of an absence of an item.
             empty,
             
+            /// \brief The 'end of input' item
+            eoi,
+            
             /// \brief This item represents a lexical symbol
             terminal,
             
