@@ -130,7 +130,7 @@ const item_set& grammar::follow(const item& nonterminal) const {
         
         // Iterate through all of the rules in this grammar and build up the follow set for each one
         for (nonterminal_rule_map::const_iterator it = m_Nonterminals.begin(); it != m_Nonterminals.end(); it++) {
-            for (rule_list::const_iterator ruleIt = it->second.begin(); ruleIt != it->second.end(); it++) {
+            for (rule_list::const_iterator ruleIt = it->second.begin(); ruleIt != it->second.end(); ruleIt++) {
                 fill_follow(**ruleIt, dependencies);
             }
         }
