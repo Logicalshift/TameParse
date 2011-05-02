@@ -158,6 +158,9 @@ void lalr_builder::complete_parser() {
             }
         }
     }
+    
+    // Need the lookaheads to build a complete parser
+    complete_lookaheads();
 }
  
 /// \brief Generates the lookaheads for the parser (when the machine has been built up as a LR(0) grammar)
