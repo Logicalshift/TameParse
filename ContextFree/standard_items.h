@@ -63,7 +63,7 @@ namespace contextfree {
         virtual item_set first(const grammar& gram) const;
         
         /// \brief Computes the closure of this item
-        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
     };
     
     ///
@@ -111,7 +111,7 @@ namespace contextfree {
         virtual kind type() const;
         
         /// \brief Computes the closure of this item
-        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
         
         /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
         ///

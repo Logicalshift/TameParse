@@ -118,6 +118,21 @@ const item_set& grammar::first(const item& item) const {
     return m_CachedFirstSets[item];
 }
 
+/// \brief Computes the first set for the specified rule (or retrieves the cached version)
+const item_set& grammar::first(const rule& rule) const {
+    static item_set     empty_set;
+    
+    // Return a set containing only the empty item if the rule is 0 items long
+    if (rule.items().size() == 0) {
+        empty_set.insert(an_empty_item);
+        return empty_set;
+    }
+    
+    // Return the first set of the first item in the rule
+    return first(rule.items()[0]);
+}
+
+
 /// \brief Computes the follow set for the item with the specified identifier
 ///
 /// This is the set of symbols that can follow a particular item, in any position in the grammar.

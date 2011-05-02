@@ -18,13 +18,13 @@
 
 namespace lr {
     /// \brief Forward declaration of an LR(0) item
-    class lr0_item;
+    class lr1_item;
     
     /// \brief Class that can contain an reference to a LR(0) item
-    typedef util::container<lr0_item> lr0_item_container;
+    typedef util::container<lr1_item> lr1_item_container;
     
     /// \brief Set of LR(0) items
-    typedef std::set<lr0_item_container> lr0_item_set;    
+    typedef std::set<lr1_item_container> lr1_item_set;    
 }
 
 namespace contextfree {
@@ -146,13 +146,13 @@ namespace contextfree {
         
         /// \brief Computes the closure of this rule in the specified grammar
         ///
-        /// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
+        /// This is the set of spontaneously generated LR(1) items for this item, and is used to generate the closure when
         /// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
         /// to which new items can be added (and the grammar so rules can be looked up).
         ///
         /// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
         /// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
-        virtual void closure(const lr::lr0_item& item, lr::lr0_item_set& state, const grammar& gram) const;
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
         
         /// \brief True if a transition (new state) should be generated for this item
         ///

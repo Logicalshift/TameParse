@@ -58,27 +58,38 @@ item::kind nonterminal::type() const {
     return item::nonterminal;
 }
 
+/// \brief Constant empty item
+static const empty_item an_empty_item;
+
 /// \brief Computes the closure of this rule in the specified grammar
-///
-/// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
-/// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
-/// to which new items can be added (and the grammar so rules can be looked up).
-///
-/// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
-/// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
-void nonterminal::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
     // Get the rules for this nonterminal
     const rule_list& ntRules = gram.rules_for_nonterminal(symbol());
     
     // Generate new rules for each of these, and add to the state
     for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
+        // Create the LR(0) item for the new item
         lr0_item newItem(&gram, *it, 0);
-        state.insert(newItem);
+        
+        // Work out the FIRST set for the new rule
+        const item_set& first = gram.first(**it);
+        
+        // If the first set contains the empty item, then the completed set is the union of the first set and the follow set for the current item
+        if (first.find(an_empty_item) != first.end()) {
+            // Merge the follow set for this item with 
+            item_set result = first;
+            result.insert(item.lookahead().begin(), item.lookahead().end());
+            
+            // Generate the LR(1) item for this lookahead
+            lr1_item lr1(newItem, result);
+            state.insert(lr1);
+        } else {
+            // No empty item: just create a new LR(1) item
+            lr1_item lr1(newItem, first);
+            state.insert(lr1);
+        }
     }
 }
-
-/// \brief Constant empty item
-static const empty_item an_empty_item;
 
 /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
 ///
@@ -117,7 +128,7 @@ item_set nonterminal::first(const grammar& gram) const {
             // If there's an empty item, then merge the first sets from the later parts of the rule
             int pos;
             for (pos = 1; pos < ruleItems.size(); pos++) {
-                // Remove the first set from the current set
+                // Remove the empty item from the current set
                 result.erase(an_empty_item);
                 
                 // Get the first set for the next item
@@ -206,16 +217,9 @@ item_set empty_item::first(const grammar& gram) const {
 }
 
 /// \brief Computes the closure of this rule in the specified grammar
-///
-/// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when
-/// producing a parser. This call is supplied the item for which the closure is being generated, and a set of states
-/// to which new items can be added (and the grammar so rules can be looked up).
-///
-/// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
-/// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
-void empty_item::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+void empty_item::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
     // The empty item can always be immediately skipped
-    lr0_item newItem(&gram, item.rule(), item.offset()+1);
+    lr1_item newItem(&gram, item.rule(), item.offset()+1, item.lookahead());
     
     // Insert the new item into the state
     state.insert(newItem);

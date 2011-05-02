@@ -122,12 +122,15 @@ namespace lr {
         
     private:
         /// \brief An LR(0) item that forms the core of this item
-        lr0_item m_Lr0Item;
+        lr0_item_container m_Lr0Item;
         
         /// \brief The set of lookahead items for this item
         lookahead_set m_LookAhead;
         
     public:
+        /// \brief Constructs an LR(1) item by appending lookahead to an LR(0) item
+        lr1_item(const lr0_item_container& core, const lookahead_set& lookahead);
+
         /// \brief Constructs an LR(1) item by appending lookahead to an LR(0) item
         lr1_item(const lr0_item& core, const lookahead_set& lookahead);
         
@@ -160,23 +163,23 @@ namespace lr {
 
     public:
         /// \brief The grammar that the rule is represented in
-        inline const contextfree::grammar& gram() const { return m_Lr0Item.gram(); }
+        inline const contextfree::grammar& gram() const { return m_Lr0Item->gram(); }
 
         /// \brief The rule for this item
-        inline const contextfree::rule& rule() const { return m_Lr0Item.rule(); }
+        inline const contextfree::rule& rule() const { return m_Lr0Item->rule(); }
         
         /// \brief The offset for this item
-        inline int offset() const { return m_Lr0Item.offset(); }
+        inline int offset() const { return m_Lr0Item->offset(); }
         
         /// \brief The lookahead set for this item
         inline const lookahead_set& lookahead() const { return m_LookAhead; }
         
     public:
         /// \brief Converts to a LR(0) item (loses lookahead information)
-        inline operator lr0_item&() { return m_Lr0Item; }
+        inline operator lr0_item&() { return *m_Lr0Item; }
 
         /// \brief Converts to a LR(0) item (loses lookahead information)
-        inline operator const lr0_item&() const { return m_Lr0Item; }
+        inline operator const lr0_item&() const { return *m_Lr0Item; }
         
         /// \brief Clones an LR(1) item
         inline lr1_item* clone() const { return new lr1_item(*this); }
@@ -187,7 +190,7 @@ namespace lr {
         inline bool operator>=(const lr1_item& compareTo) const { return !operator<(compareTo) || operator==(compareTo); }
         
         /// \brief Static ordering operator
-        static inline bool compare(const lr0_item* a, const lr0_item* b) {
+        static inline bool compare(const lr1_item* a, const lr1_item* b) {
             if (a == b) return false;
             if (!a) return true;
             if (!b) return false;

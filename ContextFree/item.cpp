@@ -70,7 +70,7 @@ bool item::compare(const item& a, const item& b) {
 ///
 /// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to match the
 /// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
-void item::closure(const lr0_item& item, lr0_item_set& state, const grammar& gram) const {
+void item::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
     // Nothing to do by default
 }
 /// \brief True if a transition (new state) should be generated for this item

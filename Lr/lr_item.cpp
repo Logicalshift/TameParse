@@ -81,6 +81,12 @@ bool lr0_item::operator==(const lr0_item& compareTo) const {
 }
 
 /// \brief Constructs an LR(1) item by appending lookahead to an LR(0) item
+lr1_item::lr1_item(const lr0_item_container& core, const lookahead_set& lookahead)
+: m_Lr0Item(core)
+, m_LookAhead(lookahead) {
+}
+
+/// \brief Constructs an LR(1) item by appending lookahead to an LR(0) item
 lr1_item::lr1_item(const lr0_item& core, const lookahead_set& lookahead)
 : m_Lr0Item(core)
 , m_LookAhead(lookahead) {
@@ -88,19 +94,19 @@ lr1_item::lr1_item(const lr0_item& core, const lookahead_set& lookahead)
 
 /// \brief Constructs an LR(1) item by copying a rule
 lr1_item::lr1_item(const grammar* gram, const contextfree::rule& rule, int offset, const lookahead_set& lookahead) 
-: m_Lr0Item(gram, rule, offset)
+: m_Lr0Item(new lr0_item(gram, rule, offset), true)
 , m_LookAhead(lookahead) {
 }
 
 /// \brief Constructs an LR(1) item by creating a reference to an existing rule
 lr1_item::lr1_item(const grammar* gram, contextfree::rule* rule, int offset, const lookahead_set& lookahead)
-: m_Lr0Item(gram, rule, offset)
+: m_Lr0Item(new lr0_item(gram, rule, offset), true)
 , m_LookAhead(lookahead) {
 }
 
 /// \brief Constructs an LR(1) item by creating a reference to an existing rule
 lr1_item::lr1_item(const contextfree::grammar* gram, const contextfree::rule_container& rule, int offset, const lookahead_set& lookahead) 
-: m_Lr0Item(gram, rule, offset)
+: m_Lr0Item(new lr0_item(gram, rule, offset), true)
 , m_LookAhead(lookahead) {
 }
 
@@ -114,7 +120,7 @@ lr1_item::lr1_item(const lr1_item& copyFrom)
 lr1_item& lr1_item::operator=(const lr1_item& copyFrom) {
     if (&copyFrom == this) return *this;
     
-    m_Lr0Item   = copyFrom;
+    m_Lr0Item   = copyFrom.m_Lr0Item;
     m_LookAhead = copyFrom.lookahead();
     
     return *this;
@@ -130,8 +136,8 @@ bool lr1_item::operator<(const lr1_item& compareTo) const {
     if (compareLookaheadSize < lookaheadSize) return false;
     
     // Compare the LR(0) item
-    if (m_Lr0Item > compareTo)          return false;
-    else if (m_Lr0Item != compareTo)    return true;
+    if (*m_Lr0Item > compareTo)          return false;
+    else if (*m_Lr0Item != compareTo)    return true;
     
     // Compare the lookahead content itself
     lookahead_set::const_iterator ourLookahead      = lookahead().begin();
@@ -155,7 +161,7 @@ bool lr1_item::operator==(const lr1_item& compareTo) const {
     if (lookaheadSize != compareLookaheadSize) return false;
     
     // Compare the LR(0) item
-    if (m_Lr0Item != compareTo)          return false;
+    if (*m_Lr0Item != compareTo)          return false;
     
     // Compare the lookahead content itself
     lookahead_set::const_iterator ourLookahead      = lookahead().begin();

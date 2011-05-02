@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 
+#include "ContextFree/item.h"
 #include "ContextFree/rule.h"
 
 namespace contextfree {
@@ -103,6 +104,9 @@ namespace contextfree {
         /// This is the set of symbols that can follow a particular item, in any position in the grammar.
         /// For performance reasons, terminal items are excluded from this set (they will always have an empty follow set)
         const item_set& follow(const item& item) const;
+        
+        /// \brief Computes the first set for the specified rule (or retrieves the cached version)
+        const item_set& first(const rule& rule) const;
         
     private:
         /// \brief Updates the follow set cache using the content of a particular rule

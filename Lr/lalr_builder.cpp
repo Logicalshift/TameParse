@@ -48,27 +48,29 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
     return m_Machine.add_state(c);
 }
 
-/// \brief Set of LR(0) items that represent a closure of a LALR state
-typedef set<lalr_state::container> closure_set;
+/// \brief Set of LR(1) items that represent a closure of a LALR state
+typedef set<lr1_item_container> closure_set;
 
 /// \brief Maps an item to the state that's reached when it's encountered
 typedef map<item_container, lalr_state_container> state_for_item;
 
 /// \brief Creates the closure for a particular lalr state
 static void create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
-    queue<lalr_state::container> waiting;
+    queue<lr1_item_container> waiting;
     
-    for (lalr_state::iterator it = state.begin(); it != state.end(); it++) {
+    for (int itemId = 0; itemId < state.count_items(); itemId++) {
         // Mark this item as waiting
-        waiting.push(*it);
+        lr1_item            lr1 = lr1_item(state[itemId], state.lookahead_for(itemId));
+        lr1_item_container  lr1C(lr1);
+        waiting.push(lr1C);
         
         // Add to the result
-        target.insert(*it);
+        target.insert(lr1C);
     }
     
     // Iterate through the set of waiting items
     for (;!waiting.empty(); waiting.pop()) {
-        const lalr_state::container& nextItem = waiting.front();
+        const lr1_item_container& nextItem = waiting.front();
         
         // Take the item apart
         const rule& rule    = nextItem->rule();
@@ -78,11 +80,11 @@ static void create_closure(closure_set& target, const lalr_state& state, const g
         if (offset >= rule.items().size()) continue;
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
-        lr0_item_set newItems;
+        lr1_item_set newItems;
         rule.items()[offset]->closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
-        for (lr0_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
+        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
             if (target.insert(*it).second) {
                 // This is a new item: add it to the list of items waiting to be processed
                 waiting.push(*it);

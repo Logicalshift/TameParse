@@ -143,6 +143,15 @@ namespace util {
             }
         }
         
+        /// \brief Creates a new container (set whether or not the item should get deleted when the container is finished with)
+        inline container(ItemType* it, bool shouldDelete) {
+            if (it) {
+                m_Ref = new reference(it, shouldDelete);
+            } else {
+                m_Ref = NULL;
+            }
+        }
+        
         /// \brief Creates a new container (clones the item)
         inline container(const ItemType* it) {
             if (it) {
