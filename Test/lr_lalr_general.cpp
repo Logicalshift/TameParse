@@ -22,8 +22,19 @@ static void dump(const item& it, const grammar& gram) {
         wcerr << gram.name_for_nonterminal(it.symbol());
     } else if (it.type() == item::terminal) {
         wcerr << L"'" << (wchar_t) it.symbol() << L"'";
+    } else if (it.type() == item::eoi) {
+        wcerr << L"$";
+    } else if (it.type() == item::empty) {
+        wcerr << L"#";
     } else {
         wcerr << L"?";
+    }
+}
+
+static void dump(const item_set& la, const grammar& gram) {
+    for (item_set::const_iterator it = la.begin(); it != la.end(); it++) {
+        wcerr << L" ";
+        dump(**it, gram);
     }
 }
 
@@ -50,10 +61,13 @@ static void dump_machine(const lalr_machine& machine) {
             
             wcerr << L",";
             const lr1_item::lookahead_set& la = state.lookahead_for(itemId);
-            for (lr1_item::lookahead_set::iterator it = la.begin(); it != la.end(); it++) {
-                wcerr << L" ";
-                dump(**it, machine.gram());
+            dump(la, machine.gram());
+            
+            wcerr << L" [";
+            if (item.offset() < item.rule().items().size()) {
+                dump(machine.gram().first(item.rule().items()[item.offset()]), machine.gram());
             }
+            wcerr << L"]";
             
             wcerr << endl;
         }
