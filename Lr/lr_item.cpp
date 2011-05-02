@@ -40,6 +40,14 @@ lr0_item::lr0_item(const lr0_item& copyFrom)
 , m_Grammar(copyFrom.m_Grammar) {
 }
 
+
+/// \brief Creates a copy of an existing LR(0) item with a different offset
+lr0_item::lr0_item(const lr0_item& copyFrom, int newOffset)
+: m_Rule(copyFrom.m_Rule)
+, m_Offset(newOffset)
+, m_Grammar(copyFrom.m_Grammar) {
+}
+
 /// \brief Copies an LR(0) item into this one
 lr0_item& lr0_item::operator=(const lr0_item& copyFrom) {
     if (&copyFrom == this) return *this;

@@ -29,8 +29,9 @@ rule::rule(const item_container& nonTerminal)
 }
 
 /// \brief Creates an empty rule with a nonterminal identifier
-rule::rule(const int nonTerminal) {
-    contextfree::nonterminal nt(nonTerminal);
+rule::rule(const int newNt)
+: m_NonTerminal((contextfree::nonterminal*) NULL) {
+    contextfree::nonterminal nt(newNt);
     m_NonTerminal = item_container(nt);
 }
 

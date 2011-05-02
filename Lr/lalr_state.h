@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "Util/container.h"
 #include "Lr/lr_state.h"
 #include "Lr/lr_item.h"
 
@@ -120,6 +121,9 @@ namespace lr {
         /// \brief Item with the specified identifier
         inline const container& operator[](int identifier) const { return m_State[identifier]; }
     };
+    
+    /// \brief Container for LALR states
+    typedef util::container<lalr_state> lalr_state_container;
 }
 
 #endif

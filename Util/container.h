@@ -39,7 +39,7 @@ namespace util {
             , m_WillDelete(willDelete) {
             }
             
-            inline reference() {
+            inline ~reference() {
                 if (m_WillDelete && m_Item) delete m_Item;
             }
             
@@ -124,9 +124,9 @@ namespace util {
         };
         
     public:
-        /// \brief Default constructor (creates a reference to a NULL item)
+        /// \brief Default constructor (creates a reference to a new item)
         inline container() {
-            m_Ref = new reference(NULL, true);
+            m_Ref = new reference(new ItemType(), true);
         }
         
         /// \brief Creates a new container (clones the item)
