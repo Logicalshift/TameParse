@@ -107,10 +107,29 @@ item_set nonterminal::first(const grammar& gram) const {
             continue;
         }
         
-        // Add the first set for the first item in these rules
+        // Get the first set for the first item in this rule
         const item_set& ruleFirst = gram.first(*(ruleItems[0]));
-        
+
+        // Insert into the result
         result.insert(ruleFirst.begin(), ruleFirst.end());
+
+        if (ruleFirst.find(an_empty_item) != ruleFirst.end()) {
+            // If there's an empty item, then merge the first sets from the later parts of the rule
+            int pos;
+            for (pos = 1; pos < ruleItems.size(); pos++) {
+                // Remove the first set from the current set
+                result.erase(an_empty_item);
+                
+                // Get the first set for the next item
+                const item_set& nextFirst = gram.first(*(ruleItems[pos]));
+                
+                // Merge it with the current set
+                result.insert(nextFirst.begin(), nextFirst.end());
+                
+                // Stop if there's no longer an empty item
+                if (nextFirst.find(an_empty_item) == nextFirst.end()) break;
+            }
+        }
     }
 
     return result;

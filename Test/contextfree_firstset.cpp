@@ -41,9 +41,14 @@ void test_contextfree_firstset::run_tests() {
     (testGram += L"empty");
     (testGram += L"empty") << L"term2";
     
+    // Non-empty rule that references an empty one
+    nonterminal ntNonempty(testGram.id_for_nonterminal(L"nonempty"));
+    (testGram += L"nonempty") << L"empty" << 3;
+    
     // Check out the first sets of these rules
     terminal term1(1);
     terminal term2(2);
+    terminal term3(3);
     empty_item empty;
 
     report("term1.contains-self", contains(testGram.first(term1), term1));
@@ -72,4 +77,12 @@ void test_contextfree_firstset::run_tests() {
     report("ntEmpty.contains-term2", contains(testGram.first(ntEmpty), term2));
     report("ntEmpty.contains-empty", contains(testGram.first(ntEmpty), empty));
     report("ntEmpty.size", testGram.first(ntEmpty).size() == 5);
+
+    report("ntNonempty.contains-self", contains(testGram.first(ntNonempty), ntNonempty));
+    report("ntNonempty.contains-term1", contains(testGram.first(ntNonempty), term1));
+    report("ntNonempty.contains-term2", contains(testGram.first(ntNonempty), term2));
+    report("ntNonempty.contains-term3", contains(testGram.first(ntNonempty), term3));
+    report("ntNonempty.contains-ntEmpty", contains(testGram.first(ntNonempty), ntEmpty));
+    report("ntNonempty.doesnot-contain-empty", !contains(testGram.first(ntNonempty), empty));
+    report("ntNonempty.size", testGram.first(ntEmpty).size() == 5);
 }
