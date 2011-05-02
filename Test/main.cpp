@@ -16,7 +16,7 @@
 #include "dfa_single_regex.h"
 #include "contextfree_firstset.h"
 #include "contextfree_followset.h"
-#include "lr_lalr_general.h";
+#include "lr_lalr_general.h"
 
 using namespace std;
 
