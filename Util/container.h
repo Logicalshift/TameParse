@@ -45,10 +45,9 @@ namespace util {
             
             /// \brief Decreases the reference count and deletes this reference if it reaches 0
             inline void release() const {
-                if (m_RefCount < 0) {
+                if (m_RefCount <= 1) {
                     delete this;
-                }
-                else {
+                } else {
                     m_RefCount--;
                 }
             }
