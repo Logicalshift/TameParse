@@ -9,6 +9,8 @@
 #ifndef _LR_LALR_STATE_H
 #define _LR_LALR_STATE_H
 
+#include <vector>
+
 #include "Lr/lr_state.h"
 #include "Lr/lr_item.h"
 
@@ -20,36 +22,8 @@ namespace lr {
     ///
     class lalr_state {
     public:
-        ///
-        /// \brief Comparator that compares two LR(1) states by only looking at their LR(0) equivalent
-        ///
-        class compare_lr0 {
-        public:
-            inline bool operator()(const lr1_item& a, const lr1_item& b) {
-                return static_cast<const lr0_item&>(a) < static_cast<const lr0_item&>(b);
-            }
-        };
-        
-        ///
-        /// \brief Merging class that merges the lookaheads for two LR(1) states
-        ///
-        class merge_lalr {
-        public:
-            inline bool operator()(lr1_item& target, const lr1_item& mergeWith) {
-                // Merge the lookahead sets for these two items
-                bool changed = false;
-                
-                for (lr1_item::lookahead_set::const_iterator it = mergeWith.lookahead().begin(); it != mergeWith.lookahead().end(); it++) {
-                    if (target.add_lookahead(*it)) changed = true;
-                }
-                
-                return changed;
-            }
-        };
-        
-    public:
         /// \brief Instantiation of lr_state required to represent a LALR state
-        typedef lr_state<lr1_item, compare_lr0, merge_lalr> state;
+        typedef lr_state<lr0_item> state;
         
         /// \brief Container class
         typedef state::container container;
@@ -57,16 +31,25 @@ namespace lr {
         /// \brief Iterator for accessing the items in this state
         typedef state::iterator iterator;
         
+        /// \brief Maps item IDs to LR(1) lookahead sets
+        typedef std::vector<lr1_item::lookahead_set*> lookahead_for_item;
+        
     private:
         /// \brief The underlying state of this item
         state m_State;
+        
+        /// \brief Contains the lookahead sets for this item
+        lookahead_for_item m_Lookahead;
         
     public:
         /// \brief Constructs an empty state
         lalr_state();
         
         /// \brief Copies this state
-        lalr_state(lalr_state& copyFrom);
+        lalr_state(const lalr_state& copyFrom);
+        
+        /// \brief Destroys this state
+        virtual ~lalr_state();
         
         bool operator<(const lalr_state& compareTo) const;
         bool operator==(const lalr_state& compareTo) const;
@@ -78,7 +61,7 @@ namespace lr {
         
     public:
         /// \brief Clones this state
-        inline lalr_state* clone() { return new lalr_state(*this); }
+        inline lalr_state* clone() const { return new lalr_state(*this); }
         
         /// \brief Comparison function
         static inline bool compare(const lalr_state& a, const lalr_state& b) { return a < b; }
@@ -93,11 +76,31 @@ namespace lr {
         }
         
     public:
-        /// \brief Adds a new item to this object. Returns true if the operation modified this container
-        bool add(const container& newItem);
+        /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
+        int add(const container& newItem);
         
-        /// \brief Finds the item in this set corresponding to the supplied LR(0) item (or NULL if there is no such item)
-        lr1_item* find(const lr0_item& item);
+        /// \brief Finds the identifier for the specified LR(0) item
+        int find_identifier(const container& item) const;
+        
+        /// \brief Returns the lookahead set for the item with the specified ID
+        lr1_item::lookahead_set& lookahead_for(int identifier);
+        
+        /// \brief Returns the lookahead set for the item with the specified ID
+        const lr1_item::lookahead_set& lookahead_for(int identifier) const;
+        
+        /// \brief Returns the lookahead set for the specified item, or NULL if the item is not part of this state
+        inline lr1_item::lookahead_set* lookahead_for(const container& item) {
+            int ident = find_identifier(item);
+            if (ident == -1) return NULL;
+            return &lookahead_for(ident);
+        }
+
+        /// \brief Returns the lookahead set for the specified item, or NULL if the item is not part of this state
+        inline const lr1_item::lookahead_set* lookahead_for(const container& item) const {
+            int ident = find_identifier(item);
+            if (ident == -1) return NULL;
+            return &lookahead_for(ident);
+        }
 
         /// \brief The identifier for this state, or -1 if it's not set
         inline int identifier() const { return m_State.identifier(); }
@@ -110,6 +113,12 @@ namespace lr {
         
         /// \brief The final item in this state
         iterator end() const;
+        
+        /// \brief Number of items in this state
+        inline size_t count_items() const { return m_State.count_items(); }
+        
+        /// \brief Item with the specified identifier
+        inline const container& operator[](int identifier) const { return m_State[identifier]; }
     };
 }
 

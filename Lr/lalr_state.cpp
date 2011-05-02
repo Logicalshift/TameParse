@@ -15,8 +15,16 @@ lalr_state::lalr_state() {
 }
 
 /// \brief Copies this state
-lalr_state::lalr_state(lalr_state& copyFrom)
+lalr_state::lalr_state(const lalr_state& copyFrom)
 : m_State(copyFrom.m_State) {
+}
+
+/// \brief Destroys this state
+lalr_state::~lalr_state() {
+    // Destroy all the lookahead sets
+    for (lookahead_for_item::iterator it=m_Lookahead.begin(); it != m_Lookahead.end(); it++) {
+        delete *it;
+    }
 }
 
 bool lalr_state::operator<(const lalr_state& compareTo) const {
@@ -28,8 +36,18 @@ bool lalr_state::operator==(const lalr_state& compareTo) const {
 }
 
 /// \brief Adds a new item to this object. Returns true if the operation modified this container
-bool lalr_state::add(const container& newItem) {
-    return m_State.add(newItem);
+int lalr_state::add(const container& newItem) {
+    // Add the LR(0) state to this object
+    // Identifiers are the same as in the state, we assume they increase monotonically from 0
+    int newId = m_State.add(newItem);
+    
+    // Create a lookahead set for this item
+    while (newId >= m_Lookahead.size()) {
+        m_Lookahead.push_back(new lr1_item::lookahead_set());
+    }
+    
+    // Return the identifier
+    return newId;
 }
 
 /// \brief The first item in this state
@@ -42,16 +60,17 @@ lalr_state::iterator lalr_state::end() const {
     return m_State.end();
 }
 
-/// \brief Finds the item in this set corresponding to the supplied item
-lr1_item* lalr_state::find(const lr0_item& item) {
-    // Create an item with an empty lookahead set
-    lr1_item findItem(item, lr1_item::lookahead_set());
-    
-    // Find the item corresponding to this item
-    state::iterator found = m_State.find(findItem);
-    if (found != m_State.end()) return *found;
-    
-    // Return NULL otherwise
-    return NULL;
+/// \brief Finds the identifier for the specified LR(0) item
+int lalr_state::find_identifier(const container& item) const {
+    return m_State.find_identifier(item);
 }
 
+/// \brief Returns the lookahead set for the item with the specified ID
+lr1_item::lookahead_set& lalr_state::lookahead_for(int identifier) {
+    return *m_Lookahead[identifier];
+}
+
+/// \brief Returns the lookahead set for the item with the specified ID
+const lr1_item::lookahead_set& lalr_state::lookahead_for(int identifier) const {
+    return *m_Lookahead[identifier];
+}

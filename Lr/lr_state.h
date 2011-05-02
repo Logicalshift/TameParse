@@ -53,15 +53,21 @@ namespace lr {
         /// \brief Item container comparator type
         typedef container::compare_adapter<compare_items> comparator;
         
-        /// \brief Set of items within a state
-        typedef std::set<container, comparator> item_set;
+        /// \brief Set of items within a state, mapped to identifiers (which count from 0)
+        typedef std::map<container, int, comparator> item_set;
+        
+        /// \brief List of items
+        typedef std::vector<container> item_list;
         
         /// \brief Iterator that can be used to retrieve the contents of this state
-        typedef typename item_set::const_iterator iterator;
+        typedef typename item_list::const_iterator iterator;
         
     private:
         /// \brief The items making up this state
-        item_set m_Items;
+        item_set m_ItemsToIdentifier;
+        
+        /// \brief A list of items (index is the identifier)
+        item_list m_ItemList;
         
         /// \brief The identifier for this state if set (-1 if not)
         ///
@@ -73,20 +79,24 @@ namespace lr {
         lr_state() : m_Identifier(-1) { }
         
         lr_state(const lr_state& copyFrom)
-        : m_Items(copyFrom.m_Items)
+        : m_ItemList(copyFrom.m_ItemList)
+        , m_ItemsToIdentifier(copyFrom.m_ItemsToIdentifier)
         , m_Identifier(copyFrom.m_Identifier){
         }
         
     public:
         /// \brief Equality operator
         bool operator==(const lr_state& compareTo) const {
-            if (m_Items.size() != compareTo.m_Items.size()) return false;
+            if (m_ItemList.size() != compareTo.m_ItemList.size()) return false;
             
             static comparator less_than;
             
-            for (iterator ours = m_Items.begin(), theirs = compareTo.begin(); ours != m_Items.end() && theirs != compareTo.m_Items.end(); ours++, theirs++) {
+            // Two sets are equal if their items are the same, but identifiers are allowed to be different
+            for (typename item_set::const_iterator ours = m_ItemsToIdentifier.begin(), theirs = compareTo.m_ItemsToIdentifier.begin(); 
+                 ours != m_ItemsToIdentifier.end() && theirs != compareTo.m_ItemsToIdentifier.end(); 
+                 ours++, theirs++) {
                 // Not equal if either greater than or less that this item,
-                if (less_than(*ours, *theirs) || less_than(*theirs, *ours)) return false;
+                if (less_than(ours->first, theirs->first) || less_than(theirs->first, ours->first)) return false;
             }
             
             return true;
@@ -94,15 +104,17 @@ namespace lr {
         
         /// \brief Ordering operator
         bool operator<(const lr_state& compareTo) const { 
-            if (m_Items.size() < compareTo.m_Items.size()) return true;
-            if (m_Items.size() > compareTo.m_Items.size()) return false;
+            if (m_ItemList.size() < compareTo.m_ItemList.size()) return true;
+            if (m_ItemList.size() > compareTo.m_ItemList.size()) return false;
 
             static comparator less_than;
 
-            for (iterator ours = m_Items.begin(), theirs = compareTo.begin(); ours != m_Items.end() && theirs != compareTo.m_Items.end(); ours++, theirs++) {
+            for (typename item_set::const_iterator ours = m_ItemsToIdentifier.begin(), theirs = compareTo.m_ItemsToIdentifier.begin(); 
+                 ours != m_ItemsToIdentifier.end() && theirs != compareTo.m_ItemsToIdentifier.end();
+                 ours++, theirs++) {
                 // Not equal if either greater than or less that this item,
-                if (less_than(*ours, *theirs)) return true;
-                if (less_than(*theirs, *ours)) return false;
+                if (less_than(ours->first, theirs->first)) return true;
+                if (less_than(theirs->first, ours->first)) return false;
             }
             
             // Equal if we reach here
@@ -131,28 +143,38 @@ namespace lr {
         }
         
     public:
-        /// \brief Adds a new item to this object. Returns true if the operation modified this container
-        bool add(const container& newItem) {
+        /// \brief Adds a new item to this object. Returns the identifier for the new/existing item
+        int add(const container& newItem) {
             // Try to find an existing example of this item
-            typename item_set::iterator found = m_Items.find(newItem);
+            typename item_set::iterator found = m_ItemsToIdentifier.find(newItem);
             
             static merge_items do_merge;
             
-            if (found == m_Items.end()) {
+            if (found == m_ItemsToIdentifier.end()) {
                 // Just add the item if it wasn't found
-                m_Items.insert(newItem);
-                return true;
+                int         newItemId = (int)m_ItemList.size();
+                container   newContainer(newItem);
+                
+                m_ItemList.push_back(newContainer);
+                m_ItemsToIdentifier[newContainer] = newItemId;
+                                     
+                return newItemId;
             } else {
                 // Merge the items if it already exists
-                item_type merged = **found;
+                int         itemId  = found->second;
+                item_type   merged  = *found->first;
                 
                 // Replace the old item if the merge was successful
                 if (do_merge(merged, *newItem)) {
-                    m_Items.erase(found);
-                    m_Items.insert(merged);
-                    return true;
+                    container mergedItem(merged);
+                    
+                    m_ItemsToIdentifier.erase(found);
+                    m_ItemsToIdentifier[mergedItem] = itemId;
+                    m_ItemList[itemId] = mergedItem;
+                    
+                    return itemId;
                 } else {
-                    return false;
+                    return itemId;
                 }
             }
         }
@@ -165,16 +187,23 @@ namespace lr {
         inline void set_identifier(int newId) { m_Identifier = newId; }
         
         /// \brief The first item in this state
-        inline iterator begin() const { return m_Items.begin(); }
+        inline iterator begin() const { return m_ItemList.begin(); }
         
         /// \brief The final item in this state
-        inline iterator end() const { return m_Items.end(); }
+        inline iterator end() const { return m_ItemList.end(); }
         
-        /// \brief Finds the item in this set that matches the specified item
-        inline iterator find(const container& target) const { return m_Items.find(target); }
+        /// \brief Finds the item identifier in this set that matches the specified item (or -1 if the item isn't in this state)
+        inline int find_identifier(const container& target) const {
+            typename item_set::const_iterator found = m_ItemsToIdentifier.find(target);
+            if (found != m_ItemsToIdentifier.end()) return found->second;
+            else return -1;
+        }
         
-        /// \brief Finds the item in this set that matches the specified item
-        inline typename item_set::iterator find(const container& target) { return m_Items.find(target); }
+        /// \brief Number of items in this state
+        inline size_t count_items() const { return m_ItemList.size(); }
+        
+        /// \brief Item with the specified identifier
+        inline const container& operator[](int identifier) const { return m_ItemList[identifier]; }
     };
 }
 

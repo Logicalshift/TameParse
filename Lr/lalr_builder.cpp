@@ -32,7 +32,7 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
     
     // Create the initial item with an empty lookahead (we only store kernels in the lalr machine)
     lalr_state  initialState;
-    lr1_item    item(m_Grammar, languageRule, 0, lr1_item::lookahead_set());
+    lr0_item    item(m_Grammar, languageRule, 0);
     
     initialState.add(item);
     
