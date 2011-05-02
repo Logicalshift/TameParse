@@ -39,13 +39,21 @@ static void dump_machine(const lalr_machine& machine) {
             wcerr << L"  ";
             dump(*item.rule().nonterminal(), machine.gram());
             
-            wcerr << L" -> ";
+            wcerr << L" ->";
             int pos;
             for (pos = 0; pos < item.rule().items().size(); pos++) {
-                if (pos == item.offset()) wcerr << L"* ";
+                if (pos == item.offset()) wcerr << L" *";
+                wcerr << L" ";
                 dump(*item.rule().items()[pos], machine.gram());
             }
-            if (pos == item.offset()) wcerr << L"* ";
+            if (pos == item.offset()) wcerr << L" *";
+            
+            wcerr << L",";
+            const lr1_item::lookahead_set& la = state.lookahead_for(itemId);
+            for (lr1_item::lookahead_set::iterator it = la.begin(); it != la.end(); it++) {
+                wcerr << L" ";
+                dump(**it, machine.gram());
+            }
             
             wcerr << endl;
         }
@@ -85,7 +93,7 @@ void test_lalr_general::run_tests() {
     lalr_builder builder(dragon446);
     
     // S' defines the language
-    builder.add_initial_state(sPrime);
+    builder.add_initial_state(s);
     builder.complete_parser();
     
     dump_machine(builder.machine());
