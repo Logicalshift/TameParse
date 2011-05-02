@@ -73,7 +73,7 @@ namespace lr {
             if (!a) return true;
             if (!b) return false;
             
-            return a < b;
+            return *a < *b;
         }
         
     public:
