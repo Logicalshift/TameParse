@@ -119,7 +119,7 @@ const item_set& grammar::first(const item& item) const {
 }
 
 /// \brief Computes the first set for the specified rule (or retrieves the cached version)
-const item_set& grammar::first(const rule& rule) const {
+const item_set& grammar::first_for_rule(const rule& rule) const {
     static item_set     empty_set;
     
     // Return a set containing only the empty item if the rule is 0 items long
@@ -129,7 +129,7 @@ const item_set& grammar::first(const rule& rule) const {
     }
     
     // Return the first set of the first item in the rule
-    return first(rule.items()[0]);
+    return first(*rule.items()[0]);
 }
 
 

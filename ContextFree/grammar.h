@@ -116,7 +116,7 @@ namespace contextfree {
         const item_set& follow(const item& item) const;
         
         /// \brief Computes the first set for the specified rule (or retrieves the cached version)
-        const item_set& first(const rule& rule) const;
+        const item_set& first_for_rule(const rule& rule) const;
         
     private:
         /// \brief Updates the follow set cache using the content of a particular rule

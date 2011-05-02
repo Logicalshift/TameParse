@@ -65,7 +65,9 @@ static void dump_machine(const lalr_machine& machine) {
             
             wcerr << L" [";
             if (item.offset() < item.rule().items().size()) {
-                dump(machine.gram().first(item.rule().items()[item.offset()]), machine.gram());
+                dump(*item.rule().items()[item.offset()], machine.gram());
+                wcerr << L" >FIRST>";
+                dump(machine.gram().first(*item.rule().items()[item.offset()]), machine.gram());
             }
             wcerr << L"]";
             

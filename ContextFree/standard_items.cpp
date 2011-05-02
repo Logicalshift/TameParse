@@ -76,7 +76,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
         follow = item.lookahead();
     } else {
         // The follow set is FIRST(following item)
-        follow = gram.first(rule.items()[offset+1]);
+        follow = gram.first(*rule.items()[offset+1]);
         
         // If the empty set is included, remove it and add the item lookahead
         if (follow.find(an_empty_item) != follow.end()) {
