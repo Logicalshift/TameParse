@@ -158,7 +158,12 @@ void lalr_builder::complete_parser() {
             }
         }
     }
-    
+}
+ 
+/// \brief Generates the lookaheads for the parser (when the machine has been built up as a LR(0) grammar)
+void lalr_builder::complete_lookaheads() {
+    empty_item      empty;
+
     // Now we know all of the states, we need to generate the spontaneous items and work out how items propagate
     // We build closures for the items all over again here, which seems wasteful given than we have to do it
     // to build the original set. I think we can generate the spontaneous items inside the above algorithm, but
@@ -172,26 +177,35 @@ void lalr_builder::complete_parser() {
     // State ID, item ID pair (identifies an individual item within a state machine)
     typedef pair<int, int> lr_item_id;
     
+    // Maps states to lists of propagations (target state, target item ID)
+    typedef map<lr_item_id, set<lr_item_id> > propagation;
+    
+    // Create an empty lookahead set (we'll use this a lot
     item_set emptyLookahead;
     emptyLookahead.insert(empty);
     
+    // Create the propagation map
+    propagation propagate;
+    
+    // Iterate through the states, and generate spontaneous lookaheads and also the propagation table
     for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
         // Get the state object
-        const lalr_state_container& thisState = m_Machine.state_with_id(stateId);
+        const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
+        const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
         
         // Iterate through the items in this state
         for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
             // Get the item
             const lalr_state::container& thisItem = (*thisState)[itemId];
             
-            const rule& rule    = thisItem->rule();
-            int         offset  = thisItem->offset();
+            const rule& thisRule    = thisItem->rule();
+            int         thisOffset  = thisItem->offset();
             
             // Ignore items that are at the end (ie, have no closure)
-            if (offset == rule.items().size()) continue;
+            if (thisOffset >= thisRule.items().size()) continue;
             
             // Get the parser symbol at this offset
-            const item_container& symbol = rule.items()[offset];
+            const item_container& symbol = thisRule.items()[thisOffset];
             
             // Ignore terminal items
             if (symbol->type() == item::terminal) continue;
@@ -207,7 +221,69 @@ void lalr_builder::complete_parser() {
             
             // Iterate through the remaining items
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
+                const rule& closeRule   = (*it)->rule();
+                const int   closeOffset = (*it)->offset();
                 
+                // Ignore this item if it's at the end
+                if (closeOffset >= closeRule.items().size()) continue;
+                
+                // Ignore this item if it's a terminal
+                const item_container& closeSymbol = closeRule.items()[closeOffset];
+                if (closeSymbol->type() == item::terminal) continue;
+                
+                // If this doesn't contain the empty item, then spontaneously generate lookahead for this transition
+                lalr_machine::transition_set::const_iterator targetState = transitions.find(closeSymbol);
+                if (targetState == transitions.end()) continue;
+                
+                // Generated item
+                const item_set& lookahead       = (*it)->lookahead();
+                lr0_item        generated(**it, closeOffset+1);
+                int             targetItemId    = m_Machine.state_with_id(targetState->second)->find_identifier(generated);
+                
+                if (targetItemId < 0) continue;
+                
+                // Add the lookahead for our symbol to this item (spontaneously generated)
+                m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
+                
+                // This creates a propagation if the empty item is in the lookahead
+                if (lookahead.find(empty) != lookahead.end()) {
+                    // Add a propagation for this item
+                    propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
+                }
+            }
+        }
+    }
+    
+    // Create set of states to do propagation from (we use a set rather than a queue so we don't re-add states multiple times)
+    set<lr_item_id> toPropagate;
+    
+    // Fill with all the states which do propagation
+    for (propagation::iterator it = propagate.begin(); it != propagate.end(); it++) {
+        toPropagate.insert(it->first);
+    }
+    
+    // While there are still states to process, do propagation
+    while (!toPropagate.empty()) {
+        // Get the next state we need to do propagation on
+        lr_item_id nextState = *(toPropagate.begin());
+        
+        // Remove from the set waiting to be processed
+        toPropagate.erase(nextState);
+        
+        // Fetch out the items
+        set<lr_item_id>& propItems = propagate[nextState];
+        
+        // Get the lookahead for this item
+        const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
+
+        // Perform propagation
+        for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); path++) {
+            // Propagating lookahead from the item identified by nextState to *path
+            if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
+                // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
+                if (propagate.find(*path) != propagate.end()) {
+                    toPropagate.insert(*path);
+                }
             }
         }
     }

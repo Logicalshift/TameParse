@@ -43,16 +43,8 @@ namespace lr {
         /// \brief Representation of a state transition
         typedef std::pair<contextfree::item_container, int> transition;
 
-        /// \brief Class that compares only the item used in a transition
-        class compare_item_only {
-        public:
-            inline bool operator()(const transition& a, const transition& b) {
-                return a.first < b.first;
-            }
-        };
-
         /// \brief Set of transitions
-        typedef std::set<transition, compare_item_only> transition_set;
+        typedef std::map<contextfree::item_container, int> transition_set;
         
         /// \brief Transition for each state
         typedef std::vector<transition_set> transition_for_state;
@@ -92,6 +84,12 @@ namespace lr {
         /// items go into the goto table for the final parser. The empty item should be ignored. Guard items
         /// are a little weird: they act like shift actions if they are matched.
         void add_transition(int stateId, const contextfree::item_container& item, int newStateId);
+        
+        /// \brief Adds the specified set of lookahead items to the state with the supplied ID and returns true if the lookahead changed
+        bool add_lookahead(int stateId, const lr0_item& item, const contextfree::item_set& newLookahead);
+        
+        /// \brief Adds the specified set of lookahead items to the state with the supplied ID and returns true if the lookahead changed
+        bool add_lookahead(int stateId, int itemId, const contextfree::item_set& newLookahead);
         
     public:
         /// \brief Class used to iterate through a set of states (or a container with NULL in it if this doesn't exist)

@@ -8,7 +8,10 @@
 
 #include "lalr_machine.h"
 
+using namespace contextfree;
 using namespace lr;
+
+static const empty_item an_empty_item;
 
 /// \brief Creates an empty LALR machine, which will reference the specified gramamr
 lalr_machine::lalr_machine(contextfree::grammar& gram)
@@ -67,4 +70,26 @@ void lalr_machine::add_transition(int stateId, const contextfree::item_container
     
     // Set this transition
     m_Transitions[stateId].insert(transition(item, newStateId));
+}
+
+/// \brief Adds the specified set of lookahead items to the state with the supplied ID
+bool lalr_machine::add_lookahead(int stateId, int itemId, const contextfree::item_set& newLookahead) {
+    if (itemId < 0) return false;
+    item_set& la = m_States[stateId]->lookahead_for(itemId);
+    
+    bool result = false;
+    for (item_set::const_iterator it = newLookahead.begin(); it != newLookahead.end(); it++) {
+        // Ignore the empty item
+        if ((*it)->type() == item::empty) continue;
+        
+        // Otherwise, carry on
+        if (la.insert(*it).second) result = true;
+    }
+    
+    return result;
+}
+     
+/// \brief Adds the specified set of lookahead items to the state with the supplied ID
+bool lalr_machine::add_lookahead(int stateId, const lr0_item& item, const contextfree::item_set& newLookahead) {
+    return add_lookahead(stateId, m_States[stateId]->find_identifier(item), newLookahead);
 }

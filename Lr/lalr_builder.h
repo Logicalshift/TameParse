@@ -38,6 +38,9 @@ namespace lr {
         
         /// \brief Finishes building the parser (the LALR machine will contain a LALR parser after this call completes)
         void complete_parser();
+        
+        /// \brief Generates the lookaheads for the parser (when the machine has been built up as a LR(0) grammar)
+        void complete_lookaheads();
     };
 }
 
