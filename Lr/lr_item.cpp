@@ -112,7 +112,7 @@ lr1_item::lr1_item(const contextfree::grammar* gram, const contextfree::rule_con
 
 /// \brief Creates a copy of an LR(1) item
 lr1_item::lr1_item(const lr1_item& copyFrom)
-: m_Lr0Item(copyFrom)
+: m_Lr0Item(copyFrom.m_Lr0Item)
 , m_LookAhead(copyFrom.lookahead()) {
 }
 

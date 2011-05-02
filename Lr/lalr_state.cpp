@@ -28,6 +28,7 @@ lalr_state::~lalr_state() {
 }
 
 bool lalr_state::operator<(const lalr_state& compareTo) const {
+    // Comparison only works on the state, not on the lookahead
     return m_State < compareTo.m_State;
 }
 

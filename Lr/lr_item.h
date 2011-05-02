@@ -180,6 +180,12 @@ namespace lr {
 
         /// \brief Converts to a LR(0) item (loses lookahead information)
         inline operator const lr0_item&() const { return *m_Lr0Item; }
+
+        /// \brief Converts to a LR(0) item (loses lookahead information)
+        inline operator lr0_item_container&() { return m_Lr0Item; }
+        
+        /// \brief Converts to a LR(0) item (loses lookahead information)
+        inline operator const lr0_item_container&() const { return m_Lr0Item; }
         
         /// \brief Clones an LR(1) item
         inline lr1_item* clone() const { return new lr1_item(*this); }

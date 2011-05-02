@@ -76,8 +76,9 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
         
         // If the first set contains the empty item, then the completed set is the union of the first set and the follow set for the current item
         if (first.find(an_empty_item) != first.end()) {
-            // Merge the follow set for this item with 
+            // Merge the follow set for this item with the lookahead for the item that was passed in
             item_set result = first;
+            result.erase(an_empty_item);
             result.insert(item.lookahead().begin(), item.lookahead().end());
             
             // Generate the LR(1) item for this lookahead
