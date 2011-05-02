@@ -268,3 +268,11 @@ grammar::builder grammar::operator+=(const std::wstring& newNonterminal) {
     
     return builder(**list.rbegin(), *this);
 }
+
+/// \brief Begins defining a new rule for the specified nonterminal
+grammar::builder grammar::operator+=(const nonterminal& newNt) {
+    rule_list&  list = rules_for_nonterminal(newNt.symbol());
+    list.push_back(rule(newNt));
+    
+    return builder(**list.rbegin(), *this);    
+}

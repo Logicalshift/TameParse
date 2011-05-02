@@ -16,6 +16,9 @@
 #include "ContextFree/rule.h"
 
 namespace contextfree {
+    /// \brief Forward declaration of an item type
+    class nonterminal;
+    
     ///
     /// \brief Class representing a context-free grammar
     ///
@@ -77,6 +80,13 @@ namespace contextfree {
         
         /// \brief Returns the nonterminal identifier for the specified name
         int id_for_nonterminal(const std::wstring& name);
+        
+        /// \brief Returns the name for the nonterminal with the specified identifier
+        inline std::wstring name_for_nonterminal(int id) const {
+            identifier_to_string::const_iterator found = m_NonterminalToName.find(id);
+            if (found != m_NonterminalToName.end()) return found->second;
+            return L"";
+        }
         
     public:
         /// \brief Returns an identifier given a rule
@@ -146,6 +156,9 @@ namespace contextfree {
         
         /// \brief Begins defining a new rule for the nonterminal with the specified name
         builder operator+=(const std::wstring& newNonterminal);
+        
+        /// \brief Begins defining a new rule for the specified nonterminal
+        builder operator+=(const nonterminal& newNonterminal);
     };
 }
 

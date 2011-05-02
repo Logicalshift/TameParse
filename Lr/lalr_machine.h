@@ -119,6 +119,9 @@ namespace lr {
         
         /// \brief The position after the final state in this machine
         inline state_iterator last_state() const { return m_States.end(); }
+        
+        /// \brief The grammar used for this state machine
+        inline contextfree::grammar& gram() const { return *m_Grammar; }
     };
 }
 

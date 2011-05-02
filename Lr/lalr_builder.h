@@ -41,6 +41,15 @@ namespace lr {
         
         /// \brief Generates the lookaheads for the parser (when the machine has been built up as a LR(0) grammar)
         void complete_lookaheads();
+        
+        /// \brief The LALR state machine being built up by this object
+        lalr_machine& machine() { return m_Machine; }
+        
+        /// \brief The LALR state machine being built up by this object
+        const lalr_machine& machine() const { return m_Machine; }
+        
+        /// \brief The grammar used for this builder
+        const contextfree::grammar& gram() const { return *m_Grammar; }
     };
 }
 

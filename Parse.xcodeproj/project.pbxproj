@@ -76,6 +76,7 @@
 		4BF3198B136DEC4C00C68ACB /* lalr_machine.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF31989136DEC4C00C68ACB /* lalr_machine.h */; };
 		4BF3198E136DFFD100C68ACB /* lalr_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */; };
 		4BF3198F136DFFD100C68ACB /* lalr_builder.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF3198D136DFFD100C68ACB /* lalr_builder.h */; };
+		4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31991136F444400C68ACB /* lr_lalr_general.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -174,6 +175,8 @@
 		4BF31989136DEC4C00C68ACB /* lalr_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lalr_machine.h; sourceTree = "<group>"; };
 		4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lalr_builder.cpp; sourceTree = "<group>"; };
 		4BF3198D136DFFD100C68ACB /* lalr_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lalr_builder.h; sourceTree = "<group>"; };
+		4BF31991136F444400C68ACB /* lr_lalr_general.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_lalr_general.cpp; sourceTree = "<group>"; };
+		4BF31992136F444400C68ACB /* lr_lalr_general.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_lalr_general.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -333,6 +336,7 @@
 				4BD7FE3B132D526C00025433 /* test_fixture.h */,
 				4BD7FE40132D547E00025433 /* Dfa */,
 				4B1A920E136C96250018E595 /* ContextFree */,
+				4BF31990136F442000C68ACB /* Lr */,
 			);
 			path = Test;
 			sourceTree = "<group>";
@@ -354,6 +358,15 @@
 				4B1A91EF136A21F50018E595 /* dfa_single_regex.h */,
 			);
 			name = Dfa;
+			sourceTree = "<group>";
+		};
+		4BF31990136F442000C68ACB /* Lr */ = {
+			isa = PBXGroup;
+			children = (
+				4BF31991136F444400C68ACB /* lr_lalr_general.cpp */,
+				4BF31992136F444400C68ACB /* lr_lalr_general.h */,
+			);
+			name = Lr;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -506,6 +519,7 @@
 				4B1A91F2136A244D0018E595 /* dfa_single_regex.cpp in Sources */,
 				4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */,
 				4BF31987136DBC0700C68ACB /* contextfree_followset.cpp in Sources */,
+				4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
