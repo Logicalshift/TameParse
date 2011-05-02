@@ -66,6 +66,33 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     // Get the rules for this nonterminal
     const rule_list& ntRules = gram.rules_for_nonterminal(symbol());
     
+    // Work out what follows in the item
+    item_set follow;
+    const rule& rule    = item.rule();
+    int         offset  = item.offset();
+    
+    if (offset+1 >= rule.items().size()) {
+        // The follow set is just the lookahead for this item
+        follow = item.lookahead();
+    } else {
+        // The follow set is FIRST(following item)
+        follow = gram.first(rule.items()[offset+1]);
+        
+        // If the empty set is included, remove it and add the item lookahead
+        if (follow.find(an_empty_item) != follow.end()) {
+            follow.erase(an_empty_item);
+            follow.insert(item.lookahead().begin(), item.lookahead().end());
+        }
+    }
+
+    // Generate new rules for each of these, and add to the state
+    for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
+        // Create the LR(1) item for the new item
+        lr1_item newItem(&gram, *it, 0, follow);
+        state.insert(newItem);
+    }
+
+#if 0
     // Generate new rules for each of these, and add to the state
     for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
         // Create the LR(0) item for the new item
@@ -90,6 +117,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
             state.insert(lr1);
         }
     }
+#endif
 }
 
 /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
@@ -183,14 +211,12 @@ empty_item::empty_item()
 
 /// \brief Compares this item to another. Returns true if they are the same
 bool empty_item::operator==(const item& compareTo) const {
-    if (typeid(compareTo) == typeid(empty_item)) return true;
-    return false;
+    return compareTo.type() == item::empty;
 }
 
 /// \brief Orders this item relative to another item
 bool empty_item::operator<(const item& compareTo) const {
-    if (typeid(compareTo) == typeid(empty_item)) return false;
-    return true;
+    return item::empty < compareTo.type();
 }
 
 /// \brief Creates a clone of this item
@@ -240,19 +266,17 @@ end_of_input::end_of_input()
 
 /// \brief Compares this item to another. Returns true if they are the same
 bool end_of_input::operator==(const item& compareTo) const {
-    if (typeid(compareTo) == typeid(empty_item)) return true;
-    return false;
+    return compareTo.type() == item::eoi;
 }
 
 /// \brief Orders this item relative to another item
 bool end_of_input::operator<(const item& compareTo) const {
-    if (typeid(compareTo) == typeid(empty_item)) return false;
-    return true;
+    return item::eoi < compareTo.type();
 }
 
 /// \brief Creates a clone of this item
 item* end_of_input::clone() const {
-    return new empty_item();
+    return new end_of_input();
 }
 
 /// \brief The type of this item
