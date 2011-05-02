@@ -217,10 +217,11 @@ void lalr_builder::complete_lookaheads() {
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
             
+            closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
             
             // Remove the existing LR(1) item
-            closure.erase(lr1);
+            // closure.erase(lr1);
             
             // Iterate through the remaining items
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
