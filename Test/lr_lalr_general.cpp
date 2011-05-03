@@ -38,42 +38,63 @@ static void dump(const item_set& la, const grammar& gram) {
     }
 }
 
+static void dump(const lr0_item& item, const item_set& la, const grammar& gram) {
+    dump(*item.rule().nonterminal(), gram);
+    
+    wcerr << L" ->";
+    int pos;
+    for (pos = 0; pos < item.rule().items().size(); pos++) {
+        if (pos == item.offset()) wcerr << L" *";
+        wcerr << L" ";
+        dump(*item.rule().items()[pos], gram);
+    }
+    if (pos == item.offset()) wcerr << L" *";
+    
+    wcerr << L",";
+    dump(la, gram);
+    
+    wcerr << L" [";
+    if (item.offset() < item.rule().items().size()) {
+        dump(*item.rule().items()[item.offset()], gram);
+        wcerr << L" >FIRST>";
+        dump(gram.first(*item.rule().items()[item.offset()]), gram);
+    }
+    wcerr << L"]";
+}
+
 /// \brief Dumps out a state machine to wcerr
 static void dump_machine(const lalr_machine& machine) {
+    item_set empty_set;
+    empty_item empty;
+    empty_set.insert(empty);
+    
     for (int stateId = 0; stateId < machine.count_states(); stateId++) {
         wcerr << L"STATE " << stateId << endl;
         
         const lalr_state& state = *machine.state_with_id(stateId);
+        lr1_item_set closure;
         
         for (int itemId = 0; itemId < state.count_items(); itemId++) {
             const lr0_item& item = *state[itemId];
             wcerr << L"  ";
-            dump(*item.rule().nonterminal(), machine.gram());
-            
-            wcerr << L" ->";
-            int pos;
-            for (pos = 0; pos < item.rule().items().size(); pos++) {
-                if (pos == item.offset()) wcerr << L" *";
-                wcerr << L" ";
-                dump(*item.rule().items()[pos], machine.gram());
-            }
-            if (pos == item.offset()) wcerr << L" *";
-            
-            wcerr << L",";
-            const lr1_item::lookahead_set& la = state.lookahead_for(itemId);
-            dump(la, machine.gram());
-            
-            wcerr << L" [";
-            if (item.offset() < item.rule().items().size()) {
-                dump(*item.rule().items()[item.offset()], machine.gram());
-                wcerr << L" >FIRST>";
-                dump(machine.gram().first(*item.rule().items()[item.offset()]), machine.gram());
-            }
-            wcerr << L"]";
-            
+            dump(item, state.lookahead_for(itemId), machine.gram());
             wcerr << endl;
+            
+            if (item.offset() < item.rule().items().size()) {
+                lr1_item lr1(item, empty_set);
+                item.rule().items()[item.offset()]->closure(lr1, closure, machine.gram());
+            }
         }
-        
+
+        if (!closure.empty()) {
+            wcerr << endl;
+            for (lr1_item_set::iterator closed = closure.begin(); closed != closure.end(); closed++) {
+                wcerr << L"  ";
+                dump(**closed, (*closed)->lookahead(), machine.gram());
+                wcerr << endl;
+            }
+        }
+
         wcerr << endl;
     }
 }

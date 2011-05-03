@@ -210,18 +210,12 @@ void lalr_builder::complete_lookaheads() {
             // Get the parser symbol at this offset
             const item_container& symbol = thisRule.items()[thisOffset];
             
-            // Ignore terminal items
-            if (symbol->type() == item::terminal) continue;
-            
             // Get the closure for this item, with an empty item in the lookahead
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
             
             closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
-            
-            // Remove the existing LR(1) item
-            // closure.erase(lr1);
             
             // Iterate through the remaining items
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
@@ -231,9 +225,7 @@ void lalr_builder::complete_lookaheads() {
                 // Ignore this item if it's at the end
                 if (closeOffset >= closeRule.items().size()) continue;
                 
-                // Ignore this item if it's a terminal
                 const item_container& closeSymbol = closeRule.items()[closeOffset];
-                if (closeSymbol->type() == item::terminal) continue;
                 
                 // If this doesn't contain the empty item, then spontaneously generate lookahead for this transition
                 lalr_machine::transition_set::const_iterator targetState = transitions.find(closeSymbol);
