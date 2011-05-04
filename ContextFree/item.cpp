@@ -76,7 +76,7 @@ void item::closure(const lr1_item& item, lr1_item_set& state, const grammar& gra
 /// \brief True if a transition (new state) should be generated for this item
 ///
 /// Should return false for any item that acts like the empty item
-bool item::generate_transition() {
+bool item::generate_transition() const {
     // True by default
     return true;
 }

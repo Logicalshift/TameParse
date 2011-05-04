@@ -157,7 +157,7 @@ namespace contextfree {
         /// \brief True if a transition (new state) should be generated for this item
         ///
         /// Should return false for any item that acts like the empty item
-        virtual bool generate_transition();
+        virtual bool generate_transition() const;
         
     public:
         /// \brief Comparison function, returns true if a is less than b, by content

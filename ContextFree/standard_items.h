@@ -123,7 +123,7 @@ namespace contextfree {
         virtual item_set first(const grammar& gram) const;
         
         /// \brief True if a transition (new state) should be generated for this item
-        virtual bool generate_transition();
+        virtual bool generate_transition() const;
     };
     
     ///

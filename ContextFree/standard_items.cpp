@@ -261,7 +261,7 @@ void empty_item::closure(const lr1_item& item, lr1_item_set& state, const gramma
 
 
 /// \brief True if a transition (new state) should be generated for this item
-bool empty_item::generate_transition() {
+bool empty_item::generate_transition() const {
     // The empty item never appears as a symbol by itself, so the parser should not generate a transition for it
     return false;
 }

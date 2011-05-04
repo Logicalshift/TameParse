@@ -133,6 +133,9 @@ void lalr_builder::complete_parser() {
             // Get the item that the 'dot' is before
             const item_container& dottedItem = rule.items()[offset];
             
+            // Don't produce a transition for this item if it doesn't specify that one should be produced
+            if (!dottedItem->generate_transition()) continue;
+            
             // Other items produce a transition on the item that's being pointed at
             // Ie, if we have an item A -> b * c d, we add a transition on 'c' to a new item A -> b c * d 
             lr0_item                transitItem(**item, offset+1);
