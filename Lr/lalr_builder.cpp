@@ -282,10 +282,21 @@ void lalr_builder::complete_lookaheads() {
     }
 }
 
+
+/// \brief Adds a new action rewriter to this builder
+void lalr_builder::add_rewriter(const action_rewriter_container& rewriter) {
+    m_ActionRewriters.push_back(rewriter);
+}
+
+/// \brief Replaces the rewriters that this builder will use
+void lalr_builder::set_rewriters(const action_rewriter_list& list) {
+    m_ActionRewriters = list;
+}
+
 /// \brief After the state machine has been completely built, returns the actions for the specified state
 ///
 /// If there are conflicts, this will return multiple actions for a single symbol.
-const lr_action_set& lalr_builder::actions_for_state(int state) {
+const lr_action_set& lalr_builder::actions_for_state(int state) const {
     // Try to find an existing action
     map<int, lr_action_set>::const_iterator existing = m_ActionsForState.find(state);
     if (existing != m_ActionsForState.end()) return existing->second;
@@ -337,11 +348,16 @@ const lr_action_set& lalr_builder::actions_for_state(int state) {
         }
     }
     
+    // Rewrite this list of actions according to the action rewriters
+    for (action_rewriter_list::const_iterator rewrite = m_ActionRewriters.begin(); rewrite != m_ActionRewriters.end(); rewrite++) {
+        (*rewrite)->rewrite_actions(state, newSet, *this);
+    }
+    
     // Return this as the result
     return newSet;
 }
 
 /// \brief Returns the items that the lookaheads are propagated to for a particular item in this state machine
-const std::set<lalr_builder::lr_item_id>& lalr_builder::propagations_for_item(int state, int item) {
+const std::set<lalr_builder::lr_item_id>& lalr_builder::propagations_for_item(int state, int item) const {
     return m_Propagate[lr_item_id(state, item)];
 }

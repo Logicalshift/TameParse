@@ -75,7 +75,7 @@ namespace lr {
         lr_action(const lr_action& copyFrom);
         
         /// \brief Orders this action
-        inline bool operator<(const lr_action& compareTo) {
+        inline bool operator<(const lr_action& compareTo) const {
             if (m_Item < compareTo.m_Item)              return true;
             if (m_Type < compareTo.m_Type)              return true;
             if (m_NextState < compareTo.m_NextState)    return true;
@@ -85,7 +85,7 @@ namespace lr {
         }
         
         /// \brief Determines whether or not this action is the same as another
-        inline bool operator==(const lr_action& compareTo) {
+        inline bool operator==(const lr_action& compareTo) const {
             return m_Type == compareTo.m_Type && m_NextState == compareTo.m_NextState && m_Item == compareTo.m_Item && m_Rule == compareTo.m_Rule;
         }
         
@@ -107,7 +107,7 @@ namespace lr {
         }
         
         /// \brief Compares two actions
-        inline static bool compare(lr_action*a, lr_action* b) {
+        inline static bool compare(const lr_action* a, const lr_action* b) {
             if (a == b) return false;
             if (!a) return true;
             if (!b) return false;

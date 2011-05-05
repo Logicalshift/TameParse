@@ -12,11 +12,21 @@
 #include <map>
 #include <set>
 
+#include "Util/container.h"
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_machine.h"
 #include "Lr/lr_action.h"
 
 namespace lr {
+    /// \brief Forward declaration of the action rewriter class
+    class action_rewriter;
+    
+    /// \brief Class that can contain an action rewriter
+    typedef util::container<action_rewriter> action_rewriter_container;
+
+    /// \brief List of action rewriters to apply when producing the final set of actions for a parser
+    typedef std::vector<action_rewriter_container> action_rewriter_list;
+    
     ///
     /// \brief Class that builds up a LALR state machine from a grammar
     ///
@@ -37,11 +47,14 @@ namespace lr {
         /// We store only the kernel states here.
         lalr_machine m_Machine;
         
+        /// \brief List of action rewriter objects
+        action_rewriter_list m_ActionRewriters;
+        
         /// \brief Where lookaheads propagate for each item in the state machine
-        propagation m_Propagate;
+        mutable propagation m_Propagate;
         
         /// \brief Maps state IDs to sets of LR actions
-        std::map<int, lr_action_set> m_ActionsForState;
+        mutable std::map<int, lr_action_set> m_ActionsForState;
         
     public:
         /// \brief Creates a new builder for the specified grammar
@@ -68,6 +81,12 @@ namespace lr {
         /// \brief The grammar used for this builder
         const contextfree::grammar& gram() const { return *m_Grammar; }
         
+        /// \brief Adds a new action rewriter to this builder
+        void add_rewriter(const action_rewriter_container& rewriter);
+        
+        /// \brief Replaces the rewriters that this builder will use
+        void set_rewriters(const action_rewriter_list& list);
+        
     public:
         /// \brief Returns the number of states in the state machine
         inline int count_states() const { return m_Machine.count_states(); }
@@ -75,11 +94,13 @@ namespace lr {
         /// \brief After the state machine has been completely built, returns the actions for the specified state
         ///
         /// If there are conflicts, this will return multiple actions for a single symbol.
-        const lr_action_set& actions_for_state(int state);
+        const lr_action_set& actions_for_state(int state) const;
         
         /// \brief Returns the items that the lookaheads are propagated to for a particular item in this state machine
-        const std::set<lr_item_id>& propagations_for_item(int state, int item);
+        const std::set<lr_item_id>& propagations_for_item(int state, int item) const;
     };
 }
+
+#include "action_rewriter.h"
 
 #endif
