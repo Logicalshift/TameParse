@@ -9,22 +9,39 @@
 #ifndef _LR_LALR_BUILDER_H
 #define _LR_LALR_BUILDER_H
 
+#include <map>
+#include <set>
+
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_machine.h"
+#include "Lr/lr_action.h"
 
 namespace lr {
     ///
     /// \brief Class that builds up a LALR state machine from a grammar
     ///
     class lalr_builder {
+    public:
+        // State ID, item ID pair (identifies an individual item within a state machine)
+        typedef std::pair<int, int> lr_item_id;
+        
+        // Maps states to lists of propagations (target state, target item ID)
+        typedef std::map<lr_item_id, std::set<lr_item_id> > propagation;
+        
     private:
         /// \brief The grammar that this builder will use
         contextfree::grammar* m_Grammar;
         
-        /// \brief The LALR machine that this is building up
+        /// \brief The LALR state machine that this is building up
         ///
         /// We store only the kernel states here.
         lalr_machine m_Machine;
+        
+        /// \brief Where lookaheads propagate for each item in the state machine
+        propagation m_Propagate;
+        
+        /// \brief Maps state IDs to sets of LR actions
+        std::map<int, lr_action_set> m_ActionsForState;
         
     public:
         /// \brief Creates a new builder for the specified grammar
@@ -50,6 +67,18 @@ namespace lr {
         
         /// \brief The grammar used for this builder
         const contextfree::grammar& gram() const { return *m_Grammar; }
+        
+    public:
+        /// \brief Returns the number of states in the state machine
+        inline int count_states() const { return m_Machine.count_states(); }
+        
+        /// \brief After the state machine has been completely built, returns the actions for the specified state
+        ///
+        /// If there are conflicts, this will return multiple actions for a single symbol.
+        const lr_action_set& actions_for_state(int state);
+        
+        /// \brief Returns the items that the lookaheads are propagated to for a particular item in this state machine
+        const std::set<lr_item_id>& propagations_for_item(int state, int item);
     };
 }
 

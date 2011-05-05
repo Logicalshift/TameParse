@@ -68,7 +68,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     
     // Work out what follows in the item
     item_set follow;
-    const rule& rule    = item.rule();
+    const rule& rule    = *item.rule();
     int         offset  = item.offset();
     
     if (offset+1 >= rule.items().size()) {

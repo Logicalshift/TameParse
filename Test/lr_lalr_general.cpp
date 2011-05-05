@@ -39,14 +39,14 @@ static void dump(const item_set& la, const grammar& gram) {
 }
 
 static void dump(const lr0_item& item, const item_set& la, const grammar& gram) {
-    dump(*item.rule().nonterminal(), gram);
+    dump(*item.rule()->nonterminal(), gram);
     
     wcerr << L" ->";
     int pos;
-    for (pos = 0; pos < item.rule().items().size(); pos++) {
+    for (pos = 0; pos < item.rule()->items().size(); pos++) {
         if (pos == item.offset()) wcerr << L" *";
         wcerr << L" ";
-        dump(*item.rule().items()[pos], gram);
+        dump(*item.rule()->items()[pos], gram);
     }
     if (pos == item.offset()) wcerr << L" *";
     
@@ -54,10 +54,10 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram) 
     dump(la, gram);
     
     wcerr << L" [";
-    if (item.offset() < item.rule().items().size()) {
-        dump(*item.rule().items()[item.offset()], gram);
+    if (item.offset() < item.rule()->items().size()) {
+        dump(*item.rule()->items()[item.offset()], gram);
         wcerr << L" >FIRST>";
-        dump(gram.first(*item.rule().items()[item.offset()]), gram);
+        dump(gram.first(*item.rule()->items()[item.offset()]), gram);
     }
     wcerr << L"]";
 }
@@ -80,9 +80,9 @@ static void dump_machine(const lalr_machine& machine) {
             dump(item, state.lookahead_for(itemId), machine.gram());
             wcerr << endl;
             
-            if (item.offset() < item.rule().items().size()) {
+            if (item.offset() < item.rule()->items().size()) {
                 lr1_item lr1(item, empty_set);
-                item.rule().items()[item.offset()]->closure(lr1, closure, machine.gram());
+                item.rule()->items()[item.offset()]->closure(lr1, closure, machine.gram());
             }
         }
 

@@ -73,7 +73,7 @@ static void create_closure(closure_set& target, const lalr_state& state, const g
         const lr1_item_container& nextItem = waiting.front();
         
         // Take the item apart
-        const rule& rule    = nextItem->rule();
+        const rule& rule    = *nextItem->rule();
         int         offset  = nextItem->offset();
         
         // No items are generated for an item where the offset is at the end of the rule
@@ -124,7 +124,7 @@ void lalr_builder::complete_parser() {
         
         for (closure_set::iterator item = closure.begin(); item != closure.end(); item++) {
             // Take the item apart
-            const rule& rule    = (*item)->rule();
+            const rule& rule    = *(*item)->rule();
             int         offset  = (*item)->offset();
             
             // Items at the end of a rule don't produce any transitions
@@ -180,18 +180,12 @@ void lalr_builder::complete_lookaheads() {
     //
     // We start with only the initial states, with a lookahead of '$'
     
-    // State ID, item ID pair (identifies an individual item within a state machine)
-    typedef pair<int, int> lr_item_id;
-    
-    // Maps states to lists of propagations (target state, target item ID)
-    typedef map<lr_item_id, set<lr_item_id> > propagation;
-    
     // Create an empty lookahead set (we'll use this a lot
     item_set emptyLookahead;
     emptyLookahead.insert(empty);
     
     // Create the propagation map
-    propagation propagate;
+    m_Propagate.clear();
     
     // Iterate through the states, and generate spontaneous lookaheads and also the propagation table
     for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
@@ -204,7 +198,7 @@ void lalr_builder::complete_lookaheads() {
             // Get the item
             const lalr_state::container& thisItem = (*thisState)[itemId];
             
-            const rule& thisRule    = thisItem->rule();
+            const rule& thisRule    = *thisItem->rule();
             int         thisOffset  = thisItem->offset();
             
             // Ignore items that are at the end (ie, have no closure)
@@ -222,7 +216,7 @@ void lalr_builder::complete_lookaheads() {
             
             // Iterate through the remaining items
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
-                const rule& closeRule   = (*it)->rule();
+                const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
                 
                 // Ignore this item if it's at the end
@@ -247,7 +241,7 @@ void lalr_builder::complete_lookaheads() {
                 // This creates a propagation if the empty item is in the lookahead
                 if (lookahead.find(empty) != lookahead.end()) {
                     // Add a propagation for this item
-                    propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
+                    m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
                 }
             }
         }
@@ -257,7 +251,7 @@ void lalr_builder::complete_lookaheads() {
     set<lr_item_id> toPropagate;
     
     // Fill with all the states which do propagation
-    for (propagation::iterator it = propagate.begin(); it != propagate.end(); it++) {
+    for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); it++) {
         toPropagate.insert(it->first);
     }
     
@@ -270,7 +264,7 @@ void lalr_builder::complete_lookaheads() {
         toPropagate.erase(nextState);
         
         // Fetch out the items
-        set<lr_item_id>& propItems = propagate[nextState];
+        set<lr_item_id>& propItems = m_Propagate[nextState];
         
         // Get the lookahead for this item
         const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
@@ -280,10 +274,74 @@ void lalr_builder::complete_lookaheads() {
             // Propagating lookahead from the item identified by nextState to *path
             if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
                 // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
-                if (propagate.find(*path) != propagate.end()) {
+                if (m_Propagate.find(*path) != m_Propagate.end()) {
                     toPropagate.insert(*path);
                 }
             }
         }
     }
+}
+
+/// \brief After the state machine has been completely built, returns the actions for the specified state
+///
+/// If there are conflicts, this will return multiple actions for a single symbol.
+const lr_action_set& lalr_builder::actions_for_state(int state) {
+    // Try to find an existing action
+    map<int, lr_action_set>::const_iterator existing = m_ActionsForState.find(state);
+    if (existing != m_ActionsForState.end()) return existing->second;
+    
+    // Build up a new set
+    typedef lalr_machine::transition_set    transition_set;
+    typedef lr1_item::lookahead_set         lookahead_set;
+    
+    lr_action_set&          newSet      = m_ActionsForState[state];
+    const transition_set&   transits    = m_Machine.transitions_for_state(state);
+    const lalr_state&       thisState   = *m_Machine.state_with_id(state);
+    
+    // Add a shift action for each transition
+    for (transition_set::const_iterator it = transits.begin(); it != transits.end(); it++) {
+        // Get the item being shifted
+        const item_container&   thisItem    = it->first;
+        int                     targetState = it->second;
+        
+        // Add a new shift or goto action (terminals are shift actions, everything else is a goto)
+        lr_action::action_type actionType = lr_action::act_goto;
+        if (thisItem->type() == item::terminal) {
+            actionType = lr_action::act_shift;
+        }        
+        
+        lr_action newAction(actionType, thisItem, targetState);
+        newSet.insert(newAction);
+    }
+    
+    // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
+    for (lalr_state::iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
+        // Ignore items that aren't at the end
+        if (!(*lrItem)->at_end()) continue;
+        
+        // This item needs to be a reduce action for all of its lookahead symbols
+        const lookahead_set* la = thisState.lookahead_for(*lrItem);
+        if (!la) continue;
+        
+        // Use the accepting action if the target symbol is 'empty' (which we use a placeholder for a symbol representing a language)
+        // TODO: use a dedicated item type instead of overloading the empty symbol
+        lr_action::action_type actionType = lr_action::act_reduce;
+        if ((*lrItem)->rule()->nonterminal()->type() == item::empty) {
+            actionType = lr_action::act_accept;
+        }
+        
+        for (lookahead_set::const_iterator reduceSymbol = la->begin(); reduceSymbol != la->end(); reduceSymbol++) {
+            // Generate a reduce action for this symbol
+            lr_action newAction(actionType, *reduceSymbol, -1, (*lrItem)->rule());
+            newSet.insert(newAction);
+        }
+    }
+    
+    // Return this as the result
+    return newSet;
+}
+
+/// \brief Returns the items that the lookaheads are propagated to for a particular item in this state machine
+const std::set<lalr_builder::lr_item_id>& lalr_builder::propagations_for_item(int state, int item) {
+    return m_Propagate[lr_item_id(state, item)];
 }

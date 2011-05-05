@@ -80,10 +80,13 @@ namespace lr {
         inline const contextfree::grammar& gram() const { return *m_Grammar; }
         
         /// \brief The rule for this item
-        inline const contextfree::rule& rule() const { return *m_Rule; }
+        inline const contextfree::rule_container& rule() const { return m_Rule; }
         
         /// \brief The offset for this item
         inline int offset() const { return m_Offset; }
+        
+        /// \brief True if this item is at the end of the rule (ie, is in a reducing state)
+        inline bool at_end() const { return offset() >= rule()->items().size(); }
 
     public:
         /// \brief Clones an LR(0) item
@@ -166,7 +169,7 @@ namespace lr {
         inline const contextfree::grammar& gram() const { return m_Lr0Item->gram(); }
 
         /// \brief The rule for this item
-        inline const contextfree::rule& rule() const { return m_Lr0Item->rule(); }
+        inline const contextfree::rule_container& rule() const { return m_Lr0Item->rule(); }
         
         /// \brief The offset for this item
         inline int offset() const { return m_Lr0Item->offset(); }

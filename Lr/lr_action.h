@@ -9,8 +9,11 @@
 #ifndef _LR_LR_ACTION_H
 #define _LR_LR_ACTION_H
 
+#include <set>
+
 #include "ContextFree/item.h"
 #include "ContextFree/rule.h"
+#include "Util/container.h"
 
 namespace lr {
     ///
@@ -40,6 +43,9 @@ namespace lr {
             /// if you want to support the concept of 'weak' lexical symbols (whose meaning depends on context), as a weak reduction is only possible
             /// if the lookahead symbol is a valid part of the language.
             act_weakreduce,
+            
+            /// \brief Identical to 'reduce', except the target symbol is the root of the language
+            act_accept,
             
             /// \brief If a phrase has been reduced to this nonterminal symbol, then goto to the specified state
             act_goto,
@@ -94,7 +100,27 @@ namespace lr {
         
         /// \brief The rule that this refers to.
         inline const contextfree::rule_container& rule() const { return m_Rule; }
+        
+        /// \brief Clones an existing action
+        inline lr_action* clone() const {
+            return new lr_action(*this);
+        }
+        
+        /// \brief Compares two actions
+        inline static bool compare(lr_action*a, lr_action* b) {
+            if (a == b) return false;
+            if (!a) return true;
+            if (!b) return false;
+            
+            return *a < *b;
+        }
     };
+    
+    /// \brief LR action container
+    typedef util::container<lr_action> lr_action_container;
+    
+    /// \brief Set of LR actions
+    typedef std::set<lr_action_container> lr_action_set;
 }
 
 #endif
