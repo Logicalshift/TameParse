@@ -81,6 +81,8 @@
 		4BF319971371E50100C68ACB /* lr_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF319951371E50100C68ACB /* lr_action.h */; };
 		4BFD4A5B13735EB700D6657D /* action_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5913735EB700D6657D /* action_rewriter.cpp */; };
 		4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5A13735EB700D6657D /* action_rewriter.h */; };
+		4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */; };
+		4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5F137483DA00D6657D /* weak_symbols.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -185,6 +187,8 @@
 		4BF319951371E50100C68ACB /* lr_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_action.h; sourceTree = "<group>"; };
 		4BFD4A5913735EB700D6657D /* action_rewriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = action_rewriter.cpp; sourceTree = "<group>"; };
 		4BFD4A5A13735EB700D6657D /* action_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = action_rewriter.h; sourceTree = "<group>"; };
+		4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_symbols.cpp; sourceTree = "<group>"; };
+		4BFD4A5F137483DA00D6657D /* weak_symbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weak_symbols.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -240,6 +244,8 @@
 				4BF3198D136DFFD100C68ACB /* lalr_builder.h */,
 				4BFD4A5913735EB700D6657D /* action_rewriter.cpp */,
 				4BFD4A5A13735EB700D6657D /* action_rewriter.h */,
+				4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */,
+				4BFD4A5F137483DA00D6657D /* weak_symbols.h */,
 			);
 			path = Lr;
 			sourceTree = "<group>";
@@ -419,6 +425,7 @@
 				4BF3198F136DFFD100C68ACB /* lalr_builder.h in Headers */,
 				4BF319971371E50100C68ACB /* lr_action.h in Headers */,
 				4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */,
+				4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -518,6 +525,7 @@
 				4BF3198E136DFFD100C68ACB /* lalr_builder.cpp in Sources */,
 				4BF319961371E50100C68ACB /* lr_action.cpp in Sources */,
 				4BFD4A5B13735EB700D6657D /* action_rewriter.cpp in Sources */,
+				4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
