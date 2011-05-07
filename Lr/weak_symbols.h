@@ -14,6 +14,7 @@
 
 #include "Dfa/ndfa.h"
 #include "ContextFree/item.h"
+#include "ContextFree/terminal_dictionary.h"
 #include "Lr/action_rewriter.h"
 
 namespace lr {
@@ -59,7 +60,9 @@ namespace lr {
         void add_symbols(const contextfree::item_container& strong, const contextfree::item_set& weak);
         
         /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
-        void add_symbols(const dfa::ndfa& dfa, const contextfree::item_set& weak);
+        ///
+        /// The terminal dictionary may be modified if any symbols need to be split
+        void add_symbols(const dfa::ndfa& dfa, const contextfree::item_set& weak, contextfree::terminal_dictionary& terminals);
 
         /// \brief Modifies the specified set of actions according to the rules in this rewriter
         virtual void rewrite_actions(int state, lr_action_set& actions, const lalr_builder& builder) const;

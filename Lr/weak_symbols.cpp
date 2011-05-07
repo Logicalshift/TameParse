@@ -38,7 +38,7 @@ void weak_symbols::add_symbols(const contextfree::item_container& strong, const 
 }
 
 /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
-void weak_symbols::add_symbols(const dfa::ndfa& dfa, const contextfree::item_set& weak) {
+void weak_symbols::add_symbols(const ndfa& dfa, const item_set& weak, terminal_dictionary& terminals) {
     // Create a set of the identifiers of the weak terminals in the set
     set<int> weakIdentifiers;
     
