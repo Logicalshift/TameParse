@@ -115,6 +115,9 @@ namespace dfa {
         /// If eager is set, then the state is marked as an 'eager' accepting state - ie, the resulting DFA will not consider states 'following' this one
         /// when it is evaluated.
         void accept(int state, const accept_action& action);
+        
+        /// \brief Marks the specified state as non-accepting
+        void clear_accept(int state);
 
     public:
         /// \brief Number of states in this (N)DFA

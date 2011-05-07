@@ -169,6 +169,12 @@ void ndfa::accept(int state, const accept_action& action) {
     (*m_Accept)[state].push_back(action.clone());
 }
 
+/// \brief Marks the specified state as non-accepting
+void ndfa::clear_accept(int state) {
+    // Remove all of the items from this state
+    (*m_Accept)[state].clear();
+}
+
 /// \brief Pops the state on top of the stack and discards it
 ///
 /// Returns false if the stack is empty.

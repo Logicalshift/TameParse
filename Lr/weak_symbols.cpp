@@ -38,7 +38,7 @@ void weak_symbols::add_symbols(const contextfree::item_container& strong, const 
 }
 
 /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
-void weak_symbols::add_symbols(const ndfa& dfa, const item_set& weak, terminal_dictionary& terminals) {
+void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_dictionary& terminals) {
     // Create a set of the identifiers of the weak terminals in the set
     set<int> weakIdentifiers;
     
@@ -51,7 +51,7 @@ void weak_symbols::add_symbols(const ndfa& dfa, const item_set& weak, terminal_d
     }
     
     // Map of weak to strong symbols
-    map<int, set<int> > weakToStrong;
+    map<int, int> weakToStrong;
     
     // Iterate through all of the DFA states
     typedef ndfa::accept_action_list accept_actions;
@@ -90,24 +90,36 @@ void weak_symbols::add_symbols(const ndfa& dfa, const item_set& weak, terminal_d
         
         // Map the weak symbols we found to this identifier
         for (set<int>::iterator it = usedWeak.begin(); it != usedWeak.end(); it++) {
-            weakToStrong[*it].insert(strongest);
+            if (weakToStrong.find(*it) == weakToStrong.end()) {
+                // This is the first conflict between the two symbols. Just mark out the mapping.
+                weakToStrong[*it] = strongest;
+            } else if (weakToStrong[*it] != strongest) {
+                // The weak symbol is used somewhere else with a different meaning
+                // NOTE: this isn't ideal, as if there's an identical conflict somewhere else we generate more and more symbols for each conflicting
+                // state, while we only need one new symbol for each (weak, strong) pair.
+                
+                // Split the weak symbol so that we have two different meanings
+                int splitSymbolId = terminals.split(*it);
+                
+                // Change the accepting action for this state so that it accepts the new symbol
+                dfa.clear_accept(state);
+                dfa.accept(state, splitSymbolId);
+                
+                // Map this in the weakToStrong table
+                weakToStrong[splitSymbolId] = strongest;
+            }
         }
     }
     
     // TODO: if a weak symbol maps to several strong identifiers, it needs to be split into several symbols
     
     // Fill in the strong map for each weak symbol
-    for (map<int, set<int> >::iterator it = weakToStrong.begin(); it != weakToStrong.end(); it++) {
-        // Every item must have at least one strong symbol mapped to it
-        if (it->second.empty()) continue;
-        
+    for (map<int, int>::iterator it = weakToStrong.begin(); it != weakToStrong.end(); it++) {
         // Use the first strong symbol for this weak symbol
-        item_container strongTerm(new terminal(*it->second.begin()), true);
+        item_container strongTerm(new terminal(it->second), true);
         item_container weakTerm(new terminal(it->first), true);
         
         m_StrongToWeak[strongTerm].insert(weakTerm);
-        
-        // TODO: split up weak symbols with multiple strong symbols
     }
 }
 

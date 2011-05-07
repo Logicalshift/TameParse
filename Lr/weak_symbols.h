@@ -62,7 +62,7 @@ namespace lr {
         /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
         ///
         /// The terminal dictionary may be modified if any symbols need to be split
-        void add_symbols(const dfa::ndfa& dfa, const contextfree::item_set& weak, contextfree::terminal_dictionary& terminals);
+        void add_symbols(dfa::ndfa& dfa, const contextfree::item_set& weak, contextfree::terminal_dictionary& terminals);
 
         /// \brief Modifies the specified set of actions according to the rules in this rewriter
         virtual void rewrite_actions(int state, lr_action_set& actions, const lalr_builder& builder) const;
