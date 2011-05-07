@@ -121,6 +121,9 @@ namespace contextfree {
             /// \brief EBNF rule representing an alternative (either one of two different rules)
             alternative = ebnf + 2,
             
+            /// \brief Same as repeat, except that 0 repetitions is allowed
+            repeat_zero_or_one = ebnf + 3,
+            
             /// \brief Values of this value or greater are available for users who want to create custom items 
             ///
             /// Note that when comparing item

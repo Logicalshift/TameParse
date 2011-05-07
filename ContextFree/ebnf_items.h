@@ -46,7 +46,10 @@ namespace contextfree {
         ebnf(const rule_list& copyFrom);
         
         /// \brief The list of rules in this item
-        inline const rule_list& rules() { return *m_Rules; }
+        inline const rule_list& rules() const { return *m_Rules; }
+        
+        /// \brief Fills in the items that follow this one
+        void fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const;
         
     public:
         /// \brief Creates a new EBNF item
@@ -65,10 +68,10 @@ namespace contextfree {
         virtual bool operator<(const item& compareTo) const;
 
         /// \brief The rule that defines this item
-        rule& get_rule();
+        rule_container& get_rule();
         
         /// \brief The rule that defines this item
-        const rule& get_rule() const;
+        const rule_container& get_rule() const;
         
         /// \brief Type defining an iterator through the rules contained in this item
         typedef rule_list::const_iterator rule_iterator;
@@ -105,6 +108,9 @@ namespace contextfree {
         /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
+        
+        /// \brief Computes the closure of this rule in the specified grammar
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
     };
     
     ///
@@ -132,6 +138,39 @@ namespace contextfree {
         /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
+        
+        /// \brief Computes the closure of this rule in the specified grammar
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
+    };
+    
+    ///
+    /// \brief EBNF rule representing a section that repeats zero or more times (combine with ebnf_optional to get a section that repeats 0 or more times)
+    ///
+    class ebnf_repeating_optional : public ebnf {
+    protected:
+        inline ebnf_repeating_optional(const ebnf_repeating_optional& copyFrom) : ebnf(copyFrom) { }
+        
+    public:
+        inline ebnf_repeating_optional() : ebnf() { }
+        inline ebnf_repeating_optional(const rule& repeatingRule) : ebnf(repeatingRule) { }
+        
+        /// \brief Creates a clone of this item
+        virtual item* clone() const;
+        
+        /// \brief The type of this item
+        virtual kind type() const;
+        
+        /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
+        ///
+        /// This set will always include the item itself by definition. Things like non-terminals should include themselves and the first
+        /// set for the rules that make them up.
+        ///
+        /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
+        /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
+        virtual item_set first(const grammar& gram) const;
+        
+        /// \brief Computes the closure of this rule in the specified grammar
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
     };
     
     ///
@@ -162,6 +201,9 @@ namespace contextfree {
         /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
+        
+        /// \brief Computes the closure of this rule in the specified grammar
+        virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
     };
 }
 

@@ -90,6 +90,15 @@ rule& rule::operator<<(const item_container& item) {
     return *this;
 }
 
+
+/// \brief Appends the production in the specified rule to this item
+rule& rule::operator<<(const rule& rule) {
+    for (iterator it = rule.begin(); it != rule.end(); it++) {
+        operator<<(*it);
+    }
+    return *this;
+}
+
 /// \brief Returns the identifier for this rule in the specified grammar
 int rule::identifier(const grammar& gram) const {
     if (&gram == m_LastGrammar) return m_Identifier;

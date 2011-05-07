@@ -8,8 +8,10 @@
 
 #include "ebnf_items.h"
 #include "symbol_set.h"
+#include "Lr/lr_item.h"
 
 using namespace dfa;
+using namespace lr;
 using namespace contextfree;
 
 static const empty_item the_empty_item;
@@ -97,10 +99,32 @@ bool ebnf::operator<(const item& compareTo) const {
 }
 
 /// \brief The rule that defines this item
-rule& ebnf::get_rule() { return *(*m_Rules)[0]; }
+rule_container& ebnf::get_rule() { return (*m_Rules)[0]; }
 
 /// \brief The rule that defines this item
-const rule& ebnf::get_rule() const { return *(*m_Rules)[0]; }
+const rule_container& ebnf::get_rule() const { return *(*m_Rules)[0]; }
+
+/// \brief Fills in the items that follow this one
+void ebnf::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const {
+    // Work out what follows in the item
+    const rule& rule    = *item.rule();
+    int         offset  = item.offset();
+    
+    if (offset+1 >= rule.items().size()) {
+        // The follow set is just the lookahead for this item
+        follow = item.lookahead();
+    } else {
+        // The follow set is FIRST(following item)
+        follow = gram.first(*rule.items()[offset+1]);
+        
+        // If the empty set is included, remove it and add the item lookahead
+        if (follow.find(the_empty_item) != follow.end()) {
+            follow.erase(the_empty_item);
+            follow.insert(item.lookahead().begin(), item.lookahead().end());
+        }
+    }    
+}
+
 
 /// \brief Creates a clone of this item
 item* ebnf_optional::clone() const {
@@ -120,19 +144,39 @@ item::kind ebnf_optional::type() const {
 /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_optional::first(const grammar& gram) const {
-    // Result is the first item in the rule
+    // Result is the empty item, plus the first item in the rule
     item_set result;
+    result.insert(the_empty_item);
     
     // Get the rule
-    const rule& r = get_rule();
+    const rule& r = *get_rule();
     
     // Add items if the rule has a first item
     if (r.items().size() > 0) {
         const item_set& ruleItems = gram.first(*(r.items()[0]));
         result.insert(ruleItems.begin(), ruleItems.end());
+    } else {
+        result.insert(the_empty_item);
     }
     
     return result;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+void ebnf_optional::closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const {
+    // Use the item_container from the item to save on copying
+    const item_container& ourItem = item.rule()->items()[item.offset()];
+
+    // Empty rule, or the rule in this container
+    rule_container empty_rule(new rule(ourItem), true);
+    
+    // Work out the follow set
+    item_set follow;
+    fill_follow(follow, item, gram);
+    
+    // Add new items
+    state.insert(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true));
+    state.insert(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true));
 }
 
 /// \brief Creates a clone of this item
@@ -153,12 +197,63 @@ item::kind ebnf_repeating::type() const {
 /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_repeating::first(const grammar& gram) const {
+    // Result is the first item in the rule
+    item_set result;
+    
+    // Get the rule
+    const rule& r = *get_rule();
+    
+    // Add items if the rule has a first item
+    if (r.items().size() > 0) {
+        const item_set& ruleItems = gram.first(*(r.items()[0]));
+        result.insert(ruleItems.begin(), ruleItems.end());
+    }
+    
+    return result;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+void ebnf_repeating::closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const {
+    // Use the item_container from the item to save on copying
+    const item_container& ourItem = item.rule()->items()[item.offset()];
+    
+    // Just the rule in this item, or a repetition
+    rule_container many_rule(new rule(ourItem), true);
+    (*many_rule) << ourItem << get_rule();
+    
+    // Work out the follow set
+    item_set follow;
+    fill_follow(follow, item, gram);
+    
+    // Add new items
+    state.insert(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true));
+    state.insert(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true));
+}
+
+/// \brief Creates a clone of this item
+item* ebnf_repeating_optional::clone() const {
+    return new ebnf_repeating_optional(*this);
+}
+
+/// \brief The type of this item
+item::kind ebnf_repeating_optional::type() const {
+    return item::repeat_zero_or_one;
+}
+
+/// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
+///
+/// This set will always include the item itself by definition. Things like non-terminals should include themselves and the first
+/// set for the rules that make them up.
+///
+/// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
+/// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
+item_set ebnf_repeating_optional::first(const grammar& gram) const {
     // Result is the empty item, plus the first item in the rule
     item_set result;
     result.insert(the_empty_item);
     
     // Get the rule
-    const rule& r = get_rule();
+    const rule& r = *get_rule();
     
     // Add items if the rule has a first item
     if (r.items().size() > 0) {
@@ -169,6 +264,25 @@ item_set ebnf_repeating::first(const grammar& gram) const {
     }
     
     return result;    
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+void ebnf_repeating_optional::closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const {
+    // Use the item_container from the item to save on copying
+    const item_container& ourItem = item.rule()->items()[item.offset()];
+    
+    // Empty, or a repetition
+    rule_container empty_rule(new rule(ourItem), true);
+    rule_container many_rule(new rule(ourItem), true);
+    (*many_rule) << ourItem << get_rule();
+    
+    // Work out the follow set
+    item_set follow;
+    fill_follow(follow, item, gram);
+    
+    // Add new items
+    state.insert(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true));
+    state.insert(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true));
 }
 
 /// \brief Adds a new rule
@@ -215,4 +329,16 @@ item_set ebnf_alternate::first(const grammar& gram) const {
     }
     
     return result;
+}
+
+/// \brief Computes the closure of this rule in the specified grammar
+void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const {
+    // Work out the follow set
+    item_set follow;
+    fill_follow(follow, item, gram);
+    
+    // Any of the items in this rule
+    for (rule_list::const_iterator nextRule = rules().begin(); nextRule != rules().end(); nextRule++) {
+        state.insert(lr1_item_container(new lr1_item(&gram, *nextRule, 0, follow)));
+    }
 }

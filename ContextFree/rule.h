@@ -121,6 +121,12 @@ namespace contextfree {
     public:
         /// \brief Appends the specified item to this rule
         rule& operator<<(const item_container& item);
+        
+        /// \brief Appends the production in the specified rule to this item
+        rule& operator<<(const rule& rule);
+        
+        /// \brief Appends the production in the specified rule to this item
+        inline rule& operator<<(const rule_container& rule) { return operator<<(*rule); }
     };
 }
 

@@ -98,33 +98,6 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
             }
         }
     }
-
-#if 0
-    // Generate new rules for each of these, and add to the state
-    for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
-        // Create the LR(0) item for the new item
-        lr0_item newItem(&gram, *it, 0);
-        
-        // Work out the FIRST set for the new rule
-        const item_set& first = gram.first(**it);
-        
-        // If the first set contains the empty item, then the completed set is the union of the first set and the follow set for the current item
-        if (first.find(an_empty_item) != first.end()) {
-            // Merge the follow set for this item with the lookahead for the item that was passed in
-            item_set result = first;
-            result.erase(an_empty_item);
-            result.insert(item.lookahead().begin(), item.lookahead().end());
-            
-            // Generate the LR(1) item for this lookahead
-            lr1_item lr1(newItem, result);
-            state.insert(lr1);
-        } else {
-            // No empty item: just create a new LR(1) item
-            lr1_item lr1(newItem, first);
-            state.insert(lr1);
-        }
-    }
-#endif
 }
 
 /// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
