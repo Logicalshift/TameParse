@@ -47,6 +47,9 @@ namespace util {
             const bool m_WillDelete;
             mutable int m_RefCount;
             
+            reference(const reference& noCopying) { }
+            reference& operator=(const reference& noCopying) { }
+            
         public:
             /// \brief Creates a reference to an item, with a reference count of 1. The item will be deleted if the reference count reached 0 and willDelete is true
             inline reference(ItemType* it, bool willDelete)
@@ -56,7 +59,9 @@ namespace util {
             }
             
             inline ~reference() {
-                if (m_WillDelete && m_Item) ItemAllocator::destruct(m_Item);
+                if (m_WillDelete && m_Item) {
+                    ItemAllocator::destruct(m_Item);
+                }
             }
             
             /// \brief Decreases the reference count and deletes this reference if it reaches 0
@@ -177,19 +182,19 @@ namespace util {
         }
         
         /// \brief Creates a new container
-        inline container(const container<ItemType>& copyFrom) {
+        inline container(const container<ItemType, ItemAllocator>& copyFrom) {
             m_Ref = copyFrom.m_Ref;
             m_Ref->retain();
         }
         
         /// \brief Assigns the content of this container
-        inline container<ItemType>& operator=(const container<ItemType>& assignFrom) {
+        inline container<ItemType, ItemAllocator>& operator=(const container<ItemType, ItemAllocator>& assignFrom) {
             if (&assignFrom == this) return *this;
             
             assignFrom.m_Ref->retain();
             m_Ref->release();
             m_Ref = assignFrom.m_Ref;
-            
+
             return *this;
         }
         
