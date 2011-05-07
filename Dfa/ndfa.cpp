@@ -19,7 +19,7 @@ using namespace dfa;
 const ndfa::accept_action_list ndfa::s_NoActions;
 
 /// \brief A placeholder 'no state' representation
-const state& ndfa::s_NoState(-1);
+const state ndfa::s_NoState(-1);
 
 /// \brief Copies an existing NDFA
 ndfa::ndfa(const ndfa& copyFrom)
@@ -344,13 +344,14 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     
     // Some types used by this method
     typedef set<int>                        state_set;                                  // Set of states in this NDFA (maps onto a single state in the final NDFA)
-    typedef pair<const state_set&, state&>  remaining_entry;                            // State that's waiting to be processed
+    typedef pair<int, state*>               remaining_entry;                            // State that's waiting to be processed
     typedef map<int, state_set>             transition_for_symbol;                      // Maps a symbol_set to the states that would be reached in this NDFA
     
     // Create the structures for the new DFA. Symbols are preserved (and state 0 remains the same), but we regenerate everything else
-    symbol_map*                 symbols = new symbol_map(*m_Symbols);
-    state_list*                 states  = new state_list();
-    accept_action_for_state*    accept  = new accept_action_for_state();
+    symbol_map*                 symbols     = new symbol_map(*m_Symbols);
+    state_list*                 states      = new state_list();
+    accept_action_for_state*    accept      = new accept_action_for_state();
+    vector<state_set>           stateSets;
     
     // Get the epsilon set
     int epsilonSymbolSet = m_Symbols->identifier_for_symbols(epsilon());
@@ -373,6 +374,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         
         // Generate a state for this ID
         states->push_back(new state(stateId));
+        stateSets.push_back(thisStateSet);
         
         // Add to the map
         if (stateMap.find(thisStateSet) == stateMap.end()) {
@@ -381,7 +383,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         }
         
         // Add to the list of states to process
-        remainingStates.push(remaining_entry(stateMap.find(thisStateSet)->first, *(*states)[stateId]));
+        remainingStates.push(remaining_entry(stateId, (*states)[stateId]));
     }
     
     // Keep processing states until we stop generating new ones
@@ -395,8 +397,9 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         
         // For each state making up this state...
         bool isEager = false;
+        const state_set& nextSet = stateSets[next.first];
         
-        for (state_set::const_iterator stateIt = next.first.begin(); stateIt != next.first.end(); stateIt++) {
+        for (state_set::const_iterator stateIt = nextSet.begin(); stateIt != nextSet.end(); stateIt++) {
             // Get this state
             state& thisState = *(*m_States)[*stateIt];
             
@@ -414,7 +417,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             if (acceptForState != m_Accept->end()) {
                 for (accept_action_list::const_iterator acceptIt = acceptForState->second.begin(); acceptIt != acceptForState->second.end(); acceptIt++) {
                     // Add this action
-                    (*accept)[next.second.identifier()].push_back((*acceptIt)->clone());
+                    (*accept)[next.second->identifier()].push_back((*acceptIt)->clone());
                     
                     // Mark if it's eager
                     if ((*acceptIt)->eager()) {
@@ -447,13 +450,14 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
                 
                 // Create the new state
                 states->push_back(new state(newStateId));
+                stateSets.push_back(transit->second);
                 
                 // Add the new state to the list that need processiing
-                remainingStates.push(remaining_entry(targetState->first, *(*states)[newStateId]));
+                remainingStates.push(remaining_entry(newStateId, (*states)[newStateId]));
             }
             
             // Add this transition
-            next.second.add(transition(transit->first, targetState->second));
+            next.second->add(transition(transit->first, targetState->second));
         }
     }
     

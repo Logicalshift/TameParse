@@ -50,7 +50,7 @@ namespace dfa {
         static const accept_action_list s_NoActions;
         
         /// \brief A placeholder 'no state' representation
-        static const state& s_NoState;
+        static const state s_NoState;
         
         /// \brief The states in this NDFA
         state_list* m_States;
