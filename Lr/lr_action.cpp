@@ -39,3 +39,12 @@ lr_action::lr_action(const lr_action& copyFrom)
 , m_NextState(copyFrom.m_NextState)
 , m_Rule(copyFrom.m_Rule) {
 }
+
+/// \brief Copy constructor, modifies the item for an action
+lr_action::lr_action(const lr_action& copyFrom, const contextfree::item_container& newItem)
+: m_Type(copyFrom.m_Type)
+, m_Item(newItem)
+, m_NextState(copyFrom.m_NextState)
+, m_Rule(copyFrom.m_Rule) {
+}
+

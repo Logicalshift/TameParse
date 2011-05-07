@@ -74,6 +74,9 @@ namespace lr {
         /// \brief Copy constructor
         lr_action(const lr_action& copyFrom);
         
+        /// \brief Copy constructor, modifies the item for an action
+        lr_action(const lr_action& copyFrom, const contextfree::item_container& newItem);
+        
         /// \brief Orders this action
         inline bool operator<(const lr_action& compareTo) const {
             if (m_Item < compareTo.m_Item)              return true;
