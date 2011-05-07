@@ -51,7 +51,7 @@ namespace lr {
         typedef util::container<item_type> container;
         
         /// \brief Item container comparator type
-        typedef container::compare_adapter<compare_items> comparator;
+        typedef typename container::template compare_adapter<compare_items> comparator;
         
         /// \brief Set of items within a state, mapped to identifiers (which count from 0)
         typedef std::map<container, int, comparator> item_set;
