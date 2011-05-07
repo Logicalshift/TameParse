@@ -11,6 +11,11 @@
 
 using namespace contextfree;
 
+/// \brief Creates a rule (with the empty nonterminal)
+rule::rule() 
+: m_NonTerminal(new empty_item(), true){
+}
+
 /// \brief Creates a copy of a rule
 rule::rule(const rule& copyFrom)
 : m_NonTerminal(copyFrom.m_NonTerminal)
@@ -30,9 +35,7 @@ rule::rule(const item_container& nonTerminal)
 
 /// \brief Creates an empty rule with a nonterminal identifier
 rule::rule(const int newNt)
-: m_NonTerminal((contextfree::nonterminal*) NULL) {
-    contextfree::nonterminal nt(newNt);
-    m_NonTerminal = item_container(nt);
+: m_NonTerminal(new contextfree::nonterminal(newNt), true) {
 }
 
 /// \brief Copies the content of a rule into this one

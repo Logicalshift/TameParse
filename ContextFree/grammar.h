@@ -30,14 +30,23 @@ namespace contextfree {
         /// \brief Map of rules to identifiers (filled in on request)
         typedef rule_map<int>::type rule_identifier_map;
         
+        /// \brief Map of identifiers to rules
+        typedef std::map<int, rule_container> identifier_rule_map;
+        
         /// \brief Class that can map identifiers to their string equivalent
         typedef std::map<int, std::wstring> identifier_to_string;
         
         /// \brief Class that can map strings to the equivalent identifiers
         typedef std::map<std::wstring, int> string_to_identifier;
         
-        /// \brief Item 
+        /// \brief Item to list of items map, used for things like first and follow sets
         typedef item_map<item_set>::type item_set_map;
+        
+        /// \brief Map of items to identifiers
+        typedef item_map<int>::type item_identifier_map;
+        
+        /// \brief Map of identifiers to items
+        typedef std::map<int, item_container> identifier_item_map;
         
     private:
         /// \brief The highest known nonterminal ID
@@ -54,6 +63,10 @@ namespace contextfree {
         
         /// \brief Maps rules to their identifiers
         mutable rule_identifier_map m_RuleIdentifiers;
+        
+        mutable identifier_rule_map m_RuleForIdentifier;
+        mutable item_identifier_map m_ItemIdentifiers;
+        mutable identifier_item_map m_ItemForIdentifier;
         
         /// \brief Cached map of FIRST sets for this grammar
         mutable item_set_map m_CachedFirstSets;
@@ -89,8 +102,17 @@ namespace contextfree {
         }
         
     public:
-        /// \brief Returns an identifier given a rule
-        int identifier_for_rule(const rule& rule) const;
+        /// \brief Returns an identifier given a rule. Identifiers are numbered from 0.
+        int identifier_for_rule(const rule_container& rule) const;
+        
+        /// \brief Returns the identifier for a particular rule
+        const rule_container& rule_with_identifier(int id) const;
+        
+        /// \brief Returns an identifier given an item. Identifiers are numbered from 0.
+        int identifier_for_item(const item_container& item) const;
+        
+        /// \brief Returns the item that has the specified identifier
+        const item_container& item_with_identifier(int id) const;
         
     public:
         /// \brief Clears the caches associated with this grammar

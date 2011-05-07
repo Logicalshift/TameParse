@@ -70,7 +70,7 @@ int grammar::id_for_nonterminal(const wstring& name) {
 }
 
 /// \brief Returns an identifier given a rule
-int grammar::identifier_for_rule(const rule& rule) const {
+int grammar::identifier_for_rule(const rule_container& rule) const {
     // Look up the rule
     rule_identifier_map::const_iterator found = m_RuleIdentifiers.find(rule);
     
@@ -78,10 +78,55 @@ int grammar::identifier_for_rule(const rule& rule) const {
     if (found != m_RuleIdentifiers.end()) return found->second;
     
     // Create a new rule if we haven't set an ID for this one yet
-    int newId               = (int) m_RuleIdentifiers.size();
-    m_RuleIdentifiers[rule] = newId;
+    int newId                   = (int) m_RuleIdentifiers.size();
+    m_RuleIdentifiers[rule]     = newId;
+    m_RuleForIdentifier[newId]  = rule;
     
     return newId;
+}
+
+/// \brief Returns the rule for a particular identifier
+const rule_container& grammar::rule_with_identifier(int id) const {
+    // Empty rule that we use when we fail
+    static rule             empty_rule(an_empty_item);
+    static rule_container   empty_rule_container(&empty_rule, false);
+    
+    // Try to find this ID
+    identifier_rule_map::const_iterator found = m_RuleForIdentifier.find(id);
+    if (found != m_RuleForIdentifier.end()) return found->second;
+    
+    // Return the placeholder rule container if it wasn't found
+    return empty_rule_container;
+}
+
+/// \brief Returns an identifier given an item. Identifiers are numbered from 0.
+int grammar::identifier_for_item(const item_container& item) const {
+    // Look up the item
+    item_identifier_map::const_iterator found = m_ItemIdentifiers.find(item);
+    
+    // Return the previous value if one exists
+    if (found != m_ItemIdentifiers.end()) return found->second;
+    
+    // Create a new rule if we haven't set an ID for this one yet
+    int newId                   = (int) m_ItemIdentifiers.size();
+    m_ItemIdentifiers[item]     = newId;
+    //m_ItemForIdentifier[newId]  = item;
+    
+    return newId;
+}
+
+/// \brief Returns the item that has the specified identifier
+const item_container& grammar::item_with_identifier(int id) const {
+    // Empty rule that we use when we fail
+    static empty_item       empty;
+    static item_container   empty_container(&empty, false);
+    
+    // Try to find this ID
+    identifier_item_map::const_iterator found = m_ItemForIdentifier.find(id);
+    if (found != m_ItemForIdentifier.end()) return found->second;
+    
+    // Return the placeholder rule container if it wasn't found
+    return empty_container;    
 }
 
 /// \brief Clears the caches associated with this grammar

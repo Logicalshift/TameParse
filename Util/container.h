@@ -13,6 +13,22 @@
 
 namespace util {
     ///
+    /// \brief Default constructor class for the container class
+    ///
+    template<typename ItemType> class simple_constructor {
+    public:
+        /// \brief Constructs an object of type ItemType
+        inline static ItemType* construct() {
+            return new ItemType();
+        }
+        
+        /// \brief Destroys an item of type ItemType
+        inline static void destruct(ItemType* item) {
+            delete item;
+        }
+    };
+    
+    ///
     /// \brief Class used as a container for other classes
     ///
     /// This class actually stores a reference to an object, and copying a container will do reference counting to avoid
@@ -21,7 +37,7 @@ namespace util {
     /// ItemType must implement a clone() method to create a copy of the class, and a static compare(ItemType, ItemType)
     /// method to order them (it should return true if the first item is less than the second).
     ///
-    template<typename ItemType> class container {
+    template<typename ItemType, typename ItemAllocator = simple_constructor<ItemType> > class container {
     private:
         /// \brief Structure used to represent a reference to an item
         struct reference {
@@ -40,7 +56,7 @@ namespace util {
             }
             
             inline ~reference() {
-                if (m_WillDelete && m_Item) delete m_Item;
+                if (m_WillDelete && m_Item) ItemAllocator::destruct(m_Item);
             }
             
             /// \brief Decreases the reference count and deletes this reference if it reaches 0
@@ -125,7 +141,7 @@ namespace util {
     public:
         /// \brief Default constructor (creates a reference to a new item)
         inline container() {
-            m_Ref = new reference(new ItemType(), true);
+            m_Ref = new reference(ItemAllocator::construct(), true);
         }
         
         /// \brief Creates a new container (clones the item)

@@ -60,6 +60,9 @@ namespace contextfree {
         mutable int m_Identifier;
         
     public:
+        /// \brief Creates a rule (with the empty nonterminal)
+        rule();
+        
         /// \brief Creates a copy of a rule
         rule(const rule& copyFrom);
         

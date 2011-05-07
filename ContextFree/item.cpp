@@ -12,6 +12,15 @@
 using namespace lr;
 using namespace contextfree;
 
+
+item* empty_item_constructor::construct() {
+    return new empty_item();
+}
+
+void empty_item_constructor::destruct(item* i) {
+    delete i;
+}
+
 /// \brief Destructor
 item::~item() {
 }

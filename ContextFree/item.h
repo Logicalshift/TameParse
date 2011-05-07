@@ -28,9 +28,21 @@ namespace lr {
 }
 
 namespace contextfree {
-    /// \brief Forward declaration of a container for items
+    /// \brief Forward declaration of a context-free item
     class item;
-    typedef util::container<item> item_container;
+    
+    ///
+    /// \brief Alternative container constructor class that uses empty items by default
+    ///
+    class empty_item_constructor {
+    public:
+        static item* construct();
+        
+        static void destruct(item* i);
+    };
+
+    /// \brief Forward declaration of a container for items
+    typedef util::container<item, empty_item_constructor> item_container;
     
     /// \brief Forward declaration of a grammar
     class grammar;

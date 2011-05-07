@@ -50,6 +50,8 @@
 		4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920F136C97220018E595 /* contextfree_firstset.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
+		4B7F0C3E137599AB0012C085 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser.cpp */; };
+		4B7F0C3F137599AB0012C085 /* parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3D137599AB0012C085 /* parser.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -148,6 +150,8 @@
 		4B1A9210136C97220018E595 /* contextfree_firstset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextfree_firstset.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
+		4B7F0C3C137599AB0012C085 /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
+		4B7F0C3D137599AB0012C085 /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -248,6 +252,8 @@
 				4BF31989136DEC4C00C68ACB /* lalr_machine.h */,
 				4BF3198C136DFFD100C68ACB /* lalr_builder.cpp */,
 				4BF3198D136DFFD100C68ACB /* lalr_builder.h */,
+				4B7F0C3C137599AB0012C085 /* parser.cpp */,
+				4B7F0C3D137599AB0012C085 /* parser.h */,
 				4BFD4A5913735EB700D6657D /* action_rewriter.cpp */,
 				4BFD4A5A13735EB700D6657D /* action_rewriter.h */,
 				4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */,
@@ -433,6 +439,7 @@
 				4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */,
 				4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */,
 				4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */,
+				4B7F0C3F137599AB0012C085 /* parser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -534,6 +541,7 @@
 				4BFD4A5B13735EB700D6657D /* action_rewriter.cpp in Sources */,
 				4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */,
 				4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */,
+				4B7F0C3E137599AB0012C085 /* parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
