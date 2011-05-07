@@ -102,7 +102,7 @@ bool ebnf::operator<(const item& compareTo) const {
 rule_container& ebnf::get_rule() { return (*m_Rules)[0]; }
 
 /// \brief The rule that defines this item
-const rule_container& ebnf::get_rule() const { return *(*m_Rules)[0]; }
+const rule_container& ebnf::get_rule() const { return (*m_Rules)[0]; }
 
 /// \brief Fills in the items that follow this one
 void ebnf::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const {
