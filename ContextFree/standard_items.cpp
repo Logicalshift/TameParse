@@ -60,6 +60,7 @@ item::kind nonterminal::type() const {
 
 /// \brief Constant empty item
 static const empty_item an_empty_item;
+static item_container an_empty_item_c((item*)&an_empty_item, false);
 
 /// \brief Computes the closure of this rule in the specified grammar
 void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
@@ -76,11 +77,11 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
         follow = item.lookahead();
     } else {
         // The follow set is FIRST(following item)
-        follow = gram.first(*rule.items()[offset+1]);
+        follow = gram.first(rule.items()[offset+1]);
         
         // If the empty set is included, remove it and add the item lookahead
-        if (follow.find(an_empty_item) != follow.end()) {
-            follow.erase(an_empty_item);
+        if (follow.find(an_empty_item_c) != follow.end()) {
+            follow.erase(an_empty_item_c);
             follow.insert(item.lookahead().begin(), item.lookahead().end());
         }
     }
@@ -123,17 +124,17 @@ item_set nonterminal::first(const grammar& gram) const {
         
         // Add the empty item if this is an empty rule
         if (ruleItems.size() == 0) {
-            result.insert(an_empty_item);
+            result.insert(an_empty_item_c);
             continue;
         }
         
         // Get the first set for the first item in this rule
-        const item_set& ruleFirst = gram.first(*(ruleItems[0]));
+        const item_set& ruleFirst = gram.first(ruleItems[0]);
 
         // Insert into the result
         result.insert(ruleFirst.begin(), ruleFirst.end());
 
-        if (ruleFirst.find(an_empty_item) != ruleFirst.end()) {
+        if (ruleFirst.find(an_empty_item_c) != ruleFirst.end()) {
             // If there's an empty item, then merge the first sets from the later parts of the rule
             int pos;
             for (pos = 1; pos < ruleItems.size(); pos++) {

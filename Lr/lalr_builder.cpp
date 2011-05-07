@@ -169,6 +169,7 @@ void lalr_builder::complete_parser() {
 /// \brief Generates the lookaheads for the parser (when the machine has been built up as a LR(0) grammar)
 void lalr_builder::complete_lookaheads() {
     empty_item      empty;
+    item_container  empty_c(&empty, false);
 
     // Now we know all of the states, we need to generate the spontaneous items and work out how items propagate
     // We build closures for the items all over again here, which seems wasteful given than we have to do it
@@ -180,7 +181,7 @@ void lalr_builder::complete_lookaheads() {
     //
     // We start with only the initial states, with a lookahead of '$'
     
-    // Create an empty lookahead set (we'll use this a lot
+    // Create an empty lookahead set (we'll use this a lot)
     item_set emptyLookahead;
     emptyLookahead.insert(empty);
     
@@ -239,7 +240,7 @@ void lalr_builder::complete_lookaheads() {
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
                 
                 // This creates a propagation if the empty item is in the lookahead
-                if (lookahead.find(empty) != lookahead.end()) {
+                if (lookahead.find(empty_c) != lookahead.end()) {
                     // Add a propagation for this item
                     m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
                 }

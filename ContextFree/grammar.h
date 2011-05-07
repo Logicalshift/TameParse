@@ -129,13 +129,13 @@ namespace contextfree {
         ///
         /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
         /// progress, the first set for the requested item will be set to be 
-        const item_set& first(const item& item) const;
+        const item_set& first(const item_container& item) const;
         
         /// \brief Computes the follow set for the item with the specified identifier
         ///
         /// This is the set of symbols that can follow a particular item, in any position in the grammar.
         /// For performance reasons, terminal items are excluded from this set (they will always have an empty follow set)
-        const item_set& follow(const item& item) const;
+        const item_set& follow(const item_container& item) const;
         
         /// \brief Computes the first set for the specified rule (or retrieves the cached version)
         const item_set& first_for_rule(const rule& rule) const;

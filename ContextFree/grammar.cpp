@@ -27,7 +27,10 @@ rule_list& grammar::rules_for_nonterminal(int id) {
 static const rule_list empty_rule_set;
 
 // An empty item
-static const empty_item an_empty_item;
+static empty_item an_empty_item;
+
+// An item container with an empty item in it
+static item_container an_empty_item_c(&an_empty_item, false);
 
 // An empty item set
 static const item_set empty_item_set;
@@ -146,7 +149,7 @@ void grammar::clear_caches() const {
 ///
 /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
 /// progress, the first set for the requested item will be set to be 
-const item_set& grammar::first(const item& item) const {
+const item_set& grammar::first(const item_container& item) const {
     // Try to look up the first set for this item
     item_set_map::const_iterator found = m_CachedFirstSets.find(item);
     
@@ -157,7 +160,7 @@ const item_set& grammar::first(const item& item) const {
     m_CachedFirstSets[item] = item_set();
     
     // Ask the item for its first set, and update the cache
-    m_CachedFirstSets[item] = item.first(*this);
+    m_CachedFirstSets[item] = item->first(*this);
     
     // Return the newly added item (have to do another lookup as map doesn't have a replace operator)
     return m_CachedFirstSets[item];
@@ -182,7 +185,7 @@ const item_set& grammar::first_for_rule(const rule& rule) const {
 ///
 /// This is the set of symbols that can follow a particular item, in any position in the grammar.
 /// For performance reasons, terminal items are excluded from this set (they will always have an empty follow set)
-const item_set& grammar::follow(const item& nonterminal) const {
+const item_set& grammar::follow(const item_container& nonterminal) const {
     // Fill in the list of follow sets for the entire grammar if it's empty
     if (m_CachedFollowSets.empty()) {
         // Map from items to the items 
@@ -237,10 +240,10 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
     // Iterate through the items in this rule
     for (size_t pos=0; pos<rule.items().size(); pos++) {
         // Get the current item
-        const item& thisItem = *rule.items()[pos];
+        const item_container& thisItem = rule.items()[pos];
         
         // Terminal items aren't processed by this call (we don't bother to generate follow sets for them)
-        if (thisItem.type() == item::terminal) continue;
+        if (thisItem->type() == item::terminal) continue;
         
         // Retrieve the follow set for this item
         item_set& followSet = m_CachedFollowSets[thisItem];
@@ -250,7 +253,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         size_t nextPos = pos+1;
         for (;nextPos < rule.items().size(); nextPos++) {
             // Get this following item
-            const item& followingItem = *rule.items()[nextPos];
+            const item_container& followingItem = rule.items()[nextPos];
             
             // Get the set FIRST(followingItem)
             const item_set& firstSet = first(followingItem);
@@ -259,7 +262,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
             followSet.insert(firstSet.begin(), firstSet.end());
             
             // Finished if the first set doesn't include the empty set
-            if (firstSet.find(an_empty_item) == firstSet.end()) break;
+            if (firstSet.find(an_empty_item_c) == firstSet.end()) break;
         }
         
         // If we reach the end, then we need to include FOLLOW(rule.nonterminal) in the set for FOLLOW(thisItem)
@@ -268,7 +271,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         }
         
         // If this item is an EBNF rule, then we need to process each of its children
-        const ebnf* ebnfItem = dynamic_cast<const ebnf*>(&thisItem);
+        const ebnf* ebnfItem = dynamic_cast<const ebnf*>(&*thisItem);
         if (ebnfItem) {
             for (ebnf::rule_iterator subRule = ebnfItem->first_rule(); subRule != ebnfItem->last_rule(); subRule++) {
                 fill_follow(**subRule, dependencies);
@@ -292,14 +295,13 @@ grammar::builder& grammar::builder::operator<<(const item_container& item) {
 /// \brief Appends a new nonterminal item to the rule that this building
 grammar::builder& grammar::builder::operator<<(const std::wstring& ntName) {
     nonterminal nt(m_Grammar.id_for_nonterminal(ntName));
-    m_Target << item_container(nt);
+    m_Target << item_container(new nonterminal(m_Grammar.id_for_nonterminal(ntName)), true);
     return *this;
 }
 
 /// \brief Appends a new terminal item to the rule that this is building
 grammar::builder& grammar::builder::operator<<(int term) {
-    terminal termObj(term);
-    m_Target << item_container(termObj);
+    m_Target << item_container(new terminal(term), true);
     return *this;
 }
 
@@ -308,8 +310,8 @@ grammar::builder grammar::operator+=(const std::wstring& newNonterminal) {
     int nonTerminalId = id_for_nonterminal(newNonterminal);
     
     rule_list&  list = rules_for_nonterminal(nonTerminalId);
-    nonterminal newNt(nonTerminalId);
-    list.push_back(rule(newNt));
+    item_container newNt(new nonterminal(nonTerminalId), true);
+    list.push_back(rule_container(new rule(newNt), true));
     
     return builder(**list.rbegin(), *this);
 }
@@ -317,7 +319,7 @@ grammar::builder grammar::operator+=(const std::wstring& newNonterminal) {
 /// \brief Begins defining a new rule for the specified nonterminal
 grammar::builder grammar::operator+=(const nonterminal& newNt) {
     rule_list&  list = rules_for_nonterminal(newNt.symbol());
-    list.push_back(rule(newNt));
+    list.push_back(rule_container(new rule(newNt), true));
     
     return builder(**list.rbegin(), *this);    
 }
