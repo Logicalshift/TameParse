@@ -64,8 +64,8 @@ bool lr0_item::operator<(const lr0_item& compareTo) const {
     if (m_Offset < compareTo.m_Offset) return true;
     if (m_Offset > compareTo.m_Offset) return false;
     
-    int ourId   = m_Grammar->identifier_for_rule(*rule());
-    int theirId = m_Grammar->identifier_for_rule(*compareTo.rule());
+    int ourId   = rule()->identifier(*m_Grammar);
+    int theirId = compareTo.rule()->identifier(*m_Grammar);
     
     return ourId < theirId;
 }
@@ -74,8 +74,8 @@ bool lr0_item::operator<(const lr0_item& compareTo) const {
 bool lr0_item::operator==(const lr0_item& compareTo) const {
     if (m_Offset != compareTo.m_Offset) return false;
     
-    int ourId   = m_Grammar->identifier_for_rule(*rule());
-    int theirId = m_Grammar->identifier_for_rule(*compareTo.rule());
+    int ourId   = rule()->identifier(*m_Grammar);
+    int theirId = compareTo.rule()->identifier(*m_Grammar);
     
     return ourId == theirId;
 }

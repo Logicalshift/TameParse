@@ -134,4 +134,13 @@ void test_lalr_general::run_tests() {
     builder.complete_parser();
     
     dump_machine(builder.machine());
+
+    for (int x=0; x<10000; x++) {
+        // Build this grammar
+        lalr_builder builder(dragon446);
+        
+        // S' defines the language
+        builder.add_initial_state(s);
+        builder.complete_parser();
+    }
 }
