@@ -87,6 +87,8 @@
 		4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5A13735EB700D6657D /* action_rewriter.h */; };
 		4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */; };
 		4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5F137483DA00D6657D /* weak_symbols.h */; };
+		4BFD4A6813773EE600D6657D /* parser_stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A6613773EE600D6657D /* parser_stack.cpp */; };
+		4BFD4A6913773EE600D6657D /* parser_stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A6713773EE600D6657D /* parser_stack.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -197,6 +199,8 @@
 		4BFD4A5A13735EB700D6657D /* action_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = action_rewriter.h; sourceTree = "<group>"; };
 		4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_symbols.cpp; sourceTree = "<group>"; };
 		4BFD4A5F137483DA00D6657D /* weak_symbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weak_symbols.h; sourceTree = "<group>"; };
+		4BFD4A6613773EE600D6657D /* parser_stack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_stack.cpp; sourceTree = "<group>"; };
+		4BFD4A6713773EE600D6657D /* parser_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_stack.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +258,8 @@
 				4BF3198D136DFFD100C68ACB /* lalr_builder.h */,
 				4B7F0C3C137599AB0012C085 /* parser.cpp */,
 				4B7F0C3D137599AB0012C085 /* parser.h */,
+				4BFD4A6613773EE600D6657D /* parser_stack.cpp */,
+				4BFD4A6713773EE600D6657D /* parser_stack.h */,
 				4BFD4A5913735EB700D6657D /* action_rewriter.cpp */,
 				4BFD4A5A13735EB700D6657D /* action_rewriter.h */,
 				4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */,
@@ -440,6 +446,7 @@
 				4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */,
 				4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */,
 				4B7F0C3F137599AB0012C085 /* parser.h in Headers */,
+				4BFD4A6913773EE600D6657D /* parser_stack.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -542,6 +549,7 @@
 				4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */,
 				4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */,
 				4B7F0C3E137599AB0012C085 /* parser.cpp in Sources */,
+				4BFD4A6813773EE600D6657D /* parser_stack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
