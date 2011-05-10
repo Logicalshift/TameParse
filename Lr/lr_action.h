@@ -19,6 +19,22 @@ namespace lr {
     ///
     /// \brief Description of an action in a LR parser
     ///
+    /// There are three basic actions a LR parser can perform:
+    ///
+    ///  * SHIFT: move the lookahead symbol and current state onto the stack
+    ///  * REDUCE: pop a fixed number of symbols, then look up a goto action for the state on top of the stack
+    ///  * GOTO: push a nonterminal symbol to the stack and go to a particular state
+    ///
+    /// We extend this in a couple of ways. The most important of these is the idea of a 'weak' reduce, which can
+    /// be used to resolve LALR conflicts. This tries to perform one or more reduction actions until it reaches
+    /// a point where the lookahead symbol is shifted or rejected. If the lookahead is rejected in the final
+    /// state, then the parser restores its original state and tries another action.
+    ///
+    /// The second idea is that of a 'guard' symbol. An action referring to a guard evaluates a condition, and
+    /// treats the guard symbol as the lookahead if the condition is matched (following a different path). This
+    /// makes it possible for an ambiguous grammar to be parsed by being specific about which productions should
+    /// be matched for a given lookahead.
+    ///
     class lr_action {
     public:
         /// \brief Types of LR action
