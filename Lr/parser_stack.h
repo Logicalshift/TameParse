@@ -40,7 +40,7 @@ namespace lr {
     ///
     /// The item_type used with this class must have a default constructor, and support assignment and copying.
     ///
-    template<typename item_type, int initial_depth = 32> class parser_stack {
+    template<typename item_type, int initial_depth = 64> class parser_stack {
     public:
         class entry;
         class reference;
