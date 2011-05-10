@@ -262,6 +262,18 @@ namespace lr {
             inline const entry* operator->() const {
                 return &m_Stack->m_Stack[m_Index];
             }
+            
+            /// \brief Returns the entry at the specified offset from this entry. 'x' should be a negative value
+            ///
+            /// IE, reference[-1] gives the entry preceeding this one on the stack
+            inline entry& operator[](int x) {
+                int index = m_Index;
+                for (int pos = x; pos < 0; pos++) {
+                    int nextIndex = m_Stack[index].m_PreviousIndex;
+                    if (nextIndex >= 0) index = nextIndex;
+                }
+                return m_Stack[index];
+            }
 
             /// \brief Pushes a new item onto the stack, and updates this to point at it
             inline void push(int state, const item_type& newItem) {
