@@ -39,6 +39,8 @@ namespace lr {
     /// is important, this ability can be a major advantage.
     ///
     /// The item_type used with this class must have a default constructor, and support assignment and copying.
+    /// You don't actually create an instance of the stack class, but rather the parser_stack::reference class.
+    /// The stack is free once there are no more references to it.
     ///
     template<typename item_type, int initial_depth = 64> class parser_stack {
     public:
@@ -87,7 +89,6 @@ namespace lr {
         /// \brief The number of free entries in the stack
         int m_NumFree;
         
-    public:
         /// \brief Creates a new stack
         parser_stack()
         : m_RootReference(NULL) {
@@ -95,6 +96,7 @@ namespace lr {
             m_FirstUnused = 0;
         }
         
+    public:
         /// \brief Destroys the stack (and any remaining references)
         ~parser_stack() {
             // Delete any remaining references
@@ -217,6 +219,14 @@ namespace lr {
             }
             
         public:
+            reference() 
+            : m_Stack(new parser_stack<item_type, initial_depth>)
+            , m_Index(m_Stack->get_unused()) {
+                m_Next = m_Stack->m_RootReference;
+                m_Last = NULL;
+                m_Stack->m_RootReference = this;
+            }
+            
             /// \brief Creates a copy of a particular reference
             inline reference(const reference& copyFrom)
             : m_Stack(copyFrom.m_Stack)
@@ -244,6 +254,10 @@ namespace lr {
                     m_Last->m_Next = m_Next;
                 } else {
                     m_Stack->m_RootReference = m_Next;
+                }
+                
+                if (m_Stack->m_RootReference == NULL) {
+                    delete m_Stack;
                 }
             }
             
