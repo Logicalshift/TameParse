@@ -1,5 +1,5 @@
 //
-//  parser.cpp
+//  parser_tables.cpp
 //  Parse
 //
 //  Created by Andrew Hunter on 07/05/2011.
@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-#include "parser.h"
+#include "parser_tables.h"
 
 using namespace std;
 using namespace contextfree;
@@ -38,7 +38,7 @@ static inline int action_score(int action) {
     }
 }
 
-static inline bool compare_actions(const parser::action& a, const parser::action& b) {
+static inline bool compare_actions(const parser_tables::action& a, const parser_tables::action& b) {
     // First, compare on symbol IDs
     if (a.m_SymbolId < b.m_SymbolId) return true;
     
@@ -50,11 +50,12 @@ static inline bool compare_actions(const parser::action& a, const parser::action
 }
 
 /// \brief Creates a parser from the result of the specified builder class
-parser::parser(const lalr_builder& builder) {
+parser_tables::parser_tables(const lalr_builder& builder) {
     // Allocate the tables
     m_NumStates             = builder.count_states();
     m_NonterminalActions    = new action*[m_NumStates];
     m_TerminalActions       = new action*[m_NumStates];
+    m_Counts                = new action_count[m_NumStates];
     
     const grammar& gram = builder.gram();
     
@@ -126,10 +127,13 @@ parser::parser(const lalr_builder& builder) {
         // Store the actions in the table
         m_TerminalActions[stateId]      = termActions;
         m_NonterminalActions[stateId]   = nontermActions;
+        m_Counts[stateId].m_NumTerms    = termCount;
+        m_Counts[stateId].m_NumNonterms = nontermCount;
     }
     
     // Fill in the rule table
-    m_Rules = new reduce_rule[ruleIds.size()];
+    m_NumRules  = (int)ruleIds.size();
+    m_Rules     = new reduce_rule[ruleIds.size()];
     
     for (map<int, int>::iterator ruleId = ruleIds.begin(); ruleId != ruleIds.end(); ruleId++) {
         m_Rules[ruleId->second].m_Identifier    = ruleId->first;
@@ -137,8 +141,51 @@ parser::parser(const lalr_builder& builder) {
     }
 }
 
+/// \brief Copy constructor
+parser_tables::parser_tables(const parser_tables& copyFrom) 
+: m_NumStates(copyFrom.m_NumStates)
+, m_NumRules(copyFrom.m_NumRules) {
+    // Allocate the action tables
+    m_TerminalActions       = new action*[m_NumStates];
+    m_NonterminalActions    = new action*[m_NumStates];
+    m_Counts                = new action_count[m_NumStates];
+    
+    // Copy the states
+    for (int stateId=0; stateId<m_NumStates; stateId++) {
+        // Copy the counts
+        m_Counts[stateId] = copyFrom.m_Counts[stateId];
+        
+        // Allocate the array for this state
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].m_NumTerms];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].m_NumNonterms];
+        
+        // Copy the terminals and nonterminals
+        for (int x=0; x<m_Counts[stateId].m_NumTerms; x++) {
+            m_TerminalActions[stateId][x] = copyFrom.m_TerminalActions[stateId][x];
+        }
+        for (int x=0; x<m_Counts[stateId].m_NumNonterms; x++) {
+            m_NonterminalActions[stateId][x] = copyFrom.m_NonterminalActions[stateId][x];
+        }
+    }
+    
+    // Allocate the rule table
+    m_Rules = new reduce_rule[m_NumRules];
+    for (int ruleId=0; ruleId<m_NumRules; ruleId++) {
+        m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
+    }
+}
+
+/// \brief Assignment
+parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
+    if (&copyFrom == this) return *this;
+    
+    // TODO
+    
+    return *this;
+}
+
 /// \brief Destructor
-parser::~parser() {
+parser_tables::~parser_tables() {
     // Destroy each entry in the parser table
     for (int x=0; x<m_NumStates; x++) {
         delete[] m_NonterminalActions[x];
@@ -149,4 +196,5 @@ parser::~parser() {
     delete[] m_NonterminalActions;
     delete[] m_TerminalActions;
     delete[] m_Rules;
+    delete[] m_Counts;
 }

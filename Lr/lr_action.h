@@ -23,6 +23,7 @@ namespace lr {
     ///
     ///  * SHIFT: move the lookahead symbol and current state onto the stack
     ///  * REDUCE: pop a fixed number of symbols, then look up a goto action for the state on top of the stack
+    ///  * IGNORE: ignore a symbol that has no meaning (eg, whitespace or comments)
     ///  * GOTO: push a nonterminal symbol to the stack and go to a particular state
     ///
     /// We extend this in a couple of ways. The most important of these is the idea of a 'weak' reduce, which can
@@ -41,6 +42,9 @@ namespace lr {
         enum action_type {
             /// \brief If the terminal is seen, then it is placed on the stack and the next terminal is read
             act_shift,
+            
+            /// \brief If the terminal is seen, discard it and look at the next one
+            act_ignore,
             
             /// \brief If the terminal is seen, then the parser reduces by the specified rule
             /// 
