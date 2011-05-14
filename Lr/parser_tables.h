@@ -61,6 +61,9 @@ namespace lr {
         /// \brief The number of states in this parser
         int m_NumStates;
         
+        /// \brief The nonterminal symbol representing the end of input
+        int m_EndOfInput;
+        
         /// \brief The terminal action table (sorted in order of terminal ID)
         action** m_TerminalActions;
         
@@ -125,6 +128,9 @@ namespace lr {
         inline action_iterator find_nonterminal(int stateId, int nonterminal) {
             return find_action(nonterminal, m_NonterminalActions[stateId], m_Counts[stateId].m_NumNonterms);
         }
+        
+        /// \brief Returns the nonterminal identifier representing the end of input symbol
+        inline int end_of_input() const { return m_EndOfInput; }
     };
 }
 

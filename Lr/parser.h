@@ -18,6 +18,22 @@
 #include "Lr/parser_stack.h"
 
 namespace lr {
+    
+    /// \brief Possible result codes of a parsing action
+    class parser_result {
+    public:
+        enum result {
+            /// \brief There is more parsing to do
+            more,
+            
+            /// \brief The next symbol could not be recognised by the parser
+            reject,
+            
+            /// \brief The language was accepted (reached the end and was reduced to a single nonterminal)
+            accept
+        };
+    };
+
     ///
     /// \brief Generic parser implementation.
     ///
@@ -239,7 +255,7 @@ namespace lr {
             ///
             /// No check is made to see if the action is valid: it is just performed.
             ///
-            inline void act(const lexeme_container& lookahead, const action* act) {
+            inline void perform(const lexeme_container& lookahead, const action* act) {
                 switch (act->m_Type) {
                     case lr_action::act_ignore:
                         // Discard the current lookahead
@@ -270,7 +286,7 @@ namespace lr {
                         
                         // Get the goto action for this nonterminal
                         for (parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
-                             gotoAct != m_Tables->last_nonterminal_action(); 
+                             gotoAct != m_Tables->last_nonterminal_action(gotoState); 
                              gotoAct++) {
                             if (gotoAct->m_Type == lr_action::act_goto) {
                                 // Found the goto action, perform the reduction
@@ -317,8 +333,8 @@ namespace lr {
                 }
                 
                 // Work out the goto action
-                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(rule.m_Identifier);
-                for (; gotoAct != m_Tables->last_nonterminal_action(); gotoAct++) {
+                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
+                for (; gotoAct != m_Tables->last_nonterminal_action(state); gotoAct++) {
                     if (gotoAct->m_Type == lr_action::act_goto) {
                         // Push this goto
                         pushed.push(gotoAct->m_NextState);
@@ -342,7 +358,7 @@ namespace lr {
                 parser_tables::action_iterator act = m_Tables->find_terminal(state, terminal);
                 
                 // Find the first reduce action for this item
-                while (act != m_Tables->last_terminal_action()) {
+                while (act != m_Tables->last_terminal_action(state)) {
                     // Fail if there are no actions for this terminal
                     if (act->m_SymbolId != terminal) return false;
                     
@@ -408,6 +424,71 @@ namespace lr {
             /// \brief Returns true if a reduction of the lookahead will result in it being shifted
             inline bool can_reduce() {
                 return can_reduce(look());
+            }
+            
+        public:
+            typedef parser_result::result result;
+            
+            /// \brief Performs a single parsing action, and returns the result
+            inline result process() {
+                // Fetch the lookahead
+                const lexeme_container& la = look();
+                
+                // Get the state
+                int state = m_Stack->state;
+                
+                // Get the action for this lookahead
+                int sym;
+                parser_tables::action_iterator act;
+                parser_tables::action_iterator end;
+
+                if (la.item() != NULL) {
+                    // The item is a terminal
+                    sym = la->matched();
+                    act = m_Tables->find_terminal(state, sym);
+                    end = m_Tables->last_terminal_action(state);
+                } else {
+                    // The item is the end-of-input symbol (which counts as a nonterminal)
+                    sym = m_Tables->end_of_input();
+                    act = m_Tables->find_nonterminal(state, sym);
+                    end = m_Tables->last_nonterminal_action(state);
+                }
+                
+                // Work out which action to perform
+                for (; act != end; act++) {
+                    // Stop searching if the symbol is invalid
+                    if (act->m_SymbolId != sym) break;
+                    
+                    // If this is a weak reduce action, then check if the action is successful
+                    if (act->m_Type == lr_action::act_weakreduce) {
+                        // TODO: this won't work if the action is the end of input symbol
+                        if (!can_reduce(la)) continue;
+                    }
+                    
+                    // Perform this action
+                    if (act->m_Type == lr_action::act_accept) return parser_result::accept;
+                    
+                    perform(la, act);
+                    return parser_result::more;
+                }
+                
+                // We reject if we reach here
+                return parser_result::reject;
+            }
+            
+            /// \brief Parses the input file specified by the actions object, and returns true if it was accepted
+            /// or false if it was rejected.
+            inline bool parse() {
+                for (;;) {
+                    // Perform the next action
+                    result next = process();
+                    
+                    // Keep going if there are more results
+                    if (next == parser_result::more) continue;
+                    
+                    // Stop, and indicate if the result was successful
+                    return next == parser_result::accept;
+                }
             }
         };
         

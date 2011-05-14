@@ -57,6 +57,9 @@ parser_tables::parser_tables(const lalr_builder& builder) {
     m_TerminalActions       = new action*[m_NumStates];
     m_Counts                = new action_count[m_NumStates];
     
+    contextfree::end_of_input eoi;
+    m_EndOfInput            = builder.gram().identifier_for_item(eoi);
+    
     const grammar& gram = builder.gram();
     
     map<int, int> ruleIds;                          // Maps their rule IDs to our rule IDs
@@ -144,7 +147,8 @@ parser_tables::parser_tables(const lalr_builder& builder) {
 /// \brief Copy constructor
 parser_tables::parser_tables(const parser_tables& copyFrom) 
 : m_NumStates(copyFrom.m_NumStates)
-, m_NumRules(copyFrom.m_NumRules) {
+, m_NumRules(copyFrom.m_NumRules)
+, m_EndOfInput(copyFrom.m_EndOfInput) {
     // Allocate the action tables
     m_TerminalActions       = new action*[m_NumStates];
     m_NonterminalActions    = new action*[m_NumStates];

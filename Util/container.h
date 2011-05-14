@@ -85,6 +85,9 @@ namespace util {
     public:
         /// \brief Dereferences the content of this container
         inline ItemType* item() { return m_Ref->m_Item; }
+
+        /// \brief Dereferences the content of this container
+        inline const ItemType* item() const { return m_Ref->m_Item; }
         
         /// \brief Dereferences the content of this container
         inline ItemType* operator->() {
