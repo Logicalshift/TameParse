@@ -162,20 +162,12 @@ namespace util {
         
         /// \brief Creates a new container (direct reference to an existing item)
         inline container(ItemType* it) {
-            if (it) {
-                m_Ref = new reference(it, false);
-            } else {
-                m_Ref = NULL;
-            }
+            m_Ref = new reference(it, false);
         }
         
         /// \brief Creates a new container (set whether or not the item should get deleted when the container is finished with)
         inline container(ItemType* it, bool shouldDelete) {
-            if (it) {
-                m_Ref = new reference(it, shouldDelete);
-            } else {
-                m_Ref = NULL;
-            }
+            m_Ref = new reference(it, shouldDelete);
         }
         
         /// \brief Creates a new container (clones the item)
@@ -183,7 +175,7 @@ namespace util {
             if (it) {
                 m_Ref = new reference(it->clone(), true);
             } else {
-                m_Ref = NULL;
+                m_Ref = new reference(NULL, false);
             }
         }
         

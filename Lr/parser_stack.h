@@ -146,9 +146,11 @@ namespace lr {
                 }
                 
                 // Sweep any unused items in the stack
+                m_NumFree = 0;
                 for (int x=0; x<m_Stack.size(); x++) {
                     if (!marks[x]) {
                         m_Stack[x].m_PreviousIndex = entry::empty;
+                        m_NumFree++;
                     }
                 }
             }
@@ -187,6 +189,9 @@ namespace lr {
                 
                 // Make this a 'head' entry
                 m_Stack[result].m_PreviousIndex = entry::head;
+                
+                // Number of free entries goes down
+                m_NumFree--;
                 
                 return m_FirstUnused;
             }
