@@ -68,6 +68,11 @@ namespace dfa {
             m_Column = 0;
             m_Line++;
         }
+        
+        /// \brief Compares two positions
+        inline bool operator<(const position& compareTo) const {
+            return m_Line < compareTo.m_Line || m_Column < compareTo.m_Column || m_Offset < compareTo.m_Offset;
+        }
     };
     
     ///

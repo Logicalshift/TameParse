@@ -6,8 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _LR_PARSER_H
-#define _LR_PARSER_H
+#ifndef _LR_PARSER_TABLES_H
+#define _LR_PARSER_TABLES_H
 
 #include <algorithm>
 
@@ -101,6 +101,9 @@ namespace lr {
         }
         
     public:
+        /// \brief Returns the reduce rule with the specified ID
+        inline const reduce_rule& rule(int ruleId) const { return m_Rules[ruleId]; }
+        
         /// \brief An iterator pointing to the last action referring to a terminal symbol in the specified state
         inline action_iterator last_terminal_action(int stateId) { 
             return m_TerminalActions[stateId] + m_Counts[stateId].m_NumTerms;

@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "Util/container.h"
 #include "Dfa/position.h"
 
 namespace dfa {
@@ -59,6 +60,18 @@ namespace dfa {
         /// \brief Clone operator (so subclasses can store extra data if they need to)
         virtual lexeme* clone() const;
         
+        /// \brief Ordering operator
+        virtual bool operator<(const lexeme& compareTo) const;
+        
+        /// \brief Returns true if lexeme a is less than lexeme b
+        inline static bool compare(const lexeme* a, const lexeme* b) {
+            if (a == b) return false;
+            if (!a) return true;
+            if (!b) return false;
+            
+            return *a < *b;
+        }
+        
     public:
         /// \brief The ID of the symbol that was matched
         inline int matched() const { return m_Matched; }
@@ -90,6 +103,9 @@ namespace dfa {
             return result;
         }
     };
+    
+    /// \brief Container for a lexeme
+    typedef util::container<lexeme> lexeme_container;
 }
 
 #endif
