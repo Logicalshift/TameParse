@@ -10,6 +10,7 @@
 #define _LR_PARSER_H
 
 #include <vector>
+#include <stack>
 
 #include "Dfa/lexeme.h"
 #include "Lr/lalr_builder.h"
@@ -288,6 +289,125 @@ namespace lr {
                         m_Stack->state = act->m_NextState;
                         break;
                 }
+            }
+            
+        private:
+            /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
+            inline void fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed) {
+                // Get the reduce rule
+                const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                
+                // Pop items from the stack
+                for (int x=0; x<rule.m_Length; x++) {
+                    if (!pushed.empty()) {
+                        // If we've pushed a fake state, then remove it from the stack
+                        pushed.pop();
+                    } else {
+                        // Update the 'real' stack position
+                        stackPos--;
+                    }
+                }
+                
+                // Work out the current state
+                int state;
+                if (!pushed.empty()) {
+                    state = pushed.top();
+                } else {
+                    state = m_Stack[stackPos].state;
+                }
+                
+                // Work out the goto action
+                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(rule.m_Identifier);
+                for (; gotoAct != m_Tables->last_nonterminal_action(); gotoAct++) {
+                    if (gotoAct->m_Type == lr_action::act_goto) {
+                        // Push this goto
+                        pushed.push(gotoAct->m_NextState);
+                        break;
+                    }
+                }
+            }
+            
+            /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
+            bool can_reduce(int terminal, int stackPos, std::stack<int> pushed) {
+                // Get the new state
+                int state;
+                if (!pushed.empty()) {
+                    // (This will always happen unless there's a bug in the parser tables)
+                    state = pushed.top();
+                } else {
+                    state = m_Stack[stackPos].state;
+                }
+
+                // Get the initial action for the terminal
+                parser_tables::action_iterator act = m_Tables->find_terminal(state, terminal);
+                
+                // Find the first reduce action for this item
+                while (act != m_Tables->last_terminal_action()) {
+                    // Fail if there are no actions for this terminal
+                    if (act->m_SymbolId != terminal) return false;
+                    
+                    switch (act->m_Type) {
+                        case lr_action::act_shift:
+                            // This terminal will result in a shift: this is successful
+                            return true;
+                            
+                        case lr_action::act_weakreduce:
+                        {
+                            // To deal with weak reduce actions, we need to fake up the reduction and try again
+                            // Use a separate stack so we can carry on after the action
+                            int             weakPos = stackPos;
+                            std::stack<int> weakStack(pushed);
+                            
+                            // If we can reduce via this item, then the result is true
+                            fake_reduce(act, weakPos, weakStack);
+                            if (can_reduce(terminal, weakPos, weakStack)) return true;
+                            
+                            // If not, keep looking for a stronger action
+                            act++;
+                            break;
+                        }
+                            
+                        case lr_action::act_reduce:
+                        {
+                            // Update our 'fake state' to be whatever will happen due to this reduce
+                            fake_reduce(act, stackPos, pushed);
+                            
+                            // Get the new state
+                            int state;
+                            if (!pushed.empty()) {
+                                // (This will always happen unless there's a bug in the parser tables)
+                                state = pushed.top();
+                            } else {
+                                state = m_Stack[stackPos].state;
+                            }
+                            
+                            // Get the initial action for the terminal
+                            act = m_Tables->find_terminal(state, terminal);
+                            
+                            // Carry on looking with the new state
+                            break;
+                        }
+                            
+                        default:
+                            // Other actions fail
+                            return false;
+                    }
+                }
+            }
+            
+        public:
+            /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
+            ///
+            /// In states with guards in their lookahead, or states with reduce/reduce conflicts that would
+            /// be resolved by a LR(1) parser, this will disambiguate the grammar (making it possible to choose
+            /// only the action that allows the parser to continue)
+            inline bool can_reduce(const lexeme_container& lexeme) {
+                return can_reduce(lexeme->matched(), 0, std::stack<int>());
+            }
+            
+            /// \brief Returns true if a reduction of the lookahead will result in it being shifted
+            inline bool can_reduce() {
+                return can_reduce(look());
             }
         };
         
