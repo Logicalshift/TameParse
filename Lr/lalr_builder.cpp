@@ -335,16 +335,18 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
         const lookahead_set* la = thisState.lookahead_for(*lrItem);
         if (!la) continue;
         
+        const rule_container& rule = (*lrItem)->rule();
+        
         // Use the accepting action if the target symbol is 'empty' (which we use a placeholder for a symbol representing a language)
         // TODO: use a dedicated item type instead of overloading the empty symbol
         lr_action::action_type actionType = lr_action::act_reduce;
-        if ((*lrItem)->rule()->nonterminal()->type() == item::empty) {
+        if (rule->nonterminal()->type() == item::empty) {
             actionType = lr_action::act_accept;
         }
         
         for (lookahead_set::const_iterator reduceSymbol = la->begin(); reduceSymbol != la->end(); reduceSymbol++) {
             // Generate a reduce action for this symbol
-            lr_action newAction(actionType, *reduceSymbol, -1, (*lrItem)->rule());
+            lr_action newAction(actionType, *reduceSymbol, -1, rule);
             newSet.insert(newAction);
         }
     }

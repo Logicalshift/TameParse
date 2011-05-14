@@ -70,10 +70,10 @@ namespace contextfree {
         rule(const rule& copyFrom, const item_container& nonTerminal);
         
         /// \brief Creates an empty rule, which reduces to the specified item
-        rule(const item_container& nonTerminal);
+        explicit rule(const item_container& nonTerminal);
         
         /// \brief Creates an empty rule with a nonterminal identifier
-        rule(const int nonTerminal);
+        explicit rule(const int nonTerminal);
         
         /// \brief Copies the content of a rule into this one
         rule& operator=(const rule& copyFrom);

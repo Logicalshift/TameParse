@@ -24,14 +24,18 @@ using namespace lr;
 static void dump(const item& it, const grammar& gram) {
     if (it.type() == item::nonterminal) {
         wcerr << gram.name_for_nonterminal(it.symbol());
+        wcerr << "(" << gram.identifier_for_item(it) << L")";
     } else if (it.type() == item::terminal) {
         wcerr << L"'" << (wchar_t) it.symbol() << L"'";
     } else if (it.type() == item::eoi) {
         wcerr << L"$";
+        wcerr << "(" << gram.identifier_for_item(it) << L")";
     } else if (it.type() == item::empty) {
         wcerr << L"#";
+        wcerr << "(" << gram.identifier_for_item(it) << L")";
     } else {
         wcerr << L"?";
+        wcerr << "(" << gram.identifier_for_item(it) << L")";
     }
 }
 
@@ -42,7 +46,20 @@ static void dump(const item_set& la, const grammar& gram) {
     }
 }
 
+static void dump(const rule& rule, const grammar& gram) {
+    wcerr << gram.identifier_for_rule(rule) << L": ";
+    dump(*rule.nonterminal(), gram);
+    
+    wcerr << L" ->";
+    int pos;
+    for (pos = 0; pos < rule.items().size(); pos++) {
+        wcerr << L" ";
+        dump(*rule.items()[pos], gram);
+    }
+}
+
 static void dump(const lr0_item& item, const item_set& la, const grammar& gram) {
+    wcerr << gram.identifier_for_rule(item.rule()) << L": ";
     dump(*item.rule()->nonterminal(), gram);
     
     wcerr << L" ->";
@@ -66,11 +83,47 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram) 
     wcerr << L"]";
 }
 
+static void dump(const lr_action_set& actions, const grammar& gram) {
+    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); it++) {
+        wcerr << L"  ";
+        switch ((*it)->type()) {
+            case lr_action::act_accept:
+                wcerr << L"ACCEPT ";
+                break;
+            case lr_action::act_reduce:
+                wcerr << L"REDUCE ";
+                break;
+            case lr_action::act_shift:
+                wcerr << L"SHIFT ";
+                break;
+            case lr_action::act_weakreduce:
+                wcerr << L"WEAK REDUCE ";
+                break;
+            case lr_action::act_goto:
+                wcerr << L"GOTO ";
+                break;
+            case lr_action::act_ignore:
+                wcerr << L"IGNORE ";
+                break;
+        }
+        dump(*(*it)->item(), gram);
+        
+        if ((*it)->type() == lr_action::act_reduce || (*it)->type() == lr_action::act_weakreduce) {
+            wcerr << L" on ";
+            dump(*(*it)->rule(), gram);
+        } else {
+            wcerr << L" -> " << (*it)->next_state();
+        }
+        wcerr << endl;
+    }
+}
+
 /// \brief Dumps out a state machine to wcerr
-static void dump_machine(const lalr_machine& machine) {
+static void dump_machine(const lalr_builder& builder) {
     item_set empty_set;
     empty_item empty;
     empty_set.insert(empty);
+    const lalr_machine& machine = builder.machine();
     
     for (int stateId = 0; stateId < machine.count_states(); stateId++) {
         wcerr << L"STATE " << stateId << endl;
@@ -98,6 +151,10 @@ static void dump_machine(const lalr_machine& machine) {
                 wcerr << endl;
             }
         }
+        
+        wcerr << endl;
+        
+        dump(builder.actions_for_state(stateId), builder.gram());
 
         wcerr << endl;
     }
@@ -137,7 +194,7 @@ void test_lalr_general::run_tests() {
     builder.add_initial_state(s);
     builder.complete_parser();
     
-    dump_machine(builder.machine());
+    dump_machine(builder);
     
     // Create a parser for this grammar
     simple_parser p(builder);
