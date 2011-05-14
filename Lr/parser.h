@@ -259,20 +259,19 @@ namespace lr {
             ///
             /// \brief Performs the specified action
             ///
-            /// No check is made to see if the action is valid: it is just performed.
+            /// No check is made to see if the action is valid: it is just performed. Returns true if the lookahead
+            /// should be updated to be the next symbol
             ///
-            inline void perform(const lexeme_container& lookahead, const action* act) {
+            inline bool perform(const lexeme_container& lookahead, const action* act) {
                 switch (act->m_Type) {
                     case lr_action::act_ignore:
                         // Discard the current lookahead
-                        look();
-                        next();
-                        break;
+                        return true;
                         
                     case lr_action::act_shift:
                         // Push the lookahead onto the stack
-                        m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(look()));
-                        break;
+                        m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(lookahead));
+                        return true;
                         
                     case lr_action::act_reduce:
                     case lr_action::act_weakreduce:
@@ -303,13 +302,16 @@ namespace lr {
                         }
                         
                         // Done. If no goto was performed, we just chuck everything away associated with this rule
-                        break;
+                        return false;
                     }
                         
                     case lr_action::act_goto:
                         // In general, this won't happen
                         m_Stack->state = act->m_NextState;
-                        break;
+                        return false;
+                        
+                    default:
+                        return false;
                 }
             }
             
@@ -477,7 +479,10 @@ namespace lr {
                     // Perform this action
                     if (act->m_Type == lr_action::act_accept) return parser_result::accept;
                     
-                    perform(la, act);
+                    if (perform(la, act)) {
+                        // Move on to the next lookahead value if needed
+                        next();
+                    }
                     return parser_result::more;
                 }
                 
