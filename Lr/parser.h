@@ -13,6 +13,7 @@
 #include <stack>
 
 #include "Dfa/lexeme.h"
+#include "Dfa/basic_lexer.h"
 #include "Lr/lalr_builder.h"
 #include "Lr/parser_tables.h"
 #include "Lr/parser_stack.h"
@@ -49,6 +50,9 @@ namespace lr {
         
         /// \brief Parser action
         typedef parser_tables::action action;
+        
+        /// \brief The parser stack
+        typedef parser_stack<item_type> stack;
         
         /// \brief List of items passed to a reduce action
         typedef std::vector<item_type> reduce_list;
@@ -121,7 +125,7 @@ namespace lr {
             const parser_tables* m_Tables;
             
             /// \brief The parser stack in this state
-            parser_stack<item_type> m_Stack;
+            stack m_Stack;
             
             /// \brief The session that this is a part of
             session* m_Session;
@@ -230,7 +234,7 @@ namespace lr {
                 while (m_LookaheadPos >= m_Session->m_Lookahead.size()) {
                     if (!m_Session->m_EndOfFile) {
                         // Read the next symbol using the parser actions
-                        dfa::lexeme_container nextLexeme(m_Session->m_Actions->read());
+                        dfa::lexeme_container nextLexeme(m_Session->m_Actions->read(), true);
 
                         // Flag up an end of file condition
                         if (nextLexeme.item() == NULL) {
@@ -490,6 +494,16 @@ namespace lr {
                     return next == parser_result::accept;
                 }
             }
+            
+            /// \brief Returns the parser stack associated with this state
+            inline const stack& get_stack() const {
+                return m_Stack;
+            }
+            
+            /// \brief Gets the parser item on top of the stack
+            inline const item_type& get_item() const {
+                return m_Stack->item;
+            }
         };
         
     public:
@@ -497,6 +511,49 @@ namespace lr {
         inline state* create_parser(parser_actions* actions, int initialState = 0) {
             session* newSession = new session(actions);
             return new state(m_ParserTables, initialState, newSession);
+        }
+    };
+    
+    ///
+    /// \brief Basic parser actions class
+    ///
+    /// This is only useful for determining if a stream available from a lexer will be matched by the language.
+    /// The item type should be 'int' for this object
+    ///
+    class simple_parser_actions {
+    private:
+        /// \brief The lexer associated with the object, destroyed when the object is destructed
+        dfa::lexeme_stream* m_Lexer;
+        
+        simple_parser_actions(const simple_parser_actions& noCopying) { }
+        simple_parser_actions& operator=(const simple_parser_actions& noCopying) { return *this; }
+        
+    public:
+        /// \brief Creates a new actions object that will read from the specified stream.
+        ///
+        /// The stream will be deleted when this object is deleted
+        simple_parser_actions(dfa::lexeme_stream* lexer)
+        : m_Lexer(lexer) {
+        }
+        
+        /// \brief Destroys an existing actions object
+        ~simple_parser_actions() { delete m_Lexer; }
+        
+        /// \brief Reads the next symbol from the stream
+        inline dfa::lexeme* read() {
+            dfa::lexeme* result = NULL;
+            (*m_Lexer) >> result;
+            return result;
+        }
+        
+        /// \brief Returns the item resulting from a shift action
+        inline int shift(const dfa::lexeme_container& lexeme) {
+            return 0;
+        }
+        
+        /// \brief Returns the item resulting from a reduce action
+        inline int reduce(int nonterminal, int rule, const parser<int, simple_parser_actions>::reduce_list& reduce) {
+            return 0;
         }
     };
 }
