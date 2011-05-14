@@ -82,6 +82,8 @@ namespace lr {
         
     private:
         class internal_stack {
+            friend class parser_stack<item_type, initial_depth>;
+            
             /// \brief The first stack reference known about by this stack
             parser_stack<item_type, initial_depth>* m_RootReference;
             
@@ -103,7 +105,7 @@ namespace lr {
             }
 
             /// \brief Destroys the stack (and any remaining references)
-            ~parser_stack() {
+            ~internal_stack() {
                 // Delete any remaining references
                 while (m_RootReference != NULL) {
                     delete m_RootReference;
@@ -162,6 +164,7 @@ namespace lr {
                 m_NumFree += numNew;
             }
             
+        public:
             /// \brief Finds the next unused item
             inline int get_new() {
                 // Collect if we've run out of free items, and grow the stack if it's looking empty
@@ -214,8 +217,8 @@ namespace lr {
         
     public:
         parser_stack() 
-        : m_Stack(new parser_stack<item_type, initial_depth>)
-        , m_Index(m_Stack->get_unused()) {
+        : m_Stack(new internal_stack())
+        , m_Index(m_Stack->get_new()) {
             m_Next = m_Stack->m_RootReference;
             m_Last = NULL;
             m_Stack->m_RootReference = this;
@@ -277,10 +280,10 @@ namespace lr {
         inline entry& operator[](int x) {
             int index = m_Index;
             for (int pos = x; pos < 0; pos++) {
-                int nextIndex = m_Stack[index].m_PreviousIndex;
+                int nextIndex = m_Stack->m_Stack[index].m_PreviousIndex;
                 if (nextIndex >= 0) index = nextIndex;
             }
-            return m_Stack[index];
+            return m_Stack->m_Stack[index];
         }
 
         /// \brief Pushes a new item onto the stack, and updates this to point at it

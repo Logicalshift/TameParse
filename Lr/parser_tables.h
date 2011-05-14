@@ -99,7 +99,7 @@ namespace lr {
         }
         
         /// \brief Finds an action
-        inline const action_iterator find_action(int symbol, action* actionList, int count) {
+        inline const action_iterator find_action(int symbol, action* actionList, int count) const {
             return std::lower_bound(actionList, actionList + count, symbol, compare_symbols);
         }
         
@@ -108,24 +108,24 @@ namespace lr {
         inline const reduce_rule& rule(int ruleId) const { return m_Rules[ruleId]; }
         
         /// \brief An iterator pointing to the last action referring to a terminal symbol in the specified state
-        inline action_iterator last_terminal_action(int stateId) { 
+        inline action_iterator last_terminal_action(int stateId) const { 
             return m_TerminalActions[stateId] + m_Counts[stateId].m_NumTerms;
         }
 
         /// \brief An iterator pointing to the last action referring to a non-terminal symbol in the specified state
-        inline action_iterator last_nonterminal_action(int stateId) { 
+        inline action_iterator last_nonterminal_action(int stateId) const { 
             return m_NonterminalActions[stateId] + m_Counts[stateId].m_NumNonterms;
         }
         
         /// \brief Finds the first action that refers to a terminal with an ID equal or greater to that supplied 
         /// to this function
-        inline action_iterator find_terminal(int stateId, int terminal) {
+        inline action_iterator find_terminal(int stateId, int terminal) const {
             return find_action(terminal, m_TerminalActions[stateId], m_Counts[stateId].m_NumTerms);
         }
         
         /// \brief Finds the first action that refers to a nonterminal with an ID equal or greater to that supplied
         /// to this function
-        inline action_iterator find_nonterminal(int stateId, int nonterminal) {
+        inline action_iterator find_nonterminal(int stateId, int nonterminal) const {
             return find_action(nonterminal, m_NonterminalActions[stateId], m_Counts[stateId].m_NumNonterms);
         }
         

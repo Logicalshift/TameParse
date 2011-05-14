@@ -204,7 +204,7 @@ namespace lr {
                 if (minPos == 0) return;
                 
                 // Remove the symbols from the session
-                m_Session->m_Lookahead.erase(0, minPos);
+                m_Session->m_Lookahead.erase(m_Session->m_Lookahead.begin(), m_Session->m_Lookahead.begin() + minPos);
                 
                 // Update the state lookahead positions
                 for (state* whichState = m_Session->m_FirstState; whichState != NULL; whichState = whichState->m_NextState) {
@@ -413,6 +413,9 @@ namespace lr {
                             return false;
                     }
                 }
+                
+                // Result is false if we run out of actions
+                return false;
             }
             
         public:
