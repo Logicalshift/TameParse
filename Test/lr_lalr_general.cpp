@@ -138,15 +138,6 @@ void test_lalr_general::run_tests() {
     builder.complete_parser();
     
     dump_machine(builder.machine());
-
-    for (int x=0; x<10000; x++) {
-        // Build this grammar
-        lalr_builder builder(dragon446);
-        
-        // S' defines the language
-        builder.add_initial_state(s);
-        builder.complete_parser();
-    }
     
     // Create a parser for this grammar
     simple_parser p(builder);
@@ -164,4 +155,14 @@ void test_lalr_general::run_tests() {
     // Test the parser
     report("accept1", parse1->parse());
     report("accept2", parse2->parse());
+    
+    // Build the parser 10000 times
+    for (int x=0; x<10000; x++) {
+        // Build this grammar
+        lalr_builder builder(dragon446);
+        
+        // S' defines the language
+        builder.add_initial_state(s);
+        builder.complete_parser();
+    }
 }
