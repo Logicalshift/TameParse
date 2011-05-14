@@ -96,12 +96,15 @@ namespace lr {
             /// \brief The number of free entries in the stack
             int m_NumFree;
             
+            internal_stack(const internal_stack& copyFrom);
+            
         public:
             /// \brief Creates a new stack
             internal_stack()
             : m_RootReference(NULL) {
                 m_Stack.resize(initial_depth);
                 m_FirstUnused = 0;
+                m_NumFree = (int)m_Stack.size();
             }
 
             /// \brief Destroys the stack (and any remaining references)
@@ -168,7 +171,7 @@ namespace lr {
             
         public:
             /// \brief Finds the next unused item
-            inline int get_new() {
+            int get_new() {
                 // Collect if we've run out of free items, and grow the stack if it's looking empty
                 if (m_NumFree <= 0) {
                     collect();
@@ -193,7 +196,7 @@ namespace lr {
                 // Number of free entries goes down
                 m_NumFree--;
                 
-                return m_FirstUnused;
+                return result;
             }
         };
         
