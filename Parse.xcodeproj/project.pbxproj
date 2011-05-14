@@ -54,6 +54,8 @@
 		4B7F0C3F137599AB0012C085 /* parser_tables.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3D137599AB0012C085 /* parser_tables.h */; };
 		4B7F0C47137DC0D00012C085 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C45137DC0CF0012C085 /* parser.cpp */; };
 		4B7F0C48137DC0D00012C085 /* parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C46137DC0D00012C085 /* parser.h */; };
+		4B7F0C4B137F1E660012C085 /* character_lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C49137F1E660012C085 /* character_lexer.cpp */; };
+		4B7F0C4C137F1E660012C085 /* character_lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C4A137F1E660012C085 /* character_lexer.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -158,6 +160,8 @@
 		4B7F0C3D137599AB0012C085 /* parser_tables.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_tables.h; sourceTree = "<group>"; };
 		4B7F0C45137DC0CF0012C085 /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
 		4B7F0C46137DC0D00012C085 /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
+		4B7F0C49137F1E660012C085 /* character_lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = character_lexer.cpp; sourceTree = "<group>"; };
+		4B7F0C4A137F1E660012C085 /* character_lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = character_lexer.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -363,6 +367,8 @@
 				4B1A91DA1369B7500018E595 /* position.h */,
 				4B1A91E5136A04C70018E595 /* basic_lexer.cpp */,
 				4B1A91E6136A04C70018E595 /* basic_lexer.h */,
+				4B7F0C49137F1E660012C085 /* character_lexer.cpp */,
+				4B7F0C4A137F1E660012C085 /* character_lexer.h */,
 				4B1A91EA136A1A4D0018E595 /* lexer.cpp */,
 				4B1A91EB136A1A4D0018E595 /* lexer.h */,
 			);
@@ -454,6 +460,7 @@
 				4B7F0C3F137599AB0012C085 /* parser_tables.h in Headers */,
 				4BFD4A6913773EE600D6657D /* parser_stack.h in Headers */,
 				4B7F0C48137DC0D00012C085 /* parser.h in Headers */,
+				4B7F0C4C137F1E660012C085 /* character_lexer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -558,6 +565,7 @@
 				4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */,
 				4BFD4A6813773EE600D6657D /* parser_stack.cpp in Sources */,
 				4B7F0C47137DC0D00012C085 /* parser.cpp in Sources */,
+				4B7F0C4B137F1E660012C085 /* character_lexer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

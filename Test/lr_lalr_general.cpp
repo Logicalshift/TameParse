@@ -6,14 +6,18 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <sstream>
 #include <iostream>
 
 #include "lr_lalr_general.h"
 
+#include "Dfa/character_lexer.h"
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_builder.h"
+#include "Lr/parser.h"
 
 using namespace std;
+using namespace dfa;
 using namespace contextfree;
 using namespace lr;
 
@@ -143,4 +147,21 @@ void test_lalr_general::run_tests() {
         builder.add_initial_state(s);
         builder.complete_parser();
     }
+    
+    // Create a parser for this grammar
+    simple_parser p(builder);
+    character_lexer lex;
+    
+    string test1("i");
+    string test2("*i=i");
+    
+    stringstream stream1(test1);
+    stringstream stream2(test2);
+    
+    simple_parser::state* parse1 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream1)));
+    simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
+    
+    // Test the parser
+    report("accept1", parse1->parse());
+    report("accept2", parse2->parse());
 }

@@ -556,6 +556,9 @@ namespace lr {
             return 0;
         }
     };
+    
+    /// \brief Simple parser, can be used to test if a language is accepted by a parser (but not much else)
+    typedef parser<int, simple_parser_actions> simple_parser;
 }
 
 #endif
