@@ -101,7 +101,9 @@ namespace lr {
 
         public:
             session(parser_actions* actions)
-            : m_Actions(actions) {
+            : m_Actions(actions)
+            , m_EndOfFile(false)
+            , m_FirstState(NULL) {
             }
             
             ~session() {
