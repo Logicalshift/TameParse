@@ -213,6 +213,18 @@ void test_lalr_general::run_tests() {
     report("accept1", parse1->parse());
     report("accept2", parse2->parse());
     
+    delete parse1;
+    delete parse2;
+    
+    // Run the parser 50000 times
+    for (int x=0; x<50000; x++) {
+        stringstream stream2(test2);
+        simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
+        
+        parse2->parse();
+        delete parse2;
+    }
+    
     // Build the parser 10000 times
     for (int x=0; x<10000; x++) {
         // Build this grammar
