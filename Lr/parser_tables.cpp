@@ -120,6 +120,8 @@ parser_tables::parser_tables(const lalr_builder& builder) {
                 nontermActions[nontermPos].m_Type       = type;
                 nontermActions[nontermPos].m_NextState  = nextState;
                 nontermActions[nontermPos].m_SymbolId   = gram.identifier_for_item((*nextAction)->item());
+                
+                nontermPos++;
             }
         }
         
@@ -139,8 +141,10 @@ parser_tables::parser_tables(const lalr_builder& builder) {
     m_Rules     = new reduce_rule[ruleIds.size()];
     
     for (map<int, int>::iterator ruleId = ruleIds.begin(); ruleId != ruleIds.end(); ruleId++) {
-        m_Rules[ruleId->second].m_Identifier    = ruleId->first;
-        m_Rules[ruleId->second].m_Length        = (int)gram.rule_with_identifier(ruleId->first)->items().size();
+        const rule_container& rule = gram.rule_with_identifier(ruleId->first);
+        
+        m_Rules[ruleId->second].m_Identifier    = gram.identifier_for_item(rule->nonterminal());
+        m_Rules[ruleId->second].m_Length        = (int)rule->items().size();
     }
 }
 
