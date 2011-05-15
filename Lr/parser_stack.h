@@ -172,10 +172,10 @@ namespace lr {
         public:
             /// \brief Finds the next unused item
             int get_new() {
-                // Collect if we've run out of free items, and grow the stack if it's looking empty
+                // Collect if we've run out of free items, and grow the stack if it's still looking empty
                 if (m_NumFree <= 0) {
                     collect();
-                    if (m_NumFree < initial_depth/4) {
+                    if (m_NumFree < initial_depth/2) {
                         grow_stack();
                     }
                 }
