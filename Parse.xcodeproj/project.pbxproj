@@ -56,6 +56,8 @@
 		4B7F0C48137DC0D00012C085 /* parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C46137DC0D00012C085 /* parser.h */; };
 		4B7F0C4B137F1E660012C085 /* character_lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C49137F1E660012C085 /* character_lexer.cpp */; };
 		4B7F0C4C137F1E660012C085 /* character_lexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C4A137F1E660012C085 /* character_lexer.h */; };
+		4B7F0C50138025EE0012C085 /* astnode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C4E138025EE0012C085 /* astnode.cpp */; };
+		4B7F0C51138025EE0012C085 /* astnode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C4F138025EE0012C085 /* astnode.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -162,6 +164,8 @@
 		4B7F0C46137DC0D00012C085 /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
 		4B7F0C49137F1E660012C085 /* character_lexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = character_lexer.cpp; sourceTree = "<group>"; };
 		4B7F0C4A137F1E660012C085 /* character_lexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = character_lexer.h; sourceTree = "<group>"; };
+		4B7F0C4E138025EE0012C085 /* astnode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = astnode.cpp; sourceTree = "<group>"; };
+		4B7F0C4F138025EE0012C085 /* astnode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = astnode.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -283,6 +287,8 @@
 			children = (
 				4B1A920A136C794D0018E595 /* container.cpp */,
 				4B1A920B136C794D0018E595 /* container.h */,
+				4B7F0C4E138025EE0012C085 /* astnode.cpp */,
+				4B7F0C4F138025EE0012C085 /* astnode.h */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -461,6 +467,7 @@
 				4BFD4A6913773EE600D6657D /* parser_stack.h in Headers */,
 				4B7F0C48137DC0D00012C085 /* parser.h in Headers */,
 				4B7F0C4C137F1E660012C085 /* character_lexer.h in Headers */,
+				4B7F0C51138025EE0012C085 /* astnode.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -566,6 +573,7 @@
 				4BFD4A6813773EE600D6657D /* parser_stack.cpp in Sources */,
 				4B7F0C47137DC0D00012C085 /* parser.cpp in Sources */,
 				4B7F0C4B137F1E660012C085 /* character_lexer.cpp in Sources */,
+				4B7F0C50138025EE0012C085 /* astnode.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
