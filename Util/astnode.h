@@ -30,6 +30,9 @@ namespace util {
         /// \brief The identifier of the nonterminal associated with this node (or -1 for a terminal node)
         int m_Nonterminal;
         
+        /// \brief The identifier of the rule that was matched for this node (or -1 for a terminal node)
+        int m_Rule;
+        
         /// \brief The lexeme associated with this node (will be NULL if this node doesn't contain a lexeme)
         dfa::lexeme_container m_Lexeme;
         
@@ -38,13 +41,20 @@ namespace util {
         
     public:
         /// \brief Creates an AST node with a nonterminal ID
-        astnode(int nonterminal);
+        astnode(int nonterminal, int rule = -1);
         
         /// \brief Creates an AST node from a lexeme
         astnode(const dfa::lexeme_container& terminal);
         
         /// \brief Adds a new child node to this item
         void add_child(const astnode_container& newChild);
+        
+        /// \brief Adds a series of children to this item
+        template<typename iterator> void add_children(iterator begin, iterator end) {
+            for (iterator cur = begin; cur != end; cur++) {
+                m_Children.push_back(*cur);
+            }
+        }
         
         /// \brief The nonterminal ID for this node
         inline int nonterminal() const { return m_Nonterminal; }
