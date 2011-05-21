@@ -50,8 +50,11 @@ language ParserLanguage {
 		<Language-Definition>	::= (<TopLevel-Block>)*
 		
 		<TopLevel-Block>		::= <Language-Block>
+								  | <Import-Block>
 		
 		<Language-Block>		::= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+		
+		<Import-Block>			::= import string
 		
 		<Language-Inherits>		::= ':' identifier
 		
