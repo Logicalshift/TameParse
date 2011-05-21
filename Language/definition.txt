@@ -12,7 +12,7 @@ language ParserLanguage {
 		digit 			= /[0-9]/
 		alphanumeric 	= /({letter}|{digit})/
 		whitespace		= /[ \n\r]/
-		anycharacter	= /[^ \n\r]/
+		anycharacter	= /[^\n\r]/
 		
 		// Identifiers, regular expressions
 		identifier		= /{letter}{alphanumeric}*/
@@ -31,7 +31,7 @@ language ParserLanguage {
 	// Ignored symbols
 	ignore {
 		newline			= /[\n\r]/
-		whitespace		= /[ ]/
+		whitespace		= /[ \t]/
 		comment			= /\/\/({anycharacter}*)/
 	}
 	
@@ -96,8 +96,8 @@ language ParserLanguage {
 		
 		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
 		
-		<Nonterminal-Definition>	= <Nonterminal> "=" <Production> ('|' <Production>)* newline
-									| <Nonterminal> "+=" <Production> ('|' <Production>)* newline
+		<Nonterminal-Definition>	= nonterminal "=" <Production> ('|' <Production>)* newline
+									| nonterminal "+=" <Production> ('|' <Production>)* newline
 									| replace <Nonterminal> "=" <Production> ('|' <Production>)* newline
 		
 		<Production>				= (Ebnf-Item)*

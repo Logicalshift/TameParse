@@ -25,6 +25,16 @@ lexer::lexer(ndfa_regex* ndfa)
     if (m_Ndfa == NULL) m_Ndfa = new ndfa_regex();
 }
 
+/// \brief Creates an instance of this class that will use the specified DFA for building the lexer
+///
+/// The DFA will be compiled immediately into a lexer, and can be discarded after this call. Note that this
+/// call will produce an invalid lexer if the supplied object is not deterministic.
+lexer::lexer(const ndfa& dfa)
+: m_Ndfa(NULL)
+, m_Lexer(NULL) {
+    m_Lexer = new dfa_lexer<wchar_t, state_machine_flat_table>(dfa);
+}
+
 /// \brief Creates an instance of this class that will use the specified basic_lexer
 ///
 /// The lexer supplied to this call will be destroyed when this class is destroyed

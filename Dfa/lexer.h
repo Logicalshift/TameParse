@@ -38,6 +38,12 @@ namespace dfa {
         /// The supplied NDFA will be destroyed when this class is destroyed (or when it gets compiled).
         lexer(ndfa_regex* ndfa);
         
+        /// \brief Creates an instance of this class that will use the specified DFA for building the lexer
+        ///
+        /// The DFA will be compiled immediately into a lexer, and can be discarded after this call. Note that this
+        /// call will produce an invalid lexer if the supplied object is not deterministic.
+        explicit lexer(const ndfa& dfa);
+        
         /// \brief Creates an instance of this class that will use the specified basic_lexer
         ///
         /// The lexer supplied to this call will be destroyed when this class is destroyed

@@ -9,6 +9,9 @@
 #ifndef _LANGUAGE_BOOTSTRAP_H
 #define _LANGUAGE_BOOTSTRAP_H
 
+#include "Dfa/lexer.h"
+#include "Lr/ast_parser.h"
+
 namespace language {
     ///
     /// \brief Bootstrap version of the parser language
@@ -32,14 +35,35 @@ namespace language {
             ignore,
             keywords,
             
+            equals,
+            question,
+            plus,
+            star,
+            colon,
+            openparen,
+            closeparen,
+            opencurly,
+            closecurly,
+            
             newline,
             whitespace,
             comment
         };
         
     private:
+        /// \brief The lexer for this language
+        dfa::lexer* m_Lexer;
+        
+    private:
+        /// \brief Creates the DFA for the language
+        static dfa::ndfa* create_dfa();
         
     public:
+        /// \brief Constructs the bootstrap language
+        bootstrap();
+        
+        /// \brief Destructor
+        virtual ~bootstrap();
     };
 }
 
