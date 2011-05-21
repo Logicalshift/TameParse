@@ -51,7 +51,9 @@ language ParserLanguage {
 		
 		<TopLevel-Block>		::= <Language-Block>
 		
-		<Language-Block>		::= language identifier '{' (<Language-Definition>)* '}'
+		<Language-Block>		::= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+		
+		<Language-Inherits>		::= ':' identifier
 		
 		//
 		// The language block
@@ -83,6 +85,7 @@ language ParserLanguage {
 		<Weak-Symbols-Definition>	::= weak-lexer '{' (<Lexeme-Definition>)* '}'
 		
 		<Lexeme-Definition> 		::= identifier '=' regex
+									  | identifier '=' identifier '.' identifier
 		
 		//
 		// Defining grammars
@@ -91,6 +94,8 @@ language ParserLanguage {
 		<Grammar-Definition>		::= grammar '{' (<Nonterminal-Definition>)* '}'
 		
 		<Nonterminal-Definition>	::= <Nonterminal> "::=" <Production> ('|' <Production>)* newline
+									  | <Nonterminal> "+=" <Production> ('|' <Production>)* newline
+									  | replace <Nonterminal> "::=" <Production> ('|' <Production>)* newline
 		
 		<Production>				::= (Ebnf-Item)*
 		
@@ -105,8 +110,12 @@ language ParserLanguage {
 									  | '(' <Ebnf-Item> ')'
 		
 		<Nonterminal>				::= nonterminal
+									  | identifier '.' nonterminal
 		
-		<Terminal>					::= identifier
+		<Terminal>					::= <Basic-Terminal>
+									  | identifier '.' <Basic-Terminal>
+		
+		<Basic-Terminal>			::= identifier
 									  | string
 									  | character
 	}
