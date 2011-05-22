@@ -72,6 +72,11 @@ int grammar::id_for_nonterminal(const wstring& name) {
     return found->second;
 }
 
+/// \brief Returns an item container for the nonterminal with the specified name
+item_container grammar::get_nonterminal(const std::wstring& name) {
+    return item_container(new nonterminal(id_for_nonterminal(name)), true);
+}
+
 /// \brief Returns an identifier given a rule
 int grammar::identifier_for_rule(const rule_container& rule) const {
     // Look up the rule
