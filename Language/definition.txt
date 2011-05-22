@@ -47,7 +47,7 @@ language ParserLanguage {
 		// The top-level definitions
 		//
 		
-		<Language-Definition>	= (<TopLevel-Block>)*
+		<Parser-Language>		= (<TopLevel-Block>)*
 		
 		<TopLevel-Block>		= <Language-Block>
 								  | <Import-Block>

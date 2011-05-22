@@ -60,7 +60,27 @@ namespace language {
         
         /// \brief Containers for the nonterminals making up this language
         struct {
-            
+            contextfree::item_container
+                parser_language,
+                toplevel_block,
+                language_block,
+                import_block,
+                language_inherits,
+                language_definition,
+                lexer_symbols_definition,
+                lexer_definition,
+                ignore_definition,
+                keywords_definition,
+                weak_symbols_definition,
+                lexeme_definition,
+                grammar_definition,
+                nonterminal_definition,
+                production,
+                ebnf_item,
+                simple_ebnf_item,
+                nonterminal,
+                terminal,
+                basic_terminal;
         } nt;
         
         /// \brief Dictionary of all of the terminals in this language
