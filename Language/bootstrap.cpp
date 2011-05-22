@@ -17,41 +17,53 @@ using namespace contextfree;
 using namespace lr;
 using namespace language;
 
+/// \brief Adds a new terminal item to an NDFA, and to this object
+contextfree::item_container bootstrap::add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex) {
+    // Add to the terminal dictionary
+    int termIdentifier = m_Terminals.add_symbol(name);
+    
+    // Add to the DFA
+    ndfa->add_regex(0, regex, termIdentifier);
+    
+    // Return a new container
+    return item_container(new terminal(termIdentifier), true);
+}
+
 /// \brief Creates the lexer for the language
 dfa::ndfa* bootstrap::create_dfa() {
     // Create the NDFA (which we'll eventually turn into the lexer)
     ndfa_regex* languageNdfa = new ndfa_regex();
     
     // The lexical constructs
-    languageNdfa->add_regex(0, "[A-Za-z\\-][A-Za-z\\-0-9]*", identifier);
-    languageNdfa->add_regex(0, "\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>", nonterminal);
-    languageNdfa->add_regex(0, "/([^/]|(\\\\/))*/", regex);
-    languageNdfa->add_regex(0, "\"([^\"]|(\\\"))*\"", string);
-    languageNdfa->add_regex(0, "'(.|(\\.))'", character);
+    t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
+    t.nonterminal       = add_terminal(languageNdfa, L"nonterminal", L"\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>");
+    t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
+    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
+    t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\.))'");
 
     // The weak keywords
-    languageNdfa->add_regex(0, "language", language);
-    languageNdfa->add_regex(0, "grammar", grammar);
-    languageNdfa->add_regex(0, "lexer-symbols", lexersymbols);
-    languageNdfa->add_regex(0, "lexer", lexer);
-    languageNdfa->add_regex(0, "ignore", ignore);
-    languageNdfa->add_regex(0, "keywords", keywords);
+    t.language          = add_terminal(languageNdfa, L"language", L"language");
+    t.grammar           = add_terminal(languageNdfa, L"grammar", L"grammar");
+    t.lexersymbols      = add_terminal(languageNdfa, L"lexer-symbols", L"lexer-symbols");
+    t.lexer             = add_terminal(languageNdfa, L"lexer", L"lexer");
+    t.ignore            = add_terminal(languageNdfa, L"ignore", L"ignore");
+    t.keywords          = add_terminal(languageNdfa, L"keywords", L"keywords");
     
     // Single character elements (these are also weak)
-    languageNdfa->add_regex(0, "\\=", equals);
-    languageNdfa->add_regex(0, "\\?", question);
-    languageNdfa->add_regex(0, "\\+", plus);
-    languageNdfa->add_regex(0, "\\*", star);
-    languageNdfa->add_regex(0, "\\:", colon);
-    languageNdfa->add_regex(0, "\\(", openparen);
-    languageNdfa->add_regex(0, "\\)", closeparen);
-    languageNdfa->add_regex(0, "\\{", opencurly);
-    languageNdfa->add_regex(0, "\\}", closecurly);
+	t.equals            = add_terminal(languageNdfa, L"'='", L"\\=");
+    t.question          = add_terminal(languageNdfa, L"'?'", L"\\?");
+    t.plus              = add_terminal(languageNdfa, L"'+'", L"\\+");
+    t.star              = add_terminal(languageNdfa, L"'*'", L"\\*");
+    t.colon             = add_terminal(languageNdfa, L"':'", L"\\:");
+    t.openparen         = add_terminal(languageNdfa, L"'('", L"\\(");
+    t.closeparen        = add_terminal(languageNdfa, L"')'", L"\\)");
+    t.opencurly         = add_terminal(languageNdfa, L"'{'", L"\\{");
+    t.closecurly        = add_terminal(languageNdfa, L"'}'", L"\\}");
     
     // Ignored elements
-    languageNdfa->add_regex(0, "[\n\r]", newline);
-    languageNdfa->add_regex(0, "[ ]", whitespace);
-    languageNdfa->add_regex(0, "//[^\n\r]*", comment);
+    t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");
+    t.whitespace        = add_terminal(languageNdfa, L"whitespace", L"[ ]");
+    t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
     
     // Build into a DFA
     ndfa* uniqueSyms = languageNdfa->to_ndfa_with_unique_symbols();
@@ -63,72 +75,10 @@ dfa::ndfa* bootstrap::create_dfa() {
     return result;
 }
 
-/// \brief Fills in the terminals structure
-void bootstrap::create_terminals() {
-    typedef contextfree::terminal term;
-    
-    t.identifier        = item_container(new term(identifier), true);
-    t.nonterminal       = item_container(new term(nonterminal), true);
-    t.regex             = item_container(new term(regex), true);
-    t.string            = item_container(new term(string), true);
-    t.character         = item_container(new term(character), true);
-
-    t.language          = item_container(new term(language), true);
-    t.grammar           = item_container(new term(grammar), true);
-    t.lexersymbols      = item_container(new term(lexersymbols), true);
-    t.lexer             = item_container(new term(lexer), true);
-    t.ignore            = item_container(new term(ignore), true);
-    t.keywords          = item_container(new term(keywords), true);
-
-    t.equals            = item_container(new term(equals), true);
-    t.question          = item_container(new term(question), true);
-    t.plus              = item_container(new term(plus), true);
-    t.star              = item_container(new term(star), true);
-    t.colon             = item_container(new term(colon), true);
-    t.openparen         = item_container(new term(openparen), true);
-    t.closeparen        = item_container(new term(closeparen), true);
-    t.opencurly         = item_container(new term(opencurly), true);
-    t.closecurly        = item_container(new term(closecurly), true);
-
-    t.newline           = item_container(new term(newline), true);
-    t.whitespace        = item_container(new term(whitespace), true);
-    t.comment           = item_container(new term(comment), true);
-    
-    m_Terminals.add_symbol(L"identifier", identifier);
-    m_Terminals.add_symbol(L"nonterminal", nonterminal);
-    m_Terminals.add_symbol(L"regex", regex);
-    m_Terminals.add_symbol(L"string", string);
-    m_Terminals.add_symbol(L"character", character);
-
-    m_Terminals.add_symbol(L"language", language);
-    m_Terminals.add_symbol(L"grammar", grammar);
-    m_Terminals.add_symbol(L"lexersymbols", lexersymbols);
-    m_Terminals.add_symbol(L"lexer", lexer);
-    m_Terminals.add_symbol(L"ignore", ignore);
-    m_Terminals.add_symbol(L"keywords", keywords);
-
-    m_Terminals.add_symbol(L"equals", equals);
-    m_Terminals.add_symbol(L"question", question);
-    m_Terminals.add_symbol(L"plus", plus);
-    m_Terminals.add_symbol(L"star", star);
-    m_Terminals.add_symbol(L"colon", colon);
-    m_Terminals.add_symbol(L"openparen", openparen);
-    m_Terminals.add_symbol(L"closeparen", closeparen);
-    m_Terminals.add_symbol(L"opencurly", opencurly);
-    m_Terminals.add_symbol(L"closecurly", closecurly);
-
-    m_Terminals.add_symbol(L"newline", newline);
-    m_Terminals.add_symbol(L"whitespace", whitespace);
-    m_Terminals.add_symbol(L"comment", comment);
-}
-
 /// \brief Constructs the bootstrap language
 bootstrap::bootstrap() {
     // Create the DFA for this language
     ndfa* dfa = create_dfa();
-    
-    // Create the terminal objects
-    create_terminals();
     
     // Set up the list of 'weak symbols'
     weak_symbols weak;

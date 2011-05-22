@@ -9,6 +9,7 @@
 #ifndef _LANGUAGE_BOOTSTRAP_H
 #define _LANGUAGE_BOOTSTRAP_H
 
+#include "Dfa/ndfa_regex.h"
 #include "Dfa/lexer.h"
 #include "ContextFree/terminal_dictionary.h"
 #include "Lr/ast_parser.h"
@@ -21,35 +22,6 @@ namespace language {
     ///
     class bootstrap {
     public:
-        /// \brief The terminal symbols associated with this language
-        enum terminal {
-            identifier = 0,
-            nonterminal,
-            regex,
-            string,
-            character,
-            
-            language,
-            grammar,
-            lexersymbols,
-            lexer,
-            ignore,
-            keywords,
-            
-            equals,
-            question,
-            plus,
-            star,
-            colon,
-            openparen,
-            closeparen,
-            opencurly,
-            closecurly,
-            
-            newline,
-            whitespace,
-            comment
-        };
         
     private:
         /// \brief The lexer for this language
@@ -95,11 +67,11 @@ namespace language {
         contextfree::terminal_dictionary m_Terminals;
         
     private:
-        /// \brief Creates the DFA for the language
-        static dfa::ndfa* create_dfa();
+        /// \brief Adds a new terminal item to an NDFA, and to this object
+        contextfree::item_container add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex);
         
-        /// \brief Fills in the terminals structure
-        void create_terminals();
+        /// \brief Creates the DFA for the language
+        dfa::ndfa* create_dfa();
         
     public:
         /// \brief Constructs the bootstrap language
