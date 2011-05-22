@@ -75,6 +75,53 @@ dfa::ndfa* bootstrap::create_dfa() {
     return result;
 }
 
+/// \brief Creates the grammar for the language
+contextfree::grammar* bootstrap::create_grammar() {
+    // Create a new grammar
+    grammar* result = new grammar();
+    
+    // Generate nonterminals
+    nt.parser_language          = result->get_nonterminal(L"Parser-Language");
+    nt.toplevel_block           = result->get_nonterminal(L"TopLevel-Block");
+    nt.language_block           = result->get_nonterminal(L"Language-Block");
+    nt.language_inherits        = result->get_nonterminal(L"Language-Inherits");
+    nt.language_definition      = result->get_nonterminal(L"Language-Definition");
+    nt.lexer_symbols_definition = result->get_nonterminal(L"Lexer-Symbols-Definition");
+    nt.lexer_definition         = result->get_nonterminal(L"Lexer-Definition");
+    nt.ignore_definition        = result->get_nonterminal(L"Ignore-Definition");
+    nt.keywords_definition      = result->get_nonterminal(L"Keywords-Definition");
+    nt.weak_symbols_definition  = result->get_nonterminal(L"Weak-Symbols-Definition");
+    nt.lexeme_definition        = result->get_nonterminal(L"Lexeme-Definition");
+    nt.grammar_definition       = result->get_nonterminal(L"Grammar-Definition");
+    nt.nonterminal_definition   = result->get_nonterminal(L"Nonterminal-Definition");
+    nt.production               = result->get_nonterminal(L"Production");
+    nt.ebnf_item                = result->get_nonterminal(L"Ebnf-Item");
+    nt.simple_ebnf_item         = result->get_nonterminal(L"Simple-Ebnf-Item");
+    nt.nonterminal              = result->get_nonterminal(L"Nonterminal");
+    nt.terminal                 = result->get_nonterminal(L"Terminal");
+    nt.basic_terminal           = result->get_nonterminal(L"Basic-Terminal");
+    
+    // Generate productions
+    ebnf_repeating_optional listToplevel;
+    (*listToplevel.get_rule()) << nt.toplevel_block;
+    ((*result) += L"Parser-Language") << listToplevel;
+    
+    // Top level block (language)
+    ((*result) += L"TopLevel-Block") << nt.language_block;
+    
+    // Language block ('language x (: y) { ... }
+    ebnf_optional           optionalLanguageInherits;
+    ebnf_repeating_optional listLanguageDefinition;
+    (*optionalLanguageInherits.get_rule()) << nt.language_inherits;
+    (*listLanguageDefinition.get_rule()) << nt.language_definition;
+    ((*result) += L"Language-Block") << t.language << t.identifier << optionalLanguageInherits << t.opencurly << listLanguageDefinition << t.closecurly;
+    
+    ((*result) += L"Language-Inherits") << t.colon << t.identifier;
+        
+    // Return the new grammar
+    return result;
+}
+
 /// \brief Constructs the bootstrap language
 bootstrap::bootstrap() {
     // Create the DFA for this language

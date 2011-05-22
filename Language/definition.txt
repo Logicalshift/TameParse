@@ -50,7 +50,7 @@ language ParserLanguage {
 		<Parser-Language>		= (<TopLevel-Block>)*
 		
 		<TopLevel-Block>		= <Language-Block>
-								  | <Import-Block>
+								| <Import-Block>
 		
 		<Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
 		

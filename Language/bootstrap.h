@@ -64,7 +64,6 @@ namespace language {
                 parser_language,
                 toplevel_block,
                 language_block,
-                import_block,
                 language_inherits,
                 language_definition,
                 lexer_symbols_definition,
@@ -92,6 +91,9 @@ namespace language {
         
         /// \brief Creates the DFA for the language
         dfa::ndfa* create_dfa();
+        
+        /// \brief Creates the grammar for the language
+        contextfree::grammar* create_grammar();
         
     public:
         /// \brief Constructs the bootstrap language
