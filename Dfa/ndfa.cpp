@@ -180,7 +180,7 @@ void ndfa::clear_accept(int state) {
 /// Returns false if the stack is empty.
 /// The 'previous state' becomes the state on top of the stack.
 /// If an 'or' is being constructed, this will move to the final state of the 'or' in the same way that rejoin does.
-bool ndfa::constructor::pop() { 
+bool ndfa::builder::pop() { 
     if (!m_Stack.empty()) {
         // If there's a final state, then move there from the current state
         if (m_Stack.top().second >= 0) {
@@ -202,7 +202,7 @@ bool ndfa::constructor::pop() {
 }
 
 /// \brief Begins or continues an 'or' expression
-void ndfa::constructor::begin_or() {
+void ndfa::builder::begin_or() {
     // If the stack is empty then push a fake entry
     if (m_Stack.empty()) {
         m_Stack.push(stack_entry(0, -1));
@@ -233,7 +233,7 @@ void ndfa::constructor::begin_or() {
 }
 
 /// \brief Moves to the state after the current 'or' expression, if there is one
-void ndfa::constructor::rejoin() {
+void ndfa::builder::rejoin() {
     // Nothing to do if the top of the stack isn't building an 'or' expression
     if (m_Stack.empty() || m_Stack.top().second < 0) return;
     

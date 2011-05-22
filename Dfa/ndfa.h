@@ -155,7 +155,7 @@ namespace dfa {
         ///
         /// \brief Class used for convenient construction of an NDFA
         ///
-        class constructor {
+        class builder {
         private:
             friend class ndfa;
             
@@ -181,7 +181,7 @@ namespace dfa {
             std::stack<stack_entry> m_Stack;
             
             /// \brief Creates a new constructor
-            inline constructor(ndfa* dfa)
+            inline builder(ndfa* dfa)
             : m_CurrentState(0)
             , m_PreviousState(0)
             , m_NextState(-1)
@@ -190,7 +190,7 @@ namespace dfa {
             
         public:
             /// \brief Copy constructor
-            inline constructor(const constructor& copyFrom)
+            inline builder(const builder& copyFrom)
             : m_CurrentState(copyFrom.m_CurrentState)
             , m_NextState(copyFrom.m_NextState)
             , m_PreviousState(copyFrom.m_PreviousState)
@@ -199,7 +199,7 @@ namespace dfa {
             }
             
             /// \brief Moves to a new state when the specified range of symbols are encountered
-            inline constructor& operator>>(const symbol_set& symbols) {
+            inline builder& operator>>(const symbol_set& symbols) {
                 int nextState = m_NextState;
                 m_NextState = -1;
                 
@@ -214,12 +214,12 @@ namespace dfa {
                 return *this;
             }
             
-            inline constructor& operator>>(char c)                  { return operator>>(range<int>((int)c, (int)c+1)); }
-            inline constructor& operator>>(wchar_t c)               { return operator>>(range<int>((int)c, (int)c+1)); }
-            inline constructor& operator>>(int c)                   { return operator>>(range<int>((int)c, (int)c+1)); }
+            inline builder& operator>>(char c)                  { return operator>>(range<int>((int)c, (int)c+1)); }
+            inline builder& operator>>(wchar_t c)               { return operator>>(range<int>((int)c, (int)c+1)); }
+            inline builder& operator>>(int c)                   { return operator>>(range<int>((int)c, (int)c+1)); }
             
             /// \brief Sets the state that the next transition will move to
-            inline constructor& operator>>(const state& nextState) {
+            inline builder& operator>>(const state& nextState) {
                 m_NextState = nextState.identifier();
                 return *this;
             }
@@ -308,17 +308,17 @@ namespace dfa {
         };
         
         /// \brief Creates a new NDFA constructor
-        inline constructor get_cons() { return constructor(this); }
+        inline builder get_cons() { return builder(this); }
         
         /// \brief Starts a new chain of transitions, starting at state 0
-        inline constructor operator>>(const symbol_set& symbols) {
-            return constructor(this) >> symbols;
+        inline builder operator>>(const symbol_set& symbols) {
+            return builder(this) >> symbols;
         }
         
-        inline constructor operator>>(char c)      { return operator>>(range<int>((int)c, (int)c+1)); }
-        inline constructor operator>>(wchar_t c)   { return operator>>(range<int>((int)c, (int)c+1)); }
-        inline constructor operator>>(const state& firstState) {
-            return constructor(this) >> firstState;
+        inline builder operator>>(char c)      { return operator>>(range<int>((int)c, (int)c+1)); }
+        inline builder operator>>(wchar_t c)   { return operator>>(range<int>((int)c, (int)c+1)); }
+        inline builder operator>>(const state& firstState) {
+            return builder(this) >> firstState;
         }
         
     private:

@@ -92,7 +92,7 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     if (initialState < 0 || initialState >= count_states()) return initialState;
     
     // Create a constructor in the initial state
-    constructor cons = get_cons();
+    builder cons = get_cons();
     cons.goto_state(get_state(initialState));
     
     // Create an epsilon transform to an initial state for this regex
@@ -125,7 +125,7 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
 /// Subclasses can override this to extend the grammar accepted by the regular expression.
 /// This class should update the supplied iterator and NDFA constructor object with the position of the next item.
 ///
-void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, constructor& cons) {
+void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, builder& cons) {
     // Don't process the final character, but rejoin if there's an or section in effect
     if (pos == end) {
         cons.rejoin();

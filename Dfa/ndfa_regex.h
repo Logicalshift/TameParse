@@ -93,7 +93,7 @@ namespace dfa {
         /// inspect the contents of pos in this case, but should instead perform any tidying up that's required at the end
         /// of a regular expression.
         ///
-        virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, constructor& cons);
+        virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, builder& cons);
         
         ///
         /// \brief Returns the symbol at the specified position. Updates pos to point to the last character that makes up this symbol
