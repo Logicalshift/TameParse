@@ -70,6 +70,9 @@ namespace contextfree {
         /// \brief Adds a named symbol and returns its identifier
         int add_symbol(const std::wstring& name);
         
+        /// \brief Adds a new symbol with the specified identifier (which must be unused)
+        void add_symbol(const std::wstring& name, int value);
+        
         /// \brief Splits the symbol with the specified identifier, adding a new symbol and marking the original as its parent
         ///
         /// If the symbol was already split off from another, then the split is actually added to the 'parent' symbol rather

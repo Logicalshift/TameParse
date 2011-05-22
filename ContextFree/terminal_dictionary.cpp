@@ -35,6 +35,16 @@ int terminal_dictionary::add_symbol(const std::wstring& name) {
     return newSymbol;
 }
 
+/// \brief Adds a new symbol with the specified identifier (which must be unused)
+void terminal_dictionary::add_symbol(const std::wstring& name, int value) {
+    // Update the max symbol if needed
+    if (value >= m_MaxSymbol) m_MaxSymbol = value + 1;
+    
+    // Associate this name with this symbol
+    m_NameToSymbol[name]    = value;
+    m_SymbolToName[value]   = name;
+}
+
 /// \brief Splits the symbol with the specified identifier, adding a new symbol and marking the original as its parent
 ///
 /// If the symbol was already split off from another, then the split is actually added to the 'parent' symbol rather

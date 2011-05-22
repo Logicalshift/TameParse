@@ -10,6 +10,7 @@
 #define _LANGUAGE_BOOTSTRAP_H
 
 #include "Dfa/lexer.h"
+#include "ContextFree/terminal_dictionary.h"
 #include "Lr/ast_parser.h"
 
 namespace language {
@@ -54,9 +55,51 @@ namespace language {
         /// \brief The lexer for this language
         dfa::lexer* m_Lexer;
         
+        /// \brief Containers for the terminals in the grammar
+        struct {
+            contextfree::item_container
+                identifier,
+                nonterminal,
+                regex,
+                string,
+                character,
+                
+                language,
+                grammar,
+                lexersymbols,
+                lexer,
+                ignore,
+                keywords,
+                
+                equals,
+                question,
+                plus,
+                star,
+                colon,
+                openparen,
+                closeparen,
+                opencurly,
+                closecurly,
+                
+                newline,
+                whitespace,
+                comment;
+        } t;
+        
+        /// \brief Containers for the nonterminals making up this language
+        struct {
+            
+        } nt;
+        
+        /// \brief Dictionary of all of the terminals in this language
+        contextfree::terminal_dictionary m_Terminals;
+        
     private:
         /// \brief Creates the DFA for the language
         static dfa::ndfa* create_dfa();
+        
+        /// \brief Fills in the terminals structure
+        void create_terminals();
         
     public:
         /// \brief Constructs the bootstrap language
