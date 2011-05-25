@@ -40,6 +40,7 @@ namespace language {
                 grammar,
                 lexersymbols,
                 lexer,
+                weaklexer,
                 ignore,
                 keywords,
                 
@@ -52,6 +53,7 @@ namespace language {
                 closeparen,
                 opencurly,
                 closecurly,
+                dot,
                 
                 newline,
                 whitespace,
@@ -70,6 +72,7 @@ namespace language {
                 lexer_definition,
                 ignore_definition,
                 keywords_definition,
+                keyword_definition,
                 weak_symbols_definition,
                 lexeme_definition,
                 grammar_definition,

@@ -46,6 +46,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.grammar           = add_terminal(languageNdfa, L"grammar", L"grammar");
     t.lexersymbols      = add_terminal(languageNdfa, L"lexer-symbols", L"lexer-symbols");
     t.lexer             = add_terminal(languageNdfa, L"lexer", L"lexer");
+    t.weaklexer         = add_terminal(languageNdfa, L"weaklexer", L"weaklexer");
     t.ignore            = add_terminal(languageNdfa, L"ignore", L"ignore");
     t.keywords          = add_terminal(languageNdfa, L"keywords", L"keywords");
     
@@ -59,6 +60,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.closeparen        = add_terminal(languageNdfa, L"')'", L"\\)");
     t.opencurly         = add_terminal(languageNdfa, L"'{'", L"\\{");
     t.closecurly        = add_terminal(languageNdfa, L"'}'", L"\\}");
+    t.dot               = add_terminal(languageNdfa, L"'.'", L"\\.");
     
     // Ignored elements
     t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");
@@ -90,6 +92,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.lexer_definition         = result->get_nonterminal(L"Lexer-Definition");
     nt.ignore_definition        = result->get_nonterminal(L"Ignore-Definition");
     nt.keywords_definition      = result->get_nonterminal(L"Keywords-Definition");
+    nt.keyword_definition       = result->get_nonterminal(L"Keyword-Definition");
     nt.weak_symbols_definition  = result->get_nonterminal(L"Weak-Symbols-Definition");
     nt.lexeme_definition        = result->get_nonterminal(L"Lexeme-Definition");
     nt.grammar_definition       = result->get_nonterminal(L"Grammar-Definition");
@@ -117,7 +120,38 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Language-Block") << t.language << t.identifier << optionalLanguageInherits << t.opencurly << listLanguageDefinition << t.closecurly;
     
     ((*result) += L"Language-Inherits") << t.colon << t.identifier;
-        
+    
+    // Types of definition within a language block
+    ((*result) += L"Language-Definition") << nt.lexer_symbols_definition;
+    ((*result) += L"Language-Definition") << nt.lexer_definition;
+    ((*result) += L"Language-Definition") << nt.ignore_definition;
+    ((*result) += L"Language-Definition") << nt.weak_symbols_definition;
+    ((*result) += L"Language-Definition") << nt.keywords_definition;
+    ((*result) += L"Language-Definition") << nt.grammar_definition;
+    
+    // Some simple definitions
+    ebnf_repeating_optional lexemeList;
+    ebnf_repeating_optional keywordDefinitionList;
+    ebnf_repeating_optional lexemeOrIdentifierList;
+    ebnf_alternate          lexemeOrIdentifier;
+    
+    (*lexemeList.get_rule()) << nt.lexeme_definition;
+    (*lexemeOrIdentifier.get_rule()) << nt.lexeme_definition;
+    (*lexemeOrIdentifier.add_rule()) << t.identifier;
+    (*lexemeOrIdentifierList.get_rule()) << lexemeOrIdentifier;
+    (*keywordDefinitionList.get_rule()) << nt.keyword_definition;
+    
+    ((*result) += L"Lexer-Symbols-Definition") << t.lexersymbols << t.opencurly << lexemeList << t.closecurly;
+    ((*result) += L"Lexer-Definition") << t.lexer << t.opencurly << lexemeList << t.closecurly;
+    ((*result) += L"Ignore-Definition") << t.ignore << t.opencurly << lexemeOrIdentifierList << t.closecurly;
+    ((*result) += L"Keywords-Definition") << t.keywords << t.opencurly << keywordDefinitionList << t.closecurly;
+    ((*result) += L"Keyword-Definition") << t.identifier;
+    ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.string;
+    ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.character;
+    ((*result) += L"Weak-Symbols-Definition") << t.weaklexer << t.opencurly << lexemeList << t.closecurly;
+    ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.regex;
+    ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.identifier << t.dot << t.identifier;
+    
     // Return the new grammar
     return result;
 }
