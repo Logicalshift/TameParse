@@ -63,6 +63,8 @@
 		4B7F0C581387F8550012C085 /* ignored_symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C561387F8540012C085 /* ignored_symbols.cpp */; };
 		4B7F0C591387F8550012C085 /* ignored_symbols.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C571387F8540012C085 /* ignored_symbols.h */; };
 		4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */; };
+		4B7F0C651393F2690012C085 /* formatter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C631393F2680012C085 /* formatter.cpp */; };
+		4B7F0C661393F2690012C085 /* formatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C641393F2680012C085 /* formatter.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -179,6 +181,8 @@
 		4B7F0C571387F8540012C085 /* ignored_symbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ignored_symbols.h; sourceTree = "<group>"; };
 		4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_bootstrap.cpp; sourceTree = "<group>"; };
 		4B7F0C611393E9FE0012C085 /* language_bootstrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_bootstrap.h; sourceTree = "<group>"; };
+		4B7F0C631393F2680012C085 /* formatter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formatter.cpp; sourceTree = "<group>"; };
+		4B7F0C641393F2680012C085 /* formatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = formatter.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -460,6 +464,8 @@
 				4BFD4A741388384A00D6657D /* definition.txt */,
 				4BFD4A7613883A5000D6657D /* bootstrap.cpp */,
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
+				4B7F0C631393F2680012C085 /* formatter.cpp */,
+				4B7F0C641393F2680012C085 /* formatter.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
@@ -512,6 +518,7 @@
 				4B7F0C551387F4870012C085 /* ast_parser.h in Headers */,
 				4B7F0C591387F8550012C085 /* ignored_symbols.h in Headers */,
 				4BFD4A7913883A5000D6657D /* bootstrap.h in Headers */,
+				4B7F0C661393F2690012C085 /* formatter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -621,6 +628,7 @@
 				4B7F0C541387F4870012C085 /* ast_parser.cpp in Sources */,
 				4B7F0C581387F8550012C085 /* ignored_symbols.cpp in Sources */,
 				4BFD4A7813883A5000D6657D /* bootstrap.cpp in Sources */,
+				4B7F0C651393F2690012C085 /* formatter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
