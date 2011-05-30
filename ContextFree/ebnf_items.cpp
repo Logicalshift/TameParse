@@ -86,6 +86,8 @@ bool ebnf::operator==(const item& compareTo) const {
 
 /// \brief Orders this item relative to another item
 bool ebnf::operator<(const item& compareTo) const {
+    if (&compareTo == this) return false;
+    
     const ebnf* compareEbnf = dynamic_cast<const ebnf*>(&compareTo);
     if (!compareEbnf) return false;
 
@@ -96,8 +98,9 @@ bool ebnf::operator<(const item& compareTo) const {
     rule_iterator theirIt   = compareEbnf->first_rule();
     
     for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ourIt++, theirIt++) {
-        if (*ourIt == *theirIt) continue;
-        return *ourIt < *theirIt;
+        int compare = (*ourIt)->compare_items(**theirIt);
+        if (compare < 0) return true;
+        if (compare > 0) return false;
     }
     
     // Equal if we reach here

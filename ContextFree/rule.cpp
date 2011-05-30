@@ -46,6 +46,24 @@ rule& rule::operator=(const rule& copyFrom) {
     return *this;
 }
 
+/// \brief Orders this rule relative to another by comparing only the items
+int rule::compare_items(const rule& compareTo) const {
+    // Number of items is the fastest thing to compare, so check that first
+    if (m_Items.size() < compareTo.m_Items.size())  return -1;
+    if (m_Items.size() > compareTo.m_Items.size())  return 1;
+
+    // Need to compare each item in turn
+    item_list::const_iterator ourItem   = m_Items.begin();
+    item_list::const_iterator theirItem = compareTo.begin();
+    
+    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
+        if (*ourItem < *theirItem) return -1;
+        if (*ourItem > *theirItem) return 1;
+    }
+    
+    return 0;
+}
+
 /// \brief Orders this rule relative to another
 bool rule::operator<(const rule& compareTo) const {
     // Number of items is the fastest thing to compare, so check that first
@@ -55,15 +73,8 @@ bool rule::operator<(const rule& compareTo) const {
     // The nonterminal should be reasonably fast to compare
     if (m_NonTerminal < compareTo.m_NonTerminal)    return true;
     
-    // Need to compare each item in turn
-    item_list::const_iterator ourItem   = m_Items.begin();
-    item_list::const_iterator theirItem = compareTo.begin();
-    
-    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
-        if (*ourItem < *theirItem) return true;
-    }
-    
-    return false;
+    // Compare the items
+    return compare_items(compareTo) < 0;
 }
 
 /// \brief Determines if this rule is the same as another

@@ -98,6 +98,9 @@ namespace contextfree {
         /// \brief Orders this rule relative to another
         bool operator<(const rule& compareTo) const;
         
+        /// \brief Orders this rule relative to another by comparing only the items. Returns less than 0 if this is less than compareTo, greater than 0 if this is greater than compareTo, and 0 if this is equal
+        int compare_items(const rule& compareTo) const;
+        
         /// \brief Determines if this rule is the same as another
         bool operator==(const rule& compareTo) const;
         
