@@ -233,6 +233,8 @@ bootstrap::bootstrap() {
     m_Builder->add_rewriter(weak);
     m_Builder->add_rewriter(ignore);
     
+    m_Builder->add_initial_state(nt.parser_language);
+    
     // Finish up the parser
     m_Builder->complete_parser();
     

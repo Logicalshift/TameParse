@@ -37,6 +37,9 @@ namespace language {
         /// \brief The parser for this language
         lr::ast_parser* m_Parser;
         
+        /// \brief The initial state for the parser
+        int m_InitialState;
+        
         /// \brief Containers for the terminals in the grammar
         struct {
             contextfree::item_container
