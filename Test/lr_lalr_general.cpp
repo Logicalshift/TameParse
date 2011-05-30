@@ -216,6 +216,7 @@ void test_lalr_general::run_tests() {
     delete parse1;
     delete parse2;
     
+#if 0
     // Run the parser 50000 times
     for (int x=0; x<50000; x++) {
         stringstream stream2(test2);
@@ -234,4 +235,5 @@ void test_lalr_general::run_tests() {
         builder.add_initial_state(s);
         builder.complete_parser();
     }
+#endif
 }
