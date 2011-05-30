@@ -49,7 +49,7 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
     if (term) return to_string(*term, dict);
     
     const nonterminal* nonterm = dynamic_cast<const nonterminal*>(&it);
-    if (term) return to_string(*nonterm, gram);
+    if (nonterm) return to_string(*nonterm, gram);
     
     const guard* guar = dynamic_cast<const guard*>(&it);
     if (guar) return to_string(*guar, gram, dict);
