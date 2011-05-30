@@ -11,6 +11,8 @@
 #include "Dfa/ndfa_regex.h"
 #include "ContextFree/item.h"
 #include "Lr/weak_symbols.h"
+#include "Lr/ignored_symbols.h"
+#include "Lr/lalr_builder.h"
 
 using namespace dfa;
 using namespace contextfree;
@@ -194,6 +196,9 @@ bootstrap::bootstrap() {
     // Create the DFA for this language
     ndfa* dfa = create_dfa();
     
+    // Create the grammar for this language
+    grammar* gram = create_grammar();
+    
     // Set up the list of 'weak symbols'
     weak_symbols weak;
     
@@ -209,11 +214,35 @@ bootstrap::bootstrap() {
     
     weak.add_symbols(*dfa, weaklings, m_Terminals);
     
+    // Set up the list of ignored symbols
+    ignored_symbols ignore;
+    
+    ignore.add_item(t.newline);
+    ignore.add_item(t.whitespace);
+    ignore.add_item(t.comment);
+    
     // Create the lexer for this language
     m_Lexer = new dfa::lexer(*dfa);
     
     // No longer need the DFA at this point
     delete dfa;
+    
+    // Build the parser
+    lalr_builder builder(*gram);
+    
+    builder.add_rewriter(weak);
+    builder.add_rewriter(ignore);
+    
+    // Finish up the parser
+    builder.complete_parser();
+    
+    // TODO: log information about shift/reduce and reduce/reduce conflicts
+    
+    // Turn into the finished parser
+    m_Parser = new ast_parser(builder);
+    
+    // Finished with the grammar
+    delete gram;
 }
 
 /// \brief Destructor

@@ -60,6 +60,9 @@ namespace contextfree {
         
         /// \brief Destructor
         virtual ~ebnf();
+        
+        /// \brief Creates a clone of this item
+        virtual item* clone() const = 0;
 
         /// \brief Compares this item to another. Returns true if they are the same
         virtual bool operator==(const item& compareTo) const;

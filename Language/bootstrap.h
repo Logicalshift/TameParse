@@ -27,6 +27,9 @@ namespace language {
         /// \brief The lexer for this language
         dfa::lexer* m_Lexer;
         
+        /// \brief The parser for this language
+        lr::ast_parser* m_Parser;
+        
         /// \brief Containers for the terminals in the grammar
         struct {
             contextfree::item_container

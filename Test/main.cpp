@@ -17,6 +17,7 @@
 #include "contextfree_firstset.h"
 #include "contextfree_followset.h"
 #include "lr_lalr_general.h"
+#include "language_bootstrap.h"
 
 using namespace std;
 
@@ -44,6 +45,8 @@ int main (int argc, const char * argv[])
     test_contextfree_followset  followset;      run(followset);
     
     test_lalr_general           lalr1;          run(lalr1);
+    
+    test_language_bootstrap     bootstrap;      run(bootstrap);
     
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;
