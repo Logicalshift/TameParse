@@ -54,6 +54,7 @@ namespace language {
                 opencurly,
                 closecurly,
                 dot,
+                pipe,
                 
                 newline,
                 whitespace,

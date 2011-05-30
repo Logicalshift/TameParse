@@ -100,7 +100,8 @@ language ParserLanguage {
 									| nonterminal "+=" <Production> ('|' <Production>)* newline
 									| replace <Nonterminal> "=" <Production> ('|' <Production>)* newline
 		
-		<Production>				= (Ebnf-Item)*
+		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
+		<Production>				= (Simple-Ebnf-Item)*
 		
 		<Ebnf-Item>					= <Simple-Ebnf-Item>
 									| <Simple-Ebnf-Item> '|' <Ebnf-Item>

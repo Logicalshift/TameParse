@@ -61,6 +61,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.opencurly         = add_terminal(languageNdfa, L"'{'", L"\\{");
     t.closecurly        = add_terminal(languageNdfa, L"'}'", L"\\}");
     t.dot               = add_terminal(languageNdfa, L"'.'", L"\\.");
+    t.pipe              = add_terminal(languageNdfa, L"'|'", L"\\|");
     
     // Ignored elements
     t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");
@@ -151,6 +152,38 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Weak-Symbols-Definition") << t.weaklexer << t.opencurly << lexemeList << t.closecurly;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.regex;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.identifier << t.dot << t.identifier;
+    
+    // Definitions for a grammar
+    ebnf_repeating_optional nonterminalDefinitionList;
+    ebnf_repeating_optional orProductionList;
+    
+    (*nonterminalDefinitionList.get_rule()) << nt.nonterminal_definition;
+    (*orProductionList.get_rule()) << t.pipe << nt.production;
+    
+    ((*result) += L"Grammar-Definition") << t.grammar << t.opencurly << nonterminalDefinitionList << t.closecurly;
+    
+    ((*result) += L"Nonterminal-Definition") << t.nonterminal << t.equals << nt.production << orProductionList << t.newline;
+    // (Not supporting the inheritance forms of these in the bootstrap language)
+    
+    // Productions
+    ((*result) += L"Production") << nt.simple_ebnf_item;
+    
+    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item;
+    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.simple_ebnf_item;
+    
+    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal;
+    ((*result) += L"Simple-Ebnf-Item") << nt.terminal;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
+    ((*result) += L"Simple-Ebnf-Item") << t.openparen << nt.ebnf_item << t.closeparen;
+    
+    ((*result) += L"Nonterminal") << t.nonterminal;
+    
+    ((*result) += L"Terminal") << nt.basic_terminal;
+    ((*result) += L"Basic-Terminal") << t.identifier;
+    ((*result) += L"Basic-Terminal") << t.string;
+    ((*result) += L"Basic-Terminal") << t.character;
     
     // Return the new grammar
     return result;
