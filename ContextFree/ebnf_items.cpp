@@ -20,22 +20,26 @@ static const empty_item the_empty_item;
 ebnf::ebnf()
 : m_Rules(new rule_list())
 , item(symbol_set::null) {
-    m_Rules->push_back(rule(this));
+    item_container ourselves(this, false);
+    m_Rules->push_back(rule(ourselves));
 }
 
 /// \brief Creates a new EBNF item from a rule
 ebnf::ebnf(const rule& copyFrom) 
 : item(symbol_set::null)
 , m_Rules(new rule_list()) {
-    m_Rules->push_back(rule(copyFrom, *this));
+    item_container ourselves(this, false);
+    m_Rules->push_back(rule(copyFrom, ourselves));
 }
 
 /// \brief Copy constructor
 ebnf::ebnf(const ebnf& copyFrom)
 : item(symbol_set::null)
 , m_Rules(new rule_list()) {
+    item_container ourselves(this, false);
+    
     for (rule_list::const_iterator it = copyFrom.m_Rules->begin(); it != copyFrom.m_Rules->end(); it++) {
-        m_Rules->push_back(rule(**it, *this));
+        m_Rules->push_back(rule(**it, ourselves));
     }
 }
 
@@ -43,8 +47,10 @@ ebnf::ebnf(const ebnf& copyFrom)
 ebnf::ebnf(const rule_list& copyFrom)
 : item(symbol_set::null)
 , m_Rules(new rule_list()) {
+    item_container ourselves(this, false);
+
     for (rule_list::const_iterator it = copyFrom.begin(); it != copyFrom.end(); it++) {
-        m_Rules->push_back(rule(**it, *this));
+        m_Rules->push_back(rule(**it, ourselves));
     }
 }
 
