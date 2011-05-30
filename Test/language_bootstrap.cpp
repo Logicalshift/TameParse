@@ -6,12 +6,19 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <iostream>
+
 #include "language_bootstrap.h"
 #include "Language/bootstrap.h"
+#include "Language/formatter.h"
 
+using namespace std;
 using namespace language;
 
 void test_language_bootstrap::run_tests() {
     // Create a bootstrap object
     bootstrap bs;
+    
+    // Write out the language to test thigns
+    wcerr << formatter::to_string(bs.get_grammar(), bs.get_terminals());
 }

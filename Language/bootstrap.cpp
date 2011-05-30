@@ -197,7 +197,7 @@ bootstrap::bootstrap() {
     ndfa* dfa = create_dfa();
     
     // Create the grammar for this language
-    grammar* gram = create_grammar();
+    m_Grammar = create_grammar();
     
     // Set up the list of 'weak symbols'
     weak_symbols weak;
@@ -228,24 +228,24 @@ bootstrap::bootstrap() {
     delete dfa;
     
     // Build the parser
-    lalr_builder builder(*gram);
+    m_Builder = new lalr_builder(*m_Grammar);
     
-    builder.add_rewriter(weak);
-    builder.add_rewriter(ignore);
+    m_Builder->add_rewriter(weak);
+    m_Builder->add_rewriter(ignore);
     
     // Finish up the parser
-    builder.complete_parser();
+    m_Builder->complete_parser();
     
     // TODO: log information about shift/reduce and reduce/reduce conflicts
     
     // Turn into the finished parser
-    m_Parser = new ast_parser(builder);
-    
-    // Finished with the grammar
-    delete gram;
+    m_Parser = new ast_parser(*m_Builder);
 }
 
 /// \brief Destructor
 bootstrap::~bootstrap() {
     delete m_Lexer;
+    delete m_Grammar;
+    delete m_Builder;
+    delete m_Parser;
 }

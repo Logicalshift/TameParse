@@ -12,6 +12,7 @@
 #include "Dfa/ndfa_regex.h"
 #include "Dfa/lexer.h"
 #include "ContextFree/terminal_dictionary.h"
+#include "Lr/lalr_builder.h"
 #include "Lr/ast_parser.h"
 
 namespace language {
@@ -26,6 +27,12 @@ namespace language {
     private:
         /// \brief The lexer for this language
         dfa::lexer* m_Lexer;
+        
+        /// \brief The grammar
+        contextfree::grammar* m_Grammar;
+        
+        /// \brief The LALR builder
+        lr::lalr_builder* m_Builder;
         
         /// \brief The parser for this language
         lr::ast_parser* m_Parser;
@@ -108,6 +115,22 @@ namespace language {
         
         /// \brief Destructor
         virtual ~bootstrap();
+        
+    public:
+        /// \brief The lexer for this language
+        const dfa::lexer& get_lexer() const { return *m_Lexer; }
+        
+        /// \brief The grammar for this language
+        const contextfree::grammar& get_grammar() const { return *m_Grammar; }
+        
+        /// \brief The LALR parser builder for this language
+        const lr::lalr_builder& get_builder() const { return *m_Builder; }
+        
+        /// \brief The parser for this language
+        const lr::ast_parser& get_parser() const { return *m_Parser; }
+        
+        /// \brief The dictionary mapping terminal names to their identifiers
+        const contextfree::terminal_dictionary& get_terminals() const { return m_Terminals; }
     };
 }
 
