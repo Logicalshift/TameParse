@@ -164,11 +164,11 @@ contextfree::grammar* bootstrap::create_grammar() {
     
     ((*result) += L"Grammar-Definition") << t.grammar << t.opencurly << nonterminalDefinitionList << t.closecurly;
     
-    ((*result) += L"Nonterminal-Definition") << t.nonterminal << t.equals << nt.production << orProductionList << t.newline;
+    ((*result) += L"Nonterminal-Definition") << t.nonterminal << t.equals << nt.production << orProductionList;
     // (Not supporting the inheritance forms of these in the bootstrap language)
     
     // Productions
-    ((*result) += L"Production") << nt.simple_ebnf_item;
+    ((*result) += L"Production") << nt.ebnf_item;
     
     ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item;
     ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.simple_ebnf_item;
