@@ -11,9 +11,11 @@
 #include "language_bootstrap.h"
 #include "Language/bootstrap.h"
 #include "Language/formatter.h"
+#include "Lr/conflict.h"
 
 using namespace std;
 using namespace language;
+using namespace lr;
 
 void test_language_bootstrap::run_tests() {
     // Create a bootstrap object
@@ -21,4 +23,10 @@ void test_language_bootstrap::run_tests() {
     
     // Write out the language to test thigns
     wcerr << formatter::to_string(bs.get_grammar(), bs.get_terminals());
+    
+    // Get the conflicts in the grammar
+    conflict_list conflicts;
+    conflict::find_conflicts(bs.get_builder(), conflicts);
+    
+    report("NoConflicts", conflicts.size() == 0);
 }
