@@ -14,8 +14,13 @@
 #include "ContextFree/item.h"
 #include "ContextFree/terminal_dictionary.h"
 
+#include "Lr/lr_item.h"
+#include "Lr/lalr_state.h"
+#include "Lr/lalr_machine.h"
+
 using namespace std;
 using namespace contextfree;
+using namespace lr;
 using namespace language;
 
 /// \brief Turns a terminal into a string
@@ -166,5 +171,88 @@ wstring formatter::to_string(const grammar& gram, const terminal_dictionary& dic
     }
     
     // Convert to a string
+    return res.str();
+}
+
+/// \brief Turns a LR(0) item into a string
+std::wstring formatter::to_string(const lr::lr0_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    return to_string(*item.rule(), gram, dict, item.offset(), true);
+}
+
+
+/// \brief Turns a LALR state into a string
+std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Create the result as a string stream
+    wstringstream res;
+    
+    // Output all of the items and their lookahead
+    bool first = true;
+    
+    for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+        // Insert newlines
+        if (!first) {
+            res << endl;
+        }
+        
+        // Append the LR(0) item
+        res << to_string(**nextItem, gram, dict);
+        
+        // Append the lookahead, if any
+        typedef lr1_item::lookahead_set lookahead_set;
+        const lookahead_set* la = state.lookahead_for(*nextItem);
+        
+        // Only append lookahead if there is more than one item
+        if (!la->empty()) {
+            res << L" (";
+            
+            // Append each LA item in turn
+            bool firstLookahead = true;
+            for (lookahead_set::const_iterator nextLa = la->begin(); nextLa != la->end(); nextLa++) {
+                if (!firstLookahead) {
+                    res << L", ";
+                }
+                res << to_string(**nextLa, gram, dict);
+            }
+            
+            res << L")";
+        }
+        
+        // No longer first
+        first = false;
+    }
+    
+    return res.str();
+}
+
+
+/// \brief Turns a LALR state machine into an enormous string
+std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Create a stream to hold the result
+    wstringstream res;
+    
+    bool first = true;
+    
+    // Iterate through the states
+    for (lalr_machine::state_iterator nextState = machine.first_state(); nextState != machine.last_state(); nextState++) {
+        if (!first) res << endl << endl;
+        
+        // Write out the state
+        res << L"State #" << (*nextState)->identifier() << endl;
+        res << to_string(**nextState, gram, dict);
+        
+        // Write out the transitions
+        typedef lalr_machine::transition_set transition_set;
+        const transition_set& transitions = machine.transitions_for_state((*nextState)->identifier());
+        
+        if (!transitions.empty()) {
+            res << endl;
+            for (transition_set::const_iterator transit = transitions.begin(); transit != transitions.end(); transit++) {
+                res << endl << to_string(*transit->first, gram, dict) << L" -> " << transit->second;
+            }
+        }
+        
+        first = false;
+    }
+    
     return res.str();
 }

@@ -21,6 +21,12 @@ namespace contextfree {
     class guard;
 }
 
+namespace lr {
+    class lr0_item;
+    class lalr_state;
+    class lalr_machine;
+}
+
 namespace language {
     ///
     /// \brief Methods for formatting language items for display
@@ -44,6 +50,16 @@ namespace language {
 
         /// \brief Turns a grammar into a (large) string
         static std::wstring to_string(const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+    public:
+        /// \brief Turns a LR(0) item into a string
+        static std::wstring to_string(const lr::lr0_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+        /// \brief Turns a LALR state into a string
+        static std::wstring to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+        /// \brief Turns a LALR state machine into an enormous string
+        static std::wstring to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
     };
 }
 
