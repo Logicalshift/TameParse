@@ -17,6 +17,7 @@
 #include "Lr/lr_item.h"
 #include "Lr/lalr_state.h"
 #include "Lr/lalr_machine.h"
+#include "Lr/lalr_builder.h"
 
 using namespace std;
 using namespace contextfree;
@@ -188,7 +189,10 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
     // Output all of the items and their lookahead
     bool first = true;
     
-    for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+    lalr_builder::closure_set closure;
+    lalr_builder::create_closure(closure, state, &gram);
+    
+    for (lalr_builder::closure_set::iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
         // Insert newlines
         if (!first) {
             res << endl;
@@ -202,7 +206,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
         const lookahead_set* la = state.lookahead_for(*nextItem);
         
         // Only append lookahead if there is more than one item
-        if (!la->empty()) {
+        if (la && !la->empty()) {
             res << L" (";
             
             // Append each LA item in turn
