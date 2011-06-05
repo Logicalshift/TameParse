@@ -158,9 +158,13 @@ contextfree::grammar* bootstrap::create_grammar() {
     // Definitions for a grammar
     ebnf_repeating_optional nonterminalDefinitionList;
     ebnf_repeating_optional orProductionList;
+    ebnf_repeating_optional ebnfItemList;
+    ebnf_repeating_optional simpleEbnfItemList;
     
     (*nonterminalDefinitionList.get_rule()) << nt.nonterminal_definition;
     (*orProductionList.get_rule()) << t.pipe << nt.production;
+    (*ebnfItemList.get_rule()) << nt.ebnf_item;
+    (*simpleEbnfItemList.get_rule()) << nt.simple_ebnf_item;
     
     ((*result) += L"Grammar-Definition") << t.grammar << t.opencurly << nonterminalDefinitionList << t.closecurly;
     
@@ -168,7 +172,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     // (Not supporting the inheritance forms of these in the bootstrap language)
     
     // Productions
-    ((*result) += L"Production") << nt.ebnf_item;
+    ((*result) += L"Production") << simpleEbnfItemList;
     
     ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item;
     ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.simple_ebnf_item;
@@ -178,7 +182,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
-    ((*result) += L"Simple-Ebnf-Item") << t.openparen << nt.ebnf_item << t.closeparen;
+    ((*result) += L"Simple-Ebnf-Item") << t.openparen << ebnfItemList << t.closeparen;
     
     ((*result) += L"Nonterminal") << t.nonterminal;
     

@@ -93,8 +93,8 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
         
         // Now add the appropriate character
         if (opt)    buf << L"?";
-        if (rep)    buf << L"*";
-        if (repOpt) buf << L"+";
+        if (rep)    buf << L"+";
+        if (repOpt) buf << L"*";
         
         // Done
         return buf.str();
