@@ -22,7 +22,7 @@ void test_language_bootstrap::run_tests() {
     bootstrap bs;
     
     // Write out the language to test thigns
-    wcerr << formatter::to_string(bs.get_builder().machine(), bs.get_grammar(), bs.get_terminals()) << endl;
+    wcerr << formatter::to_string(bs.get_builder(), bs.get_grammar(), bs.get_terminals()) << endl;
     
     // Get the conflicts in the grammar
     conflict_list conflicts;

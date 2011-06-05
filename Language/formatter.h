@@ -25,6 +25,8 @@ namespace lr {
     class lr0_item;
     class lalr_state;
     class lalr_machine;
+    class lr_action;
+    class lalr_builder;
 }
 
 namespace language {
@@ -58,8 +60,14 @@ namespace language {
         /// \brief Turns a LALR state into a string
         static std::wstring to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
         
+        /// \brief Turns a LR action into a string
+        static std::wstring to_string(const lr::lr_action& act, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
         /// \brief Turns a LALR state machine into an enormous string
         static std::wstring to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+        /// \brief Turns a LALR builder into an enormous string
+        static std::wstring to_string(const lr::lalr_builder& builder,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
     };
 }
 

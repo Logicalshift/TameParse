@@ -228,6 +228,54 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
     return res.str();
 }
 
+/// \brief Turns a LR action into a string
+std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Create a stream to contain the result
+    wstringstream res;
+    
+    // Output the action name
+    switch (act.type()) {
+        case lr_action::act_accept:
+            res << L"Accept ";
+            break;
+            
+        case lr_action::act_goto:
+            res << L"Goto ";
+            break;
+            
+        case lr_action::act_ignore:
+            res << L"Ignore ";
+            break;
+            
+        case lr_action::act_reduce:
+            res << L"Reduce ";
+            break;
+            
+        case lr_action::act_weakreduce:
+            res << L"Weak reduce ";
+            break;
+            
+        case lr_action::act_shift:
+            res << L"Shift ";
+            break;
+    }
+    
+    // Output the symbol this action occurs on
+    res << L"on " << to_string(*act.item(), gram, dict);
+    
+    // For reductions, show the rule being reduced
+    switch (act.type()) {
+        case lr_action::act_reduce:
+        case lr_action::act_weakreduce:
+            res << L" (" << to_string(*act.rule(), gram, dict) << L")";
+            break;
+            
+        default:
+            break;
+    }
+    
+    return res.str();
+}
 
 /// \brief Turns a LALR state machine into an enormous string
 std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
@@ -252,6 +300,37 @@ std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contex
             res << endl;
             for (transition_set::const_iterator transit = transitions.begin(); transit != transitions.end(); transit++) {
                 res << endl << to_string(*transit->first, gram, dict) << L" -> " << transit->second;
+            }
+        }
+        
+        first = false;
+    }
+    
+    return res.str();
+}
+
+/// \brief Turns a LALR builder into an enormous string
+std::wstring formatter::to_string(const lr::lalr_builder& builder, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Create a stream to hold the result
+    wstringstream res;
+    
+    bool first = true;
+    
+    // Iterate through the states
+    for (lalr_machine::state_iterator nextState = builder.machine().first_state(); nextState != builder.machine().last_state(); nextState++) {
+        if (!first) res << endl << endl;
+        
+        // Write out the state
+        res << L"State #" << (*nextState)->identifier() << endl;
+        res << to_string(**nextState, gram, dict);
+        
+        // Write out the actions
+        const lr_action_set& actions = builder.actions_for_state((*nextState)->identifier());
+        
+        if (!actions.empty()) {
+            res << endl;
+            for (lr_action_set::const_iterator action = actions.begin(); action != actions.end(); action++) {
+                res << endl << to_string(**action, gram, dict);
             }
         }
         
