@@ -237,7 +237,7 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
             break;
             
         case lr_action::act_goto:
-            res << L"Goto ";
+            res << L"Goto " << act.next_state() << L" ";
             break;
             
         case lr_action::act_ignore:
@@ -253,7 +253,7 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
             break;
             
         case lr_action::act_shift:
-            res << L"Shift ";
+            res << L"Shift to " << act.next_state() << L" ";
             break;
     }
     
