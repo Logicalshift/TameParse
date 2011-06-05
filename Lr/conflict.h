@@ -14,8 +14,17 @@
 
 #include "ContextFree/item.h"
 #include "Lr/lr_item.h"
+#include "Lr/lalr_builder.h"
 
 namespace lr {
+    class conflict;
+    
+    /// \brief Container object for a conflict
+    typedef util::container<conflict> conflict_container;
+    
+    /// \brief A list of conflicts
+    typedef std::vector<conflict_container> conflict_list;
+
     ///
     /// \brief Description of a LR conflict
     ///
@@ -118,13 +127,11 @@ namespace lr {
         
         /// \brief The item after the final conflicting reduce action.
         inline reduce_iterator last_reduce_item() const { return m_Reduce.begin(); }
+        
+    public:
+        /// \brief Adds the conflicts found in the specified LALR builder object to the passed in list
+        static void find_conflicts(const lalr_builder& builder, conflict_list& target);
     };
-    
-    /// \brief Container object for a conflict
-    typedef util::container<conflict> conflict_container;
-    
-    /// \brief A list of conflicts
-    typedef std::vector<conflict_container> conflict_list;
 }
 
 #endif

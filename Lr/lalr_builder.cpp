@@ -48,14 +48,14 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
     return m_Machine.add_state(c);
 }
 
-/// \brief Set of LR(1) items that represent a closure of a LALR state
+/// \brief Set of LR(0) items that represent a closure of a LALR state
 typedef set<lr0_item_container> closure_set;
 
 /// \brief Maps an item to the state that's reached when it's encountered
 typedef map<item_container, lalr_state_container> state_for_item;
 
 /// \brief Creates the closure for a particular lalr state
-static void create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
+void lalr_builder::create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
     queue<lr1_item_container> waiting;
     
     for (int itemId = 0; itemId < state.count_items(); itemId++) {
