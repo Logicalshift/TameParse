@@ -48,6 +48,8 @@
 		4B1A920C136C794D0018E595 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920A136C794D0018E595 /* container.cpp */; };
 		4B1A920D136C794D0018E595 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A920B136C794D0018E595 /* container.h */; };
 		4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920F136C97220018E595 /* contextfree_firstset.cpp */; };
+		4B556F17139A8B13002C7154 /* conflict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B556F15139A8B13002C7154 /* conflict.cpp */; };
+		4B556F18139A8B13002C7154 /* conflict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B556F16139A8B13002C7154 /* conflict.h */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -165,6 +167,8 @@
 		4B1A920B136C794D0018E595 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = container.h; sourceTree = "<group>"; };
 		4B1A920F136C97220018E595 /* contextfree_firstset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = contextfree_firstset.cpp; sourceTree = "<group>"; };
 		4B1A9210136C97220018E595 /* contextfree_firstset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextfree_firstset.h; sourceTree = "<group>"; };
+		4B556F15139A8B13002C7154 /* conflict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = conflict.cpp; sourceTree = "<group>"; };
+		4B556F16139A8B13002C7154 /* conflict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = conflict.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
 		4B7F0C3C137599AB0012C085 /* parser_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_tables.cpp; sourceTree = "<group>"; };
@@ -302,6 +306,8 @@
 				4B7F0C46137DC0D00012C085 /* parser.h */,
 				4B7F0C521387F4840012C085 /* ast_parser.cpp */,
 				4B7F0C531387F4850012C085 /* ast_parser.h */,
+				4B556F15139A8B13002C7154 /* conflict.cpp */,
+				4B556F16139A8B13002C7154 /* conflict.h */,
 			);
 			path = Lr;
 			sourceTree = "<group>";
@@ -519,6 +525,7 @@
 				4B7F0C591387F8550012C085 /* ignored_symbols.h in Headers */,
 				4BFD4A7913883A5000D6657D /* bootstrap.h in Headers */,
 				4B7F0C661393F2690012C085 /* formatter.h in Headers */,
+				4B556F18139A8B13002C7154 /* conflict.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -629,6 +636,7 @@
 				4B7F0C581387F8550012C085 /* ignored_symbols.cpp in Sources */,
 				4BFD4A7813883A5000D6657D /* bootstrap.cpp in Sources */,
 				4B7F0C651393F2690012C085 /* formatter.cpp in Sources */,
+				4B556F17139A8B13002C7154 /* conflict.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
