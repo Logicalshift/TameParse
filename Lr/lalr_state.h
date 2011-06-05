@@ -30,7 +30,10 @@ namespace lr {
         typedef state::container container;
         
         /// \brief Iterator for accessing the items in this state
-        typedef state::iterator iterator;
+        typedef state::set_iterator set_iterator;
+        
+        /// \brief Iterator for accessing the items in this state
+        typedef state::all_iterator all_iterator;
         
         /// \brief Maps item IDs to LR(1) lookahead sets
         typedef std::vector<lr1_item::lookahead_set*> lookahead_for_item;
@@ -80,6 +83,9 @@ namespace lr {
         /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
         int add(const container& newItem);
         
+        /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
+        int add_closure(const container& newItem);
+        
         /// \brief Finds the identifier for the specified LR(0) item
         int find_identifier(const container& item) const;
         
@@ -110,10 +116,16 @@ namespace lr {
         inline void set_identifier(int newId) { m_State.set_identifier(newId); }
 
         /// \brief The first item in this state
-        iterator begin() const;
+        set_iterator begin_kernel() const;
         
         /// \brief The final item in this state
-        iterator end() const;
+        set_iterator end_kernel() const;
+        
+        /// \brief The first item in this state
+        all_iterator begin_all() const;
+        
+        /// \brief The final item in this state
+        all_iterator end_all() const;
         
         /// \brief Number of items in this state
         inline size_t count_items() const { return m_State.count_items(); }

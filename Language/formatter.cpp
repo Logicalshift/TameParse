@@ -189,10 +189,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
     // Output all of the items and their lookahead
     bool first = true;
     
-    lalr_builder::closure_set closure;
-    lalr_builder::create_closure(closure, state, &gram);
-    
-    for (lalr_builder::closure_set::iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
+    for (lalr_state::all_iterator nextItem = state.begin_all(); nextItem != state.end_all(); nextItem++) {
         // Insert newlines
         if (!first) {
             res << endl;

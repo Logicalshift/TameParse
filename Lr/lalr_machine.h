@@ -49,6 +49,9 @@ namespace lr {
         /// \brief Transition for each state
         typedef std::vector<transition_set> transition_for_state;
         
+        /// \brief Set of LR(0) items that represent a closure of a LALR state
+        typedef std::set<lr0_item_container> closure_set;
+        
     private:
         /// \brief The grammar for this state machine
         contextfree::grammar* m_Grammar;
@@ -76,6 +79,8 @@ namespace lr {
         /// Typically, a state will be added with no lookahead set, and the lookahead will be added later.
         /// (An algorithm that builds the LALR parser from an LR(1) set might do this differently, though)
         ///
+        /// A closure will be calculated for the state as it is being added.
+        ///
         int add_state(container& newState);
         
         /// \brief Adds a transition to this state machine
@@ -90,6 +95,10 @@ namespace lr {
         
         /// \brief Adds the specified set of lookahead items to the state with the supplied ID and returns true if the lookahead changed
         bool add_lookahead(int stateId, int itemId, const contextfree::item_set& newLookahead);
+        
+    private:
+        /// \brief Creates the closure for a particular lalr state
+        static void create_closure(closure_set& target, const lalr_state& state, const contextfree::grammar* gram);
         
     public:
         /// \brief Class used to iterate through a set of states (or a container with NULL in it if this doesn't exist)
