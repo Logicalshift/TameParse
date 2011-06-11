@@ -21,12 +21,12 @@ using namespace dfa;
 using namespace contextfree;
 using namespace lr;
 
-static void dump(const item& it, const grammar& gram) {
+static void dump(const item& it, const grammar& gram, const terminal_dictionary& dict) {
     if (it.type() == item::nonterminal) {
         wcerr << gram.name_for_nonterminal(it.symbol());
         wcerr << "(" << gram.identifier_for_item(it) << L")";
     } else if (it.type() == item::terminal) {
-        wcerr << L"'" << (wchar_t) it.symbol() << L"'";
+        wcerr << dict.name_for_symbol(it.symbol());
     } else if (it.type() == item::eoi) {
         wcerr << L"$";
         wcerr << "(" << gram.identifier_for_item(it) << L")";
@@ -39,51 +39,51 @@ static void dump(const item& it, const grammar& gram) {
     }
 }
 
-static void dump(const item_set& la, const grammar& gram) {
+static void dump(const item_set& la, const grammar& gram, const terminal_dictionary& dict) {
     for (item_set::const_iterator it = la.begin(); it != la.end(); it++) {
         wcerr << L" ";
-        dump(**it, gram);
+        dump(**it, gram, dict);
     }
 }
 
-static void dump(const rule& rule, const grammar& gram) {
+static void dump(const rule& rule, const grammar& gram, const terminal_dictionary& dict) {
     wcerr << gram.identifier_for_rule(rule) << L": ";
-    dump(*rule.nonterminal(), gram);
+    dump(*rule.nonterminal(), gram, dict);
     
     wcerr << L" ->";
     int pos;
     for (pos = 0; pos < rule.items().size(); pos++) {
         wcerr << L" ";
-        dump(*rule.items()[pos], gram);
+        dump(*rule.items()[pos], gram, dict);
     }
 }
 
-static void dump(const lr0_item& item, const item_set& la, const grammar& gram) {
+static void dump(const lr0_item& item, const item_set& la, const grammar& gram, const terminal_dictionary& dict) {
     wcerr << gram.identifier_for_rule(item.rule()) << L": ";
-    dump(*item.rule()->nonterminal(), gram);
+    dump(*item.rule()->nonterminal(), gram, dict);
     
     wcerr << L" ->";
     int pos;
     for (pos = 0; pos < item.rule()->items().size(); pos++) {
         if (pos == item.offset()) wcerr << L" *";
         wcerr << L" ";
-        dump(*item.rule()->items()[pos], gram);
+        dump(*item.rule()->items()[pos], gram, dict);
     }
     if (pos == item.offset()) wcerr << L" *";
     
     wcerr << L",";
-    dump(la, gram);
+    dump(la, gram, dict);
     
     wcerr << L" [";
     if (item.offset() < item.rule()->items().size()) {
-        dump(*item.rule()->items()[item.offset()], gram);
+        dump(*item.rule()->items()[item.offset()], gram, dict);
         wcerr << L" >FIRST>";
-        dump(gram.first(*item.rule()->items()[item.offset()]), gram);
+        dump(gram.first(*item.rule()->items()[item.offset()]), gram, dict);
     }
     wcerr << L"]";
 }
 
-static void dump(const lr_action_set& actions, const grammar& gram) {
+static void dump(const lr_action_set& actions, const grammar& gram, const terminal_dictionary& dict) {
     for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); it++) {
         wcerr << L"  ";
         switch ((*it)->type()) {
@@ -106,11 +106,11 @@ static void dump(const lr_action_set& actions, const grammar& gram) {
                 wcerr << L"IGNORE ";
                 break;
         }
-        dump(*(*it)->item(), gram);
+        dump(*(*it)->item(), gram, dict);
         
         if ((*it)->type() == lr_action::act_reduce || (*it)->type() == lr_action::act_weakreduce) {
             wcerr << L" on ";
-            dump(*(*it)->rule(), gram);
+            dump(*(*it)->rule(), gram, dict);
         } else {
             wcerr << L" -> " << (*it)->next_state();
         }
@@ -135,7 +135,7 @@ static void dump_machine(const lalr_builder& builder) {
             int itemId = nextItem->second;
             const lr0_item& item = *state[itemId];
             wcerr << L"  ";
-            dump(item, state.lookahead_for(itemId), machine.gram());
+            dump(item, state.lookahead_for(itemId), machine.gram(), builder.terminals());
             wcerr << endl;
             
             if (item.offset() < item.rule()->items().size()) {
@@ -148,14 +148,14 @@ static void dump_machine(const lalr_builder& builder) {
             wcerr << endl;
             for (lr1_item_set::iterator closed = closure.begin(); closed != closure.end(); closed++) {
                 wcerr << L"  ";
-                dump(**closed, (*closed)->lookahead(), machine.gram());
+                dump(**closed, (*closed)->lookahead(), machine.gram(), builder.terminals());
                 wcerr << endl;
             }
         }
         
         wcerr << endl;
         
-        dump(builder.actions_for_state(stateId), builder.gram());
+        dump(builder.actions_for_state(stateId), builder.gram(), builder.terminals());
 
         wcerr << endl;
     }
@@ -171,9 +171,13 @@ void test_lalr_general::run_tests() {
     nonterminal l(dragon446.id_for_nonterminal(L"L"));
     nonterminal r(dragon446.id_for_nonterminal(L"R"));
     
-    terminal equals('=');
-    terminal times('*');
-    terminal id('i');
+    int equalsId    = terms.add_symbol(L"'='");
+    int timesId     = terms.add_symbol(L"'='");
+    int idId        = terms.add_symbol(L"'i'");
+    
+    terminal equals(equalsId);
+    terminal times(timesId);
+    terminal id(idId);
     
     // S' -> S
     (dragon446 += sPrime) << s;

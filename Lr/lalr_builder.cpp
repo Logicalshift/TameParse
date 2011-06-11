@@ -6,6 +6,15 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#define TRACE
+
+#ifdef TRACE
+#include <iostream>
+#include "Language/formatter.h"
+
+using namespace language;
+#endif
+
 #include <queue>
 #include <set>
 
@@ -149,6 +158,10 @@ void lalr_builder::complete_lookaheads() {
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
         
+#ifdef TRACE
+        wcerr << L"BUILDER: Processing state " << stateId << endl;
+#endif
+        
         // Iterate through the items in this state
         for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
             // Get the item
@@ -163,6 +176,10 @@ void lalr_builder::complete_lookaheads() {
             // Get the parser symbol at this offset
             const item_container& symbol = thisRule.items()[thisOffset];
             
+#ifdef TRACE
+            wcerr << L"  BUILDER: processing item " << formatter::to_string(*thisItem, gram(), terminals()) << endl;
+#endif
+            
             // Get the closure for this item, with an empty item in the lookahead
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
@@ -174,7 +191,11 @@ void lalr_builder::complete_lookaheads() {
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
-                
+
+#ifdef TRACE
+                wcerr << L"    BUILDER: with closure " << formatter::to_string(**it, gram(), terminals()) << endl;
+#endif
+
                 // Ignore this item if it's at the end
                 if (closeOffset >= closeRule.items().size()) continue;
                 
@@ -183,7 +204,11 @@ void lalr_builder::complete_lookaheads() {
                 // If this doesn't contain the empty item, then spontaneously generate lookahead for this transition
                 lalr_machine::transition_set::const_iterator targetState = transitions.find(closeSymbol);
                 if (targetState == transitions.end()) continue;
-                
+
+#ifdef TRACE
+                wcerr << L"      BUILDER: transition on " << formatter::to_string(*closeSymbol, gram(), terminals()) << L" to state #" << targetState->second << endl;
+#endif
+
                 // Generated item
                 const item_set& lookahead       = (*it)->lookahead();
                 lr0_item        generated(**it, closeOffset+1);
@@ -198,6 +223,10 @@ void lalr_builder::complete_lookaheads() {
                 if (lookahead.find(empty_c) != lookahead.end()) {
                     // Add a propagation for this item
                     m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
+                    
+#ifdef TRACE
+                    wcerr << L"      BUILDER: propagate from " << stateId << L" (" << formatter::to_string(*thisItem, gram(), terminals()) << L")" << L" to " << targetState->second << L" (" << formatter::to_string(generated, gram(), terminals()) << L")" << endl;
+#endif
                 }
             }
         }

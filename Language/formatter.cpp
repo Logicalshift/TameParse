@@ -180,6 +180,37 @@ std::wstring formatter::to_string(const lr::lr0_item& item, const contextfree::g
     return to_string(*item.rule(), gram, dict, item.offset(), true);
 }
 
+/// \brief Turns a LR(1) item into a string
+std::wstring formatter::to_string(const lr::lr1_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    wstringstream res;
+    
+    // Write out the LR(0) item
+    const lr0_item& lr0item = item;
+    res << to_string(lr0item, gram, dict);
+    
+    // Write out the lookahead
+    typedef lr1_item::lookahead_set lookahead_set;
+    const lookahead_set& la = item.lookahead();
+    bool first = true;
+    
+    for (lookahead_set::const_iterator nextLookahead = la.begin(); nextLookahead != la.end(); nextLookahead++) {
+        if (first) {
+            res << L" [";
+        } else {
+            res << L", ";
+        }
+        
+        res << to_string(**nextLookahead, gram, dict);
+        
+        first = false;
+    }
+    
+    if (!first) {
+        res << L"]";
+    }
+    
+    return res.str();
+}
 
 /// \brief Turns a LALR state into a string
 std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {

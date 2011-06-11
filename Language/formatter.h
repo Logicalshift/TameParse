@@ -23,6 +23,7 @@ namespace contextfree {
 
 namespace lr {
     class lr0_item;
+    class lr1_item;
     class lalr_state;
     class lalr_machine;
     class lr_action;
@@ -56,7 +57,10 @@ namespace language {
     public:
         /// \brief Turns a LR(0) item into a string
         static std::wstring to_string(const lr::lr0_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
-        
+
+        /// \brief Turns a LR(1) item into a string
+        static std::wstring to_string(const lr::lr1_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+
         /// \brief Turns a LALR state into a string
         static std::wstring to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
         
