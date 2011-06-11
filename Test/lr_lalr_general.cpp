@@ -206,11 +206,20 @@ void test_lalr_general::run_tests() {
     simple_parser p(builder);
     character_lexer lex;
     
-    string test1("i");
-    string test2("*i=i");
+    typedef basic_string<int> symbol_string;
+    typedef basic_stringstream<int> symbol_stringstream;
     
-    stringstream stream1(test1);
-    stringstream stream2(test2);
+    symbol_string test1;
+    symbol_string test2;
+    
+    test1 += idId;
+    test2 += timesId;
+    test2 += idId;
+    test2 += equalsId;
+    test2 += idId;
+    
+    symbol_stringstream stream1(test1);
+    symbol_stringstream stream2(test2);
     
     simple_parser::state* parse1 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream1)));
     simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
