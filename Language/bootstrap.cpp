@@ -232,7 +232,7 @@ bootstrap::bootstrap() {
     delete dfa;
     
     // Build the parser
-    m_Builder = new lalr_builder(*m_Grammar);
+    m_Builder = new lalr_builder(*m_Grammar, m_Terminals);
     
     m_Builder->add_rewriter(weak);
     m_Builder->add_rewriter(ignore);

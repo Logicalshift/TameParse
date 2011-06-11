@@ -16,8 +16,9 @@ using namespace contextfree;
 using namespace lr;
 
 /// \brief Creates a new builder for the specified grammar
-lalr_builder::lalr_builder(contextfree::grammar& gram)
+lalr_builder::lalr_builder(contextfree::grammar& gram, contextfree::terminal_dictionary& terminals)
 : m_Grammar(&gram)
+, m_Terminals(&terminals)
 , m_Machine(gram) {
     
 }
@@ -169,7 +170,7 @@ void lalr_builder::complete_lookaheads() {
             closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
             
-            // Iterate through the remaining items
+            // Iterate through the items in the closure
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();

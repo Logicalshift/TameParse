@@ -163,7 +163,8 @@ static void dump_machine(const lalr_builder& builder) {
 
 void test_lalr_general::run_tests() {
     // Grammar specified in example 4.46 of the dragon book
-    grammar dragon446;
+    grammar             dragon446;
+    terminal_dictionary terms;
     
     nonterminal sPrime(dragon446.id_for_nonterminal(L"S'"));
     nonterminal s(dragon446.id_for_nonterminal(L"S"));
@@ -189,7 +190,7 @@ void test_lalr_general::run_tests() {
     (dragon446 += r) << l;
     
     // Build this grammar
-    lalr_builder builder(dragon446);
+    lalr_builder builder(dragon446, terms);
     
     // S' defines the language
     builder.add_initial_state(s);

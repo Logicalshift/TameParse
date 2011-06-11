@@ -16,6 +16,7 @@
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_machine.h"
 #include "Lr/lr_action.h"
+#include "ContextFree/terminal_dictionary.h"
 
 namespace lr {
     /// \brief Forward declaration of the action rewriter class
@@ -42,6 +43,9 @@ namespace lr {
         /// \brief The grammar that this builder will use
         contextfree::grammar* m_Grammar;
         
+        /// \brief The terminal dictionary for the language in this builder
+        contextfree::terminal_dictionary* m_Terminals;
+        
         /// \brief The LALR state machine that this is building up
         ///
         /// We store only the kernel states here.
@@ -58,7 +62,10 @@ namespace lr {
         
     public:
         /// \brief Creates a new builder for the specified grammar
-        lalr_builder(contextfree::grammar& gram);
+        ///
+        /// The grammar and terminal dictionary are stored as references, not copied into this object. This object will
+        /// become invalid if they are freed before it is.
+        lalr_builder(contextfree::grammar& gram, contextfree::terminal_dictionary& terminals);
         
         /// \brief Adds an initial state to this builder that will recognise the language specified by the supplied symbol
         ///
@@ -80,6 +87,9 @@ namespace lr {
         
         /// \brief The grammar used for this builder
         const contextfree::grammar& gram() const { return *m_Grammar; }
+        
+        /// \brief The terminal dictionary for this builder
+        const contextfree::terminal_dictionary& terminals() const { return *m_Terminals; }
         
         /// \brief Adds a new action rewriter to this builder
         void add_rewriter(const action_rewriter_container& rewriter);
