@@ -202,6 +202,9 @@ void test_lalr_general::run_tests() {
     
     dump_machine(builder);
     
+    // Assert some things about the machine (specified in the dragon book)
+    report("num-states", builder.machine().count_states() == 10); // Figure 4.42: the result should have 10 states
+    
     // Create a parser for this grammar
     simple_parser p(builder);
     character_lexer lex;
