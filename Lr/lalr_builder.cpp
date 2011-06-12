@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#undef TRACE
+#define TRACE
 
 #ifdef TRACE
 #include <iostream>
@@ -253,9 +253,18 @@ void lalr_builder::complete_lookaheads() {
         
         // Get the lookahead for this item
         const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
+        
+#ifdef TRACE
+        wcerr << L"  BUILDER: propagating from " << formatter::to_string(*(*m_Machine.state_with_id(nextState.first))[nextState.second], gram(), terminals()) << endl;
+        wcerr << L"    BUILDER: lookaheads " << formatter::to_string(m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second), gram(), terminals()) << endl;
+#endif
 
         // Perform propagation
         for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); path++) {
+#ifdef TRACE
+            wcerr << L"    BUILDER: propagating to " << formatter::to_string(*(*m_Machine.state_with_id(path->first))[path->second], gram(), terminals()) << L" " << formatter::to_string(m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second), gram(), terminals()) << endl;
+#endif
+
             // Propagating lookahead from the item identified by nextState to *path
             if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
                 // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
