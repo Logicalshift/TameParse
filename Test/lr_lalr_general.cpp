@@ -172,7 +172,7 @@ void test_lalr_general::run_tests() {
     nonterminal r(dragon446.id_for_nonterminal(L"R"));
     
     int equalsId    = terms.add_symbol(L"'='");
-    int timesId     = terms.add_symbol(L"'='");
+    int timesId     = terms.add_symbol(L"'*'");
     int idId        = terms.add_symbol(L"'i'");
     
     terminal equals(equalsId);
