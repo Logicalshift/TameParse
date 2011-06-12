@@ -152,15 +152,22 @@ void lalr_builder::complete_lookaheads() {
     // Create the propagation map
     m_Propagate.clear();
     
+#ifdef TRACE
+    for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
+        const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
+
+        wcerr << L"BUILDER: LR(0) kernel state #" << stateId << endl;
+        for (lalr_state::set_iterator itemId = thisState->begin_kernel(); itemId != thisState->end_kernel(); itemId++) {
+            wcerr << L"  BUILDER: " << formatter::to_string(*itemId->first, gram(), terminals()) << endl;
+        }
+    }
+#endif
+    
     // Iterate through the states, and generate spontaneous lookaheads and also the propagation table
     for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
         // Get the state object
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
-        
-#ifdef TRACE
-        wcerr << L"BUILDER: Processing state " << stateId << endl;
-#endif
         
         // Iterate through the items in this state
         for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
@@ -176,10 +183,6 @@ void lalr_builder::complete_lookaheads() {
             // Get the parser symbol at this offset
             const item_container& symbol = thisRule.items()[thisOffset];
             
-#ifdef TRACE
-            wcerr << L"  BUILDER: processing item " << formatter::to_string(*thisItem, gram(), terminals()) << endl;
-#endif
-            
             // Get the closure for this item, with an empty item in the lookahead
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
@@ -192,10 +195,6 @@ void lalr_builder::complete_lookaheads() {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
 
-#ifdef TRACE
-                wcerr << L"    BUILDER: with closure " << formatter::to_string(**it, gram(), terminals()) << endl;
-#endif
-
                 // Ignore this item if it's at the end
                 if (closeOffset >= closeRule.items().size()) continue;
                 
@@ -204,10 +203,6 @@ void lalr_builder::complete_lookaheads() {
                 // If this doesn't contain the empty item, then spontaneously generate lookahead for this transition
                 lalr_machine::transition_set::const_iterator targetState = transitions.find(closeSymbol);
                 if (targetState == transitions.end()) continue;
-
-#ifdef TRACE
-                wcerr << L"      BUILDER: transition on " << formatter::to_string(*closeSymbol, gram(), terminals()) << L" to state #" << targetState->second << endl;
-#endif
 
                 // Generated item
                 const item_set& lookahead       = (*it)->lookahead();
@@ -223,20 +218,36 @@ void lalr_builder::complete_lookaheads() {
                 if (lookahead.find(empty_c) != lookahead.end()) {
                     // Add a propagation for this item
                     m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
-                    
-#ifdef TRACE
-                    wcerr << L"      BUILDER: propagate from " << stateId << L" (" << formatter::to_string(*thisItem, gram(), terminals()) << L")" << L" to " << targetState->second << L" (" << formatter::to_string(generated, gram(), terminals()) << L")" << endl;
-#endif
                 }
             }
         }
     }
-    
-    // Create set of states to do propagation from (we use a set rather than a queue so we don't re-add states multiple times)
+
+#ifdef TRACE
+    for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
+        const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
+        
+        wcerr << L"BUILDER: LALR spontaneous state #" << stateId << endl;
+        for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
+            wcerr << L"  BUILDER: " << formatter::to_string(*(*thisState)[itemId], gram(), terminals()) << L" " << formatter::to_string(thisState->lookahead_for(itemId), gram(), terminals()) << endl;
+        }
+    }
+#endif
+
+    // Create set of items to do propagation from (we use a set rather than a queue so we don't re-add states multiple times)
     set<lr_item_id> toPropagate;
     
     // Fill with all the states which do propagation
     for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); it++) {
+#ifdef TRACE
+        wcerr << L"BUILDER: should propagate from " << it->first.first << L": " << formatter::to_string(*(*m_Machine.state_with_id(it->first.first))[it->first.second], gram(), terminals()) << endl;
+        
+        for (set<lr_item_id>::iterator path = it->second.begin(); path != it->second.end(); path++) {
+            wcerr << L"  BUILDER: to " << path->first << L": " << formatter::to_string(*(*m_Machine.state_with_id(path->first))[path->second], gram(), terminals()) << endl;
+        }
+
+#endif
+
         toPropagate.insert(it->first);
     }
     
@@ -253,18 +264,9 @@ void lalr_builder::complete_lookaheads() {
         
         // Get the lookahead for this item
         const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
-        
-#ifdef TRACE
-        wcerr << L"  BUILDER: propagating from " << formatter::to_string(*(*m_Machine.state_with_id(nextState.first))[nextState.second], gram(), terminals()) << endl;
-        wcerr << L"    BUILDER: lookaheads " << formatter::to_string(m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second), gram(), terminals()) << endl;
-#endif
 
         // Perform propagation
         for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); path++) {
-#ifdef TRACE
-            wcerr << L"    BUILDER: propagating to " << formatter::to_string(*(*m_Machine.state_with_id(path->first))[path->second], gram(), terminals()) << L" " << formatter::to_string(m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second), gram(), terminals()) << endl;
-#endif
-
             // Propagating lookahead from the item identified by nextState to *path
             if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
                 // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
