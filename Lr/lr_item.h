@@ -93,9 +93,9 @@ namespace lr {
         inline lr0_item* clone() const { return new lr0_item(*this); }
 
         inline bool operator!=(const lr0_item& compareTo) const { return !operator==(compareTo); }
-        inline bool operator>(const lr0_item& compareTo) const { return !operator<(compareTo); }
+        inline bool operator>(const lr0_item& compareTo) const { return !operator<(compareTo) && !operator==(compareTo); }
         inline bool operator<=(const lr0_item& compareTo) const { return operator<(compareTo) || operator==(compareTo); }
-        inline bool operator>=(const lr0_item& compareTo) const { return !operator<(compareTo) || operator==(compareTo); }
+        inline bool operator>=(const lr0_item& compareTo) const { return !operator<(compareTo); }
         
         /// \brief Static ordering operator
         static inline bool compare(const lr0_item* a, const lr0_item* b) {

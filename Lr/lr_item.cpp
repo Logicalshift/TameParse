@@ -144,8 +144,8 @@ bool lr1_item::operator<(const lr1_item& compareTo) const {
     lookahead_set::const_iterator theirLookahead    = compareTo.lookahead().begin();
     
     for (; ourLookahead != lookahead().end() && theirLookahead != compareTo.lookahead().end(); ourLookahead++, theirLookahead++) {
-        if (*ourLookahead > *theirLookahead)        return false;
-        else if (*ourLookahead != *theirLookahead)  return true;
+        if (*ourLookahead < *theirLookahead)        return true;
+        else if (*ourLookahead != *theirLookahead)  return false;
     }
     
     // Items are equal
