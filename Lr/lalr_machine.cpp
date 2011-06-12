@@ -85,17 +85,6 @@ int lalr_machine::add_state(container& newState) {
         return found->second;
     }
     
-#ifdef DEBUG
-    // DEBUG: go through all of the states to make sure we don't get a dupe
-    for (state_to_identifier::iterator test = m_StateIds.begin(); test != m_StateIds.end(); test++) {
-        if (*test->first == *newState) {
-            // DOH!
-            abort();
-            return test->second;
-        }
-    }
-#endif
-    
     // The new ID is the last entry in the state table
     int newId = (int) m_States.size();
     
@@ -115,7 +104,7 @@ int lalr_machine::add_state(container& newState) {
     m_StateIds[newState] = newId;
     m_States.push_back(newState);
     m_Transitions.push_back(transition_set());
-    
+
     // Result is the new state ID
     return newId;
 }

@@ -88,7 +88,7 @@ namespace lr {
         
     public:
         /// \brief Constructs an empty state
-        lr_state() : m_Identifier(-1) { }
+        lr_state() : m_Identifier(-1), m_NumKernel(0) { }
         
         lr_state(const lr_state& copyFrom)
         : m_ItemList(copyFrom.m_ItemList)
