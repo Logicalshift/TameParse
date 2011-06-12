@@ -93,13 +93,15 @@ namespace lr {
         lr_state(const lr_state& copyFrom)
         : m_ItemList(copyFrom.m_ItemList)
         , m_ItemsToIdentifier(copyFrom.m_ItemsToIdentifier)
-        , m_Identifier(copyFrom.m_Identifier){
+        , m_ClosureItems(copyFrom.m_ClosureItems)
+        , m_Identifier(-1)
+        , m_NumKernel(copyFrom.m_NumKernel) {
         }
         
     public:
         /// \brief Equality operator
         bool operator==(const lr_state& compareTo) const {
-            if (m_ItemList.size() != compareTo.m_ItemList.size()) return false;
+            if (m_NumKernel != compareTo.m_NumKernel) return false;
             
             static comparator less_than;
             

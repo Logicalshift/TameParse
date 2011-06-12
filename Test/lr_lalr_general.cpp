@@ -298,11 +298,13 @@ void test_lalr_general::run_tests() {
         parse2->parse();
         delete parse2;
     }
+#endif
     
+#if 0
     // Build the parser 10000 times
     for (int x=0; x<10000; x++) {
         // Build this grammar
-        lalr_builder builder(dragon446);
+        lalr_builder builder(dragon446, terms);
         
         // S' defines the language
         builder.add_initial_state(s);

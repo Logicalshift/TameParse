@@ -45,16 +45,16 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
     languageRule << language;
     
     // Create the initial item with an empty lookahead (we only store kernels in the lalr machine)
-    lalr_state  initialState;
+    lalr_state* initialState = new lalr_state();
     lr0_item    item(m_Grammar, languageRule, 0);
     
-    int newItemId = initialState.add(item);
+    int newItemId = initialState->add(item);
     
     // Set the lookahead for this state to be '$'
-    initialState.lookahead_for(newItemId).insert(eoi);
+    initialState->lookahead_for(newItemId).insert(eoi);
     
     // Add this to the machine
-    lalr_machine::container c(initialState);
+    lalr_machine::container c(initialState, true);
     return m_Machine.add_state(c);
 }
 
