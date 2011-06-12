@@ -254,6 +254,25 @@ void test_lalr_general::run_tests() {
     
     dump_machine(builder);
     
+    // Some tests with LR(1) items (putting them here to save a lot of work with the setup)
+    item_set set1;
+    set1.insert(new terminal(1));
+    item_set set2;
+    set2.insert(new terminal(0));
+    
+    lr1_item item1(&dragon446, dragon446.rule_with_identifier(0), 0, set1);
+    lr1_item item2(&dragon446, dragon446.rule_with_identifier(0), 0, set2);
+    
+    lr1_item_set is;
+    is.insert(item1);
+    is.insert(item2);
+    
+    // Should be possible to distinguish items based only on lookahead
+    report("multi-lr1-items1", is.size() == 2);
+    report("multi-lr1-items2", is.size() != 1);
+    report("lr1-item-compare1", item1 != item2);
+    report("lr1-item-compare2", item1 < item2 || item2 < item1);
+    
     // Assert some things about the machine (specified in the dragon book)
     report("num-states", builder.machine().count_states() == 10); // Figure 4.42: the result should have 10 states
     report("not-equal-simple", (*builder.machine().state_with_id(1)) != (*builder.machine().state_with_id(6)));
