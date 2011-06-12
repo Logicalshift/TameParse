@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#undef TRACE
+#define TRACE
 
 #ifdef TRACE
 #include <iostream>
@@ -169,6 +169,10 @@ void lalr_builder::complete_lookaheads() {
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
         
+#ifdef TRACE
+        wcerr << L"BUILDER: Processing state #" << stateId << endl;
+#endif
+        
         // Iterate through the items in this state
         for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
             // Get the item
@@ -190,10 +194,18 @@ void lalr_builder::complete_lookaheads() {
             closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
             
+#ifdef TRACE
+            wcerr << L"  BUILDER: Closure of " << formatter::to_string(*thisItem, gram(), terminals()) << endl;
+#endif
+            
             // Iterate through the items in the closure
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
+
+#ifdef TRACE
+                wcerr << L"    BUILDER: -> " << formatter::to_string(**it, gram(), terminals()) << endl;
+#endif
 
                 // Ignore this item if it's at the end
                 if (closeOffset >= closeRule.items().size()) continue;
