@@ -110,6 +110,34 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
     return L"???";
 }
 
+/// \brief Turns an item set into a string
+std::wstring formatter::to_string(const contextfree::item_set& it, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Start creating the result
+    wstringstream res;
+    
+    res << L"(";
+    
+    // All but the first item are preceeded by commas
+    bool isFirst = true;
+    
+    for (item_set::const_iterator nextItem = it.begin(); nextItem != it.end(); nextItem++) {
+        // Add commas
+        if (!isFirst) {
+            res << L", ";
+        }
+        
+        // Add the next item
+        res << to_string(**nextItem, gram, dict);
+        
+        // Next item isn't the first any more
+        isFirst = false;
+    }
+    
+    // Finish up the string
+    res << L")";
+    return res.str();
+}
+
 /// \brief Turns a rule into a string, with an optional dot position
 wstring formatter::to_string(const rule& rule, const grammar& gram, const terminal_dictionary& dict, int dotPos, bool showNonterminal) {
     // Create the stream where we'll put the result

@@ -9,7 +9,10 @@
 #ifndef _LANGUAGE_FORMATTER_H
 #define _LANGUAGE_FORMATTER_H
 
+#include <set>
 #include <string>
+
+#include "ContextFree/item.h"
 
 namespace contextfree {
     class terminal;
@@ -17,7 +20,6 @@ namespace contextfree {
     class nonterminal;
     class grammar;
     class rule;
-    class item;
     class guard;
 }
 
@@ -47,6 +49,9 @@ namespace language {
         
         /// \brief Turns an item into a string
         static std::wstring to_string(const contextfree::item& it, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+        /// \brief Turns an item set into a string
+        static std::wstring to_string(const contextfree::item_set& it, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
         
         /// \brief Turns a rule into a string, with an optional 'dot position'
         static std::wstring to_string(const contextfree::rule& rule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, int dotPos = -1, bool showNonterminal = true);
