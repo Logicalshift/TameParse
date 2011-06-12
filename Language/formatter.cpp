@@ -244,6 +244,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
                     res << L", ";
                 }
                 res << to_string(**nextLa, gram, dict);
+                firstLookahead = false;
             }
             
             res << L")";
