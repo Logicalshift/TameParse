@@ -92,7 +92,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
         lr1_item newItem(&gram, *it, 0, follow);
         
         // Recursively add the closure for the new items
-        if (state.insert(newItem).second && (*it)->items().size() > 0) {
+        if (state.insert(newItem).second && !(*it)->items().empty()) {
             const class item& initial = *(*it)->items()[0];
             if (initial.type() != item::terminal) {
                 initial.closure(newItem, state, gram);
