@@ -260,9 +260,6 @@ void test_lalr_general::run_tests() {
     report("no-duplicate-states", no_duplicate_states(builder.machine()));
     report("state-ordering-works", state_comparison_always_reversible(builder.machine()));
     
-    wcerr << formatter::to_string(*builder.machine().state_with_id(1), dragon446, terms) << endl;
-    wcerr << formatter::to_string(*builder.machine().state_with_id(6), dragon446, terms) << endl;
-    
     // Create a parser for this grammar
     simple_parser p(builder);
     character_lexer lex;
