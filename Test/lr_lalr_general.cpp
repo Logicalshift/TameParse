@@ -289,6 +289,23 @@ void test_lalr_general::run_tests() {
     delete parse1;
     delete parse2;
     
+    // Create another parser, this one with a particular type of empty production (accepts arbitrary strings of is)
+    grammar emptyProd;
+
+    sPrime  = emptyProd.id_for_nonterminal(L"S'");
+    s       = emptyProd.id_for_nonterminal(L"S");
+
+    (emptyProd += sPrime) << s;
+    (emptyProd += s);
+    (emptyProd += s) << s << idId;
+    
+    lalr_builder emptyBuilder(emptyProd, terms);
+
+    emptyBuilder.add_initial_state(sPrime);
+    emptyBuilder.complete_parser();
+
+    dump_machine(emptyBuilder);
+    
 #if 0
     // Run the parser 50000 times
     for (int x=0; x<50000; x++) {
