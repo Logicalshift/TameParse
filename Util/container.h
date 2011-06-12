@@ -61,6 +61,7 @@ namespace util {
             inline ~reference() {
                 if (m_WillDelete && m_Item) {
                     ItemAllocator::destruct(m_Item);
+                    m_Item = NULL;
                 }
             }
             
@@ -199,6 +200,7 @@ namespace util {
         /// \brief Deletes the item in this container
         inline ~container() {
             m_Ref->release();
+            m_Ref = NULL;
         }        
     };
 }
