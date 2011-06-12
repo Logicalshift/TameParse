@@ -15,10 +15,12 @@
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_builder.h"
 #include "Lr/parser.h"
+#include "Language/formatter.h"
 
 using namespace std;
 using namespace dfa;
 using namespace contextfree;
+using namespace language;
 using namespace lr;
 
 static void dump(const item& it, const grammar& gram, const terminal_dictionary& dict) {
@@ -161,6 +163,56 @@ static void dump_machine(const lalr_builder& builder) {
     }
 }
 
+static bool state_comparison_always_reversible(lalr_machine& m) {
+    // If state X is less than state Y then state Y must not be less than state X
+    for (int stateX = 0; stateX < m.count_states(); stateX++) {
+        const lalr_state& stateXreal = *m.state_with_id(stateX);
+        
+        for (int stateY = 0; stateY < m.count_states(); stateY++) {
+            const lalr_state& stateYreal = *m.state_with_id(stateY);
+            
+            if (stateXreal < stateYreal) {
+                if (stateYreal < stateXreal) {
+                    // DOH!
+                    wcerr << stateX << L" is less than " << stateY << L" but is also greater than or equal to it!" << endl;
+                    return false;
+                }
+            }
+        }
+    }
+    
+    return true;
+}
+
+static bool no_duplicate_states(lalr_machine& m) {
+    // State X and state Y can only be the same if they have the same ID
+    bool ok = true;
+    
+    for (int stateX = 0; stateX < m.count_states(); stateX++) {
+        const lalr_state& stateXreal = *m.state_with_id(stateX);
+        
+        for (int stateY = 0; stateY < m.count_states(); stateY++) {
+            const lalr_state& stateYreal = *m.state_with_id(stateY);
+            
+            if (stateXreal == stateYreal) {
+                if (stateX != stateY) {
+                    // DOH!
+                    wcerr << stateX << L" is a duplicate of " << stateY << endl;
+                    ok = false;
+                }
+            } else {
+                if (stateX == stateY) {
+                    // DOH!
+                    wcerr << stateX << L" isn't equal to itself!" << endl;
+                    ok = false;
+                }
+            }
+        }
+    }
+    
+    return ok;
+}
+
 void test_lalr_general::run_tests() {
     // Grammar specified in example 4.46 of the dragon book
     grammar             dragon446;
@@ -204,6 +256,12 @@ void test_lalr_general::run_tests() {
     
     // Assert some things about the machine (specified in the dragon book)
     report("num-states", builder.machine().count_states() == 10); // Figure 4.42: the result should have 10 states
+    report("not-equal-simple", (*builder.machine().state_with_id(1)) != (*builder.machine().state_with_id(6)));
+    report("no-duplicate-states", no_duplicate_states(builder.machine()));
+    report("state-ordering-works", state_comparison_always_reversible(builder.machine()));
+    
+    wcerr << formatter::to_string(*builder.machine().state_with_id(1), dragon446, terms) << endl;
+    wcerr << formatter::to_string(*builder.machine().state_with_id(6), dragon446, terms) << endl;
     
     // Create a parser for this grammar
     simple_parser p(builder);
