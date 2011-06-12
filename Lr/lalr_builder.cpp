@@ -191,12 +191,12 @@ void lalr_builder::complete_lookaheads() {
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
             
-            closure.insert(lr1);
-            symbol->closure(lr1, closure, *m_Grammar);
-            
 #ifdef TRACE
             wcerr << L"  BUILDER: Closure of " << formatter::to_string(*thisItem, gram(), terminals()) << endl;
 #endif
+            
+            closure.insert(lr1);
+            symbol->closure(lr1, closure, *m_Grammar);
             
             // Iterate through the items in the closure
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
