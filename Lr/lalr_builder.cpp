@@ -67,12 +67,12 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
     
     for (int itemId = 0; itemId < state.count_items(); itemId++) {
         // Mark this item as waiting
-        lr1_item            lr1 = lr1_item(state[itemId], state.lookahead_for(itemId));
-        lr1_item_container  lr1C(lr1);
-        waiting.push(lr1C);
+        lr0_item_container  lr0 = state[itemId];
+        lr1_item_container  lr1(new lr1_item(state[itemId], state.lookahead_for(itemId)), true);
+        waiting.push(lr1);
         
         // Add to the result
-        target.insert(lr1);
+        target.insert(lr0);
     }
     
     // Iterate through the set of waiting items

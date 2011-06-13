@@ -96,10 +96,6 @@ namespace lr {
         /// \brief Adds the specified set of lookahead items to the state with the supplied ID and returns true if the lookahead changed
         bool add_lookahead(int stateId, int itemId, const contextfree::item_set& newLookahead);
         
-    private:
-        /// \brief Creates the closure for a particular lalr state
-        static void create_closure(closure_set& target, const lalr_state& state, const contextfree::grammar* gram);
-        
     public:
         /// \brief Class used to iterate through a set of states (or a container with NULL in it if this doesn't exist)
         typedef state_list::const_iterator state_iterator;

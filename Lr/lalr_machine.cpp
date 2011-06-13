@@ -21,44 +21,6 @@ lalr_machine::lalr_machine(contextfree::grammar& gram)
 : m_Grammar(&gram) {
 }
 
-/// \brief Creates the closure for a particular lalr state
-void lalr_machine::create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
-    queue<lr1_item_container> waiting;
-    
-    for (int itemId = 0; itemId < state.count_items(); itemId++) {
-        // Mark this item as waiting
-        lr1_item_container  lr1C(new lr1_item(state[itemId], state.lookahead_for(itemId)), true);
-        waiting.push(lr1C);
-        
-        // Add to the result
-        // target.insert(lr1);
-    }
-    
-    // Iterate through the set of waiting items
-    for (;!waiting.empty(); waiting.pop()) {
-        const lr1_item_container& nextItem = waiting.front();
-        
-        // Take the item apart
-        const rule& rule    = *nextItem->rule();
-        int         offset  = nextItem->offset();
-        
-        // No items are generated for an item where the offset is at the end of the rule
-        if (offset >= rule.items().size()) continue;
-        
-        // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
-        lr1_item_set newItems;
-        rule.items()[offset]->closure(*nextItem, newItems, *gram);
-        
-        // Add any new items to the waiting queue
-        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
-            if (target.insert(**it).second) {
-                // This is a new item: add it to the list of items waiting to be processed
-                waiting.push(*it);
-            }
-        }
-    }
-}
-
 /// \brief Adds a new state to this machine, or retrieves the identifier for the existing state
 ///
 /// This returns the identifier for the state, and the state is updated so that its identifier 
