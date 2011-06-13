@@ -72,12 +72,6 @@ namespace lr {
         /// \brief The items making up the kernel of this state
         item_set m_ItemsToIdentifier;
         
-        /// \brief Number of items in the kernel set
-        int m_NumKernel;
-        
-        /// \brief The items that form the closure of this set
-        item_set m_ClosureItems;
-        
         /// \brief A list of items (index is the identifier)
         item_list m_ItemList;
         
@@ -88,29 +82,27 @@ namespace lr {
         
     public:
         /// \brief Constructs an empty state
-        lr_state() : m_Identifier(-1), m_NumKernel(0) { }
+        lr_state() : m_Identifier(-1) { }
         
         lr_state(const lr_state& copyFrom)
         : m_ItemList(copyFrom.m_ItemList)
         , m_ItemsToIdentifier(copyFrom.m_ItemsToIdentifier)
-        , m_ClosureItems(copyFrom.m_ClosureItems)
-        , m_Identifier(-1)
-        , m_NumKernel(copyFrom.m_NumKernel) {
+        , m_Identifier(-1) {
         }
         
     public:
         /// \brief Equality operator
         bool operator==(const lr_state& compareTo) const {
-            if (m_NumKernel != compareTo.m_NumKernel) return false;
+            if (m_ItemList.size() != compareTo.m_ItemList.size()) return false;
             
             static comparator less_than;
             
             // Two sets are equal if their items are the same, but identifiers are allowed to be different
-            for (typename item_set::const_iterator ours = m_ItemsToIdentifier.begin(), theirs = compareTo.m_ItemsToIdentifier.begin(); 
-                 ours != m_ItemsToIdentifier.end() && theirs != compareTo.m_ItemsToIdentifier.end(); 
+            for (typename item_list::const_iterator ours = m_ItemList.begin(), theirs = compareTo.m_ItemList.begin(); 
+                 ours != m_ItemList.end() && theirs != compareTo.m_ItemList.end(); 
                  ours++, theirs++) {
                 // Not equal if either greater than or less that this item,
-                if (less_than(ours->first, theirs->first) || less_than(theirs->first, ours->first)) return false;
+                if (less_than(*ours, *theirs) || less_than(*theirs, *ours)) return false;
             }
             
             return true;
@@ -118,17 +110,17 @@ namespace lr {
         
         /// \brief Ordering operator
         bool operator<(const lr_state& compareTo) const { 
-            if (m_NumKernel < compareTo.m_NumKernel) return true;
-            if (m_NumKernel > compareTo.m_NumKernel) return false;
+            if (m_ItemList.size() < compareTo.m_ItemList.size()) return true;
+            if (m_ItemList.size() > compareTo.m_ItemList.size()) return false;
 
             static comparator less_than;
 
-            for (typename item_set::const_iterator ours = m_ItemsToIdentifier.begin(), theirs = compareTo.m_ItemsToIdentifier.begin(); 
-                 ours != m_ItemsToIdentifier.end() && theirs != compareTo.m_ItemsToIdentifier.end();
+            for (typename item_list::const_iterator ours = m_ItemList.begin(), theirs = compareTo.m_ItemList.begin(); 
+                 ours != m_ItemList.end() && theirs != compareTo.m_ItemList.end();
                  ours++, theirs++) {
                 // Not equal if either greater than or less that this item,
-                if (less_than(ours->first, theirs->first)) return true;
-                if (less_than(theirs->first, ours->first)) return false;
+                if (less_than(*ours, *theirs)) return true;
+                if (less_than(*theirs, *ours)) return false;
             }
             
             // Equal if we reach here
@@ -158,32 +150,19 @@ namespace lr {
         
     public:
         /// \brief Adds a new item to this object. Returns the identifier for the new/existing item
-        int add(const container& newItem, bool isKernel) {
-            // Pick which item set the new item should be added to
-            item_set& sourceSet = isKernel ? m_ItemsToIdentifier : m_ClosureItems;
-            
+        int add(const container& newItem) {
             // Try to find an existing example of this item
-            typename item_set::iterator found = sourceSet.find(newItem);
+            typename item_set::iterator found = m_ItemsToIdentifier.find(newItem);
             
             static merge_items do_merge;
             
-            if (found == sourceSet.end()) {
-                // For closure items, do not add new items if this is already in the kernel set
-                if (!isKernel) {
-                    if (m_ItemsToIdentifier.find(newItem) != m_ItemsToIdentifier.end()) {
-                        // Merge with the existing kernel item
-                        return add(newItem, true);
-                    }
-                }
-                
+            if (found == m_ItemsToIdentifier.end()) {
                 // Just add the item if it wasn't found
                 int         newItemId = (int)m_ItemList.size();
                 container   newContainer(newItem);
                 
-                if (isKernel) m_NumKernel++;
-                
                 m_ItemList.push_back(newContainer);
-                sourceSet[newContainer] = newItemId;
+                m_ItemsToIdentifier[newContainer] = newItemId;
                                      
                 return newItemId;
             } else {
@@ -195,9 +174,9 @@ namespace lr {
                 if (do_merge(merged, *newItem)) {
                     container mergedItem(merged);
                     
-                    sourceSet.erase(found);
-                    sourceSet[mergedItem] = itemId;
-                    m_ItemList[itemId] = mergedItem;
+                    m_ItemsToIdentifier.erase(found);
+                    m_ItemsToIdentifier[mergedItem] = itemId;
+                    m_ItemList[itemId]              = mergedItem;
                     
                     return itemId;
                 } else {
@@ -212,18 +191,12 @@ namespace lr {
         
         /// \brief Changes the identifier for this state
         inline void set_identifier(int newId) { m_Identifier = newId; }
-        
-        /// \brief The first kernel item in this state
-        inline set_iterator begin_kernel() const { return m_ItemsToIdentifier.begin(); }
-        
-        /// \brief The final kernel item in this state
-        inline set_iterator end_kernel() const { return m_ItemsToIdentifier.end(); }
 
         /// \brief The first item in this state
-        inline all_iterator begin_all() const { return m_ItemList.begin(); }
+        inline all_iterator begin() const { return m_ItemList.begin(); }
         
         /// \brief The final item in this state
-        inline all_iterator end_all() const { return m_ItemList.end(); }
+        inline all_iterator end() const { return m_ItemList.end(); }
         
         /// \brief Finds the item identifier in this set that matches the specified item (or -1 if the item isn't in this state)
         inline int find_identifier(const container& target) const {

@@ -133,8 +133,8 @@ static void dump_machine(const lalr_builder& builder) {
         const lalr_state& state = *machine.state_with_id(stateId);
         lr1_item_set closure;
         
-        for (lalr_state::set_iterator nextItem = state.begin_kernel(); nextItem != state.end_kernel(); nextItem++) {
-            int itemId = nextItem->second;
+        for (lalr_state::all_iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+            int itemId = state.find_identifier(*nextItem);
             const lr0_item& item = *state[itemId];
             wcerr << L"  ";
             dump(item, state.lookahead_for(itemId), machine.gram(), builder.terminals());

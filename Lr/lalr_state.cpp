@@ -43,7 +43,7 @@ bool lalr_state::operator==(const lalr_state& compareTo) const {
 int lalr_state::add(const container& newItem) {
     // Add the LR(0) state to this object
     // Identifiers are the same as in the state, we assume they increase monotonically from 0
-    int newId = m_State.add(newItem, true);
+    int newId = m_State.add(newItem);
     
     // Create a lookahead set for this item
     while (newId >= m_Lookahead.size()) {
@@ -54,43 +54,14 @@ int lalr_state::add(const container& newItem) {
     return newId;
 }
 
-/// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
-int lalr_state::add_closure(const container& newItem) {
-    // Do nothing if the item already exists
-    int existing = m_State.find_identifier(newItem);
-    if (existing >= 0) return existing;
-    
-    // Add the LR(0) state to this object
-    // Identifiers are the same as in the state, we assume they increase monotonically from 0
-    int newId = m_State.add(newItem, false);
-    
-    // Create a lookahead set for this item
-    while (newId >= m_Lookahead.size()) {
-        m_Lookahead.push_back(new lr1_item::lookahead_set());
-    }
-    
-    // Return the identifier
-    return newId;    
-}
-
 /// \brief The first item in this state
-lalr_state::set_iterator lalr_state::begin_kernel() const {
-    return m_State.begin_kernel();
+lalr_state::all_iterator lalr_state::begin() const {
+    return m_State.begin();
 }
 
 /// \brief The final item in this state
-lalr_state::set_iterator lalr_state::end_kernel() const {
-    return m_State.end_kernel();
-}
-
-/// \brief The first item in this state
-lalr_state::all_iterator lalr_state::begin_all() const {
-    return m_State.begin_all();
-}
-
-/// \brief The final item in this state
-lalr_state::all_iterator lalr_state::end_all() const {
-    return m_State.end_all();
+lalr_state::all_iterator lalr_state::end() const {
+    return m_State.end();
 }
 
 /// \brief Finds the identifier for the specified LR(0) item

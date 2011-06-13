@@ -91,15 +91,6 @@ int lalr_machine::add_state(container& newState) {
     // Set the new ID
     newState->set_identifier(newId);
     
-    // Build the closure for this state
-    closure_set stateClosure;
-    create_closure(stateClosure, *newState, m_Grammar);
-    
-    // Add the items from the closure
-    for (closure_set::const_iterator closureItem = stateClosure.begin(); closureItem != stateClosure.end(); closureItem++) {
-        newState->add_closure(*closureItem);
-    }
-    
     // Store this state
     m_StateIds[newState] = newId;
     m_States.push_back(newState);

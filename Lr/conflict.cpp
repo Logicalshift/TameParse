@@ -132,7 +132,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         const grammar*    gram = &builder.gram();
         
         // Iterate through the closure to get the items that can be shifted as part of this conflict
-        for (lalr_state::all_iterator nextItem = thisState.begin_all(); nextItem != thisState.end_all(); nextItem++) {
+        for (lalr_state::all_iterator nextItem = thisState.begin(); nextItem != thisState.end(); nextItem++) {
             if (!(*nextItem)->at_end()) {
                 // This item will result in a shift: add it to the list if it can shift our item
                 const item_set& firstItems = gram->first((*nextItem)->rule()->items()[(*nextItem)->offset()]);
@@ -145,7 +145,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         }
         
         // Iterate through the kernel to find the items that can be reduced as part of this conflict
-        for (lalr_state::all_iterator nextItem = thisState.begin_all(); nextItem != thisState.end_all(); nextItem++) {
+        for (lalr_state::all_iterator nextItem = thisState.begin(); nextItem != thisState.end(); nextItem++) {
             if ((*nextItem)->at_end()) {
                 // This item will result in a reduction, depending on its lookahead
                 const lr1_item::lookahead_set* la = thisState.lookahead_for(*nextItem);

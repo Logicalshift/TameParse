@@ -83,9 +83,6 @@ namespace lr {
         /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
         int add(const container& newItem);
         
-        /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
-        int add_closure(const container& newItem);
-        
         /// \brief Finds the identifier for the specified LR(0) item
         int find_identifier(const container& item) const;
         
@@ -114,18 +111,12 @@ namespace lr {
         
         /// \brief Changes the identifier for this state
         inline void set_identifier(int newId) { m_State.set_identifier(newId); }
-
-        /// \brief The first item in this state
-        set_iterator begin_kernel() const;
-        
-        /// \brief The final item in this state
-        set_iterator end_kernel() const;
         
         /// \brief The first item in this state
-        all_iterator begin_all() const;
+        all_iterator begin() const;
         
         /// \brief The final item in this state
-        all_iterator end_all() const;
+        all_iterator end() const;
         
         /// \brief Number of items in this state
         inline size_t count_items() const { return m_State.count_items(); }

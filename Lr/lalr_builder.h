@@ -39,6 +39,9 @@ namespace lr {
         // Maps states to lists of propagations (target state, target item ID)
         typedef std::map<lr_item_id, std::set<lr_item_id> > propagation;
         
+        /// \brief Set of LR(0) items that represent a closure of a LALR state
+        typedef std::set<lr0_item_container> closure_set;
+
     private:
         /// \brief The grammar that this builder will use
         contextfree::grammar* m_Grammar;
@@ -108,6 +111,9 @@ namespace lr {
         
         /// \brief Returns the items that the lookaheads are propagated to for a particular item in this state machine
         const std::set<lr_item_id>& propagations_for_item(int state, int item) const;
+
+        /// \brief Computes the closure of a LALR state
+        static void create_closure(closure_set& target, const lalr_state& state, const contextfree::grammar* gram);
     };
 }
 

@@ -61,6 +61,45 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
 /// \brief Maps an item to the state that's reached when it's encountered
 typedef map<item_container, lalr_state_container> state_for_item;
 
+/// \brief Creates the closure for a particular lalr state
+void lalr_builder::create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
+    queue<lr1_item_container> waiting;
+    
+    for (int itemId = 0; itemId < state.count_items(); itemId++) {
+        // Mark this item as waiting
+        lr1_item            lr1 = lr1_item(state[itemId], state.lookahead_for(itemId));
+        lr1_item_container  lr1C(lr1);
+        waiting.push(lr1C);
+        
+        // Add to the result
+        target.insert(lr1);
+    }
+    
+    // Iterate through the set of waiting items
+    for (;!waiting.empty(); waiting.pop()) {
+        const lr1_item_container& nextItem = waiting.front();
+        
+        // Take the item apart
+        const rule& rule    = *nextItem->rule();
+        int         offset  = nextItem->offset();
+        
+        // No items are generated for an item where the offset is at the end of the rule
+        if (offset >= rule.items().size()) continue;
+        
+        // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
+        lr1_item_set newItems;
+        rule.items()[offset]->closure(*nextItem, newItems, *gram);
+        
+        // Add any new items to the waiting queue
+        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
+            if (target.insert(**it).second) {
+                // This is a new item: add it to the list of items waiting to be processed
+                waiting.push(*it);
+            }
+        }
+    }
+}
+
 /// \brief Finishes building the parser (the LALR machine will contain a LALR parser after this call completes)
 void lalr_builder::complete_parser() {
     empty_item      empty;
@@ -82,11 +121,15 @@ void lalr_builder::complete_parser() {
         int                 nextStateId = waitingStates.front();
         const lalr_state&   nextState   = *m_Machine.state_with_id(nextStateId);
         waitingStates.pop();
-        
+
+        // Generate the closure for this state
+        closure_set closure;
+        create_closure(closure, nextState, m_Grammar);
+
         // Work out the transitions by inspecting each item in the closure (ie, generate the kernels reached from this state)
         state_for_item newStates;
         
-        for (lalr_state::all_iterator item = nextState.begin_all(); item != nextState.end_all(); item++) {
+        for (closure_set::const_iterator item = closure.begin(); item != closure.end(); item++) {
             // Take the item apart
             const rule& rule    = *(*item)->rule();
             int         offset  = (*item)->offset();
@@ -157,8 +200,8 @@ void lalr_builder::complete_lookaheads() {
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
 
         wcerr << L"BUILDER: LR(0) kernel state #" << stateId << endl;
-        for (lalr_state::set_iterator itemId = thisState->begin_kernel(); itemId != thisState->end_kernel(); itemId++) {
-            wcerr << L"  BUILDER: " << formatter::to_string(*itemId->first, gram(), terminals()) << endl;
+        for (lalr_state::all_iterator itemId = thisState->begin(); itemId != thisState->end(); itemId++) {
+            wcerr << L"  BUILDER: " << formatter::to_string(**itemId, gram(), terminals()) << endl;
         }
     }
 #endif
@@ -334,7 +377,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
-    for (lalr_state::all_iterator lrItem = thisState.begin_all(); lrItem != thisState.end_all(); lrItem++) {
+    for (lalr_state::all_iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
         // Ignore items that aren't at the end
         if (!(*lrItem)->at_end()) continue;
         
