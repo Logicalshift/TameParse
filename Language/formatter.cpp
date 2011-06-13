@@ -248,7 +248,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
     // Output all of the items and their lookahead
     bool first = true;
     
-    for (lalr_state::all_iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+    for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
         // Insert newlines
         if (!first) {
             res << endl;

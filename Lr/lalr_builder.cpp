@@ -200,7 +200,7 @@ void lalr_builder::complete_lookaheads() {
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
 
         wcerr << L"BUILDER: LR(0) kernel state #" << stateId << endl;
-        for (lalr_state::all_iterator itemId = thisState->begin(); itemId != thisState->end(); itemId++) {
+        for (lalr_state::iterator itemId = thisState->begin(); itemId != thisState->end(); itemId++) {
             wcerr << L"  BUILDER: " << formatter::to_string(**itemId, gram(), terminals()) << endl;
         }
     }
@@ -377,7 +377,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
-    for (lalr_state::all_iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
+    for (lalr_state::iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
         // Ignore items that aren't at the end
         if (!(*lrItem)->at_end()) continue;
         

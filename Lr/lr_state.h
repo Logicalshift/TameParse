@@ -58,15 +58,9 @@ namespace lr {
         
         /// \brief List of items
         typedef std::vector<container> item_list;
-        
-        /// \brief Iterator that can be used to retrieve the contents of this state (maps to a pair of the item and its identifier)
-        ///
-        /// TODO: could use a boost transform iterator here to hide the (pointless) identifier and make code more
-        /// portable (it's really rubbish that the STL can't just do this)
-        typedef typename item_set::const_iterator set_iterator;
 
         /// \brief Iterator that can be used to retrieve the contents of this state
-        typedef typename item_list::const_iterator all_iterator;
+        typedef typename item_list::const_iterator iterator;
         
     private:
         /// \brief The items making up the kernel of this state
@@ -193,10 +187,10 @@ namespace lr {
         inline void set_identifier(int newId) { m_Identifier = newId; }
 
         /// \brief The first item in this state
-        inline all_iterator begin() const { return m_ItemList.begin(); }
+        inline iterator begin() const { return m_ItemList.begin(); }
         
         /// \brief The final item in this state
-        inline all_iterator end() const { return m_ItemList.end(); }
+        inline iterator end() const { return m_ItemList.end(); }
         
         /// \brief Finds the item identifier in this set that matches the specified item (or -1 if the item isn't in this state)
         inline int find_identifier(const container& target) const {

@@ -55,12 +55,12 @@ int lalr_state::add(const container& newItem) {
 }
 
 /// \brief The first item in this state
-lalr_state::all_iterator lalr_state::begin() const {
+lalr_state::iterator lalr_state::begin() const {
     return m_State.begin();
 }
 
 /// \brief The final item in this state
-lalr_state::all_iterator lalr_state::end() const {
+lalr_state::iterator lalr_state::end() const {
     return m_State.end();
 }
 
