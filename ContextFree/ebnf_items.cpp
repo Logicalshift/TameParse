@@ -113,28 +113,6 @@ rule_container& ebnf::get_rule() { return (*m_Rules)[0]; }
 /// \brief The rule that defines this item
 const rule_container& ebnf::get_rule() const { return (*m_Rules)[0]; }
 
-/// \brief Fills in the items that follow this one
-void ebnf::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const {
-    // Work out what follows in the item
-    const rule& rule    = *item.rule();
-    int         offset  = item.offset();
-    
-    if (offset+1 >= rule.items().size()) {
-        // The follow set is just the lookahead for this item
-        follow = item.lookahead();
-    } else {
-        // The follow set is FIRST(following item)
-        follow = gram.first(*rule.items()[offset+1]);
-        
-        // If the empty set is included, remove it and add the item lookahead
-        if (follow.find(the_empty_item) != follow.end()) {
-            follow.erase(the_empty_item);
-            follow.insert(item.lookahead().begin(), item.lookahead().end());
-        }
-    }    
-}
-
-
 /// \brief Creates a clone of this item
 item* ebnf_optional::clone() const {
     return new ebnf_optional(*this);

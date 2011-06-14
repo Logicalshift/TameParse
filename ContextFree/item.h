@@ -175,6 +175,14 @@ namespace contextfree {
         /// Should return false for any item that acts like the empty item
         virtual bool generate_transition() const;
         
+    protected:
+        /// \brief Fills in the set of items that follow this one
+        ///
+        /// This inspects the symbol at the offset and adds the set of items that can immediately follow it.
+        /// If the returned set contains the empty symbol, then it's possible that no symbols can follow the
+        /// symbol at the offset.
+        void fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const;
+        
     public:
         /// \brief Comparison function, returns true if a is less than b, by content
         static inline bool compare(const item* a, const item* b) {

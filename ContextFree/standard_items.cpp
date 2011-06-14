@@ -69,39 +69,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     
     // Work out what follows in the item
     item_set follow;
-    const rule& rule        = *item.rule();
-    int         offset      = item.offset();
-    size_t      numItems    = rule.items().size();
-    
-    if (offset+1 >= numItems) {
-        // The follow set is just the lookahead for this item
-        follow = item.lookahead();
-    } else {
-        // The follow set is FIRST(following item)
-        int followOffset = offset + 1;
-        follow = gram.first(rule.items()[followOffset]);
-        
-        // Add further following items if the follow set can be empty, until we reach the end
-        followOffset++;
-        while (followOffset < numItems && follow.find(an_empty_item_c) != follow.end()) {
-            // Remove the empty item
-            follow.erase(an_empty_item_c);
-            
-            // Add the items from the next item in the rule
-            const item_set& newItems = gram.first(rule.items()[followOffset]);
-            follow.insert(newItems.begin(), newItems.end());
-            
-            // Move on to the next item
-            followOffset++;
-        }
-        
-        // If the empty set is still included, remove it and add the item lookahead
-        // (Note that if the loop above terminated early, then the empty set can't be in the follow set at this point)
-        if (followOffset >= numItems && follow.find(an_empty_item_c) != follow.end()) {
-            follow.erase(an_empty_item_c);
-            follow.insert(item.lookahead().begin(), item.lookahead().end());
-        }
-    }
+    fill_follow(follow, item, gram);
 
     // Generate new rules for each of these, and add to the state
     for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {

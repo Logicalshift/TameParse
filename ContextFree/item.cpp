@@ -71,6 +71,47 @@ bool item::compare(const item& a, const item& b) {
     return aSym < bSym;
 }
 
+static const empty_item the_empty_item;
+static item_container   an_empty_item_c((item*) &the_empty_item, false);
+
+/// \brief Fills in the items that follow this one
+void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const {
+    // Work out what follows in the item
+    const rule& rule        = *item.rule();
+    int         offset      = item.offset();
+    size_t      numItems    = rule.items().size();
+    
+    if (offset+1 >= numItems) {
+        // The follow set is just the lookahead for this item
+        follow = item.lookahead();
+    } else {
+        // The follow set is FIRST(following item)
+        int followOffset = offset + 1;
+        follow = gram.first(rule.items()[followOffset]);
+        
+        // Add further following items if the follow set can be empty, until we reach the end
+        followOffset++;
+        while (followOffset < numItems && follow.find(an_empty_item_c) != follow.end()) {
+            // Remove the empty item
+            follow.erase(an_empty_item_c);
+            
+            // Add the items from the next item in the rule
+            const item_set& newItems = gram.first(rule.items()[followOffset]);
+            follow.insert(newItems.begin(), newItems.end());
+            
+            // Move on to the next item
+            followOffset++;
+        }
+        
+        // If the empty set is still included, remove it and add the item lookahead
+        // (Note that if the loop above terminated early, then the empty set can't be in the follow set at this point)
+        if (followOffset >= numItems && follow.find(an_empty_item_c) != follow.end()) {
+            follow.erase(an_empty_item_c);
+            follow.insert(item.lookahead().begin(), item.lookahead().end());
+        }
+    }    
+}
+
 /// \brief Computes the closure of this rule in the specified grammar
 ///
 /// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when

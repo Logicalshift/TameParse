@@ -48,9 +48,6 @@ namespace contextfree {
         /// \brief The list of rules in this item
         inline const rule_list& rules() const { return *m_Rules; }
         
-        /// \brief Fills in the items that follow this one
-        void fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const;
-        
     public:
         /// \brief Creates a new EBNF item
         ebnf();
