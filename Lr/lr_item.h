@@ -177,6 +177,9 @@ namespace lr {
         /// \brief The lookahead set for this item
         inline const lookahead_set& lookahead() const { return m_LookAhead; }
         
+        /// \brief True if this item is at the end of the rule (ie, is in a reducing state)
+        inline bool at_end() const { return m_Lr0Item->at_end(); }
+        
     public:
         /// \brief Converts to a LR(0) item (loses lookahead information)
         inline operator lr0_item&() { return *m_Lr0Item; }

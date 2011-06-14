@@ -355,10 +355,55 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     // Build up a new set
     typedef lalr_machine::transition_set    transition_set;
     typedef lr1_item::lookahead_set         lookahead_set;
+    typedef set<lr1_item_container>         lr1_set;
     
     lr_action_set&          newSet      = m_ActionsForState[state];
     const transition_set&   transits    = m_Machine.transitions_for_state(state);
     const lalr_state&       thisState   = *m_Machine.state_with_id(state);
+    
+    // Create the LR(1) closure for this state
+    // If none of the items in the state have an empty item, then this is unnecessary (this is only required to
+    // create the reductions for these items)
+    lr1_set                     closure;
+    queue<lr1_item_container>   waitingForClosure;
+    
+    // Add the initial items
+    for (lalr_state::iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
+        // Create an LR(1) item from the LALR machine
+        const lookahead_set*    la      = thisState.lookahead_for(*lrItem);
+        if (!la) continue;
+        
+        lr1_item_container      nextItem(new lr1_item(*lrItem, *la), true);
+        
+        // Add to the closure
+        closure.insert(nextItem);
+        waitingForClosure.push(nextItem);
+    }
+    
+    // Add the closure of the items that are waiting
+    for (;!waitingForClosure.empty(); waitingForClosure.pop()) {
+        // Get the next item for adding to the closure
+        lr1_item_container& nextItem = waitingForClosure.front();
+        
+        // Take the item apart
+        const rule& rule    = *nextItem->rule();
+        int         offset  = nextItem->offset();
+        
+        // No items are generated for an item where the offset is at the end of the rule
+        if (offset >= rule.items().size()) continue;
+        
+        // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
+        lr1_item_set newItems;
+        rule.items()[offset]->closure(*nextItem, newItems, *m_Grammar);
+        
+        // Add any new items to the waiting queue
+        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
+            if (closure.insert(**it).second) {
+                // This is a new item: add it to the list of items waiting to be processed
+                waitingForClosure.push(*it);
+            }
+        }
+    }
     
     // Add a shift action for each transition
     for (transition_set::const_iterator it = transits.begin(); it != transits.end(); it++) {
@@ -377,13 +422,12 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
-    for (lalr_state::iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
+    for (lr1_set::iterator lrItem = closure.begin(); lrItem != closure.end(); lrItem++) {
         // Ignore items that aren't at the end
         if (!(*lrItem)->at_end()) continue;
         
         // This item needs to be a reduce action for all of its lookahead symbols
-        const lookahead_set* la = thisState.lookahead_for(*lrItem);
-        if (!la) continue;
+        const lookahead_set& la = (*lrItem)->lookahead();
         
         const rule_container& rule = (*lrItem)->rule();
         
@@ -394,7 +438,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
             actionType = lr_action::act_accept;
         }
         
-        for (lookahead_set::const_iterator reduceSymbol = la->begin(); reduceSymbol != la->end(); reduceSymbol++) {
+        for (lookahead_set::const_iterator reduceSymbol = la.begin(); reduceSymbol != la.end(); reduceSymbol++) {
             // Generate a reduce action for this symbol
             lr_action newAction(actionType, *reduceSymbol, -1, rule);
             newSet.insert(newAction);
