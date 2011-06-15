@@ -153,6 +153,9 @@ namespace lr {
         lr1_item& operator=(const lr1_item& copyFrom);
         
         /// \brief Orders an LR(1) item
+        ///
+        /// Items are ordered first by the LR(0) item, and then by the content of the lookahead (this makes it
+        /// possible to find items in a set that differ only by their lookahead)
         bool operator<(const lr1_item& compareTo) const;
         
         /// \brief Compares two LR(1) items

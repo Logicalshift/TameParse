@@ -128,16 +128,18 @@ lr1_item& lr1_item::operator=(const lr1_item& copyFrom) {
 
 /// \brief Orders an LR(1) item
 bool lr1_item::operator<(const lr1_item& compareTo) const {
+    // Compare the LR(0) item
+    // Although we can improve the performance of this operation by comparing the lookahead set size first,
+    // doing things in this order makes it easy to merge items in a set when they differ onlyt by lookahead.
+    if (*m_Lr0Item > compareTo)          return false;
+    else if (*m_Lr0Item != compareTo)    return true;
+
+    // Compare the lookahead set sizes
     size_t lookaheadSize        = lookahead().size();
     size_t compareLookaheadSize = compareTo.lookahead().size();
     
-    // Compare the lookahead set sizes
     if (lookaheadSize < compareLookaheadSize) return true;
     if (compareLookaheadSize < lookaheadSize) return false;
-    
-    // Compare the LR(0) item
-    if (*m_Lr0Item > compareTo)          return false;
-    else if (*m_Lr0Item != compareTo)    return true;
     
     // Compare the lookahead content itself
     lookahead_set::const_iterator ourLookahead      = lookahead().begin();
