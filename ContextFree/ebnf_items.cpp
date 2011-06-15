@@ -162,8 +162,8 @@ void ebnf_optional::closure(const lr::lr1_item& item, lr::lr1_item_set& state, c
     fill_follow(follow, item, gram);
     
     // Add new items
-    state.insert(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true));
-    state.insert(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true));
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true), state, gram);
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true), state, gram);
 }
 
 /// \brief Creates a clone of this item
@@ -213,8 +213,8 @@ void ebnf_repeating::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
     fill_follow(follow, item, gram);
     
     // Add new items
-    state.insert(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true));
-    state.insert(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true));
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, get_rule(), 0, follow), true), state, gram);
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true), state, gram);
 }
 
 /// \brief Creates a clone of this item
@@ -268,8 +268,8 @@ void ebnf_repeating_optional::closure(const lr::lr1_item& item, lr::lr1_item_set
     fill_follow(follow, item, gram);
     
     // Add new items
-    state.insert(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true));
-    state.insert(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true));
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, empty_rule, 0, follow), true), state, gram);
+    insert_closure_item(lr1_item_container(new lr1_item(&gram, many_rule, 0, follow), true), state, gram);
 }
 
 /// \brief Adds a new rule
@@ -326,6 +326,6 @@ void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
     
     // Any of the items in this rule
     for (rule_list::const_iterator nextRule = rules().begin(); nextRule != rules().end(); nextRule++) {
-        state.insert(lr1_item_container(new lr1_item(&gram, *nextRule, 0, follow)));
+        insert_closure_item(lr1_item_container(new lr1_item(&gram, *nextRule, 0, follow)), state, gram);
     }
 }

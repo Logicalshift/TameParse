@@ -183,6 +183,9 @@ namespace contextfree {
         /// symbol at the offset.
         void fill_follow(item_set& follow, const lr::lr1_item& item, const grammar& gram) const;
         
+        /// \brief Adds a new LR(1) item to a closure, completing the closure as necessary
+        void insert_closure_item(const lr::lr1_item_container& newItem, lr::lr1_item_set& state, const grammar& gram) const;
+        
     public:
         /// \brief Comparison function, returns true if a is less than b, by content
         static inline bool compare(const item* a, const item* b) {

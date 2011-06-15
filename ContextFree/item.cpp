@@ -112,6 +112,19 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
     }    
 }
 
+/// \brief Adds a new LR(1) item to a closure, completing the closure as necessary
+void item::insert_closure_item(const lr::lr1_item_container& newItem, lr::lr1_item_set& state, const grammar& gram) const {
+    const rule& rule = *newItem->rule();
+    
+    // Recursively add the closure for the new items
+    if (state.insert(newItem).second && !rule.items().empty()) {
+        const class item& initial = *rule.items()[0];
+        if (initial.type() != item::terminal) {
+            initial.closure(*newItem, state, gram);
+        }
+    }
+}
+
 /// \brief Computes the closure of this rule in the specified grammar
 ///
 /// This is the set of spontaneously generated LR(0) items for this item, and is used to generate the closure when

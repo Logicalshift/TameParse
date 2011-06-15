@@ -74,15 +74,10 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     // Generate new rules for each of these, and add to the state
     for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); it++) {
         // Create the LR(1) item for the new item
-        lr1_item newItem(&gram, *it, 0, follow);
+        lr1_item_container newItem(new lr1_item(&gram, *it, 0, follow), true);
         
-        // Recursively add the closure for the new items
-        if (state.insert(newItem).second && !(*it)->items().empty()) {
-            const class item& initial = *(*it)->items()[0];
-            if (initial.type() != item::terminal) {
-                initial.closure(newItem, state, gram);
-            }
-        }
+        // Add to the closure
+        insert_closure_item(newItem, state, gram);
     }
 }
 
