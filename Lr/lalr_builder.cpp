@@ -6,7 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#define TRACE
+#undef TRACE
 
 #ifdef TRACE
 #include <iostream>
@@ -439,6 +439,9 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
         }
         
         for (lookahead_set::const_iterator reduceSymbol = la.begin(); reduceSymbol != la.end(); reduceSymbol++) {
+            // We don't produce actions for nonterminal items (the default closures do add these to the follow set, though)
+            if ((*reduceSymbol)->type() != item::terminal && (*reduceSymbol)->type() != item::eoi) continue;
+            
             // Generate a reduce action for this symbol
             lr_action newAction(actionType, *reduceSymbol, -1, rule);
             newSet.insert(newAction);
