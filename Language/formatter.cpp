@@ -18,6 +18,7 @@
 #include "Lr/lalr_state.h"
 #include "Lr/lalr_machine.h"
 #include "Lr/lalr_builder.h"
+#include "Lr/conflict.h"
 
 using namespace std;
 using namespace contextfree;
@@ -394,5 +395,62 @@ std::wstring formatter::to_string(const lr::lalr_builder& builder, const context
         first = false;
     }
     
+    return res.str();
+}
+
+/// \brief Turns a LALR conflict into a string description
+wstring formatter::to_string(const conflict& conf, const grammar& gram, const terminal_dictionary& dict) {
+    // Create a stream to write the result to
+    wstringstream res;
+    
+    // This is a reduce/reduce conflict unless there is at least one shift action in the conflict
+    bool isShiftReduce;
+    
+    if (conf.first_shift_item() == conf.last_shift_item()) {
+        res << L"Reduce/reduce conflict";
+        isShiftReduce = false;
+    } else {
+        res << L"Shift/reduce conflict";
+        isShiftReduce = true;
+    }
+    
+    // Write out the state that this conflict occurred in
+    res << L" in state " << conf.state();
+    
+    // And the token the conflict occurs on
+    res << L" on " << to_string(*conf.token(), gram, dict);
+    
+    // Write out the shift actions, if there are any
+    bool first = true;
+    for (lr0_item_set::const_iterator shiftItem = conf.first_shift_item(); shiftItem != conf.last_shift_item(); shiftItem++) {
+        // Indicate these are shift items if this is the first
+        res << endl;
+        if (first) {
+            res << L"  Shift:" << endl;
+        }
+        
+        // Write out this item
+        res << L"    " << to_string(**shiftItem, gram, dict);
+        
+        // No longer first
+        first = false;
+    }
+    
+    // Write out the reduce actions, if there are any
+    if (isShiftReduce) {
+        res << endl << L"  Or reduce:";
+    } else {
+        res << endl << L"  Reduce:";
+    }
+    
+    for (conflict::reduce_iterator reduceItem = conf.first_reduce_item(); reduceItem != conf.last_reduce_item(); reduceItem++) {
+        // Write out the item that's being reduced
+        res << endl;
+        res << L"    " << to_string(*reduceItem->first, gram, dict);
+        
+        // TODO: write out the states that can be reached by this reduction (these aren't worked out at the moment)
+    }
+    
+    // Produce the final string
     return res.str();
 }

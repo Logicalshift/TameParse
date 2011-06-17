@@ -111,6 +111,9 @@ namespace lr {
         possible_reduce_states& add_reduce_item(const lr0_item_container& item);
         
     public:
+        /// \brief The state ID where this conflict occurred
+        inline int state() const { return m_StateId; }
+        
         /// \brief The token that causes this conflict
         inline const contextfree::item_container& token() const { return m_Token; }
         
@@ -126,7 +129,7 @@ namespace lr {
         inline reduce_iterator first_reduce_item() const { return m_Reduce.begin(); }
         
         /// \brief The item after the final conflicting reduce action.
-        inline reduce_iterator last_reduce_item() const { return m_Reduce.begin(); }
+        inline reduce_iterator last_reduce_item() const { return m_Reduce.end(); }
         
     public:
         /// \brief Adds the conflicts found in the specified LALR builder object to the passed in list

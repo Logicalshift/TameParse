@@ -29,4 +29,11 @@ void test_language_bootstrap::run_tests() {
     conflict::find_conflicts(bs.get_builder(), conflicts);
     
     report("NoConflicts", conflicts.size() == 0);
+    
+    // Write out the conflicts to the standard I/O if there were any
+    if (conflicts.size() > 0) {
+        for (conflict_list::const_iterator it = conflicts.begin(); it != conflicts.end(); it++) {
+            wcerr << endl << L"===" << endl << formatter::to_string(**it, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
+        }
+    }
 }
