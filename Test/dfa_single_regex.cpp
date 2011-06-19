@@ -128,4 +128,7 @@ void test_dfa_single_regex::run_tests() {
     test("range10", "[azAZ]+", "A", "0");
     test("range11", "[azAZ]+", "Z", "0");
     test("range12", "([a-f][c-h])+", "ccah", "ha");
+    
+    test("bootstrap-identifier1", "[A-Za-z\\-][A-Za-z\\-0-9]*", "some-identifier", "0");
+    test("bootstrap-identifier2", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "0");
 }
