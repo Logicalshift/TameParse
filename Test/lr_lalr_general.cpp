@@ -213,6 +213,19 @@ static bool no_duplicate_states(lalr_machine& m) {
     return ok;
 }
 
+typedef basic_string<int> symbol_string;
+typedef basic_stringstream<int> symbol_stringstream;
+
+bool can_parse(symbol_string& symbols, simple_parser& p, character_lexer& lex) {
+    symbol_stringstream stream(symbols);
+    simple_parser::state* state = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream)));
+    
+    bool result = state->parse();
+    
+    delete state;
+    return result;
+}
+
 void test_lalr_general::run_tests() {
     // Grammar specified in example 4.46 of the dragon book
     grammar             dragon446;
@@ -268,23 +281,20 @@ void test_lalr_general::run_tests() {
     is.insert(item2);
     
     // Should be possible to distinguish items based only on lookahead
-    report("multi-lr1-items1", is.size() == 2);
-    report("multi-lr1-items2", is.size() != 1);
-    report("lr1-item-compare1", item1 != item2);
-    report("lr1-item-compare2", item1 < item2 || item2 < item1);
+    report("Multi-Lr1-items1", is.size() == 2);
+    report("Multi-Lr1-items2", is.size() != 1);
+    report("Lr1-ItemCompare1", item1 != item2);
+    report("Lr1-ItemCompare2", item1 < item2 || item2 < item1);
     
     // Assert some things about the machine (specified in the dragon book)
-    report("num-states", builder.machine().count_states() == 10); // Figure 4.42: the result should have 10 states
-    report("not-equal-simple", (*builder.machine().state_with_id(1)) != (*builder.machine().state_with_id(6)));
-    report("no-duplicate-states", no_duplicate_states(builder.machine()));
-    report("state-ordering-works", state_comparison_always_reversible(builder.machine()));
+    report("NumStates", builder.machine().count_states() == 10); // Figure 4.42: the result should have 10 states
+    report("NotEqualSimple", (*builder.machine().state_with_id(1)) != (*builder.machine().state_with_id(6)));
+    report("NoDuplicateStates", no_duplicate_states(builder.machine()));
+    report("StateOrderingWorks", state_comparison_always_reversible(builder.machine()));
     
     // Create a parser for this grammar
     simple_parser p(builder);
     character_lexer lex;
-    
-    typedef basic_string<int> symbol_string;
-    typedef basic_stringstream<int> symbol_stringstream;
     
     symbol_string test1;
     symbol_string test2;
@@ -302,13 +312,13 @@ void test_lalr_general::run_tests() {
     simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
     
     // Test the parser
-    report("accept1", parse1->parse());
-    report("accept2", parse2->parse());
+    report("Accept1", parse1->parse());
+    report("Accept2", parse2->parse());
     
     delete parse1;
     delete parse2;
     
-    // Create another parser, this one with a particular type of empty production (accepts arbitrary strings of is)
+    // Create another parser, this one with a particular type of empty production (accepts arbitrary strings of ids)
     grammar emptyProd;
 
     sPrime  = emptyProd.id_for_nonterminal(L"S'");
@@ -324,6 +334,24 @@ void test_lalr_general::run_tests() {
     emptyBuilder.complete_parser();
 
     dump_machine(emptyBuilder);
+    simple_parser emptyParser(emptyBuilder);
+    
+    // Some simple checks to see if this parser works
+    symbol_string empty;
+    symbol_string oneId;
+    symbol_string twoIds;
+    symbol_string manyIds;
+
+    oneId   += idId;
+    twoIds  += idId;
+    twoIds  += idId;
+    for (int x=0; x<30; x++) manyIds += idId;
+    
+    // Should accept the lot
+    report("empty", can_parse(empty, emptyParser, lex));
+    report("oneId", can_parse(oneId, emptyParser, lex));
+    report("twoIds", can_parse(twoIds, emptyParser, lex));
+    report("manyIds", can_parse(manyIds, emptyParser, lex));
     
 #if 0
     // Run the parser 50000 times

@@ -159,7 +159,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                     conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(**nextItem);
                     
                     // TODO: fill in the set of items that this can reduce to
-                    // TODO: if the reduction is not in a kernel item (which probably means that we've got an empty production), then we need to be able to trace these as well.
+                    // TODO: if the reduction is not in a kernel item (which probably means that we've got an empty production), then we need to be able to trace these as well. Should be possible as we know which kernel items are passed in to generate_closure.
                 }
             }
         }
