@@ -48,6 +48,7 @@
 		4B1A920C136C794D0018E595 /* container.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920A136C794D0018E595 /* container.cpp */; };
 		4B1A920D136C794D0018E595 /* container.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A920B136C794D0018E595 /* container.h */; };
 		4B1A9211136C97220018E595 /* contextfree_firstset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920F136C97220018E595 /* contextfree_firstset.cpp */; };
+		4B1B35AE13AEAD2900D1E488 /* dfa_multi_regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1B35A913AEAB6500D1E488 /* dfa_multi_regex.cpp */; };
 		4B556F17139A8B13002C7154 /* conflict.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B556F15139A8B13002C7154 /* conflict.cpp */; };
 		4B556F18139A8B13002C7154 /* conflict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B556F16139A8B13002C7154 /* conflict.h */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
@@ -167,6 +168,8 @@
 		4B1A920B136C794D0018E595 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = container.h; sourceTree = "<group>"; };
 		4B1A920F136C97220018E595 /* contextfree_firstset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = contextfree_firstset.cpp; sourceTree = "<group>"; };
 		4B1A9210136C97220018E595 /* contextfree_firstset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = contextfree_firstset.h; sourceTree = "<group>"; };
+		4B1B35A913AEAB6500D1E488 /* dfa_multi_regex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dfa_multi_regex.cpp; sourceTree = "<group>"; };
+		4B1B35AA13AEAB6500D1E488 /* dfa_multi_regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_multi_regex.h; sourceTree = "<group>"; };
 		4B556F15139A8B13002C7154 /* conflict.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = conflict.cpp; sourceTree = "<group>"; };
 		4B556F16139A8B13002C7154 /* conflict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = conflict.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
@@ -451,6 +454,8 @@
 				4B1A91CF1368B8D70018E595 /* dfa_symbol_translator.h */,
 				4B1A91EE136A21F50018E595 /* dfa_single_regex.cpp */,
 				4B1A91EF136A21F50018E595 /* dfa_single_regex.h */,
+				4B1B35A913AEAB6500D1E488 /* dfa_multi_regex.cpp */,
+				4B1B35AA13AEAB6500D1E488 /* dfa_multi_regex.h */,
 			);
 			name = Dfa;
 			sourceTree = "<group>";
@@ -656,6 +661,7 @@
 				4BF31987136DBC0700C68ACB /* contextfree_followset.cpp in Sources */,
 				4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */,
 				4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */,
+				4B1B35AE13AEAD2900D1E488 /* dfa_multi_regex.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

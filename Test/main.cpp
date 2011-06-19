@@ -18,6 +18,7 @@
 #include "contextfree_followset.h"
 #include "lr_lalr_general.h"
 #include "language_bootstrap.h"
+#include "dfa_multi_regex.h"
 
 using namespace std;
 
@@ -40,6 +41,7 @@ int main (int argc, const char * argv[])
     test_dfa_ndfa               ndfa;           run(ndfa);
     test_dfa_symbol_translator  trans;          run(trans);
     test_dfa_single_regex       singleregex;    run(singleregex);
+    test_dfa_multi_regex        multiregex;     run(multiregex);
     
     test_contextfree_firstset   firstset;       run(firstset);
     test_contextfree_followset  followset;      run(followset);
