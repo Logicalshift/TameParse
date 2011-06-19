@@ -67,7 +67,7 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 3 states
     numStates = oneOrTwoAsAsDfa->count_states();
-    report("regex1", numStates = 3);
+    report("regex1", numStates == 3);
     
     // States 1 and 2 should both be accepting
     
@@ -79,7 +79,7 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 3 states
     numStates = aOrBAsDfa->count_states();
-    report("regex2", numStates = 3);
+    report("regex2", numStates == 3);
     
     // States 1 and 2 should both be accepting
 
@@ -91,5 +91,5 @@ void test_dfa_ndfa::run_tests() {
     
     // Should be 5 states
     numStates = aaOrBbAsDfa->count_states();
-    report("regex3", numStates = 5);
+    report("regex3", numStates == 5);
 }
