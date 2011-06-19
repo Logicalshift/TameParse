@@ -15,6 +15,7 @@
 #include "ContextFree/grammar.h"
 #include "Lr/lalr_builder.h"
 #include "Lr/parser.h"
+#include "Lr/conflict.h"
 #include "Language/formatter.h"
 
 using namespace std;
@@ -314,7 +315,12 @@ void test_lalr_general::run_tests() {
     // Test the parser
     report("Accept1", parse1->parse());
     report("Accept2", parse2->parse());
+
+    conflict_list conflicts;
+    conflict::find_conflicts(builder, conflicts);
     
+    report("NoConflicts1", conflicts.size() == 0);
+
     delete parse1;
     delete parse2;
     
@@ -348,10 +354,14 @@ void test_lalr_general::run_tests() {
     for (int x=0; x<30; x++) manyIds += idId;
     
     // Should accept the lot
-    report("empty", can_parse(empty, emptyParser, lex));
-    report("oneId", can_parse(oneId, emptyParser, lex));
-    report("twoIds", can_parse(twoIds, emptyParser, lex));
-    report("manyIds", can_parse(manyIds, emptyParser, lex));
+    conflicts.clear();
+    conflict::find_conflicts(emptyBuilder, conflicts);
+    
+    report("NoConflicts2", conflicts.size() == 0);
+    report("Empty", can_parse(empty, emptyParser, lex));
+    report("OneId", can_parse(oneId, emptyParser, lex));
+    report("TwoIds", can_parse(twoIds, emptyParser, lex));
+    report("ManyIds", can_parse(manyIds, emptyParser, lex));
     
 #if 0
     // Run the parser 50000 times
