@@ -416,7 +416,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             accept_action_for_state::const_iterator acceptForState = m_Accept->find(*stateIt);
             if (acceptForState != m_Accept->end()) {
                 for (accept_action_list::const_iterator acceptIt = acceptForState->second.begin(); acceptIt != acceptForState->second.end(); acceptIt++) {
-                    // Add this action
+                    // Add a clone of this action
                     (*accept)[next.second->identifier()].push_back((*acceptIt)->clone());
                     
                     // Mark if it's eager
