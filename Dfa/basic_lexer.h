@@ -134,7 +134,7 @@ namespace dfa {
             // Use the highest ranked action
             accept_action* highest = *begin;
             for (iterator it = begin; it != end; it++) {
-                if ((*highest) > **it) {
+                if ((*highest) < **it) {
                     highest = *it;
                 }
             }
