@@ -195,26 +195,11 @@ void lalr_builder::complete_lookaheads() {
     // Create the propagation map
     m_Propagate.clear();
     
-#ifdef TRACE
-    for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
-        const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
-
-        wcerr << L"BUILDER: LR(0) kernel state #" << stateId << endl;
-        for (lalr_state::iterator itemId = thisState->begin(); itemId != thisState->end(); itemId++) {
-            wcerr << L"  BUILDER: " << formatter::to_string(**itemId, gram(), terminals()) << endl;
-        }
-    }
-#endif
-    
     // Iterate through the states, and generate spontaneous lookaheads and also the propagation table
     for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
         // Get the state object
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
-        
-#ifdef TRACE
-        wcerr << L"BUILDER: Processing state #" << stateId << endl;
-#endif
         
         // Iterate through the items in this state
         for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
@@ -234,10 +219,6 @@ void lalr_builder::complete_lookaheads() {
             lr1_item lr1(thisItem, emptyLookahead);
             lr1_item_set closure;
             
-#ifdef TRACE
-            wcerr << L"  BUILDER: Closure of " << formatter::to_string(*thisItem, gram(), terminals()) << endl;
-#endif
-            
             closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
             
@@ -245,10 +226,6 @@ void lalr_builder::complete_lookaheads() {
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
-
-#ifdef TRACE
-                wcerr << L"    BUILDER: -> " << formatter::to_string(**it, gram(), terminals()) << endl;
-#endif
 
                 // Ignore this item if it's at the end
                 if (closeOffset >= closeRule.items().size()) continue;
@@ -278,31 +255,11 @@ void lalr_builder::complete_lookaheads() {
         }
     }
 
-#ifdef TRACE
-    for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
-        const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
-        
-        wcerr << L"BUILDER: LALR spontaneous state #" << stateId << endl;
-        for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
-            wcerr << L"  BUILDER: " << formatter::to_string(*(*thisState)[itemId], gram(), terminals()) << L" " << formatter::to_string(thisState->lookahead_for(itemId), gram(), terminals()) << endl;
-        }
-    }
-#endif
-
     // Create set of items to do propagation from (we use a set rather than a queue so we don't re-add states multiple times)
     set<lr_item_id> toPropagate;
     
     // Fill with all the states which do propagation
     for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); it++) {
-#ifdef TRACE
-        wcerr << L"BUILDER: should propagate from " << it->first.first << L": " << formatter::to_string(*(*m_Machine.state_with_id(it->first.first))[it->first.second], gram(), terminals()) << endl;
-        
-        for (set<lr_item_id>::iterator path = it->second.begin(); path != it->second.end(); path++) {
-            wcerr << L"  BUILDER: to " << path->first << L": " << formatter::to_string(*(*m_Machine.state_with_id(path->first))[path->second], gram(), terminals()) << endl;
-        }
-
-#endif
-
         toPropagate.insert(it->first);
     }
     
@@ -344,33 +301,16 @@ void lalr_builder::set_rewriters(const action_rewriter_list& list) {
     m_ActionRewriters = list;
 }
 
-/// \brief After the state machine has been completely built, returns the actions for the specified state
-///
-/// If there are conflicts, this will return multiple actions for a single symbol.
-const lr_action_set& lalr_builder::actions_for_state(int state) const {
-    // Try to find an existing action
-    map<int, lr_action_set>::const_iterator existing = m_ActionsForState.find(state);
-    if (existing != m_ActionsForState.end()) return existing->second;
-    
-    // Build up a new set
-    typedef lalr_machine::transition_set    transition_set;
-    typedef lr1_item::lookahead_set         lookahead_set;
-    typedef set<lr1_item_container>         lr1_set;
-    
-    lr_action_set&          newSet      = m_ActionsForState[state];
-    const transition_set&   transits    = m_Machine.transitions_for_state(state);
-    const lalr_state&       thisState   = *m_Machine.state_with_id(state);
-    
-    // Create the LR(1) closure for this state
-    // If none of the items in the state have an empty item, then this is unnecessary (this is only required to
-    // create the reductions for these items)
-    lr1_set                     closure;
-    queue<lr1_item_container>   waitingForClosure;
+
+/// \brief Adds the closure of the specified LALR state to the specified set
+void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closure) const {
+    typedef lr1_item::lookahead_set lookahead_set;
+    queue<lr1_item_container>       waitingForClosure;
     
     // Add the initial items
-    for (lalr_state::iterator lrItem = thisState.begin(); lrItem != thisState.end(); lrItem++) {
+    for (lalr_state::iterator lrItem = state.begin(); lrItem != state.end(); lrItem++) {
         // Create an LR(1) item from the LALR machine
-        const lookahead_set*    la      = thisState.lookahead_for(*lrItem);
+        const lookahead_set*    la      = state.lookahead_for(*lrItem);
         if (!la) continue;
         
         lr1_item_container      nextItem(new lr1_item(*lrItem, *la), true);
@@ -404,6 +344,29 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
             }
         }
     }
+}
+
+/// \brief After the state machine has been completely built, returns the actions for the specified state
+///
+/// If there are conflicts, this will return multiple actions for a single symbol.
+const lr_action_set& lalr_builder::actions_for_state(int state) const {
+    // Try to find an existing action
+    map<int, lr_action_set>::const_iterator existing = m_ActionsForState.find(state);
+    if (existing != m_ActionsForState.end()) return existing->second;
+    
+    // Build up a new set
+    typedef lalr_machine::transition_set    transition_set;
+    typedef lr1_item::lookahead_set         lookahead_set;
+    
+    lr_action_set&          newSet      = m_ActionsForState[state];
+    const transition_set&   transits    = m_Machine.transitions_for_state(state);
+    const lalr_state&       thisState   = *m_Machine.state_with_id(state);
+    
+    // Create the LR(1) closure for this state
+    // If none of the items in the state have an empty item, then this is unnecessary (this is only required to
+    // create the reductions for these items)
+    lr1_item_set closure;
+    generate_closure(thisState, closure);
     
     // Add a shift action for each transition
     for (transition_set::const_iterator it = transits.begin(); it != transits.end(); it++) {
@@ -422,7 +385,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
-    for (lr1_set::iterator lrItem = closure.begin(); lrItem != closure.end(); lrItem++) {
+    for (lr1_item_set::iterator lrItem = closure.begin(); lrItem != closure.end(); lrItem++) {
         // Ignore items that aren't at the end
         if (!(*lrItem)->at_end()) continue;
         

@@ -100,6 +100,12 @@ namespace lr {
         /// \brief Replaces the rewriters that this builder will use
         void set_rewriters(const action_rewriter_list& list);
         
+        /// \brief Adds the closure of the specified LALR state to the specified set
+        ///
+        /// In order to generate actions for a state, the closure needs to be made in order to discover actions
+        /// caused by empty productions. This is also required to display (or resolve) shift/reduce conflicts
+        void generate_closure(const lalr_state& state, lr1_item_set& closure) const;
+        
     public:
         /// \brief Returns the number of states in the state machine
         inline int count_states() const { return m_Machine.count_states(); }

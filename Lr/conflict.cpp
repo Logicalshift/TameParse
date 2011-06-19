@@ -128,31 +128,35 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         // Fetch the items in this state
         const lalr_state& thisState = *builder.machine().state_with_id(stateId);
         
+        // Get the closure of this state
+        lr1_item_set closure;
+        builder.generate_closure(thisState, closure);
+        
         // Describe the actions resulting in this conflict by going through the items in the closure of the state
         const grammar*    gram = &builder.gram();
         
         // Iterate through the closure to get the items that can be shifted as part of this conflict
-        for (lalr_state::iterator nextItem = thisState.begin(); nextItem != thisState.end(); nextItem++) {
+        for (lr1_item_set::const_iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
             if (!(*nextItem)->at_end()) {
                 // This item will result in a shift: add it to the list if it can shift our item
                 const item_set& firstItems = gram->first((*nextItem)->rule()->items()[(*nextItem)->offset()]);
                 
                 if (firstItems.find(conflictToken) != firstItems.end()) {
                     // This item can result in a shift of the specified token
-                    newConf->add_shift_item(*nextItem);
+                    newConf->add_shift_item(**nextItem);
                 }
             }
         }
         
-        // Iterate through the kernel to find the items that can be reduced as part of this conflict
-        for (lalr_state::iterator nextItem = thisState.begin(); nextItem != thisState.end(); nextItem++) {
+        // Iterate through the closure to find the items that can be reduced as part of this conflict
+        for (lr1_item_set::const_iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
             if ((*nextItem)->at_end()) {
                 // This item will result in a reduction, depending on its lookahead
-                const lr1_item::lookahead_set* la = thisState.lookahead_for(*nextItem);
+                const lr1_item::lookahead_set& la = (*nextItem)->lookahead();
 
-                if (la->find(conflictToken) != la->end()) {
+                if (la.find(conflictToken) != la.end()) {
                     // The conflicted token is in the lookahead: add this to the conflict list
-                    conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(*nextItem);
+                    conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(**nextItem);
                     
                     // TODO: fill in the set of items that this can reduce to
                 }

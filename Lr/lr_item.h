@@ -27,6 +27,9 @@ namespace lr {
     
     /// \brief Set of LR(0) items
     typedef std::set<lr0_item_container> lr0_item_set;
+
+    /// \brief Set of LR(1) items
+    typedef std::set<lr1_item_container> lr1_item_set;
     
     ///
     /// \brief Representation of an LR(0) item
