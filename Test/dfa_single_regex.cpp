@@ -131,4 +131,6 @@ void test_dfa_single_regex::run_tests() {
     
     test("bootstrap-identifier1", "[A-Za-z\\-][A-Za-z\\-0-9]*", "some-identifier", "0");
     test("bootstrap-identifier2", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "0");
+    test("bootstrap-identifier3", "([A-Za-z\\-][A-Za-z\\-0-9]*)|(language)", "language", "0");
+    test("bootstrap-identifier4", "([A-Za-z\\-][A-Za-z\\-0-9]*)|(language)", "some-identifier", "0");
 }
