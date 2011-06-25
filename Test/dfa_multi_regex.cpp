@@ -62,7 +62,16 @@ void test_dfa_multi_regex::run_tests() {
     test("a-or-b5", "(a|b)", "(a|b)a", "a", "ba");
     test("a-or-b6", "(a|b)", "(a|b)a", "b", "ba");
 
+    test("not-a-or-a", "[^a]", "a", "b", "a");
+    test("anything-or-a", "a", ".", "a", "b");
+
     test("language-or-identifier1", "language", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "some-identifier");
     test("language-or-identifier2", "language", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "lang-identifier");
     test("language-or-identifier3", "language", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "language2");
+    
+    test("character-or-identifier", "'(.|(\\\\.))'", "[A-Za-z\\-][A-Za-z\\-0-9]*", "'a'", "some-identifier");
+    test("regex-or-character1", "/([^/]|(\\\\/))*/", "'(.|(\\\\.))'", "/re/", "'a'");
+    test("regex-or-character2", "/([a-z]|(\\\\/))*/", "'([a-z]|(\\\\[a-z]))'", "/re/", "'a'");
+    test("regex-or-identifier1", "/([^/]|(\\\\/))*/", "[A-Za-z\\-][A-Za-z\\-0-9]*", "/re/", "some-identifier");
+    test("regex-or-identifier2", "/([a-z]|(\\\\/))*/", "[A-Za-z\\-][A-Za-z\\-0-9]*", "/re/", "some-identifier");
 }
