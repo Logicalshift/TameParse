@@ -16,6 +16,7 @@
 #include "dfa_single_regex.h"
 #include "contextfree_firstset.h"
 #include "contextfree_followset.h"
+#include "lr_weaksymbols.h"
 #include "lr_lalr_general.h"
 #include "language_bootstrap.h"
 #include "dfa_multi_regex.h"
@@ -46,6 +47,7 @@ int main (int argc, const char * argv[])
     test_contextfree_firstset   firstset;       run(firstset);
     test_contextfree_followset  followset;      run(followset);
     
+    test_lr_weaksymbols         weakSymbols;    run(weakSymbols);
     test_lalr_general           lalr1;          run(lalr1);
     
     test_language_bootstrap     bootstrap;      run(bootstrap);

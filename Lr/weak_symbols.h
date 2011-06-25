@@ -39,8 +39,8 @@ namespace lr {
         typedef std::map<contextfree::item_container, contextfree::item_set> item_map;
         
     private:
-        /// \brief Item map that describes the set of weak symbols that should be considered equivalent to a particular strong
-        /// symbol
+        /// \brief Item map that describes the set of weak symbols that should be considered equivalent to a
+        /// particular strong symbol
         item_map m_StrongToWeak;
         
     public:
@@ -59,9 +59,11 @@ namespace lr {
         /// \brief Maps the specified strong symbol to the specified set of weak symbols
         void add_symbols(const contextfree::item_container& strong, const contextfree::item_set& weak);
         
-        /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
+        /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong
+        /// symbols and adds them
         ///
-        /// The terminal dictionary may be modified if any symbols need to be split
+        /// The terminal dictionary may be modified if any symbols need to be split in order to generate a set
+        /// of unique symbols.
         void add_symbols(dfa::ndfa& dfa, const contextfree::item_set& weak, contextfree::terminal_dictionary& terminals);
 
         /// \brief Modifies the specified set of actions according to the rules in this rewriter
@@ -69,6 +71,24 @@ namespace lr {
         
         /// \brief Creates a clone of this rewriter
         virtual action_rewriter* clone() const;
+        
+        /// \brief Returns the weak symbols that are equivalent to the specified strong symbol
+        ///
+        /// This is primarily useful for testing this object: it can reveal if the form of add_symbols referring to a DFA
+        /// has operated correctly.
+        inline const contextfree::item_set& weak_for_strong(const contextfree::item_container& strongSymbol) const {
+            // Need a set of empty items
+            static contextfree::item_set emptySet;
+            
+            // Try to find the set of weak symbols for the specified strong symbol
+            item_map::const_iterator found = m_StrongToWeak.find(strongSymbol);
+            
+            // Return the item that was found if there was one
+            if (found != m_StrongToWeak.end()) return found->second;
+            
+            // Return an empty set if there wasn't
+            return emptySet;
+        }
     };
 }
 

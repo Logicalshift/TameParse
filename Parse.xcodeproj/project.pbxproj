@@ -85,6 +85,7 @@
 		4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */; };
 		4BD7FE461335127A00025433 /* symbol_map.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE441335127800025433 /* symbol_map.cpp */; };
 		4BD7FE471335127A00025433 /* symbol_map.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE451335127900025433 /* symbol_map.h */; };
+		4BDD091B13B63A1D00BC01EA /* lr_weaksymbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BDD091913B63A1D00BC01EA /* lr_weaksymbols.cpp */; };
 		4BF31978136D6B3E00C68ACB /* lr_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31976136D6B3E00C68ACB /* lr_item.cpp */; };
 		4BF31979136D6B3E00C68ACB /* lr_item.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF31977136D6B3E00C68ACB /* lr_item.h */; };
 		4BF3197D136D9AE100C68ACB /* lr_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF3197B136D9AE100C68ACB /* lr_state.cpp */; };
@@ -215,6 +216,8 @@
 		4BD7FE42132D5ABE00025433 /* dfa_symbol_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dfa_symbol_set.h; sourceTree = "<group>"; };
 		4BD7FE441335127800025433 /* symbol_map.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = symbol_map.cpp; sourceTree = "<group>"; };
 		4BD7FE451335127900025433 /* symbol_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = symbol_map.h; sourceTree = "<group>"; };
+		4BDD091913B63A1D00BC01EA /* lr_weaksymbols.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_weaksymbols.cpp; sourceTree = "<group>"; };
+		4BDD091A13B63A1D00BC01EA /* lr_weaksymbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_weaksymbols.h; sourceTree = "<group>"; };
 		4BF31976136D6B3E00C68ACB /* lr_item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_item.cpp; sourceTree = "<group>"; };
 		4BF31977136D6B3E00C68ACB /* lr_item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_item.h; sourceTree = "<group>"; };
 		4BF3197B136D9AE100C68ACB /* lr_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_state.cpp; sourceTree = "<group>"; };
@@ -463,6 +466,8 @@
 		4BF31990136F442000C68ACB /* Lr */ = {
 			isa = PBXGroup;
 			children = (
+				4BDD091913B63A1D00BC01EA /* lr_weaksymbols.cpp */,
+				4BDD091A13B63A1D00BC01EA /* lr_weaksymbols.h */,
 				4BF31991136F444400C68ACB /* lr_lalr_general.cpp */,
 				4BF31992136F444400C68ACB /* lr_lalr_general.h */,
 			);
@@ -662,6 +667,7 @@
 				4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */,
 				4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */,
 				4B1B35AE13AEAD2900D1E488 /* dfa_multi_regex.cpp in Sources */,
+				4BDD091B13B63A1D00BC01EA /* lr_weaksymbols.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

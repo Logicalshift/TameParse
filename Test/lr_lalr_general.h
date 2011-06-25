@@ -8,7 +8,7 @@
 
 #include "test_fixture.h"
 
-/// Tests for checking that the grammar can calculate follow sets
+/// Tests for checking various generic things about the LALR parser
 class test_lalr_general : public test_fixture {
 public:
     test_lalr_general() : test_fixture("lalr-general") { }
