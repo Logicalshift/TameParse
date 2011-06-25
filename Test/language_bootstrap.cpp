@@ -22,7 +22,7 @@ using namespace language;
 using namespace lr;
 
 // Checks that a given phrase is lexed as gthe specified symbol
-static bool test_lex(string phrase, const lexer& lex, int expectedSymbol) {
+static bool test_lex(string phrase, const lexer& lex, int expectedSymbol, const terminal_dictionary& terms) {
     // Create a lexeme stream
     stringstream source(phrase);
     lexeme_stream* lxs = lex.create_stream_from(source);
@@ -32,8 +32,17 @@ static bool test_lex(string phrase, const lexer& lex, int expectedSymbol) {
     (*lxs) >> match;
     
     bool result = true;
-    if (match->content().size() != phrase.size())   result = false;
-    if (match->matched() != expectedSymbol)         result = false;
+    if (match->content().size() != phrase.size()) {
+        for (int x=0; x<match->content().size(); x++) {
+            cerr << (char)match->content()[x];
+        }
+        cerr << endl;
+        result = false;
+    }
+    if (match->matched() != expectedSymbol) {
+        wcerr << terms.name_for_symbol(match->matched()) << endl;
+        result = false;
+    }
     
     // Finished with the stream
     delete match;
@@ -125,21 +134,22 @@ void test_language_bootstrap::run_tests() {
     delete bsDfa;
     
     // Test that the lexer can match some particular symbols
-    report("MatchIdentifier1", test_lex("fdsu", bs.get_lexer(), bs.get_terminal_items().identifier->symbol()));
-    report("MatchIdentifier2", test_lex("some-identifier", bs.get_lexer(), bs.get_terminal_items().identifier->symbol()));
-    report("MatchIdentifier3", test_lex("id128", bs.get_lexer(), bs.get_terminal_items().identifier->symbol()));
-    report("MatchNonterminal1", test_lex("<nonterminal>", bs.get_lexer(), bs.get_terminal_items().nonterminal->symbol()));
-    report("MatchRegex1", test_lex("/regex/", bs.get_lexer(), bs.get_terminal_items().regex->symbol()));
-    report("MatchString1", test_lex("\"string\"", bs.get_lexer(), bs.get_terminal_items().string->symbol()));
-    report("MatchCharacter1", test_lex("'c'", bs.get_lexer(), bs.get_terminal_items().character->symbol()));
+    report("MatchIdentifier1", test_lex("fdsu", bs.get_lexer(), bs.get_terminal_items().identifier->symbol(), bs.get_terminals()));
+    report("MatchIdentifier2", test_lex("some-identifier", bs.get_lexer(), bs.get_terminal_items().identifier->symbol(), bs.get_terminals()));
+    report("MatchIdentifier3", test_lex("id128", bs.get_lexer(), bs.get_terminal_items().identifier->symbol(), bs.get_terminals()));
+    report("MatchIdentifier4", test_lex("identifier", bs.get_lexer(), bs.get_terminal_items().identifier->symbol(), bs.get_terminals()));
+    report("MatchNonterminal1", test_lex("<nonterminal>", bs.get_lexer(), bs.get_terminal_items().nonterminal->symbol(), bs.get_terminals()));
+    report("MatchRegex1", test_lex("/regex/", bs.get_lexer(), bs.get_terminal_items().regex->symbol(), bs.get_terminals()));
+    report("MatchString1", test_lex("\"string\"", bs.get_lexer(), bs.get_terminal_items().string->symbol(), bs.get_terminals()));
+    report("MatchCharacter1", test_lex("'c'", bs.get_lexer(), bs.get_terminal_items().character->symbol(), bs.get_terminals()));
     
-    report("MatchLanguage", test_lex("language", bs.get_lexer(), bs.get_terminal_items().language->symbol()));
-    report("MatchGrammar", test_lex("grammar", bs.get_lexer(), bs.get_terminal_items().grammar->symbol()));
-    report("MatchLexer", test_lex("lexer", bs.get_lexer(), bs.get_terminal_items().lexer->symbol()));
-    report("MatchLexerSymbols", test_lex("lexer-symbols", bs.get_lexer(), bs.get_terminal_items().lexersymbols->symbol()));
-    report("MatchWeakLexer", test_lex("weaklexer", bs.get_lexer(), bs.get_terminal_items().weaklexer->symbol()));
-    report("MatchIgnore", test_lex("ignore", bs.get_lexer(), bs.get_terminal_items().ignore->symbol()));
-    report("MatchKeywords", test_lex("keywords", bs.get_lexer(), bs.get_terminal_items().keywords->symbol()));
+    report("MatchLanguage", test_lex("language", bs.get_lexer(), bs.get_terminal_items().language->symbol(), bs.get_terminals()));
+    report("MatchGrammar", test_lex("grammar", bs.get_lexer(), bs.get_terminal_items().grammar->symbol(), bs.get_terminals()));
+    report("MatchLexer", test_lex("lexer", bs.get_lexer(), bs.get_terminal_items().lexer->symbol(), bs.get_terminals()));
+    report("MatchLexerSymbols", test_lex("lexer-symbols", bs.get_lexer(), bs.get_terminal_items().lexersymbols->symbol(), bs.get_terminals()));
+    report("MatchWeakLexer", test_lex("weaklexer", bs.get_lexer(), bs.get_terminal_items().weaklexer->symbol(), bs.get_terminals()));
+    report("MatchIgnore", test_lex("ignore", bs.get_lexer(), bs.get_terminal_items().ignore->symbol(), bs.get_terminals()));
+    report("MatchKeywords", test_lex("keywords", bs.get_lexer(), bs.get_terminal_items().keywords->symbol(), bs.get_terminals()));
     
     // Get the conflicts in the grammar
     conflict_list conflicts;
