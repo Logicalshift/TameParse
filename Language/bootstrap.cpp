@@ -68,12 +68,15 @@ dfa::ndfa* bootstrap::create_dfa() {
     //t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
     //t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
     //t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\\\.))'");
+    t.regex             = add_terminal(languageNdfa, L"regex", L"/([a-z]|(\\\\/))*/");
+    t.string            = add_terminal(languageNdfa, L"string", L"\"([a-zA-Z ]|(\\\"))*\"");
     t.character         = add_terminal(languageNdfa, L"character", L"'([a-z]|(\\\\[a-z]))'");
     
     // Ignored elements
     t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");
-    t.whitespace        = add_terminal(languageNdfa, L"whitespace", L"[ ]");
-    t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
+    t.whitespace        = add_terminal(languageNdfa, L"whitespace", L"[ \t]+");
+    //t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
+    t.comment           = add_terminal(languageNdfa, L"comment", L"//[A-Za-z ]*");
     
     // Build into a DFA
     ndfa* uniqueSyms = languageNdfa->to_ndfa_with_unique_symbols();
