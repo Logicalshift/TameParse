@@ -150,6 +150,9 @@ void test_language_bootstrap::run_tests() {
     report("MatchWeakLexer", test_lex("weaklexer", bs.get_lexer(), bs.get_terminal_items().weaklexer->symbol(), bs.get_terminals()));
     report("MatchIgnore", test_lex("ignore", bs.get_lexer(), bs.get_terminal_items().ignore->symbol(), bs.get_terminals()));
     report("MatchKeywords", test_lex("keywords", bs.get_lexer(), bs.get_terminal_items().keywords->symbol(), bs.get_terminals()));
+    report("MatchWhitespace", test_lex("  ", bs.get_lexer(), bs.get_terminal_items().whitespace->symbol(), bs.get_terminals()));
+    report("MatchNewline", test_lex("\n", bs.get_lexer(), bs.get_terminal_items().newline->symbol(), bs.get_terminals()));
+    report("MatchComment", test_lex("// Comment", bs.get_lexer(), bs.get_terminal_items().comment->symbol(), bs.get_terminals()));
     
     // Get the conflicts in the grammar
     conflict_list conflicts;
