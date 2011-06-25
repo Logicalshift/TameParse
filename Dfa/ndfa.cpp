@@ -473,6 +473,31 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     return result;
 }
 
+/// \brief Checks the symbol map to see if there are any overlapping ranges. Returns true if overlapping ranges exist.
+///
+/// This is a slow check to deal with cases where symbol ranges aren't sorting correctly. This should be true for
+/// NDFAs returned by to_ndfa_with_unique_symbols() and to_dfa()
+bool ndfa::verify_no_symbol_overlap() const {
+    // Iterate through all of the symbols in the map
+    for (symbol_map::iterator checkSet = m_Symbols->begin(); checkSet != m_Symbols->end(); checkSet++) {
+        // Iterate through all of the ranges in this set
+        for (symbol_set::iterator checkRange = checkSet->first.begin(); checkRange != checkSet->first.end(); checkRange++) {
+            // Check these against each other set (which isn't the same as this one)
+            for (symbol_map::iterator againstSet = m_Symbols->begin(); againstSet != m_Symbols->end(); againstSet++) {
+                if (againstSet == checkSet) continue;
+                
+                for (symbol_set::iterator againstRange = againstSet->first.begin(); againstRange != againstSet->first.end(); againstRange++) {
+                    // Must not overlap
+                    if (againstRange->overlaps(*checkRange)) return false;
+                }
+            }
+        }
+    }
+    
+    // Looks good
+    return true;
+}
+
 /// \brief Checks all of the states in this NDFA and returns true if there are no epsilon transitions and at most one
 /// transition per symbol.
 bool ndfa::verify_is_dfa() const {

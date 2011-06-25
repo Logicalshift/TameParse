@@ -34,6 +34,7 @@ void test_language_bootstrap::run_tests() {
 
     report("DfaIsDfa", bsDfa->is_dfa());
     report("DfaVerifyDfa", bsDfa->verify_is_dfa());
+    report("DfaNoOverlap", bsDfa->verify_no_symbol_overlap());
     
     // The 'identifier' symbol should share its actions with some of the weak symbols in the language
     const item_container& icIdentifier  = bs.get_terminal_items().identifier;

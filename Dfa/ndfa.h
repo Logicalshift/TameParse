@@ -166,6 +166,12 @@ namespace dfa {
         /// will be ambiguous.
         bool verify_is_dfa() const;
         
+        /// \brief Checks the symbol map to see if there are any overlapping ranges. Returns true if overlapping ranges exist.
+        ///
+        /// This is a slow check to deal with cases where symbol ranges aren't sorting correctly. This should be true for
+        /// NDFAs returned by to_ndfa_with_unique_symbols() and to_dfa()
+        bool verify_no_symbol_overlap() const;
+        
     public:
         ///
         /// \brief Class used for convenient construction of an NDFA
