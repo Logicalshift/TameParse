@@ -57,6 +57,8 @@ void test_lr_weaksymbols::run_tests() {
     ndfa* simpleLexerDeduped    = simpleLexerNdfa.to_ndfa_with_unique_symbols();
     ndfa* simpleLexer           = simpleLexerDeduped->to_dfa();
     
+    report("SimpleLexerIsDfa", simpleLexer->verify_is_dfa());
+    
     // Once we've got a DFA, there should be states that have actions on both the 'keyword' items and the 'identifier' item
     // These tests verify that any issues with the weak symbols routine aren't down to the generation of the DFA
     bool matchesInt     = false;

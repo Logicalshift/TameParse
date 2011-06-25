@@ -106,6 +106,7 @@ namespace language {
         /// \brief Adds a new terminal item to an NDFA, and to this object
         contextfree::item_container add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex);
         
+    public:
         /// \brief Creates the DFA for the language
         dfa::ndfa* create_dfa();
         

@@ -14,6 +14,7 @@
 #include "Lr/conflict.h"
 
 using namespace std;
+using namespace dfa;
 using namespace language;
 using namespace lr;
 
@@ -27,6 +28,12 @@ void test_language_bootstrap::run_tests() {
     // Get the conflicts in the grammar
     conflict_list conflicts;
     conflict::find_conflicts(bs.get_builder(), conflicts);
+    
+    ndfa* bsDfa = bs.create_dfa();
+    report("DfaIsDfa", bsDfa->is_dfa());
+    report("DfaVerifyDfa", bsDfa->verify_is_dfa());
+    
+    delete bsDfa;
     
     report("NoConflicts", conflicts.size() == 0);
     

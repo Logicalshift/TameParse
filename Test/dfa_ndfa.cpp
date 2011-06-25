@@ -25,6 +25,10 @@ void test_dfa_ndfa::run_tests() {
     // Turn into a DFA
     ndfa* twoAsDfa = twoAs.to_dfa();
     
+    report("isndfa1", !twoAs.verify_is_dfa());
+    report("isdfa1", twoAsDfa->is_dfa());
+    report("verifydfa1", twoAsDfa->verify_is_dfa());
+    
     // Should have two states
     int numStates = twoAsDfa->count_states();
     report("reduced1", numStates == 2);
@@ -48,7 +52,11 @@ void test_dfa_ndfa::run_tests() {
     
     // Turn into a DFA
     ndfa* twoEpsilonAsDfa = twoEpsilonAs.to_dfa();
-    
+
+    report("isndfa2", !twoEpsilonAs.verify_is_dfa());
+    report("isdfa2", twoEpsilonAsDfa->is_dfa());
+    report("verifydfa2", twoEpsilonAsDfa->verify_is_dfa());
+
     // Should have two states
     numStates = twoEpsilonAsDfa->count_states();
     report("reduced2", numStates == 2);
@@ -64,7 +72,11 @@ void test_dfa_ndfa::run_tests() {
     int finalState = oneOrTwoAs.add_regex(0, "a?a", 1);
     
     ndfa* oneOrTwoAsAsDfa = oneOrTwoAs.to_dfa();
-    
+
+    report("isndfa3", !oneOrTwoAs.verify_is_dfa());
+    report("isdfa3", oneOrTwoAsAsDfa->is_dfa());
+    report("verifydfa3", oneOrTwoAsAsDfa->verify_is_dfa());
+
     // Should be 3 states
     numStates = oneOrTwoAsAsDfa->count_states();
     report("regex1", numStates == 3);
@@ -77,6 +89,9 @@ void test_dfa_ndfa::run_tests() {
 
     ndfa* aOrBAsDfa = aOrB.to_dfa();
     
+    report("isdfa4", aOrBAsDfa->is_dfa());
+    report("verifydfa4", aOrBAsDfa->verify_is_dfa());
+
     // Should be 3 states
     numStates = aOrBAsDfa->count_states();
     report("regex2", numStates == 3);
@@ -88,6 +103,9 @@ void test_dfa_ndfa::run_tests() {
     finalState = aaOrBb.add_regex(0, "(aa)|(bb)", 1);
     
     ndfa* aaOrBbAsDfa = aaOrBb.to_dfa();
+    
+    report("isdfa5", aaOrBbAsDfa->is_dfa());
+    report("verifydfa5", aaOrBbAsDfa->verify_is_dfa());
     
     // Should be 5 states
     numStates = aaOrBbAsDfa->count_states();

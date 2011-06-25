@@ -55,7 +55,8 @@ namespace dfa {
         ///
         /// \brief Creates a new lexer to process the specified symbol stream
         ///
-        /// The lexeme_stream should take ownership of the supplied lexer_symbol_stream and delete it once it has finished with it
+        /// The lexeme_stream should take ownership of the supplied lexer_symbol_stream and delete it once it has finished 
+        /// with it. If the lexer is not yet compiled, then it will be compiled by this call.
         ///
         virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const;
         
@@ -70,8 +71,8 @@ namespace dfa {
         
         /// \brief Compiles this lexer so that it is ready for use
         ///
-        /// Set compact to true if you want to build a compact lexer (these are smaller if the transition table is less than 50% full, but
-        /// execute more slowly)
+        /// Set compact to true if you want to build a compact lexer (these are smaller if the transition table is less than 
+        /// 50% full, but execute more slowly)
         void compile(bool compact = false);
     };
 }

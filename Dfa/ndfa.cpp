@@ -26,7 +26,8 @@ ndfa::ndfa(const ndfa& copyFrom)
 : m_States(new state_list())
 , m_Symbols(new symbol_map(*copyFrom.m_Symbols))
 , m_Accept(new accept_action_for_state())
-, m_CurrentState(0) {
+, m_CurrentState(0)
+, m_IsDeterministic(copyFrom.m_IsDeterministic) {
     // Copy the states
     for (state_list::const_iterator it = copyFrom.m_States->begin(); it != copyFrom.m_States->end(); it++) {
         m_States->push_back(new state(**it));
@@ -46,7 +47,8 @@ ndfa::ndfa()
 : m_CurrentState(0)
 , m_States(new state_list())
 , m_Accept(new accept_action_for_state())
-, m_Symbols(new symbol_map()) {
+, m_Symbols(new symbol_map())
+, m_IsDeterministic(false) {
     m_States->push_back(new state(0));
 }
 
@@ -55,8 +57,8 @@ ndfa::ndfa(state_list* states, symbol_map* symbols, accept_action_for_state* acc
 : m_CurrentState(0)
 , m_States(states)
 , m_Symbols(symbols)
-, m_Accept(accept) {
-    
+, m_Accept(accept)
+, m_IsDeterministic(false) {
 }
 
 // \brief Destructor
@@ -462,5 +464,41 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     }
     
     // Create the new NDFA from the result
-    return new ndfa(states, symbols, accept);
+    ndfa* result = new ndfa(states, symbols, accept);
+    
+    // Mark it as deterministic
+    result->m_IsDeterministic = true;
+    
+    // Return it
+    return result;
+}
+
+/// \brief Checks all of the states in this NDFA and returns true if there are no epsilon transitions and at most one
+/// transition per symbol.
+bool ndfa::verify_is_dfa() const {
+    // Get the symbol ID representing 'epsilon'
+    int epsSymbol = m_Symbols->identifier_for_symbols(epsilon());
+    
+    // Iterate through the states in this NDFA
+    for (state_list::const_iterator nextState = m_States->begin(); nextState != m_States->end(); nextState++) {
+        // Verify that there are no duplicate transitions in this state, and no epsilon transitions
+        set<int> usedSymbols;
+        
+        // Count 'epsilon' as used right away, so it always generates a conflict
+        usedSymbols.insert(epsSymbol);
+        
+        // Iterate through the transitions
+        for (state::iterator nextTrans = (*nextState)->begin(); nextTrans != (*nextState)->end(); nextTrans++) {
+            // Verify that this symbol isn't already used
+            if (usedSymbols.find(nextTrans->symbol_set()) != usedSymbols.end()) {
+                return false;
+            }
+            
+            // Add this symbol set
+            usedSymbols.insert(nextTrans->symbol_set());
+        }
+    }
+    
+    // Looks good
+    return true;
 }
