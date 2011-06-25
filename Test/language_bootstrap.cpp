@@ -142,6 +142,7 @@ void test_language_bootstrap::run_tests() {
     report("MatchRegex1", test_lex("/regex/", bs.get_lexer(), bs.get_terminal_items().regex->symbol(), bs.get_terminals()));
     report("MatchString1", test_lex("\"string\"", bs.get_lexer(), bs.get_terminal_items().string->symbol(), bs.get_terminals()));
     report("MatchCharacter1", test_lex("'c'", bs.get_lexer(), bs.get_terminal_items().character->symbol(), bs.get_terminals()));
+    report("MatchCharacter2", test_lex("'\n'", bs.get_lexer(), bs.get_terminal_items().character->symbol(), bs.get_terminals()));
     
     report("MatchLanguage", test_lex("language", bs.get_lexer(), bs.get_terminal_items().language->symbol(), bs.get_terminals()));
     report("MatchGrammar", test_lex("grammar", bs.get_lexer(), bs.get_terminal_items().grammar->symbol(), bs.get_terminals()));
