@@ -65,18 +65,14 @@ dfa::ndfa* bootstrap::create_dfa() {
     // The lexical constructs
     t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
     t.nonterminal       = add_terminal(languageNdfa, L"nonterminal", L"\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>");
-    //t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
-    //t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
-    //t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\\\.))'");
-    t.regex             = add_terminal(languageNdfa, L"regex", L"/([a-z]|(\\\\/))*/");
-    t.string            = add_terminal(languageNdfa, L"string", L"\"([a-zA-Z ]|(\\\"))*\"");
-    t.character         = add_terminal(languageNdfa, L"character", L"'([a-z]|(\\\\[a-z]))'");
+    t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
+    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
+    t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\\\.))'");
     
     // Ignored elements
     t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");
     t.whitespace        = add_terminal(languageNdfa, L"whitespace", L"[ \t]+");
-    //t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
-    t.comment           = add_terminal(languageNdfa, L"comment", L"//[A-Za-z ]*");
+    t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
     
     // Build into a DFA
     ndfa* uniqueSyms = languageNdfa->to_ndfa_with_unique_symbols();

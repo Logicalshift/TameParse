@@ -81,6 +81,12 @@ void test_dfa_single_regex::run_tests() {
     test("sayaaaa", "a*", "aaaaa", "b");
     test("ababab", "(ab)+", "ababab", "aaaaaa");
     
+    test("nothing1", "a", "a", "");
+    test("nothing2", "[a]", "a", "");
+    test("nothing3", "[^a]", "b", "");
+    test("nothing4", "[a]+", "aaa", "");
+    // test("nothing5", "[^a]+", "aaa", ""); // Infinite loop!
+    
     test("a-or-b1", "a|b", "a", "c");
     test("a-or-b2", "a|b", "b", "c");
     test("a-or-b3", "a+|b+", "aaaaa", "c");
@@ -128,6 +134,13 @@ void test_dfa_single_regex::run_tests() {
     test("range10", "[azAZ]+", "A", "0");
     test("range11", "[azAZ]+", "Z", "0");
     test("range12", "([a-f][c-h])+", "ccah", "ha");
+
+    test("anything1", ".", "a", "");
+    test("anything2", "[^a]", "b", "a");
+    test("anything3", "[^ab]", "c", "b");
+    test("anything4", "[^ab]", "d", "a");
+    test("anything5", "([^ab]|b)", "b", "a");
+    // test("anything6", "([^ab]|b)+", "bcde", "a"); // Infinite loop!
     
     test("bootstrap-identifier1", "[A-Za-z\\-][A-Za-z\\-0-9]*", "some-identifier", "0");
     test("bootstrap-identifier2", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "0");
