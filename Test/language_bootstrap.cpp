@@ -39,6 +39,7 @@ void test_language_bootstrap::run_tests() {
     const item_container& icIdentifier  = bs.get_terminal_items().identifier;
     const item_container& icLanguage    = bs.get_terminal_items().language;
     const item_container& icLexer       = bs.get_terminal_items().lexer;
+    const item_container& icEquals      = bs.get_terminal_items().equals;
     
     bool anyIds         = false;
     bool anyLanguage    = false;
@@ -46,6 +47,7 @@ void test_language_bootstrap::run_tests() {
     bool idAndLanguage  = false;
     bool idAndLexer     = false;
     bool idAndAnything  = false;
+    bool idAndEquals    = false;
     
     for (int stateId = 0; stateId < bsDfa->count_states(); stateId++) {
         typedef ndfa::accept_action_list aal;
@@ -53,14 +55,16 @@ void test_language_bootstrap::run_tests() {
         const aal& actions = bsDfa->actions_for_state(stateId);
         if (actions.empty()) continue;
         
-        bool hasId = false;
-        bool hasLanguage = false;
-        bool hasLexer = false;
+        bool hasId          = false;
+        bool hasLanguage    = false;
+        bool hasLexer       = false;
+        bool hasEquals      = false;
         
         for (aal::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
-            if ((*nextAction)->symbol() == icIdentifier->symbol()) hasId = true;
-            if ((*nextAction)->symbol() == icLanguage->symbol()) hasLanguage = true;
-            if ((*nextAction)->symbol() == icLexer->symbol()) hasLexer = true;
+            if ((*nextAction)->symbol() == icIdentifier->symbol())  hasId = true;
+            if ((*nextAction)->symbol() == icLanguage->symbol())    hasLanguage = true;
+            if ((*nextAction)->symbol() == icLexer->symbol())       hasLexer = true;
+            if ((*nextAction)->symbol() == icEquals->symbol())      hasEquals = true;
         }
         
         if (hasLanguage) {
@@ -71,6 +75,10 @@ void test_language_bootstrap::run_tests() {
         if (hasLexer) {
             anyLexer = true;
             if (!idAndLexer) idAndLexer = hasId;
+        }
+        
+        if (hasEquals) {
+            if (!idAndEquals) idAndEquals = hasId;
         }
         
         if (hasId) {
@@ -87,6 +95,7 @@ void test_language_bootstrap::run_tests() {
     report("IdentifierAndAnything", idAndAnything);
     report("IdentifierAndLanguage", idAndLanguage);
     report("IdentifierAndLexer", idAndLexer);
+    report("IdentifierAndNotEquals", !idAndEquals);
     
     // Finished looking at the DFA
     delete bsDfa;
