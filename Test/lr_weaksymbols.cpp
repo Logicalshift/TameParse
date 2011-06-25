@@ -52,7 +52,7 @@ void test_lr_weaksymbols::run_tests() {
     
     simpleLexerNdfa.add_regex(0, L"integer", integer);
     simpleLexerNdfa.add_regex(0, L"real", real);
-    simpleLexerNdfa.add_regex(0, L"[A-Za-z][A-Za-z0-9]*", identifier);
+    simpleLexerNdfa.add_regex(0, L"[A-Za-z\\-][A-Za-z\\-0-9]*", identifier);
     
     ndfa* simpleLexerDeduped    = simpleLexerNdfa.to_ndfa_with_unique_symbols();
     ndfa* simpleLexer           = simpleLexerDeduped->to_dfa();

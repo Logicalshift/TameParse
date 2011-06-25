@@ -45,6 +45,7 @@ void test_language_bootstrap::run_tests() {
     bool anyLexer       = false;
     bool idAndLanguage  = false;
     bool idAndLexer     = false;
+    bool idAndAnything  = false;
     
     for (int stateId = 0; stateId < bsDfa->count_states(); stateId++) {
         typedef ndfa::accept_action_list aal;
@@ -64,20 +65,26 @@ void test_language_bootstrap::run_tests() {
         
         if (hasLanguage) {
             anyLanguage = true;
-            idAndLanguage = hasId;
+            if (!idAndLanguage) idAndLanguage = hasId;
         }
         
         if (hasLexer) {
             anyLexer = true;
-            idAndLexer = hasId;
+            if (!idAndLexer) idAndLexer = hasId;
         }
         
-        if (hasId) anyIds = true;
+        if (hasId) {
+            anyIds = true;
+            if (actions.size() > 1) {
+                idAndAnything = true;
+            }
+        }
     }
     
     report("AnyIdentifiers", anyIds);
     report("AnyLanguage", anyLanguage);
     report("AnyLexer", anyLexer);
+    report("IdentifierAndAnything", idAndAnything);
     report("IdentifierAndLanguage", idAndLanguage);
     report("IdentifierAndLexer", idAndLexer);
     
