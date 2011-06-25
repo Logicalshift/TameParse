@@ -35,13 +35,6 @@ contextfree::item_container bootstrap::add_terminal(dfa::ndfa_regex* ndfa, const
 dfa::ndfa* bootstrap::create_dfa() {
     // Create the NDFA (which we'll eventually turn into the lexer)
     ndfa_regex* languageNdfa = new ndfa_regex();
-    
-    // The lexical constructs
-    t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
-    t.nonterminal       = add_terminal(languageNdfa, L"nonterminal", L"\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>");
-    t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
-    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
-    t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\.))'");
 
     // The weak keywords
     t.language          = add_terminal(languageNdfa, L"language", L"language");
@@ -64,6 +57,13 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.closecurly        = add_terminal(languageNdfa, L"'}'", L"\\}");
     t.dot               = add_terminal(languageNdfa, L"'.'", L"\\.");
     t.pipe              = add_terminal(languageNdfa, L"'|'", L"\\|");
+    
+    // The lexical constructs
+    t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
+    t.nonterminal       = add_terminal(languageNdfa, L"nonterminal", L"\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>");
+    t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))*/");
+    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
+    t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\.))'");
     
     // Ignored elements
     t.newline           = add_terminal(languageNdfa, L"newline", L"[\n\r]");

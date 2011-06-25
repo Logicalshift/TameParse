@@ -23,25 +23,7 @@ namespace language {
     ///
     class bootstrap {
     public:
-        
-    private:
-        /// \brief The lexer for this language
-        dfa::lexer* m_Lexer;
-        
-        /// \brief The grammar
-        contextfree::grammar* m_Grammar;
-        
-        /// \brief The LALR builder
-        lr::lalr_builder* m_Builder;
-        
-        /// \brief The parser for this language
-        lr::ast_parser* m_Parser;
-        
-        /// \brief The initial state for the parser
-        int m_InitialState;
-        
-        /// \brief Containers for the terminals in the grammar
-        struct {
+        struct terminals {
             contextfree::item_container
                 identifier,
                 nonterminal,
@@ -72,7 +54,26 @@ namespace language {
                 newline,
                 whitespace,
                 comment;
-        } t;
+        };
+        
+    private:
+        /// \brief The lexer for this language
+        dfa::lexer* m_Lexer;
+        
+        /// \brief The grammar
+        contextfree::grammar* m_Grammar;
+        
+        /// \brief The LALR builder
+        lr::lalr_builder* m_Builder;
+        
+        /// \brief The parser for this language
+        lr::ast_parser* m_Parser;
+        
+        /// \brief The initial state for the parser
+        int m_InitialState;
+        
+        /// \brief Containers for the terminals in the grammar
+        terminals t;
         
         /// \brief Containers for the nonterminals making up this language
         struct {
@@ -135,6 +136,9 @@ namespace language {
         
         /// \brief The dictionary mapping terminal names to their identifiers
         const contextfree::terminal_dictionary& get_terminals() const { return m_Terminals; }
+        
+        /// \brief Containers for each of the terminals in the bootstrap grammar
+        const terminals& get_terminal_items() const { return t; }
     };
 }
 
