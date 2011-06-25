@@ -22,7 +22,11 @@ using namespace language;
 /// \brief Adds a new terminal item to an NDFA, and to this object
 contextfree::item_container bootstrap::add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex) {
     // Add to the terminal dictionary
-    int termIdentifier = m_Terminals.add_symbol(name);
+    int termIdentifier = m_Terminals.symbol_for_name(name);
+    
+    if (termIdentifier == -1) {
+        termIdentifier = m_Terminals.add_symbol(name);
+    }
     
     // Add to the DFA
     ndfa->add_regex(0, regex, termIdentifier);
