@@ -55,9 +55,22 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     delete stream;
 
     // first lexeme should be an accepting lexeme, second should be a rejection
-    if (first != NULL && fail != NULL && first->matched() == 1 && first->content<char>() == accepting
-        && firstCompact != NULL && firstCompact->matched() == 1 && firstCompact->content<char>() == accepting
-        && fail != NULL && fail->matched() == -1 && fail->content().size() == 1) {
+    bool success = true;
+    
+    if (first == NULL)                                      success = false;
+    else if (first->matched() != 1)                         success = false;
+    else if (first->content<char>() != accepting)           success = false;
+    
+    if (firstCompact == NULL)                               success = false;
+    else if (firstCompact->matched() != 1)                  success = false;
+    else if (firstCompact->content<char>() != accepting)    success = false;
+    
+    if (rejecting.size() == 0 && fail != NULL)              success = false;
+    else if (fail == NULL)                                  success = false;
+    else if (fail->matched() != -1)                         success = false;
+    else if (fail->content().size() == 1)                   success = false;
+    
+    if (!success) {
         report(name, true);
     } else {
         // Break things down if we get a failure
@@ -67,8 +80,8 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
         report(name + "-compact-accept", firstCompact != NULL && firstCompact->matched() == 1);
         report(name + "-compact-content", firstCompact != NULL && firstCompact->content<char>() == accepting);
 
-        report(name + "-reject", fail != NULL && fail->matched() == -1);
-        report(name + "-rejectone", fail != NULL && fail->content().size() == 1);
+        report(name + "-reject", fail == NULL || fail->matched() == -1);
+        report(name + "-rejectone", (fail != NULL && fail->content().size() == 1) || (fail == NULL && rejecting.size() == 0));
     }
 
     delete first;

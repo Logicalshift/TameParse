@@ -236,7 +236,7 @@ namespace dfa {
                         (*m_Stream) >> nextSym;
                         
                         // Stop once we reach the end of file marker
-                        if (nextSym == -1) {
+                        if (nextSym == symbol_set::end_of_input) {
                             atEof = true;
                             break;
                         }
