@@ -87,7 +87,7 @@ void test_dfa_single_regex::run_tests() {
     test("nothing4", "[a]+", "aaa", "");
     // test("nothing5", "[^a]+", "aaa", ""); // Infinite loop!
     test("nothing6", "(a|b)", "a", "");
-    test("nothing7", "(a|\\ufffe)", "a", "");
+    test("nothing7", "(a|\\ufffd)", "a", "");
     test("nothing8", "(a|\\uffff)", "a", "");
     
     test("a-or-b1", "a|b", "a", "c");
