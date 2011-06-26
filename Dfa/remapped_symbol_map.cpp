@@ -80,7 +80,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             preceeding--;
             
             // See if there's an overlap
-            if (preceeding->first.upper() >= range->lower()) {
+            if (preceeding->first.upper() > range->lower()) {
                 // Start from the preceeding set if they do
                 firstGreaterThan = preceeding;
             }
