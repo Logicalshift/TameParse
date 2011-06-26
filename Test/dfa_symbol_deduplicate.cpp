@@ -98,7 +98,20 @@ void test_dfa_symbol_deduplicate::run_tests() {
     no_duplicates = remapped_symbol_map::deduplicate(has_duplicates3);
     
     report("NoDuplicates3", !no_duplicates->has_duplicates());
+
+    // Same as above, except not using a symbol set with more than one range in it
+    symbol_map has_duplicates4;
     
+    int notSlash1   = has_duplicates4.identifier_for_symbols(range<int>(0, '/'));
+    int notSlash2   = has_duplicates4.identifier_for_symbols(range<int>('/'+1, 0x7fffffff));
+    canBeSlashId    = has_duplicates4.identifier_for_symbols(range<int>('/'));
+    backSlashId     = has_duplicates4.identifier_for_symbols(range<int>('\\'));
+    
+    // Deduplicate it
+    no_duplicates = remapped_symbol_map::deduplicate(has_duplicates4);
+    
+    report("NoDuplicates4", !no_duplicates->has_duplicates());
+
     // Finished with the set
     delete no_duplicates;
 }
