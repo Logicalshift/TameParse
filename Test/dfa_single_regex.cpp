@@ -25,6 +25,7 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     myCompactLexer.add_symbol(regex, 1);
     
     // Compile it
+    bool isValid = myLexer.verify();
     myLexer.compile(false);
     myCompactLexer.compile(true);
     
@@ -69,6 +70,11 @@ void test_dfa_single_regex::test(std::string name, std::string regex, std::strin
     else if (fail == NULL)                                  success = false;
     else if (fail->matched() != -1)                         success = false;
     else if (fail->content().size() == 1)                   success = false;
+    
+    // Report if the lexer produced is not valid
+    if (!isValid) {
+        report(name + "-valid", isValid);
+    }
     
     if (!success) {
         report(name, true);
