@@ -285,8 +285,8 @@ static int hex(symbol_string::const_iterator& pos, const symbol_string::const_it
         // Get the value of this character
         int value = 0;
         if (chr <= '9')         value = chr - '0';
-        else if (chr <= 'A')    value = chr - 'A' + 10;
-        else if (chr <= 'a')    value = chr - 'a' + 10;
+        else if (chr <= 'F')    value = chr - 'A' + 10;
+        else if (chr <= 'f')    value = chr - 'a' + 10;
         
         // Update the result
         result *= 16;

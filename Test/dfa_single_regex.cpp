@@ -146,8 +146,9 @@ void test_dfa_single_regex::run_tests() {
     test("anything5", "([^ab]|b)", "b", "a");
     // test("anything6", "([^ab]|b)+", "bcde", "a"); // Infinite loop!
     test("anything7", "[ -\\u00ff]", "a", "");
-    test("anything8", "[ -\\ufffd]", "a", "");
-    test("anything9", "[ -\\uffff]", "a", "");
+    test("anything8", "[ -\\ufffc]", "a", "");
+    test("anything9", "[ -\\ufffd]", "a", "");
+    test("anything10", "[ -\\uffff]", "a", "");
 
     test("bootstrap-identifier1", "[A-Za-z\\-][A-Za-z\\-0-9]*", "some-identifier", "0");
     test("bootstrap-identifier2", "[A-Za-z\\-][A-Za-z\\-0-9]*", "language", "0");
