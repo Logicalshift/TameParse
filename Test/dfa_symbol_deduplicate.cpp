@@ -150,6 +150,32 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     report("NoDuplicates4", !no_duplicates->has_duplicates());
     report("AllRemapped4", check_ranges(has_duplicates4, *no_duplicates));
+    
+    // Same as above, except adding some more character ranges
+    symbol_map has_duplicates5;
+    symbol_set alphabetical;
+    symbol_set alphaNumeric;
+    
+    alphabetical |= range<int>('a', 'z');
+    alphabetical |= range<int>('A', 'Z');
+    alphabetical |= range<int>('-');
+    
+    alphaNumeric |= range<int>('a', 'z');
+    alphaNumeric |= range<int>('A', 'Z');
+    alphaNumeric |= range<int>('-');
+    alphaNumeric |= range<int>('0', '9');
+    
+    has_duplicates5.identifier_for_symbols(notSlash);
+    has_duplicates5.identifier_for_symbols(alphabetical);
+    has_duplicates5.identifier_for_symbols(alphaNumeric);
+    has_duplicates5.identifier_for_symbols(range<int>('/'));
+    has_duplicates5.identifier_for_symbols(range<int>('\\'));
+    
+    // Deduplicate it
+    no_duplicates = remapped_symbol_map::deduplicate(has_duplicates5);
+    
+    report("NoDuplicates5", !no_duplicates->has_duplicates());
+    report("AllRemapped5", check_ranges(has_duplicates5, *no_duplicates));
 
     // Finished with the set
     delete no_duplicates;
