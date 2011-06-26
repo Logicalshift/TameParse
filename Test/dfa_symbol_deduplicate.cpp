@@ -86,24 +86,11 @@ void test_dfa_symbol_deduplicate::run_tests() {
     // This overlapping set is one that causes errors when generating a 'real' parser/lexer
     symbol_map has_duplicates3;
     symbol_set notSlash;
-    symbol_set charRange1;
-    symbol_set charRange2;
     
     notSlash |= range<int>(0, '/');
     notSlash |= range<int>('/'+1, 0x7fffffff);
     
-    charRange1 |= range<int>('A', 'Z'+1);
-    charRange1 |= range<int>('a', 'z'+1);
-    charRange1 |= range<int>('0', '9'+1);
-    charRange1 |= range<int>('-');
-    
-    charRange2 |= range<int>('A', 'Z'+1);
-    charRange2 |= range<int>('a', 'z'+1);
-    charRange2 |= range<int>('-');
-    
     int notSlashId      = has_duplicates3.identifier_for_symbols(notSlash);
-    int charRange1Id    = has_duplicates3.identifier_for_symbols(charRange1);
-    int charRange2Id    = has_duplicates3.identifier_for_symbols(charRange2);
     int canBeSlashId    = has_duplicates3.identifier_for_symbols(range<int>('/'));
     int backSlashId     = has_duplicates3.identifier_for_symbols(range<int>('\\'));
     
