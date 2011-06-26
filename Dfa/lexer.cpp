@@ -106,3 +106,32 @@ void lexer::compile(bool compact) {
     // Done with the NDFA/DFA
     delete dfa;
 }
+
+/// \brief Verifies that this lexer will compile into a valid DFA
+bool lexer::verify() {
+    if (m_Lexer) return false;
+    if (!m_Ndfa) return false;
+    
+    // Turn the NDFA into a DFA. Delete the intermediate stages as we go.
+    ndfa* symbols = m_Ndfa->to_ndfa_with_unique_symbols();
+    ndfa* dfa = symbols->to_dfa();
+
+    // Check that the DFA and no overlap symbols NDFA have been generated correctly
+    bool isOk = true;
+
+    if (!symbols->verify_no_symbol_overlap()) {
+        isOk = false;
+    }
+    if (!dfa->verify_no_symbol_overlap()) {
+        isOk = false;
+    }
+    if (!dfa->verify_is_dfa()) {
+        isOk = false;
+    }
+    
+    // Finished with the DFA and symbols objects
+    delete symbols;
+    delete dfa;
+    
+    return isOk;
+}

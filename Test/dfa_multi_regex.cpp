@@ -23,6 +23,7 @@ void test_dfa_multi_regex::test(std::string name, std::string regex1, std::strin
     myLexer.add_symbol(regex2, 2);
     
     // Compile it
+    bool isValid = myLexer.verify();
     myLexer.compile(false);
     
     // Try the first phrase
@@ -39,6 +40,8 @@ void test_dfa_multi_regex::test(std::string name, std::string regex1, std::strin
     
     lexeme* shouldMatch2;
     (*stream) >> shouldMatch2;
+    
+    report(name + "-valid", isValid);
     
     report(name + "-matches1", shouldMatch1->matched() == 1);
     report(name + "-matches1-not2", shouldMatch1->matched() != 2);

@@ -74,6 +74,13 @@ namespace dfa {
         /// Set compact to true if you want to build a compact lexer (these are smaller if the transition table is less than 
         /// 50% full, but execute more slowly)
         void compile(bool compact = false);
+        
+    public:
+        /// \brief Verifies that this lexer will compile into a valid DFA
+        ///
+        /// This should be called before compile(). If compile() has already been called, this will return false regardless.
+        /// This is primarily intended for testing purposes.
+        bool verify();
     };
 }
 
