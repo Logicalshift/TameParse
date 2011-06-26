@@ -43,6 +43,12 @@ namespace lr {
         /// particular strong symbol
         item_map m_StrongToWeak;
         
+        /// \brief The items that are considered 'weak'
+        ///
+        /// Note that m_StrongToWeak only contains a symbol if it has weak equivalents. Symbols are strong by default,
+        /// so it's necessary to maintain a separate list of the weak symbols.
+        contextfree::item_set m_WeakSymbols;
+        
     public:
         /// \brief Constructs a translator with no weak symbols
         weak_symbols();
