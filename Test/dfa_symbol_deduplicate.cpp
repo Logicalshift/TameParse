@@ -25,6 +25,41 @@ static bool contains_range(const symbol_map& map, const remapped_symbol_map::new
     return false;
 }
 
+// True if each range in the original symbol map is completely mapped to the new symbol map
+static bool check_ranges(const symbol_map& original, const remapped_symbol_map& remapped) {
+    typedef remapped_symbol_map::new_symbol_set new_symbols;
+    
+    // Iterate through the old symbol sets
+    for (symbol_map::iterator oldSymbols = original.begin(); oldSymbols != original.end(); oldSymbols++) {
+        // Set of symbols that haven't been remapped
+        symbol_set notMapped = oldSymbols->first;
+        
+        // Get the IDs that this has been remapped to
+        new_symbols remappedSets = remapped.new_symbols(oldSymbols->second);
+        
+        // Remove the sets from the 'not mapped' set
+        for (new_symbols::const_iterator newSet = remappedSets.begin(); newSet != remappedSets.end(); newSet++) {
+            // Should not yet be removed from the unmapped set
+            symbol_set intersect = notMapped & remapped[*newSet];
+            
+            if (intersect != remapped[*newSet]) {
+                return false;
+            }
+            
+            // Remove from the set of unmapped symbols
+            notMapped.exclude(remapped[*newSet]);
+        }
+        
+        // Should be no symbols left in notMapped
+        if (!notMapped.empty()) {
+            return false;
+        }
+    }
+    
+    // Looks good
+    return true;
+}
+
 void test_dfa_symbol_deduplicate::run_tests() {
     // Simple to start with
     symbol_map has_duplicates1;
@@ -41,6 +76,7 @@ void test_dfa_symbol_deduplicate::run_tests() {
     // First set should map to two sets, one containing 0-10, and one containing 10-20
     newSyms = no_duplicates->new_symbols(firstSet);
     report("NoDuplicates1", !no_duplicates->has_duplicates());
+    report("AllRemapped1", check_ranges(has_duplicates1, *no_duplicates));
     report("FirstSet1.Size", newSyms.size() == 2);
     report("FirstSet1.0to10", contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
     report("FirstSet1.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
@@ -65,6 +101,7 @@ void test_dfa_symbol_deduplicate::run_tests() {
     // First set should map to one set, containing 10-20
     newSyms = no_duplicates->new_symbols(firstSet);
     report("NoDuplicates2", !no_duplicates->has_duplicates());
+    report("AllRemapped2", check_ranges(has_duplicates2, *no_duplicates));
     report("FirstSet2.Size", newSyms.size() == 1);
     report("FirstSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
     
@@ -90,27 +127,29 @@ void test_dfa_symbol_deduplicate::run_tests() {
     notSlash |= range<int>(0, '/');
     notSlash |= range<int>('/'+1, 0x7fffffff);
     
-    int notSlashId      = has_duplicates3.identifier_for_symbols(notSlash);
-    int canBeSlashId    = has_duplicates3.identifier_for_symbols(range<int>('/'));
-    int backSlashId     = has_duplicates3.identifier_for_symbols(range<int>('\\'));
+    has_duplicates3.identifier_for_symbols(notSlash);
+    has_duplicates3.identifier_for_symbols(range<int>('/'));
+    has_duplicates3.identifier_for_symbols(range<int>('\\'));
     
     // Deduplicate it
     no_duplicates = remapped_symbol_map::deduplicate(has_duplicates3);
     
     report("NoDuplicates3", !no_duplicates->has_duplicates());
+    report("AllRemapped3", check_ranges(has_duplicates3, *no_duplicates));
 
     // Same as above, except not using a symbol set with more than one range in it
     symbol_map has_duplicates4;
     
-    int notSlash1   = has_duplicates4.identifier_for_symbols(range<int>(0, '/'));
-    int notSlash2   = has_duplicates4.identifier_for_symbols(range<int>('/'+1, 0x7fffffff));
-    canBeSlashId    = has_duplicates4.identifier_for_symbols(range<int>('/'));
-    backSlashId     = has_duplicates4.identifier_for_symbols(range<int>('\\'));
+    has_duplicates4.identifier_for_symbols(range<int>(0, '/'));
+    has_duplicates4.identifier_for_symbols(range<int>('/'+1, 0x7fffffff));
+    has_duplicates4.identifier_for_symbols(range<int>('/'));
+    has_duplicates4.identifier_for_symbols(range<int>('\\'));
     
     // Deduplicate it
     no_duplicates = remapped_symbol_map::deduplicate(has_duplicates4);
     
     report("NoDuplicates4", !no_duplicates->has_duplicates());
+    report("AllRemapped4", check_ranges(has_duplicates4, *no_duplicates));
 
     // Finished with the set
     delete no_duplicates;
