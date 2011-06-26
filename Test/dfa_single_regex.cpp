@@ -98,9 +98,9 @@ void test_dfa_single_regex::run_tests() {
     test("nothing2", "[a]", "a", "");
     test("nothing3", "[^a]", "b", "");
     test("nothing4", "[a]+", "aaa", "");
-    // test("nothing5", "[^a]+", "aaa", ""); // Infinite loop!
+    test("nothing5", "[^a]+", "aaa", ""); // Infinite loop!
     test("nothing6", "(a|b)", "a", "");
-    test("nothing7", "(a|\\ufffd)", "a", "");
+    test("nothing7", "(a|\\ufffd)", "a", ""); // 0xfffd = -3 = symbol_set::end_of_input
     test("nothing8", "(a|\\uffff)", "a", "");
     
     test("a-or-b1", "a|b", "a", "c");
@@ -157,7 +157,7 @@ void test_dfa_single_regex::run_tests() {
     test("anything3", "[^ab]", "c", "b");
     test("anything4", "[^ab]", "d", "a");
     test("anything5", "([^ab]|b)", "b", "a");
-    // test("anything6", "([^ab]|b)+", "bcde", "a"); // Infinite loop!
+    test("anything6", "([^ab]|b)+", "bcde", "a"); // Infinite loop!
     test("anything7", "[ -\\u00ff]", "a", "");
     test("anything8", "[ -\\ufffc]", "a", "");
     test("anything9", "[ -\\ufffd]", "a", "");
