@@ -57,6 +57,14 @@ namespace dfa {
         
         /// \brief Last symbol set/ID pair
         iterator end() const { return m_IdForSymbols.end(); }
+        
+    public:
+        /// \brief Testing method: (inefficiently) iterates through the symbols in this map and returns true if there are any duplicate symbols
+        ///
+        /// It is not invalid for a symbol map to have overlapping ranges in it. However, a remapped set which has been
+        /// deduplicated should have no overlaps in it (ie, any symbol map that is intended for use in a DFA should not
+        /// have any overlapping sets in it)
+        bool has_duplicates() const;
     };
 }
 

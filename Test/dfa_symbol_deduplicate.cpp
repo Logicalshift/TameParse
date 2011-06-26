@@ -40,6 +40,7 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     // First set should map to two sets, one containing 0-10, and one containing 10-20
     newSyms = no_duplicates->new_symbols(firstSet);
+    report("NoDuplicates1", !no_duplicates->has_duplicates());
     report("FirstSet1.Size", newSyms.size() == 2);
     report("FirstSet1.0to10", contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
     report("FirstSet1.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
@@ -63,6 +64,7 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     // First set should map to one set, containing 10-20
     newSyms = no_duplicates->new_symbols(firstSet);
+    report("NoDuplicates2", !no_duplicates->has_duplicates());
     report("FirstSet2.Size", newSyms.size() == 1);
     report("FirstSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
     
