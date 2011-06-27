@@ -19,6 +19,23 @@ using namespace contextfree;
 using namespace lr;
 using namespace language;
 
+// Declare a string containing the language definition
+#include "definition_txt.h"
+
+/// \brief Retrieves a string containing the language definition for the parser language
+static const std::string& get_default_language_definition() {
+    // Static string that will contain the language definition
+    static std::string result;
+    
+    // Fill in the result if it's empty
+    if (result.size() == 0) {
+        result.copy((char*) definition_txt, definition_txt_len);
+    }
+    
+    // Return the result
+    return result;
+}
+
 /// \brief Adds a new terminal item to an NDFA, and to this object
 contextfree::item_container bootstrap::add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex) {
     // Add to the terminal dictionary

@@ -100,6 +100,7 @@
 		4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31991136F444400C68ACB /* lr_lalr_general.cpp */; };
 		4BF319961371E50100C68ACB /* lr_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF319941371E50100C68ACB /* lr_action.cpp */; };
 		4BF319971371E50100C68ACB /* lr_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF319951371E50100C68ACB /* lr_action.h */; };
+		4BF84F9E13B8DDB700B899B6 /* definition_txt.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF84F9D13B8DDB700B899B6 /* definition_txt.h */; };
 		4BFD4A5B13735EB700D6657D /* action_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5913735EB700D6657D /* action_rewriter.cpp */; };
 		4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5A13735EB700D6657D /* action_rewriter.h */; };
 		4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */; };
@@ -234,6 +235,8 @@
 		4BF31992136F444400C68ACB /* lr_lalr_general.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_lalr_general.h; sourceTree = "<group>"; };
 		4BF319941371E50100C68ACB /* lr_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_action.cpp; sourceTree = "<group>"; };
 		4BF319951371E50100C68ACB /* lr_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_action.h; sourceTree = "<group>"; };
+		4BF84F9C13B8DA9600B899B6 /* build_defn.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_defn.sh; sourceTree = "<group>"; };
+		4BF84F9D13B8DDB700B899B6 /* definition_txt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = definition_txt.h; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BFD4A5913735EB700D6657D /* action_rewriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = action_rewriter.cpp; sourceTree = "<group>"; };
 		4BFD4A5A13735EB700D6657D /* action_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = action_rewriter.h; sourceTree = "<group>"; };
 		4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_symbols.cpp; sourceTree = "<group>"; };
@@ -477,7 +480,9 @@
 		4BFD4A731388384A00D6657D /* Language */ = {
 			isa = PBXGroup;
 			children = (
+				4BF84F9C13B8DA9600B899B6 /* build_defn.sh */,
 				4BFD4A741388384A00D6657D /* definition.txt */,
+				4BF84F9D13B8DDB700B899B6 /* definition_txt.h */,
 				4BFD4A7613883A5000D6657D /* bootstrap.cpp */,
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
@@ -536,6 +541,7 @@
 				4BFD4A7913883A5000D6657D /* bootstrap.h in Headers */,
 				4B7F0C661393F2690012C085 /* formatter.h in Headers */,
 				4B556F18139A8B13002C7154 /* conflict.h in Headers */,
+				4BF84F9E13B8DDB700B899B6 /* definition_txt.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,6 +552,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "Parse" */;
 			buildPhases = (
+				4BF84F9A13B8DA7500B899B6 /* Run Script */,
 				4BD7FDF5132D05D600025433 /* Sources */,
 				4BD7FDF6132D05D600025433 /* Frameworks */,
 				4BD7FDF7132D05D600025433 /* Headers */,
@@ -598,6 +605,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4BF84F9A13B8DA7500B899B6 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the script that builds the definition_txt.h file\n${SRCROOT}/Language/build_defn.sh";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4BD7FDF5132D05D600025433 /* Sources */ = {

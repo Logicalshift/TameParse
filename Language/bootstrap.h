@@ -9,6 +9,8 @@
 #ifndef _LANGUAGE_BOOTSTRAP_H
 #define _LANGUAGE_BOOTSTRAP_H
 
+#include <string>
+
 #include "Dfa/ndfa_regex.h"
 #include "Dfa/lexer.h"
 #include "ContextFree/terminal_dictionary.h"
@@ -122,6 +124,9 @@ namespace language {
         virtual ~bootstrap();
         
     public:
+        /// \brief Retrieves a string containing the language definition for the parser language
+        static const std::string& get_default_language_definition();
+        
         /// \brief The lexer for this language
         const dfa::lexer& get_lexer() const { return *m_Lexer; }
         
