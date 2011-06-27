@@ -176,6 +176,12 @@ namespace contextfree {
         virtual bool generate_transition() const;
         
     protected:
+        /// \brief Adds a new item to the specified set. Returns true if the set was changed
+        ///
+        /// If the item is the same as an existing item except for the lookahead, the lookaheads are merged and the
+        /// set is the same size.
+        static bool add(lr::lr1_item_set& state, const grammar& gram, const lr::lr1_item_container& newItem);
+        
         /// \brief Fills in the set of items that follow this one
         ///
         /// This inspects the symbol at the offset and adds the set of items that can immediately follow it.
