@@ -58,7 +58,16 @@ namespace lr {
         action_rewriter_list m_ActionRewriters;
         
         /// \brief Where lookaheads propagate for each item in the state machine
+        ///
+        /// Maps from the state, item where lookaheads should propagate from to the set of states and items where they
+        /// should propagate to.
         mutable propagation m_Propagate;
+        
+        /// \brief Where lookaheads were spontaneously generated
+        ///
+        /// Maps from the state and item whose closure generated a spontaneous lookahead to the state and item where the
+        /// lookahead ended up. (This isn't quite enough to see what the lookahead generated was)
+        mutable propagation m_Spontaneous;
         
         /// \brief Maps state IDs to sets of LR actions
         mutable std::map<int, lr_action_set> m_ActionsForState;

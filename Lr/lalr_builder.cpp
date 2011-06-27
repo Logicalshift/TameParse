@@ -222,6 +222,9 @@ void lalr_builder::complete_lookaheads() {
             closure.insert(lr1);
             symbol->closure(lr1, closure, *m_Grammar);
             
+            // Create the set of spontaneous lookahead items
+            set<lr_item_id>& spontaneousTargets = m_Spontaneous[lr_item_id(stateId, itemId)];
+            
             // Iterate through the items in the closure
             for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
                 const rule& closeRule   = *(*it)->rule();
@@ -247,6 +250,11 @@ void lalr_builder::complete_lookaheads() {
                 
                 // Add the lookahead for our symbol to this item (spontaneously generated)
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
+                
+                // If the lookahead is not empty, or isn't just the empty item, then add to the spontaneous set
+                if (!lookahead.empty() || lookahead.size() > 1 || lookahead.find(empty_c) == lookahead.end()) {
+                    spontaneousTargets.insert(lr_item_id(targetState->second, targetItemId));
+                }
                 
                 // This creates a propagation if the empty item is in the lookahead
                 //   -- We have an item a = b ^ C d
