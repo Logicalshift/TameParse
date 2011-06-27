@@ -250,9 +250,9 @@ void lalr_builder::complete_lookaheads() {
                 
                 // This creates a propagation if the empty item is in the lookahead
                 //   -- We have an item a = b ^ C d
-                //   -- This item was part of the closure for item e = f ^ g
-                //   -- (ie, g can be empty)
-                //   -- We copy the lookahead from e = f ^ g to this item
+                //   -- This item was part of the closure for item e = f ^ g h
+                //   -- (ie, g expands to a = b ^ C d, and h can be empty)
+                //   -- We copy the lookahead from e = f ^ g h to the item a = b C ^ d in the transition for C
                 //   -- e = f ^ g might also have lookahead propagated from elsewhere: we need to copy the lookahead
                 //      from these items as well
                 if (lookahead.find(empty_c) != lookahead.end()) {
