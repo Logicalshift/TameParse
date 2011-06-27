@@ -23,7 +23,7 @@ using namespace language;
 #include "definition_txt.h"
 
 /// \brief Retrieves a string containing the language definition for the parser language
-static const std::string& get_default_language_definition() {
+const std::string& bootstrap::get_default_language_definition() {
     // Static string that will contain the language definition
     static std::string result;
     

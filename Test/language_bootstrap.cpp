@@ -167,4 +167,31 @@ void test_language_bootstrap::run_tests() {
             wcerr << endl << L"===" << endl << formatter::to_string(**it, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
         }
     }
+    
+    // Create a stream for the language definition
+    stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
+    
+    // Create a lexer for it
+    lexeme_stream* defaultStream = bs.get_lexer().create_stream_from(bootstrapDefinition);
+    
+    // Create a parser for it
+    ast_parser::state* defParser = bs.get_parser().create_parser(new ast_parser_actions(defaultStream));
+    
+    // Try parsing the language
+    bool acceptedDefault = defParser->parse();
+    
+    report("CanParseLanguageDefinition", acceptedDefault);
+    
+    delete defParser;
+    delete defaultStream;
+    
+    // Create a stream o' nonsense, and parse it
+    stringstream nonsense("rhubarb rhubarb rhubarb");
+    lexeme_stream* nonsenseStream = bs.get_lexer().create_stream_from(nonsense);
+    ast_parser::state* nonsenseParser = bs.get_parser().create_parser(new ast_parser_actions(nonsenseStream));
+    
+    report("CantParseNonsense", !nonsenseParser->parse());
+    
+    delete nonsenseParser;
+    delete nonsenseStream;
 }
