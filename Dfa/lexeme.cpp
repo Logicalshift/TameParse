@@ -10,6 +10,12 @@
 
 using namespace dfa;
 
+/// \brief Creates a nonsensical empty lexeme
+lexeme::lexeme()
+: m_Matched(-1) {
+    
+}
+
 /// \brief Copy constructor
 lexeme::lexeme(const lexeme& copyFrom) 
 : m_Position(copyFrom.m_Position) 

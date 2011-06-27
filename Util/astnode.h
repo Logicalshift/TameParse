@@ -40,6 +40,9 @@ namespace util {
         node_list m_Children;
         
     public:
+        /// \brief Creates an empty AST node (not recommended you do this, it doesn't make much sense)
+        astnode();
+        
         /// \brief Creates an AST node with a nonterminal ID
         astnode(int nonterminal, int rule = -1);
         

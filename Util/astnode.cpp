@@ -11,6 +11,14 @@
 using namespace dfa;
 using namespace util;
 
+/// \brief Creates an empty AST node
+astnode::astnode()
+: m_Nonterminal(-1) 
+, m_Rule(-1) 
+, m_Lexeme()
+, m_Children() {
+}
+
 /// \brief Creates an AST node with a nonterminal ID
 astnode::astnode(int nonterminal, int rule)
 : m_Nonterminal(nonterminal)

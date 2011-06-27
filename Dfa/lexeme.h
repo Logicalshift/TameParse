@@ -34,6 +34,9 @@ namespace dfa {
         int m_Matched;
         
     public:
+        /// \brief Creates a nonsensical empty lexeme
+        lexeme();
+        
         /// \brief Copy constructor
         lexeme(const lexeme& copyFrom);
         
