@@ -232,7 +232,9 @@ void lalr_builder::complete_lookaheads() {
                 
                 const item_container& closeSymbol = closeRule.items()[closeOffset];
                 
-                // If this doesn't contain the empty item, then spontaneously generate lookahead for this transition
+                // Spontaneously generate lookaheads for this transition
+                //  -- We have an item a = b ^ C d (which was generated as part of the closure)
+                //  -- The lookahead for this item is copied to the item a = b C ^ d in the state reached by matching C
                 lalr_machine::transition_set::const_iterator targetState = transitions.find(closeSymbol);
                 if (targetState == transitions.end()) continue;
 
@@ -247,6 +249,12 @@ void lalr_builder::complete_lookaheads() {
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
                 
                 // This creates a propagation if the empty item is in the lookahead
+                //   -- We have an item a = b ^ C d
+                //   -- This item was part of the closure for item e = f ^ g
+                //   -- (ie, g can be empty)
+                //   -- We copy the lookahead from e = f ^ g to this item
+                //   -- e = f ^ g might also have lookahead propagated from elsewhere: we need to copy the lookahead
+                //      from these items as well
                 if (lookahead.find(empty_c) != lookahead.end()) {
                     // Add a propagation for this item
                     m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
