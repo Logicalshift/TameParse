@@ -613,9 +613,11 @@
 			files = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/Language/definition.txt",
 			);
 			name = "Run Script";
 			outputPaths = (
+				"${BUILT_PRODUCTS_DIR}/definition_txt.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
