@@ -160,19 +160,27 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.identifier << t.dot << t.identifier;
     
     // Definitions for a grammar
-    ebnf_repeating_optional nonterminalDefinitionList;
+    ebnf_optional           nonterminalDefinitionList;
     ebnf_repeating_optional orProductionList;
+    ebnf_repeating_optional equalsProductionList;
     ebnf_repeating_optional ebnfItemList;
     ebnf_repeating_optional simpleEbnfItemList;
     
     (*nonterminalDefinitionList.get_rule()) << nt.nonterminal_definition;
     (*orProductionList.get_rule()) << t.pipe << nt.production;
+    (*equalsProductionList.get_rule()) << t.equals << nt.production;
     (*ebnfItemList.get_rule()) << nt.ebnf_item;
     (*simpleEbnfItemList.get_rule()) << nt.simple_ebnf_item;
     
+    // In the bootstrap language, we only actually support one nonterminal definition: this is because we have
+    // to resolve the conflict where Simple-Ebnf-Item can reduce to a nonterminal, but if the nonterminal is followed
+    // by an '=', it's actually a new production. This is resolved with a guard in the 'real' language definition.
+    //
+    // The AST needs to be massaged to remove the final nonterminal from the last 'or' rule and add it before the
+    // equals. This is annoying, but it resolves the ambiguity with a LALR(1) parser.
     ((*result) += L"Grammar-Definition") << t.grammar << t.opencurly << nonterminalDefinitionList << t.closecurly;
     
-    ((*result) += L"Nonterminal-Definition") << t.nonterminal << t.equals << nt.production << orProductionList;
+    ((*result) += L"Nonterminal-Definition") << t.nonterminal << t.equals << nt.production << orProductionList << equalsProductionList;
     // (Not supporting the inheritance forms of these in the bootstrap language)
     
     // Productions
@@ -183,10 +191,10 @@ contextfree::grammar* bootstrap::create_grammar() {
     
     ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal;
     ((*result) += L"Simple-Ebnf-Item") << nt.terminal;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
     ((*result) += L"Simple-Ebnf-Item") << t.openparen << ebnfItemList << t.closeparen;
+    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal << t.star;
+    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal << t.plus;
+    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal << t.question;
     
     ((*result) += L"Nonterminal") << t.nonterminal;
     
