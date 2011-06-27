@@ -518,7 +518,7 @@ namespace lr {
         
     public:
         /// \brief Factory method that creates a new parser. The actions will be destroyed when the state is destroyed.
-        inline state* create_parser(parser_actions* actions, int initialState = 0) {
+        inline state* create_parser(parser_actions* actions, int initialState = 0) const {
             session* newSession = new session(actions);
             return new state(m_ParserTables, initialState, newSession);
         }
