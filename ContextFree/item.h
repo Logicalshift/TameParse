@@ -212,5 +212,6 @@ namespace contextfree {
 #include "ContextFree/standard_items.h"
 #include "ContextFree/ebnf_items.h"
 #include "ContextFree/rule.h"
+#include "ContextFree/guard.h"
 
 #endif

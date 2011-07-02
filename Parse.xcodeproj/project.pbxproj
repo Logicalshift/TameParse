@@ -282,12 +282,12 @@
 				4B1A91FE136C217B0018E595 /* item.h */,
 				4B1A9201136C4D270018E595 /* standard_items.cpp */,
 				4B1A9202136C4D270018E595 /* standard_items.h */,
+				4BEDDA7513BBB91E002FBD79 /* guard.cpp */,
+				4BEDDA7613BBB91E002FBD79 /* guard.h */,
 				4B1A9205136C5CC50018E595 /* ebnf_items.cpp */,
 				4B1A9206136C5CC60018E595 /* ebnf_items.h */,
 				4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */,
 				4B7F0C3413755E540012C085 /* terminal_dictionary.h */,
-				4BEDDA7513BBB91E002FBD79 /* guard.cpp */,
-				4BEDDA7613BBB91E002FBD79 /* guard.h */,
 			);
 			path = ContextFree;
 			sourceTree = "<group>";
