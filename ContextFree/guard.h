@@ -81,10 +81,10 @@ namespace contextfree {
         int priority() const;
         
         /// \brief The rule that should be matched for this guard to be successful
-        rule_container& rule();
+        rule_container& get_rule();
         
         /// \brief The rule that should be matched for this guard to be successful
-        const rule_container& rule() const;
+        const rule_container& get_rule() const;
     };
 }
 

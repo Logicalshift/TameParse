@@ -48,7 +48,7 @@ guard::guard(const guard& copyFrom)
     
     // Update the rule to use this item container
     // NOTE: if this goes out of scope later than the rule then we will end up with a duff reference
-    m_Rule = rule_container(new contextfree::rule(*copyFrom.rule(), ourselves), true);    
+    m_Rule = rule_container(new contextfree::rule(*copyFrom.get_rule(), ourselves), true);    
 }
 
 /// \brief Creates a clone of this item
@@ -99,20 +99,20 @@ bool guard::operator<(const item& compareTo) const {
     if (m_Priority > theirPriority) return false;
     
     // If the priorities are the same, then use the rule to do ordering
-    return rule() < compareGuard->rule();
+    return get_rule() < compareGuard->get_rule();
 }
 
 /// \brief Computes the set of symbols that can form the initial symbol of a lookahead that matches this guard
 item_set guard::initial(const grammar& gram) const {
-    return gram.first_for_rule(*rule());
+    return gram.first_for_rule(*get_rule());
 }
 
 /// \brief The rule that should be matched for this guard to be successful
-rule_container& guard::rule() {
+rule_container& guard::get_rule() {
     return m_Rule;
 }
 
 /// \brief The rule that should be matched for this guard to be successful
-const rule_container& guard::rule() const {
+const rule_container& guard::get_rule() const {
     return m_Rule;
 }
