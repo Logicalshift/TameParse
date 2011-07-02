@@ -38,8 +38,14 @@ wstring formatter::to_string(const contextfree::nonterminal& nt, const contextfr
 
 /// \brief Turns a guard item into a string
 wstring formatter::to_string(const guard& nt, const grammar& gram, const terminal_dictionary& dict) {
-    // TODO: implement me
-    return L"[GUARD]";
+    // Create a stream to build the result up into
+    wstringstream res;
+    
+    res << L"[=> ";
+    res << to_string(*nt.get_rule(), gram, dict, -1, false);
+    res << L"]";
+    
+    return res.str();
 }
 
 /// \brief Turns an item into a string
