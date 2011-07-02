@@ -171,6 +171,8 @@ void test_language_bootstrap::run_tests() {
     // Create a stream for the language definition
     stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
     
+    report("LanguageDefinitionHasData", bootstrap::get_default_language_definition().size() > 0);
+    
     // Create a lexer for it
     lexeme_stream* defaultStream = bs.get_lexer().create_stream_from(bootstrapDefinition);
     
