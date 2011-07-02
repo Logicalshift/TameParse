@@ -29,7 +29,7 @@ const std::string& bootstrap::get_default_language_definition() {
     
     // Fill in the result if it's empty
     if (result.size() == 0) {
-        result.copy((char*) definition_txt, definition_txt_len);
+        result.assign((char*) definition_txt, definition_txt_len);
     }
     
     // Return the result
