@@ -148,6 +148,39 @@ void lalr_builder::complete_parser() {
             lr0_item                transitItem(**item, offset+1);
             lr0_item_container      transitItemContainer(transitItem);
             
+            // Guard items produce a guard rule initial state, if there isn't one already
+            if (dottedItem->type() == item::guard) {
+                // Get the underlying guard object
+                const guard* thisGuard = dynamic_cast<const guard*>(dottedItem.item());
+                if (thisGuard != NULL) {
+                    // Get the rule ID
+                    int ruleId = thisGuard->get_rule()->identifier(*m_Grammar);
+                    
+                    // If there's no state defined for this rule, then define a new one
+                    if (m_StatesForGuard.find(ruleId) == m_StatesForGuard.end()) {
+                        // Create a state for this rule
+                        lalr_state*         guardState = new lalr_state();
+                        lr0_item_container  guardItem(new lr0_item(m_Grammar, thisGuard->get_rule(), 0), true);
+                        
+                        int guardItemId = guardState->add(guardItem);
+                        
+                        // Set the lookahead to be '$'
+                        end_of_input eoi;
+                        guardState->lookahead_for(guardItemId).insert(eoi);
+                        
+                        // Add the state
+                        lalr_state_container guardStateContainer(guardState, true);
+                        int guardStateId = m_Machine.add_state(guardStateContainer);
+                        
+                        // Add this as a state to be processed
+                        waitingStates.push(guardStateId);
+                        
+                        // Store as a known state
+                        m_StatesForGuard[ruleId] = guardStateId;
+                    }
+                }
+            }
+            
             // Add this transition for the appropriate item
             lalr_state_container& lalrState = newStates[dottedItem];
             lalrState->add(transitItemContainer);

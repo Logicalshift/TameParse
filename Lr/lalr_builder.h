@@ -72,6 +72,9 @@ namespace lr {
         /// \brief Maps state IDs to sets of LR actions
         mutable std::map<int, lr_action_set> m_ActionsForState;
         
+        /// \brief Maps the ID of guard rules to their initial state (if they generate an accepting action, then the guard is matched)
+        std::map<int, int> m_StatesForGuard;
+        
     public:
         /// \brief Creates a new builder for the specified grammar
         ///
