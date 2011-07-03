@@ -54,6 +54,7 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
     switch (it.type()) {
         case item::empty:   return L"[empty]";
         case item::eoi:     return L"$";
+        case item::eog:     return L"%";
         default:            break;
     }
     

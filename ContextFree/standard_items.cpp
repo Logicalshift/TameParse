@@ -229,3 +229,43 @@ item_set end_of_input::first(const grammar& gram) const {
     result.insert(this);
     return result;
 }
+
+/// \brief Creates a terminal that matches the specified symbol
+end_of_guard::end_of_guard() 
+: item(symbol_set::null) {
+}
+
+/// \brief Compares this item to another. Returns true if they are the same
+bool end_of_guard::operator==(const item& compareTo) const {
+    return compareTo.type() == item::eog;
+}
+
+/// \brief Orders this item relative to another item
+bool end_of_guard::operator<(const item& compareTo) const {
+    return item::eog < compareTo.type();
+}
+
+/// \brief Creates a clone of this item
+item* end_of_guard::clone() const {
+    return new end_of_guard();
+}
+
+/// \brief The type of this item
+item::kind end_of_guard::type() const {
+    return item::eog;
+}
+
+/// \brief Computes the set FIRST(item) for this item (when used in the specified grammar)
+///
+/// This set will always include the item itself by definition. Things like non-terminals should include themselves and the first
+/// set for the rules that make them up.
+///
+/// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
+/// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
+item_set end_of_guard::first(const grammar& gram) const {
+    // Just this item
+    item_set result;
+    result.insert(this);
+    return result;
+}
+

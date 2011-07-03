@@ -165,8 +165,8 @@ void lalr_builder::complete_parser() {
                         int guardItemId = guardState->add(guardItem);
                         
                         // Set the lookahead to be '$'
-                        end_of_input eoi;
-                        guardState->lookahead_for(guardItemId).insert(eoi);
+                        end_of_guard eog;
+                        guardState->lookahead_for(guardItemId).insert(eog);
                         
                         // Add the state
                         lalr_state_container guardStateContainer(guardState, true);

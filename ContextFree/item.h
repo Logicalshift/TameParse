@@ -103,6 +103,15 @@ namespace contextfree {
             /// \brief The 'end of input' item
             eoi,
             
+            /// \brief An 'end of guard' item
+            ///
+            /// This item works similarly to the 'end of input' item except that it matches any symbol. It's used at the end
+            /// of guard rules to signify that enough lookahead has been matched. Guards match the shortest possible input
+            /// that can be accepted, so this will be followed as soon as the parser reaches a state that it can accept the
+            /// rule. (This also makes this usable for accepting partial languages in the middle of a longer input string,
+            /// which could perhaps be useful for cases where we want to mix two languages together)
+            eog,
+            
             /// \brief This item represents a lexical symbol
             terminal,
             
