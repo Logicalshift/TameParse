@@ -96,7 +96,7 @@ language ParserLanguage {
 		
 		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
 		
-		<Nonterminal-Definition>	= nonterminal '=' <Production> ('|' <Production>)* newline
+		<Nonterminal-Definition>	= [=> nonterminal '='] nonterminal '=' <Production> ('|' <Production>)* newline
 									| nonterminal "+=" <Production> ('|' <Production>)* newline
 									| replace <Nonterminal> '=' <Production> ('|' <Production>)* newline
 		
@@ -108,10 +108,13 @@ language ParserLanguage {
 		
 		<Simple-Ebnf-Item>			= <Nonterminal>
 									| <Terminal>
+									| <Guard>
 									| <Simple-Ebnf-Item> '*'
 									| <Simple-Ebnf-Item> '+'
 									| <Simple-Ebnf-Item> '?'
 									| '(' <Ebnf-Item> ')'
+		
+		<Guard>						= "[=>" (<Ebnf-Item>)* ']'
 		
 		<Nonterminal>				= nonterminal
 									| identifier '.' nonterminal

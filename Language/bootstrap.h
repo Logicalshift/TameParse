@@ -27,35 +27,37 @@ namespace language {
     public:
         struct terminals {
             contextfree::item_container
-                identifier,
-                nonterminal,
-                regex,
-                string,
-                character,
+                identifier,                     // Identifier symbol
+                nonterminal,                    // Nonterminal symbol
+                regex,                          // Regular expression
+                string,                         // String
+                character,                      // Character
                 
-                language,
-                grammar,
-                lexersymbols,
-                lexer,
-                weaklexer,
-                ignore,
-                keywords,
+                language,                       // Keyword
+                grammar,                        // Keyword
+                lexersymbols,                   // Keyword
+                lexer,                          // Keyword
+                weaklexer,                      // Keyword
+                ignore,                         // Keyword
+                keywords,                       // Keyword
                 
-                equals,
-                question,
-                plus,
-                star,
-                colon,
-                openparen,
-                closeparen,
-                opencurly,
-                closecurly,
-                dot,
-                pipe,
+                equals,                         // '='
+                question,                       // '?'
+                plus,                           // '+'
+                star,                           // '*'
+                colon,                          // ':'
+                openparen,                      // '('
+                closeparen,                     // ')'
+                opencurly,                      // '{'
+                closecurly,                     // '}'
+                dot,                            // '.'
+                pipe,                           // '|'
+                openguard,                      // "[=>"
+                closesquare,                    // ']'
                 
-                newline,
-                whitespace,
-                comment;
+                newline,                        // \n or \r
+                whitespace,                     // Any kind of whitespace
+                comment;                        // Comment
         };
         
     private:
@@ -97,6 +99,7 @@ namespace language {
                 production,
                 ebnf_item,
                 simple_ebnf_item,
+                guard,
                 nonterminal,
                 terminal,
                 basic_terminal;

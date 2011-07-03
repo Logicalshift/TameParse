@@ -78,6 +78,8 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.closecurly        = add_terminal(languageNdfa, L"'}'", L"\\}");
     t.dot               = add_terminal(languageNdfa, L"'.'", L"\\.");
     t.pipe              = add_terminal(languageNdfa, L"'|'", L"\\|");
+    t.openguard         = add_terminal(languageNdfa, L"\"[=>\"", L"\\[=>");
+    t.closesquare       = add_terminal(languageNdfa, L"']'", L"\\]");
     
     // The lexical constructs
     t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
@@ -124,6 +126,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.production               = result->get_nonterminal(L"Production");
     nt.ebnf_item                = result->get_nonterminal(L"Ebnf-Item");
     nt.simple_ebnf_item         = result->get_nonterminal(L"Simple-Ebnf-Item");
+    nt.guard                    = result->get_nonterminal(L"Guard");
     nt.nonterminal              = result->get_nonterminal(L"Nonterminal");
     nt.terminal                 = result->get_nonterminal(L"Terminal");
     nt.basic_terminal           = result->get_nonterminal(L"Basic-Terminal");
@@ -207,8 +210,11 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
     ((*result) += L"Simple-Ebnf-Item") << t.openparen << ebnfItemList << t.closeparen;
+    ((*result) += L"Simple-Ebnf-Item") << nt.guard;
     
     ((*result) += L"Nonterminal") << t.nonterminal;
+    
+    ((*result) += L"Guard") << t.openguard << ebnfItemList << t.closesquare;
     
     ((*result) += L"Terminal") << nt.basic_terminal;
     ((*result) += L"Basic-Terminal") << t.identifier;
