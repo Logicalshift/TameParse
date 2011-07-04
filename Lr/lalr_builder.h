@@ -132,6 +132,10 @@ namespace lr {
 
         /// \brief Computes the closure of a LALR state
         static void create_closure(closure_set& target, const lalr_state& state, const contextfree::grammar* gram);
+        
+    private:
+        /// \brief Adds guard actions appropriate for the specified guard item
+        void add_guard(const contextfree::item_container& item, lr_action_set& newSet) const;
     };
 }
 

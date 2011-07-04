@@ -109,6 +109,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         int numWeak = 0;
         for (lr_action_set::const_iterator nextAction = nextItem->second.begin(); nextAction != nextItem->second.end(); nextAction++) {
             switch ((*nextAction)->type()) {
+                case lr_action::act_guard:
                 case lr_action::act_weakreduce:
                 case lr_action::act_ignore:
                     numWeak++;

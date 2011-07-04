@@ -341,6 +341,7 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
         case lr_action::act_reduce:
         case lr_action::act_weakreduce:
         case lr_action::act_accept:
+        case lr_action::act_guard:
             res << L" (" << to_string(*act.rule(), gram, dict) << L")";
             break;
             

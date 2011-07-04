@@ -395,6 +395,30 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
     }
 }
 
+/// \brief Adds guard actions appropriate for the specified guard item
+void lalr_builder::add_guard(const item_container& item, lr_action_set& newSet) const {
+    const guard* thisGuard = dynamic_cast<const guard*>(item.item());
+    if (thisGuard == NULL) return;
+    
+    // Must have an associated state ID
+    int                             guardRuleId     = thisGuard->get_rule()->identifier(*m_Grammar);
+    map<int, int>::const_iterator   guardStateId    = m_StatesForGuard.find(guardRuleId);
+    
+    if (guardStateId == m_StatesForGuard.end()) return;
+    
+    // Fetch the initial set for this guard symbol
+    item_set initial = thisGuard->initial(*m_Grammar);
+    
+    // Add guard actions for each of the terminal items in initial
+    for (item_set::iterator initialSym = initial.begin(); initialSym != initial.end(); initialSym++) {
+        // Only terminals
+        if ((*initialSym)->type() != item::terminal) continue;
+        
+        // Add a guard action for this item
+        newSet.insert(lr_action_container(new lr_action(lr_action::act_guard, *initialSym, guardStateId->second, thisGuard->get_rule()), true));
+    }
+}
+
 /// \brief After the state machine has been completely built, returns the actions for the specified state
 ///
 /// If there are conflicts, this will return multiple actions for a single symbol.
@@ -417,6 +441,18 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     lr1_item_set closure;
     generate_closure(thisState, closure);
     
+    // For each transition on a guarded symbol, add a guard transition to check for it
+    for (transition_set::const_iterator maybeGuard = transits.begin(); maybeGuard != transits.end(); maybeGuard++) {
+        // Get the item for this transition
+        const item_container&   thisItem    = maybeGuard->first;
+        
+        // Must be a guard
+        if (thisItem->type() != item::guard) continue;
+        
+        // Add the guard actions for this item
+        add_guard(thisItem, newSet);
+    }
+    
     // Add a shift action for each transition
     for (transition_set::const_iterator it = transits.begin(); it != transits.end(); it++) {
         // Get the item being shifted
@@ -427,7 +463,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
         lr_action::action_type actionType = lr_action::act_goto;
         if (thisItem->type() == item::terminal || thisItem->type() == item::guard) {
             actionType = lr_action::act_shift;
-        }        
+        }
         
         lr_action newAction(actionType, thisItem, targetState);
         newSet.insert(newAction);
@@ -460,6 +496,12 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
                 && reduceSymbolType != item::eog 
                 && reduceSymbolType != item::guard)
                 continue;
+            
+            // For reductions that act on guards, produce appropriate guard actions
+            if (reduceSymbolType == item::guard) {
+                // Add the guard actions for this item
+                add_guard(*reduceSymbol, newSet);
+            }
             
             // Generate a reduce action for this symbol
             lr_action newAction(actionType, *reduceSymbol, -1, rule);
