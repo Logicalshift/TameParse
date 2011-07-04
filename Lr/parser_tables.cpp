@@ -46,9 +46,14 @@ static inline int action_score(int action) {
 static inline bool compare_actions(const parser_tables::action& a, const parser_tables::action& b) {
     // First, compare on symbol IDs
     if (a.m_SymbolId < b.m_SymbolId) return true;
+    if (a.m_SymbolId > b.m_SymbolId) return false;
     
     // Next, compare on action types
-    if (action_score(a.m_Type) < action_score(b.m_Type)) return true;
+    int aScore = action_score(a.m_Type);
+    int bScore = action_score(b.m_Type);
+    
+    if (aScore < bScore) return true;
+    if (aScore > bScore) return false;
     
     // Actions are equal
     return false;
