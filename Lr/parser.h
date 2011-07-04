@@ -317,6 +317,10 @@ namespace lr {
                         m_Stack->state = act->m_NextState;
                         return false;
                         
+                    case lr_action::act_guard:
+                        // TODO: actually deal with guards
+                        return true;
+                        
                     default:
                         return false;
                 }
@@ -381,6 +385,13 @@ namespace lr {
                         case lr_action::act_shift:
                             // This terminal will result in a shift: this is successful
                             return true;
+                            
+                        case lr_action::act_divert:
+                            // Push the new state to the stack
+                            pushed.push(act->m_NextState);
+                            break;
+                            
+                            // TODO: guards (how to deal with these, there's limited lookahead here, and it's possible that they'll allow a reduction to continue). Hrm, maybe we can succeed if either of the possible paths lead to a successful reduction, though we need to know the rule ID to do that...
                             
                         case lr_action::act_weakreduce:
                         {
