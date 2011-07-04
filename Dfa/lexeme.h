@@ -93,13 +93,13 @@ namespace dfa {
         /// \brief Converts the content to a basic string with a different symbol type
         ///
         /// No encoding is done by this call, so the behaviour is just to convert ints to the symbol type
-        template<typename symbol_type> inline std::basic_string<symbol_type> content() {
+        template<typename symbol_type> inline std::basic_string<symbol_type> content() const {
             // Create the result and reserve the appropriate amount of space
             std::basic_string<symbol_type> result;
             result.reserve(m_Symbols.size());
             
             // Copy the symbols across, using a simple cast operation
-            for (symbols::iterator it=m_Symbols.begin(); it != m_Symbols.end(); it++) {
+            for (symbols::const_iterator it=m_Symbols.begin(); it != m_Symbols.end(); it++) {
                 result += (symbol_type)*it;
             }
             
