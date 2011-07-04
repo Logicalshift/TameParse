@@ -100,7 +100,7 @@ parser_tables::parser_tables(const lalr_builder& builder) {
             int type        = (*nextAction)->type();
             
             // If the next action is a reduce action, then the next state should actually be the rule to reduce
-            if (type == lr_action::act_reduce || type == lr_action::act_weakreduce) {
+            if (type == lr_action::act_reduce || type == lr_action::act_weakreduce || type == lr_action::act_accept) {
                 // Look up the ID we assigned this rule
                 int                     ruleId  = (*nextAction)->rule()->identifier(gram);
                 map<int, int>::iterator found   = ruleIds.find(ruleId);

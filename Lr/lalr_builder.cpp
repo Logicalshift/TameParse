@@ -455,7 +455,11 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
             // We don't produce actions for nonterminal items (the default closures do add these to the follow set, though)
             // Guards also produce reduce actions
             int reduceSymbolType = (*reduceSymbol)->type();
-            if (reduceSymbolType != item::terminal && reduceSymbolType != item::eoi && reduceSymbolType != item::guard) continue;
+            if (reduceSymbolType    != item::terminal 
+                && reduceSymbolType != item::eoi 
+                && reduceSymbolType != item::eog 
+                && reduceSymbolType != item::guard)
+                continue;
             
             // Generate a reduce action for this symbol
             lr_action newAction(actionType, *reduceSymbol, -1, rule);
