@@ -93,6 +93,12 @@ static void dump(const lr_action_set& actions, const grammar& gram, const termin
             case lr_action::act_accept:
                 wcerr << L"ACCEPT ";
                 break;
+            case lr_action::act_divert:
+                wcerr << L"DIVERT ";
+                break;
+            case lr_action::act_guard:
+                wcerr << L"GUARD ";
+                break;
             case lr_action::act_reduce:
                 wcerr << L"REDUCE ";
                 break;

@@ -260,7 +260,7 @@ namespace lr {
             /// \brief Performs the specified action
             ///
             /// No check is made to see if the action is valid: it is just performed. Returns true if the lookahead
-            /// should be updated to be the next symbol
+            /// should be updated to be the next symbol.
             ///
             inline bool perform(const lexeme_container& lookahead, const action* act) {
                 switch (act->m_Type) {
@@ -273,13 +273,20 @@ namespace lr {
                         m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(lookahead));
                         return true;
                         
+                    case lr_action::act_divert:
+                        // Push the new state on to the stack
+                        m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(lookahead));
+                        
+                        // Leave the lookahead as-is
+                        return false;
+                        
                     case lr_action::act_reduce:
                     case lr_action::act_weakreduce:
                     {
                         // For reduce actions, the 'm_NextState' field actually refers to the rule that's being reduced
                         const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
                         
-                        // Pop items from the stack, and create an item for 
+                        // Pop items from the stack, and create an item for them by calling the actions
                         reduce_list items;
                         for (int x=0; x < rule.m_Length; x++) {
                             items.push_back(m_Stack->item);

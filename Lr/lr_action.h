@@ -69,6 +69,18 @@ namespace lr {
             
             /// \brief If a phrase has been reduced to this nonterminal symbol, then goto to the specified state
             act_goto,
+            
+            /// \brief If the terminal is seen, then the parser moves directly to the specified state (and it is left as lookahead)
+            ///
+            /// This is used when generating actions for guard symbols, specifically when the parser detects there is no conflict
+            /// and so can always assume that the guard is successful based on a single symbol of lookahead.
+            act_divert,
+            
+            /// \brief If the terminal is seen, then the specified guard rule should be evaluated.
+            ///
+            /// If the guard rule is accepted, then the guard symbol is set as the lookahead (this is retrieved from the rule
+            /// that is reduced)
+            act_guard,
         };
         
     private:

@@ -17,24 +17,29 @@ using namespace lr;
 /// \brief Ranks actions in the order they should appear in the final table
 static inline int action_score(int action) {
     switch (action) {
-        case lr_action::act_weakreduce:
-            // Weak reduce actions come first as they should always be performed if their symbol will produce a shift
+        case lr_action::act_guard:
+            // Guard actions are always evaluated first, so we can substitute the guard symbol if it's matched
             return 0;
             
-        case lr_action::act_shift:
-            // Shift actions are preferred if there's a conflict
+        case lr_action::act_weakreduce:
+            // Weak reduce actions come first as they should always be performed if their symbol will produce a shift
             return 1;
+            
+        case lr_action::act_shift:
+        case lr_action::act_divert:
+            // Shift actions are preferred if there's a conflict
+            return 2;
             
         case lr_action::act_reduce:
             // Reduce actions have the lowest priority
-            return 2;
+            return 3;
             
         case lr_action::act_goto:
             // Gotos never actually produce a clash
-            return 3;
+            return 4;
             
         default:
-            return 4;
+            return 5;
     }
 }
 

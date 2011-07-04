@@ -304,6 +304,14 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
             res << L"Accept ";
             break;
             
+        case lr_action::act_divert:
+            res << L"Divert ";
+            break;
+            
+        case lr_action::act_guard:
+            res << L"Guard ";
+            break;
+            
         case lr_action::act_goto:
             res << L"Goto " << act.next_state() << L" ";
             break;

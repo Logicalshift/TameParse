@@ -425,7 +425,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
         
         // Add a new shift or goto action (terminals are shift actions, everything else is a goto)
         lr_action::action_type actionType = lr_action::act_goto;
-        if (thisItem->type() == item::terminal) {
+        if (thisItem->type() == item::terminal || thisItem->type() == item::guard) {
             actionType = lr_action::act_shift;
         }        
         
@@ -444,15 +444,18 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
         const rule_container& rule = (*lrItem)->rule();
         
         // Use the accepting action if the target symbol is 'empty' (which we use a placeholder for a symbol representing a language)
+        // Also use the accepting action for guards
         // TODO: use a dedicated item type instead of overloading the empty symbol
         lr_action::action_type actionType = lr_action::act_reduce;
-        if (rule->nonterminal()->type() == item::empty) {
+        if (rule->nonterminal()->type() == item::empty || rule->nonterminal()->type() == item::guard) {
             actionType = lr_action::act_accept;
         }
         
         for (lookahead_set::const_iterator reduceSymbol = la.begin(); reduceSymbol != la.end(); reduceSymbol++) {
             // We don't produce actions for nonterminal items (the default closures do add these to the follow set, though)
-            if ((*reduceSymbol)->type() != item::terminal && (*reduceSymbol)->type() != item::eoi) continue;
+            // Guards also produce reduce actions
+            int reduceSymbolType = (*reduceSymbol)->type();
+            if (reduceSymbolType != item::terminal && reduceSymbolType != item::eoi && reduceSymbolType != item::guard) continue;
             
             // Generate a reduce action for this symbol
             lr_action newAction(actionType, *reduceSymbol, -1, rule);
