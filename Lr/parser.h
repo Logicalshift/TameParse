@@ -362,8 +362,54 @@ namespace lr {
                 }
             }
             
+            ///
+            /// \brief Private class that provides methods for reading data about terminal symbols.
+            ///
+            /// Currently used for fetching the actions by the can_reduce implementation. This is the most used version, as it
+            /// works with actions based on terminals.
+            ///
+            /// (Note that there are some actions generated for certain non-terminal symbols: specifically the end-of-input
+            /// symbol, guard symbols and the end-of-guard symbol, hence the need for multiple versions of this)
+            ///
+            class terminal_fetcher {
+            public:
+                /// \brief The parser tables action iterator type
+                typedef parser_tables::action_iterator action_iterator;
+                
+                /// \brief Returns an iterator pointing to the first action referring to a terminal symbol in the specified state
+                inline static action_iterator find_symbol(const parser_tables* tables, int state, int terminal) {
+                    return tables->find_terminal(state, terminal);
+                }
+                
+                /// \brief Returns an iterator pointing to the last action referring to a terminal symbol in the specified state
+                inline static action_iterator last_symbol_action(const parser_tables* tables, int state) {
+                    return tables->last_terminal_action(state);
+                }
+            };
+            
+            ///
+            /// \brief Private class that provides methods for reading data about non-terminal symbols.
+            ///
+            /// Mainly used for actions for things like guard symbols and the end of input symbol.
+            ///
+            class nonterminal_fetcher {
+            public:
+                /// \brief The parser tables action iterator type
+                typedef parser_tables::action_iterator action_iterator;
+                
+                /// \brief Returns an iterator pointing to the first action referring to a terminal symbol in the specified state
+                inline static action_iterator find_symbol(const parser_tables* tables, int state, int terminal) {
+                    return tables->find_nonterminal(state, terminal);
+                }
+                
+                /// \brief Returns an iterator pointing to the last action referring to a terminal symbol in the specified state
+                inline static action_iterator last_symbol_action(const parser_tables* tables, int state) {
+                    return tables->last_nonterminal_action(state);
+                }
+            };
+            
             /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
-            bool can_reduce(int terminal, int stackPos, std::stack<int> pushed) {
+            template<class symbol_fetcher> bool can_reduce(int symbol, int stackPos, std::stack<int> pushed) {
                 // Get the new state
                 int state;
                 if (!pushed.empty()) {
@@ -374,15 +420,16 @@ namespace lr {
                 }
 
                 // Get the initial action for the terminal
-                parser_tables::action_iterator act = m_Tables->find_terminal(state, terminal);
+                parser_tables::action_iterator act = symbol_fetcher::find_symbol(m_Tables, state, symbol);
                 
                 // Find the first reduce action for this item
-                while (act != m_Tables->last_terminal_action(state)) {
+                while (act != symbol_fetcher::last_symbol_action(m_Tables, state)) {
                     // Fail if there are no actions for this terminal
-                    if (act->m_SymbolId != terminal) return false;
+                    if (act->m_SymbolId != symbol) return false;
                     
                     switch (act->m_Type) {
                         case lr_action::act_shift:
+                        case lr_action::act_accept:
                             // This terminal will result in a shift: this is successful
                             return true;
                             
@@ -402,7 +449,7 @@ namespace lr {
                             
                             // If we can reduce via this item, then the result is true
                             fake_reduce(act, weakPos, weakStack);
-                            if (can_reduce(terminal, weakPos, weakStack)) return true;
+                            if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack)) return true;
                             
                             // If not, keep looking for a stronger action
                             act++;
@@ -424,7 +471,7 @@ namespace lr {
                             }
                             
                             // Get the initial action for the terminal
-                            act = m_Tables->find_terminal(state, terminal);
+                            act = symbol_fetcher::find_symbol(m_Tables, state, symbol);
                             
                             // Carry on looking with the new state
                             break;
@@ -447,12 +494,18 @@ namespace lr {
             /// be resolved by a LR(1) parser, this will disambiguate the grammar (making it possible to choose
             /// only the action that allows the parser to continue)
             inline bool can_reduce(const lexeme_container& lexeme) {
-                return can_reduce(lexeme->matched(), 0, std::stack<int>());
+                return can_reduce<terminal_fetcher>(lexeme->matched(), 0, std::stack<int>());
             }
             
             /// \brief Returns true if a reduction of the lookahead will result in it being shifted
             inline bool can_reduce() {
                 return can_reduce(look());
+            }
+            
+        private:
+            /// \brief As for can_reduce, but with a fake nonterminal lookahead value
+            inline bool can_reduce_nonterminal(int nt) {
+                return can_reduce<nonterminal_fetcher>(nt, 0, std::stack<int>());
             }
             
         public:

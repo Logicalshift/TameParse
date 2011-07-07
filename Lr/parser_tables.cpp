@@ -68,7 +68,9 @@ parser_tables::parser_tables(const lalr_builder& builder) {
     m_Counts                = new action_count[m_NumStates];
     
     contextfree::end_of_input eoi;
+    contextfree::end_of_guard eog;
     m_EndOfInput            = builder.gram().identifier_for_item(eoi);
+    m_EndOfGuard            = builder.gram().identifier_for_item(eog);
     
     const grammar& gram = builder.gram();
     
@@ -162,7 +164,8 @@ parser_tables::parser_tables(const lalr_builder& builder) {
 parser_tables::parser_tables(const parser_tables& copyFrom) 
 : m_NumStates(copyFrom.m_NumStates)
 , m_NumRules(copyFrom.m_NumRules)
-, m_EndOfInput(copyFrom.m_EndOfInput) {
+, m_EndOfInput(copyFrom.m_EndOfInput)
+, m_EndOfGuard(copyFrom.m_EndOfGuard) {
     // Allocate the action tables
     m_TerminalActions       = new action*[m_NumStates];
     m_NonterminalActions    = new action*[m_NumStates];

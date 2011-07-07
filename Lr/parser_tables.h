@@ -64,6 +64,9 @@ namespace lr {
         /// \brief The nonterminal symbol representing the end of input
         int m_EndOfInput;
         
+        /// \brief The nonterminal symbol representing the 'end of guard' symbol
+        int m_EndOfGuard;
+        
         /// \brief The terminal action table (sorted in order of terminal ID)
         action** m_TerminalActions;
         
@@ -131,6 +134,9 @@ namespace lr {
         
         /// \brief Returns the nonterminal identifier representing the end of input symbol
         inline int end_of_input() const { return m_EndOfInput; }
+        
+        /// \brief Returns the nonterminal identifier representing the end of guard symbol
+        inline int end_of_guard() const { return m_EndOfGuard; }
     };
 }
 
