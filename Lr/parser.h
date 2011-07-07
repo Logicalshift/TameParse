@@ -543,8 +543,17 @@ namespace lr {
                     
                     // If this is a weak reduce action, then check if the action is successful
                     if (act->m_Type == lr_action::act_weakreduce) {
-                        // TODO: this won't work if the action is the end of input symbol
-                        if (!can_reduce(la)) continue;
+                        if (la.item() != NULL) {
+                            // Standard symbol: use the usual form of can_reduce
+                            if (!can_reduce(la)) {
+                                continue;
+                            }
+                        } else {
+                            // Reach the end of input: check can_reduce for the EOI symbol
+                            if (!can_reduce_nonterminal(m_Tables->end_of_input())) {
+                                continue;
+                            }
+                        }
                     }
                     
                     // Perform this action
