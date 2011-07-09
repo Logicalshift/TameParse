@@ -228,12 +228,14 @@ namespace lr {
             ///
             /// \brief Retrieves the current lookahead character
             ///
-            inline const lexeme_container& look() {
+            inline const lexeme_container& look(int offset = 0) {
                 // Static lexeme container representing the end of the file
                 static lexeme_container endOfFile((lexeme*)NULL);
                 
                 // Read a new symbol if necessary
-                while (m_LookaheadPos >= m_Session->m_Lookahead.size()) {
+                int pos = m_LookaheadPos + offset;
+                
+                while (pos >= m_Session->m_Lookahead.size()) {
                     if (!m_Session->m_EndOfFile) {
                         // Read the next symbol using the parser actions
                         dfa::lexeme_container nextLexeme(m_Session->m_Actions->read(), true);
@@ -253,16 +255,22 @@ namespace lr {
                 }
                 
                 // Return the current symbol
-                return m_Session->m_Lookahead[m_LookaheadPos];
+                return m_Session->m_Lookahead[pos];
             }
+
             
+        private:
             ///
             /// \brief Performs the specified action
             ///
             /// No check is made to see if the action is valid: it is just performed. Returns true if the lookahead
             /// should be updated to be the next symbol.
             ///
-            inline bool perform(const lexeme_container& lookahead, const action* act) {
+            /// This is a generic routine that can have a class supplied to change how the result of the action is
+            /// generated. This is to support guard actions (where we are only interested in storing the state) as
+            /// well as standard actions (where we want to call the actions object to actually perform the action)
+            ///
+            template<class actions> inline bool perform_generic(const lexeme_container& lookahead, const action* act) {
                 switch (act->m_Type) {
                     case lr_action::act_ignore:
                         // Discard the current lookahead
@@ -270,12 +278,12 @@ namespace lr {
                         
                     case lr_action::act_shift:
                         // Push the lookahead onto the stack
-                        m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(lookahead));
+                        actions::shift(this, act, lookahead);
                         return true;
                         
                     case lr_action::act_divert:
                         // Push the new state on to the stack
-                        m_Stack.push(act->m_NextState, m_Session->m_Actions->shift(lookahead));
+                        actions::shift(this, act, lookahead);
                         
                         // Leave the lookahead as-is
                         return false;
@@ -287,26 +295,7 @@ namespace lr {
                         const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
                         
                         // Pop items from the stack, and create an item for them by calling the actions
-                        reduce_list items;
-                        for (int x=0; x < rule.m_Length; x++) {
-                            items.push_back(m_Stack->item);
-                            m_Stack.pop();
-                        }
-                        
-                        // Fetch the state that's now on top of the stack
-                        int gotoState = m_Stack->state;
-                        
-                        // Get the goto action for this nonterminal
-                        for (parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
-                             gotoAct != m_Tables->last_nonterminal_action(gotoState); 
-                             gotoAct++) {
-                            if (gotoAct->m_Type == lr_action::act_goto) {
-                                // Found the goto action, perform the reduction
-                                // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                                m_Stack.push(gotoAct->m_NextState, m_Session->m_Actions->reduce(rule.m_Identifier, act->m_NextState, items));
-                                break;
-                            }
-                        }
+                        actions::reduce(this, act, rule);
                         
                         // Done. If no goto was performed, we just chuck everything away associated with this rule
                         return false;
@@ -314,7 +303,7 @@ namespace lr {
                         
                     case lr_action::act_goto:
                         // In general, this won't happen
-                        m_Stack->state = act->m_NextState;
+                        actions::set_state(this, act->m_NextState);
                         return false;
                         
                     case lr_action::act_guard:
@@ -324,6 +313,78 @@ namespace lr {
                     default:
                         return false;
                 }
+            }
+            
+            friend class standard_actions;
+            
+            ///
+            /// \brief The actions performed when acting as a standard parser
+            ///
+            class standard_actions {
+            public:
+                /// \brief Shift action
+                inline static void shift(state* state, const action* act, const lexeme_container& lookahead) {
+                    // Push the next state, and the result of the shift action in the actions class
+                    state->m_Stack.push(act->m_NextState, state->m_Session->m_Actions->shift(lookahead));
+                }
+                
+                /// \brief Reduce action
+                inline static void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
+                    // Pop items from the stack, and create an item for them by calling the actions
+                    reduce_list items;
+                    for (int x=0; x < rule.m_Length; x++) {
+                        items.push_back(state->m_Stack->item);
+                        state->m_Stack.pop();
+                    }
+                    
+                    // Fetch the state that's now on top of the stack
+                    int gotoState = state->m_Stack->state;
+                    
+                    // Get the goto action for this nonterminal
+                    for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
+                         gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
+                         gotoAct++) {
+                        if (gotoAct->m_Type == lr_action::act_goto) {
+                            // Found the goto action, perform the reduction
+                            // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
+                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, act->m_NextState, items));
+                            break;
+                        }
+                    }                    
+                }
+                
+                /// \brief Sets the current state of the parser
+                inline static void set_state(state* state, int newState) {
+                    state->m_Stack->state = newState;
+                }
+            };
+
+            ///
+            /// \brief Checks the lookahead against the guard condition which starts at the specified initial state
+            ///
+            bool check_guard(int initialState, int initialOffset) {
+                /// Stack of states pushed by the guard
+                std::stack<int> guardStack;
+                
+                // Current lookahead offset
+                int offset = initialOffset;
+                
+                // Start in the supplied initial state
+                guardStack.push(initialState);
+                
+                return false;
+            } 
+
+        public:
+            ///
+            /// \brief Performs the specified action
+            ///
+            /// No check is made to see if the action is valid: it is just performed. Returns true if the lookahead
+            /// should be updated to be the next symbol.
+            ///
+            inline bool perform(const lexeme_container& lookahead, const action* act) {
+                // Call perform_generic with the standard actions
+                return perform_generic<standard_actions>(lookahead, act);
             }
             
         private:
@@ -549,7 +610,7 @@ namespace lr {
                                 continue;
                             }
                         } else {
-                            // Reach the end of input: check can_reduce for the EOI symbol
+                            // Reached the end of input: check can_reduce for the EOI symbol
                             if (!can_reduce_nonterminal(m_Tables->end_of_input())) {
                                 continue;
                             }
