@@ -145,7 +145,7 @@ namespace lr {
         inline int end_of_guard() const { return m_EndOfGuard; }
         
         /// \brief Returns true if the specified state has an end of guard symbol
-        inline bool has_end_of_guard(int stateId) {
+        inline bool has_end_of_guard(int stateId) const {
             int foundButIgnored;
             return std::binary_search(m_EndGuardStates, m_EndGuardStates + m_NumEndOfGuards, foundButIgnored);
         }

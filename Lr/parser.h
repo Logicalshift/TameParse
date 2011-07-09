@@ -432,6 +432,9 @@ namespace lr {
                 // Create the guard actions object
                 guard_actions guardActions(initialState, initialOffset);
                 
+                // Set to true once the EOG symbol can be reduced
+                bool canReduceEog = false;
+                
                 // Perform parser actions to decide if the guard is accepted or not
                 for (;;) {
                     // Fetch the lookahead
@@ -453,6 +456,19 @@ namespace lr {
                     } else {
                         // The item is the end-of-input symbol (which counts as a nonterminal)
                         sym = m_Tables->end_of_input();
+                        act = m_Tables->find_nonterminal(state, sym);
+                        end = m_Tables->last_nonterminal_action(state);
+                    }
+                    
+                    // Reduce the EOG symbol as soon as possible
+                    if (m_Tables->has_end_of_guard(state)) {
+                        // Check if we can reduce the EOG symbol. No need to check twice.
+                        if (!canReduceEog) {
+                            canReduceEog = can_reduce_nonterminal(m_Tables->end_of_guard());
+                        }
+                        
+                        // Switch to the EOG action if it exists
+                        sym = m_Tables->end_of_guard();
                         act = m_Tables->find_nonterminal(state, sym);
                         end = m_Tables->last_nonterminal_action(state);
                     }
