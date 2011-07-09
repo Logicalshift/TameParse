@@ -307,6 +307,9 @@ namespace lr {
                         return false;
                         
                     case lr_action::act_guard:
+                        if (check_guard(act->m_NextState, 0)) {
+                            abort();
+                        } 
                         // TODO: actually deal with guards
                         return true;
                         
@@ -387,7 +390,7 @@ namespace lr {
                 inline void next() { m_Offset++; }
                 
                 /// \brief The current state of the guard lookahead parser
-                inline void current_state() const { return m_Stack.top(); }
+                inline int current_state() const { return m_Stack.top(); }
                 
             public:
                 /// \brief Shift action
