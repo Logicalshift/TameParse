@@ -76,6 +76,12 @@ namespace lr {
         /// \brief Counts the number of actions in each state
         action_count* m_Counts;
         
+        /// \brief Sorted list of states that have an action on the 'end of guard' symbol (%)
+        int* m_EndGuardStates;
+        
+        /// \brief Number of items in the EndGuardStates array
+        int m_NumEndOfGuards;
+        
         /// \brief The number of rules in the rules list
         int m_NumRules;
         
@@ -137,6 +143,12 @@ namespace lr {
         
         /// \brief Returns the nonterminal identifier representing the end of guard symbol
         inline int end_of_guard() const { return m_EndOfGuard; }
+        
+        /// \brief Returns true if the specified state has an end of guard symbol
+        inline bool has_end_of_guard(int stateId) {
+            int foundButIgnored;
+            return std::binary_search(m_EndGuardStates, m_EndGuardStates + m_NumEndOfGuards, foundButIgnored);
+        }
     };
 }
 

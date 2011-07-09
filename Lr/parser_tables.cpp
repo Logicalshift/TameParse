@@ -74,7 +74,8 @@ parser_tables::parser_tables(const lalr_builder& builder) {
     
     const grammar& gram = builder.gram();
     
-    map<int, int> ruleIds;                          // Maps their rule IDs to our rule IDs
+    map<int, int>   ruleIds;                            // Maps their rule IDs to our rule IDs
+    vector<int>     eogStates;                          // The end of guard states
     
     // Build up the tables for each state
     for (int stateId = 0; stateId < m_NumStates; stateId++) {
@@ -134,7 +135,18 @@ parser_tables::parser_tables(const lalr_builder& builder) {
                 nontermActions[nontermPos].m_SymbolId   = gram.identifier_for_item((*nextAction)->item());
                 
                 nontermPos++;
+                
+                if (nontermActions[nontermPos].m_SymbolId == m_EndOfGuard) {
+                    eogStates.push_back(stateId);
+                }
             }
+        }
+        
+        // Store the end of guard state table (we evaluate states in order, so this is already sorted)
+        m_NumEndOfGuards    = (int) eogStates.size();
+        m_EndGuardStates    = new int[m_NumEndOfGuards];
+        for (int x=0; x<m_NumEndOfGuards; x++) {
+            m_EndGuardStates[x] = eogStates[x];
         }
         
         // Sort the actions for this state
@@ -194,6 +206,15 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     for (int ruleId=0; ruleId<m_NumRules; ruleId++) {
         m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
     }
+    
+    // Allocate the end of guard state table
+    m_NumEndOfGuards    = copyFrom.m_NumEndOfGuards;
+    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    
+    // Copy the states
+    for (int x=0; x<m_NumEndOfGuards; x++) {
+        m_EndGuardStates[x] = copyFrom.m_EndGuardStates[x];
+    }
 }
 
 /// \brief Assignment
@@ -218,4 +239,5 @@ parser_tables::~parser_tables() {
     delete[] m_TerminalActions;
     delete[] m_Rules;
     delete[] m_Counts;
+    delete[] m_EndGuardStates;
 }
