@@ -249,7 +249,8 @@ std::wstring formatter::to_string(const lr::lr1_item& item, const contextfree::g
 }
 
 /// \brief Turns a LALR state into a string
-std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, 
+                                  const contextfree::terminal_dictionary& dict, bool showClosure) {
     // Create the result as a string stream
     wstringstream res;
     
@@ -288,6 +289,32 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
         
         // No longer first
         first = false;
+    }
+    
+    // Generate the closure items if requested
+    if (showClosure) {
+        // Add a separator between the original text and the closure
+        if (!first) {
+            res << endl << L"--";
+        }
+        
+        // Generate the closure for this item
+        lr1_item_set closure;
+        lalr_builder::generate_closure(state, closure, &gram);
+        
+        // Write them out
+        for (lr1_item_set::iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
+            // Newline between items
+            if (!first) {
+                res << endl;
+            }
+            
+            // Write out the next item
+            res << to_string(**nextItem, gram, dict);
+            
+            // No longer first
+            first = false;
+        }
     }
     
     return res.str();
@@ -353,7 +380,7 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
 }
 
 /// \brief Turns a LALR state machine into an enormous string
-std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, bool showClosure) {
     // Create a stream to hold the result
     wstringstream res;
     
@@ -365,7 +392,7 @@ std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contex
         
         // Write out the state
         res << L"State #" << (*nextState)->identifier() << endl;
-        res << to_string(**nextState, gram, dict);
+        res << to_string(**nextState, gram, dict, showClosure);
         
         // Write out the transitions
         typedef lalr_machine::transition_set transition_set;
@@ -385,7 +412,7 @@ std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contex
 }
 
 /// \brief Turns a LALR builder into an enormous string
-std::wstring formatter::to_string(const lr::lalr_builder& builder, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+std::wstring formatter::to_string(const lr::lalr_builder& builder, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, bool showClosure) {
     // Create a stream to hold the result
     wstringstream res;
     
@@ -397,7 +424,7 @@ std::wstring formatter::to_string(const lr::lalr_builder& builder, const context
         
         // Write out the state
         res << L"State #" << (*nextState)->identifier() << endl;
-        res << to_string(**nextState, gram, dict);
+        res << to_string(**nextState, gram, dict, showClosure);
         
         // Write out the actions
         const lr_action_set& actions = builder.actions_for_state((*nextState)->identifier());

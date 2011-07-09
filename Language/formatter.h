@@ -68,16 +68,16 @@ namespace language {
         static std::wstring to_string(const lr::lr1_item& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
 
         /// \brief Turns a LALR state into a string
-        static std::wstring to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        static std::wstring to_string(const lr::lalr_state& state,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, bool showClosure = false);
         
         /// \brief Turns a LR action into a string
         static std::wstring to_string(const lr::lr_action& act, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
         
         /// \brief Turns a LALR state machine into an enormous string
-        static std::wstring to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        static std::wstring to_string(const lr::lalr_machine& machine,  const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, bool showClosure = false);
         
         /// \brief Turns a LALR builder into an enormous string
-        static std::wstring to_string(const lr::lalr_builder& builder, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        static std::wstring to_string(const lr::lalr_builder& builder, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict, bool showClosure = false);
         
     public:
         /// \brief Turns a LALR conflict into a string description

@@ -352,7 +352,7 @@ void lalr_builder::set_rewriters(const action_rewriter_list& list) {
 
 
 /// \brief Adds the closure of the specified LALR state to the specified set
-void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closure) const {
+void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closure, const contextfree::grammar* gram) {
     typedef lr1_item::lookahead_set lookahead_set;
     queue<lr1_item_container>       waitingForClosure;
     
@@ -383,7 +383,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
         lr1_item_set newItems;
-        rule.items()[offset]->closure(*nextItem, newItems, *m_Grammar);
+        rule.items()[offset]->closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
         for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
@@ -439,7 +439,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     // If none of the items in the state have an empty item, then this is unnecessary (this is only required to
     // create the reductions for these items)
     lr1_item_set closure;
-    generate_closure(thisState, closure);
+    generate_closure(thisState, closure, m_Grammar);
     
     // For each transition on a guarded symbol, add a guard transition to check for it
     for (transition_set::const_iterator maybeGuard = transits.begin(); maybeGuard != transits.end(); maybeGuard++) {

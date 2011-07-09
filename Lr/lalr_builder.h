@@ -116,7 +116,7 @@ namespace lr {
         ///
         /// In order to generate actions for a state, the closure needs to be made in order to discover actions
         /// caused by empty productions. This is also required to display (or resolve) shift/reduce conflicts
-        void generate_closure(const lalr_state& state, lr1_item_set& closure) const;
+        static void generate_closure(const lalr_state& state, lr1_item_set& closure, const contextfree::grammar* gram);
         
     public:
         /// \brief Returns the number of states in the state machine

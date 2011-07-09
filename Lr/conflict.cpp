@@ -131,7 +131,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         
         // Get the closure of this state
         lr1_item_set closure;
-        builder.generate_closure(thisState, closure);
+        builder.generate_closure(thisState, closure, &builder.gram());
         
         // Describe the actions resulting in this conflict by going through the items in the closure of the state
         const grammar*    gram = &builder.gram();

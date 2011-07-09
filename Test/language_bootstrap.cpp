@@ -56,7 +56,7 @@ void test_language_bootstrap::run_tests() {
     bootstrap bs;
     
     // Write out the language to test things
-    wcerr << formatter::to_string(bs.get_builder(), bs.get_grammar(), bs.get_terminals()) << endl;
+    wcerr << formatter::to_string(bs.get_builder(), bs.get_grammar(), bs.get_terminals(), true) << endl;
     
     // Verify that the weak symbols have a higher priority than the strong symbols
     report("WeakSymbols1", bs.get_terminal_items().identifier->symbol() > bs.get_terminal_items().language->symbol());
