@@ -283,11 +283,18 @@ void test_lalr_general::run_tests() {
     lr1_item item1(&dragon446, dragon446.rule_with_identifier(0), 0, set1);
     lr1_item item2(&dragon446, dragon446.rule_with_identifier(0), 0, set2);
     
-    set<lr1_item_container> is;
+    // Standard LR(1) item set performs merging
+    lr1_item_set is2;
+    is2.insert(item1);
+    is2.insert(item2);
+    
+    report("Multi-Lr1-items-merging", is2.size() == 1);
+    
+    // Should be possible to distinguish items based only on lookahead when in their own set
+    set<lr1_item> is;
     is.insert(item1);
     is.insert(item2);
-    
-    // Should be possible to distinguish items based only on lookahead
+
     report("Multi-Lr1-items1", is.size() == 2);
     report("Multi-Lr1-items2", is.size() != 1);
     report("Lr1-ItemCompare1", item1 != item2);
