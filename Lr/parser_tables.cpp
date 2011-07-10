@@ -134,11 +134,11 @@ parser_tables::parser_tables(const lalr_builder& builder) {
                 nontermActions[nontermPos].m_NextState  = nextState;
                 nontermActions[nontermPos].m_SymbolId   = gram.identifier_for_item((*nextAction)->item());
                 
-                nontermPos++;
-                
                 if (nontermActions[nontermPos].m_SymbolId == m_EndOfGuard) {
                     eogStates.push_back(stateId);
                 }
+                
+                nontermPos++;
             }
         }
         
