@@ -29,11 +29,11 @@ language ParserLanguage {
 	}
 	
 	// Ignored symbols
-	//ignore {
-	//	newline			= /[\n\r]/
-	//	whitespace		= /[ \t]/
-	//	comment			= /\/\/({anycharacter}*)/
-	//}
+	ignore {
+		newline			= /[\n\r]/
+		whitespace		= /[ \t]/
+		comment			= /\/\/({anycharacter}*)/
+	}
 	
 	/// Keywords
 	/// (We use very few keywords, to extend the range of identifiers available)
