@@ -155,6 +155,24 @@ void test_language_bootstrap::run_tests() {
     report("MatchNewline", test_lex("\n", bs.get_lexer(), bs.get_terminal_items().newline->symbol(), bs.get_terminals()));
     report("MatchComment", test_lex("// Comment", bs.get_lexer(), bs.get_terminal_items().comment->symbol(), bs.get_terminals()));
     
+    // All of the rules defined for every nonterminal in the grammar must generate a unique identifier
+    set<int>    usedIdentifiers;
+    bool        allUnique = true;
+    
+    for (int ntId = 0; ntId < bs.get_grammar().max_nonterminal(); ntId++) {
+        const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
+        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
+            int identifier = (*nextRule)->identifier(bs.get_grammar());
+            
+            if (usedIdentifiers.find(identifier) != usedIdentifiers.end()) {
+                allUnique = false;
+            }
+            usedIdentifiers.insert(identifier);
+        }
+    }
+    
+    report("RulesAllUnique", allUnique);
+    
     // Get the conflicts in the grammar
     conflict_list conflicts;
     conflict::find_conflicts(bs.get_builder(), conflicts);
