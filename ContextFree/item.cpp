@@ -36,9 +36,9 @@ bool item::operator<(const item& compareTo) const {
     int ourType     = type();
     int theirType   = compareTo.type();
     if (ourType < theirType) return true;
-    if (theirType < ourType) return false;
+    if (ourType > theirType) return false;
     
-    // Compare symbols
+    // Compare symbols if the types are same
     return symbol() < compareTo.symbol();
 }
 

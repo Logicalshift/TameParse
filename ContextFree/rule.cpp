@@ -58,7 +58,7 @@ int rule::compare_items(const rule& compareTo) const {
     
     for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
         if (*ourItem < *theirItem) return -1;
-        if (*ourItem > *theirItem) return 1;
+        if (*theirItem < *ourItem) return 1;
     }
     
     return 0;
