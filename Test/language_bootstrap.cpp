@@ -156,7 +156,7 @@ void test_language_bootstrap::run_tests() {
     report("MatchComment", test_lex("// Comment", bs.get_lexer(), bs.get_terminal_items().comment->symbol(), bs.get_terminals()));
     
     // All of the rules defined for every nonterminal in the grammar must generate a unique identifier
-    set<int>    usedIdentifiers;
+    map<int, rule_container>    usedIdentifiers;
     bool        allUnique = true;
     
     for (int ntId = 0; ntId < bs.get_grammar().max_nonterminal(); ntId++) {
@@ -166,8 +166,12 @@ void test_language_bootstrap::run_tests() {
             
             if (usedIdentifiers.find(identifier) != usedIdentifiers.end()) {
                 allUnique = false;
+                
+                wcerr << L"Clash between " << formatter::to_string(*usedIdentifiers[identifier], bs.get_grammar(), bs.get_terminals()) << endl;
+                wcerr << L"  and " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
+            } else {
+                usedIdentifiers[identifier] = *nextRule;
             }
-            usedIdentifiers.insert(identifier);
         }
     }
     
