@@ -181,6 +181,7 @@ namespace lr {
                 
                 if (guardSym >= 0) {
                     // The guard symbol was matched
+                    abort();
                 }
                 
                 // The guard symbol was not matched
@@ -217,19 +218,22 @@ namespace lr {
             
             // Get the action for this lookahead
             int sym;
+            bool isTerminal;
             parser_tables::action_iterator act;
             parser_tables::action_iterator end;
             
             if (la.item() != NULL) {
                 // The item is a terminal
-                sym = la->matched();
-                act = m_Tables->find_terminal(state, sym);
-                end = m_Tables->last_terminal_action(state);
+                sym         = la->matched();
+                act         = m_Tables->find_terminal(state, sym);
+                end         = m_Tables->last_terminal_action(state);
+                isTerminal  = true;
             } else {
                 // The item is the end-of-input symbol (which counts as a nonterminal)
-                sym = m_Tables->end_of_input();
-                act = m_Tables->find_nonterminal(state, sym);
-                end = m_Tables->last_nonterminal_action(state);
+                sym         = m_Tables->end_of_input();
+                act         = m_Tables->find_nonterminal(state, sym);
+                end         = m_Tables->last_nonterminal_action(state);
+                isTerminal  = false;
             }
             
             // Reduce the EOG symbol as soon as possible
@@ -240,9 +244,10 @@ namespace lr {
                 }
                 
                 // Switch to the EOG action if it exists
-                sym = m_Tables->end_of_guard();
-                act = m_Tables->find_nonterminal(state, sym);
-                end = m_Tables->last_nonterminal_action(state);
+                sym         = m_Tables->end_of_guard();
+                act         = m_Tables->find_nonterminal(state, sym);
+                end         = m_Tables->last_nonterminal_action(state);
+                isTerminal  = false;
             }
             
             // Work out which action to perform
