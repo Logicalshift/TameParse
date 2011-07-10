@@ -307,11 +307,17 @@ namespace lr {
                         return false;
                         
                     case lr_action::act_guard:
-                        if (check_guard(act->m_NextState, 0)) {
-                            abort();
-                        } 
-                        // TODO: actually deal with guards
+                    {
+                        // Check the guard symbol
+                        int guardSym = check_guard(act->m_NextState, 0);
+                        
+                        if (guardSym >= 0) {
+                            // The guard symbol was matched
+                        }
+                        
+                        // The guard symbol was not matched
                         return true;
+                    }
                         
                     default:
                         return false;
@@ -431,7 +437,11 @@ namespace lr {
             ///
             /// \brief Checks the lookahead against the guard condition which starts at the specified initial state
             ///
-            bool check_guard(int initialState, int initialOffset) {
+            /// This runs the parser forward from the specified state. If a 'end of guard' symbol is encountered and
+            /// can produce an accepting state, then this will return the ID of the guard symbol that was accepted.
+            /// If no accepting state is reached, this will return a negative value (generally -1)
+            ///
+            int check_guard(int initialState, int initialOffset) {
                 // Create the guard actions object
                 guard_actions guardActions(initialState, initialOffset);
                 
@@ -498,7 +508,14 @@ namespace lr {
                         }
                         
                         // Perform this action
-                        if (act->m_Type == lr_action::act_accept) return true;
+                        if (act->m_Type == lr_action::act_accept) {
+                            // Get the accepting rule
+                            const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                            
+                            // Return the nonterminal ID for this rule, which should be the ID of the guard that was 
+                            // matched
+                            return rule.m_Identifier;
+                        }
                         
                         if (perform_generic(la, act, guardActions)) {
                             // Move on to the next lookahead value if needed
@@ -512,11 +529,11 @@ namespace lr {
                     
                     if (!ok) {
                         // We reject if we reach here
-                        return false;
+                        return -1;
                     }
                 }
                 
-                return false;
+                return -1;
             }
 
         public:

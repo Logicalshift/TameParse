@@ -168,6 +168,7 @@ parser_tables::parser_tables(const lalr_builder& builder) {
         const rule_container& rule = gram.rule_with_identifier(ruleId->first);
         
         m_Rules[ruleId->second].m_Identifier    = gram.identifier_for_item(rule->nonterminal());
+        m_Rules[ruleId->second].m_RuleId        = rule->identifier(gram);
         m_Rules[ruleId->second].m_Length        = (int)rule->items().size();
     }
 }

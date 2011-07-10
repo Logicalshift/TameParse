@@ -41,8 +41,11 @@ namespace lr {
         /// \brief Description of a reduce rule
         ///
         struct reduce_rule {
-            /// \brief The identifier for this rule (within the grammar)
+            /// \brief The identifier for the nonterminal that this rule reduces to (within the grammar)
             int m_Identifier;
+            
+            /// \brief The identifier for the rule that was reduced (within the grammar)
+            int m_RuleId;
             
             /// \brief Number of items in this rule
             int m_Length;
