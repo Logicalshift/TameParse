@@ -77,7 +77,9 @@ namespace lr {
         ///
         /// A session consists of several states, and one stream of symbols from the lexer. Multiple parser
         /// states are used when implementing backtracking or GLR parsers. There is only one stream of
-        /// symbols, however, which must be shared between all the states
+        /// symbols, however, which must be shared between all the states. This object manages that stream,
+        /// ensuring that the symbols remain in memory when they're needed, and are removed once there are
+        /// no more states referring to them.
         ///
         class session {
         public:
@@ -147,72 +149,19 @@ namespace lr {
             
         private:
             /// \brief Constructs a new state, used by the parser
-            state(const parser_tables& tables, int initialState, session* session) 
-            : m_Tables(&tables)
-            , m_Session(session)
-            , m_LookaheadPos(0) {
-                // Push the initial state
-                m_Stack->state          = initialState;
-                m_NextState             = m_Session->m_FirstState;
-                m_LastState             = NULL;
-                m_Session->m_FirstState = this;
-                
-                if (m_NextState) m_NextState->m_LastState = this;
-            }
+            state(const parser_tables& tables, int initialState, session* session);            
             
         public:
             /// \brief Creates a new parser state by copying an old one. Parser states can be run independently.
-            state(const state& copyFrom)
-            : m_Tables(copyFrom.m_Tables)
-            , m_Session(copyFrom.m_Session)
-            , m_Stack(copyFrom.m_Stack)
-            , m_LookaheadPos(copyFrom.m_LookaheadPos) {
-                m_NextState             = m_Session->m_FirstState;
-                m_LastState             = NULL;
-                m_Session->m_FirstState = this;
-                
-                if (m_NextState) m_NextState->m_LastState = this;
-            }
+            state(const state& copyFrom);            
             
         public:
             /// \brief Destructor
-            ~state() {
-                // Remove this state from the session
-                if (m_LastState) {
-                    m_LastState->m_NextState = m_NextState;
-                } else {
-                    m_Session->m_FirstState = m_NextState;
-                }
-                if (m_NextState) {
-                    m_NextState->m_LastState = m_LastState;
-                }
-                
-                // Destroy the session if it is now empty of states
-                if (!m_Session->m_FirstState) {
-                    delete m_Session;
-                }
-            }
+            ~state();
             
         private:
             /// \brief Trims the lookahead in the sessions (removes any symbols that won't be visited again)
-            inline void trim_lookahead() {
-                // Find the minimum lookahead position in all of the states
-                int minPos = m_LookaheadPos;
-                for (state* whichState = m_Session->m_FirstState; whichState != NULL; whichState = whichState->m_NextState) {
-                    if (whichState->m_LookaheadPos < minPos) minPos = whichState->m_LookaheadPos;
-                }
-                
-                // Give up if there's no work to do
-                if (minPos == 0) return;
-                
-                // Remove the symbols from the session
-                m_Session->m_Lookahead.erase(m_Session->m_Lookahead.begin(), m_Session->m_Lookahead.begin() + minPos);
-                
-                // Update the state lookahead positions
-                for (state* whichState = m_Session->m_FirstState; whichState != NULL; whichState = whichState->m_NextState) {
-                    whichState->m_LookaheadPos -= minPos;
-                }
-            }
+            inline void trim_lookahead();
             
         public:
             ///
@@ -220,44 +169,12 @@ namespace lr {
             ///
             /// It is an error to call this without calling lookahead() at least once since the last call.
             ///
-            inline void next() {
-                m_LookaheadPos++;
-                trim_lookahead();
-            }
+            inline void next();
             
             ///
             /// \brief Retrieves the current lookahead character
             ///
-            inline const lexeme_container& look(int offset = 0) {
-                // Static lexeme container representing the end of the file
-                static lexeme_container endOfFile((lexeme*)NULL);
-                
-                // Read a new symbol if necessary
-                int pos = m_LookaheadPos + offset;
-                
-                while (pos >= m_Session->m_Lookahead.size()) {
-                    if (!m_Session->m_EndOfFile) {
-                        // Read the next symbol using the parser actions
-                        dfa::lexeme_container nextLexeme(m_Session->m_Actions->read(), true);
-
-                        // Flag up an end of file condition
-                        if (nextLexeme.item() == NULL) {
-                            m_Session->m_EndOfFile = true;
-                            return endOfFile;
-                        }
-
-                        // Store in the lookahead
-                        m_Session->m_Lookahead.push_back(nextLexeme);
-                    } else {
-                        // EOF
-                        return endOfFile;
-                    }
-                }
-                
-                // Return the current symbol
-                return m_Session->m_Lookahead[pos];
-            }
-
+            inline const lexeme_container& look(int offset = 0);
             
         private:
             ///
@@ -915,5 +832,7 @@ namespace lr {
     /// \brief Simple parser, can be used to test if a language is accepted by a parser (but not much else)
     typedef parser<int, simple_parser_actions> simple_parser;
 }
+
+#include "parser_state.h"
 
 #endif
