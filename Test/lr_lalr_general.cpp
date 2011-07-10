@@ -283,7 +283,7 @@ void test_lalr_general::run_tests() {
     lr1_item item1(&dragon446, dragon446.rule_with_identifier(0), 0, set1);
     lr1_item item2(&dragon446, dragon446.rule_with_identifier(0), 0, set2);
     
-    lr1_item_set is;
+    set<lr1_item_container> is;
     is.insert(item1);
     is.insert(item2);
     
