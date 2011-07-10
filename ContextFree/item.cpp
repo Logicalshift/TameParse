@@ -124,6 +124,9 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
 /// If the item is the same as an existing item except for the lookahead, the lookaheads are merged and the
 /// set is the same size.
 bool item::add(lr1_item_set& state, const grammar& gram, const lr1_item_container& newItem) {
+    // TODO: the stuff that follows fails to work :-/
+    return state.insert(newItem).second;
+    
     // Create a variant of the item with no lookahead
     typedef lr1_item::lookahead_set lookahead_set;
     static lookahead_set emptyLookaheadSet;
