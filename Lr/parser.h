@@ -331,6 +331,8 @@ namespace lr {
             ///
             class standard_actions {
             public:
+                
+                
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
@@ -365,6 +367,16 @@ namespace lr {
                 /// \brief Sets the current state of the parser
                 inline void set_state(state* state, int newState) {
                     state->m_Stack->state = newState;
+                }
+                
+                /// \brief Returns the current lookahead symbol
+                inline const lexeme_container& look(state* state) {
+                    return state->look();
+                }
+                
+                /// \brief Moves to the next lookahead symbol
+                inline void next(state* state) {
+                    state->next();
                 }
             };
             
@@ -719,7 +731,16 @@ namespace lr {
             inline bool can_reduce(const lexeme_container& lexeme) {
                 return can_reduce<terminal_fetcher>(lexeme->matched(), 0, std::stack<int>());
             }
-            
+
+            /// \brief Returns true if a reduction of the specified terminal symbol will result in it being shifted
+            ///
+            /// In states with guards in their lookahead, or states with reduce/reduce conflicts that would
+            /// be resolved by a LR(1) parser, this will disambiguate the grammar (making it possible to choose
+            /// only the action that allows the parser to continue)
+            inline bool can_reduce(int terminalId) {
+                return can_reduce<terminal_fetcher>(terminalId, 0, std::stack<int>());
+            }
+
             /// \brief Returns true if a reduction of the lookahead will result in it being shifted
             inline bool can_reduce() {
                 return can_reduce(look());
@@ -733,48 +754,29 @@ namespace lr {
             
         public:
             typedef parser_result::result result;
-            
-            /// \brief Performs a single parsing action, and returns the result
-            inline result process() {
-                // Fetch the lookahead
-                const lexeme_container& la = look();
-                
-                // Get the state
-                int state = m_Stack->state;
-                std::wcerr << state << L" " << (la.item()?la->content<wchar_t>():L"$") << L" (" << (la.item()?la->matched():-1) << L")" << std::endl;
-                
-                // Get the action for this lookahead
-                int sym;
-                parser_tables::action_iterator act;
-                parser_tables::action_iterator end;
 
-                if (la.item() != NULL) {
-                    // The item is a terminal
-                    sym = la->matched();
-                    act = m_Tables->find_terminal(state, sym);
-                    end = m_Tables->last_terminal_action(state);
-                } else {
-                    // The item is the end-of-input symbol (which counts as a nonterminal)
-                    sym = m_Tables->end_of_input();
-                    act = m_Tables->find_nonterminal(state, sym);
-                    end = m_Tables->last_nonterminal_action(state);
-                }
-                
+        private:
+            /// \brief Performs a single parsing action, and returns the result
+            ///
+            /// This version takes several parameters: the current lookahead token, the ID of the symbol and whether or not it's
+            /// a terminal symbol, and the range of actions that might apply to this particular symbol.
+            template<class actions> inline result process_generic(actions& actDelegate, const lexeme_container& la, 
+                                                                  int symbol, bool isTerminal,
+                                                                  parser_tables::action_iterator& act, 
+                                                                  parser_tables::action_iterator& end) {
                 // Work out which action to perform
                 for (; act != end; act++) {
                     // Stop searching if the symbol is invalid
-                    if (act->m_SymbolId != sym) break;
+                    if (act->m_SymbolId != symbol) break;
                     
                     // If this is a weak reduce action, then check if the action is successful
                     if (act->m_Type == lr_action::act_weakreduce) {
-                        if (la.item() != NULL) {
-                            // Standard symbol: use the usual form of can_reduce
-                            if (!can_reduce(la)) {
+                        if (isTerminal) {
+                            if (!can_reduce(symbol)) {
                                 continue;
                             }
                         } else {
-                            // Reached the end of input: check can_reduce for the EOI symbol
-                            if (!can_reduce_nonterminal(m_Tables->end_of_input())) {
+                            if (!can_reduce_nonterminal(symbol)) {
                                 continue;
                             }
                         }
@@ -783,15 +785,54 @@ namespace lr {
                     // Perform this action
                     if (act->m_Type == lr_action::act_accept) return parser_result::accept;
                     
-                    if (perform(la, act)) {
+                    if (perform_generic(la, act, actDelegate)) {
                         // Move on to the next lookahead value if needed
-                        next();
+                        actDelegate.next(this);
                     }
                     return parser_result::more;
                 }
                 
                 // We reject if we reach here
                 return parser_result::reject;
+            }
+
+            /// \brief Performs a single parsing action, and returns the result
+            template<class actions> inline result process_generic(actions& actDelegate) {
+                // Fetch the lookahead
+                const lexeme_container& la = actDelegate.look(this);
+                
+                // Get the state
+                int state = m_Stack->state;
+                std::wcerr << state << L" " << (la.item()?la->content<wchar_t>():L"$") << L" (" << (la.item()?la->matched():-1) << L")" << std::endl;
+                
+                // Get the action for this lookahead
+                int                             sym;
+                parser_tables::action_iterator  act;
+                parser_tables::action_iterator  end;
+                bool                            isTerminal;
+                
+                if (la.item() != NULL) {
+                    // The item is a terminal
+                    sym         = la->matched();
+                    isTerminal  = true;
+                    act         = m_Tables->find_terminal(state, sym);
+                    end         = m_Tables->last_terminal_action(state);
+                } else {
+                    // The item is the end-of-input symbol (which counts as a nonterminal)
+                    sym         = m_Tables->end_of_input();
+                    isTerminal  = false;
+                    act         = m_Tables->find_nonterminal(state, sym);
+                    end         = m_Tables->last_nonterminal_action(state);
+                }
+                
+                return process_generic(actDelegate, la, sym, isTerminal, act, end);
+            }
+            
+        public:
+            /// \brief Performs a single parsing action, and returns the result
+            inline result process() {
+                standard_actions actions;
+                return process_generic(actions);
             }
             
             /// \brief Parses the input file specified by the actions object, and returns true if it was accepted
