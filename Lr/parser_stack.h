@@ -189,6 +189,7 @@ namespace lr {
                 // m_FirstUnused now points to an entry we can use
                 int result = m_FirstUnused;
                 m_FirstUnused++;
+                if (m_FirstUnused >= m_Stack.size()) m_FirstUnused = 0;
                 
                 // Make this a 'head' entry
                 m_Stack[result].m_PreviousIndex = entry::head;
