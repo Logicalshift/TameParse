@@ -27,9 +27,6 @@ namespace lr {
     
     /// \brief Set of LR(0) items
     typedef std::set<lr0_item_container> lr0_item_set;
-
-    /// \brief Set of LR(1) items
-    typedef std::set<lr1_item_container> lr1_item_set;
     
     ///
     /// \brief Representation of an LR(0) item
@@ -188,6 +185,12 @@ namespace lr {
         
     public:
         /// \brief Converts to a LR(0) item (loses lookahead information)
+        inline const lr0_item& get_lr0_item() const { return *m_Lr0Item; }
+
+        /// \brief Converts to a LR(0) item (loses lookahead information)
+        inline lr0_item& get_lr0_item() { return *m_Lr0Item; }
+        
+        /// \brief Converts to a LR(0) item (loses lookahead information)
         inline operator lr0_item&() { return *m_Lr0Item; }
 
         /// \brief Converts to a LR(0) item (loses lookahead information)
@@ -217,5 +220,7 @@ namespace lr {
         }
     };
 }
+
+#include "Lr/lr1_item_set.h"
 
 #endif

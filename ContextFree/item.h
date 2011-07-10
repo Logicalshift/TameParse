@@ -24,7 +24,7 @@ namespace lr {
     typedef util::container<lr1_item> lr1_item_container;
     
     /// \brief Set of LR(0) items
-    typedef std::set<lr1_item_container> lr1_item_set;    
+    class lr1_item_set;
 }
 
 namespace contextfree {

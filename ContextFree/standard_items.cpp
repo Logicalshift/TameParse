@@ -9,6 +9,7 @@
 #include "standard_items.h"
 #include "symbol_set.h"
 #include "Lr/lr_item.h"
+#include "Lr/lr1_item_set.h"
 
 using namespace dfa;
 using namespace lr;

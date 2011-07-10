@@ -8,6 +8,7 @@
 
 #include "item.h"
 #include "Lr/lr_item.h"
+#include "Lr/lr1_item_set.h"
 
 using namespace lr;
 using namespace contextfree;
@@ -126,57 +127,6 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
 bool item::add(lr1_item_set& state, const grammar& gram, const lr1_item_container& newItem) {
     // TODO: the stuff that follows fails to work :-/
     return state.insert(newItem).second;
-    
-    // Create a variant of the item with no lookahead
-    typedef lr1_item::lookahead_set lookahead_set;
-    static lookahead_set emptyLookaheadSet;
-    
-    lr1_item_container noLookahead(new lr1_item(&gram, newItem->rule(), newItem->offset(), emptyLookaheadSet), true);
-    
-    // Search for the first item that is >= noLookahead (items with any lookahead will be greater than this item)
-    lr1_item_set::iterator maybeExisting = state.lower_bound(noLookahead);
-    
-    // If there's no rule then we can just add the item
-    if (maybeExisting == state.end()) {
-        state.insert(newItem);
-        return true;
-    }
-    
-    // If the rule is not the same (using the rule identifier for performance) then we can just add the item
-    if ((*maybeExisting)->offset() != newItem->offset()
-        || (*maybeExisting)->rule()->identifier(gram) != newItem->rule()->identifier(gram)) {
-        state.insert(newItem);
-        return true;
-    }
-
-    // If there are any new lookahead items, then we need to merge the lookahead sets
-    // TODO: is there a quicker way of detecting when the sets are similar?
-    
-    // If the sets are the same, then this item has already been added and there's nothing more to do
-    if (newItem->lookahead().size() == (*maybeExisting)->lookahead().size()) {
-        if (newItem->lookahead() == (*maybeExisting)->lookahead()) {
-            return false;
-        }
-    }
-    
-    // Merge the sets, and update the item if the size changes
-    lookahead_set   mergedLookahead((*maybeExisting)->lookahead());
-    size_t          initialSize = mergedLookahead.size();
-    
-    mergedLookahead.insert(newItem->lookahead().begin(), newItem->lookahead().end());
-    
-    // If the merged set is the same size as before then there have been no changes (these lookahead items already existed)
-    if (mergedLookahead.size() == initialSize) {
-        return false;
-    }
-    
-    // Replace the existing item with the merged item
-    lr1_item_container mergedItem(new lr1_item(&gram, newItem->rule(), newItem->offset(), mergedLookahead), true);
-    
-    state.erase(maybeExisting);
-    state.insert(mergedItem);
-    
-    return true;
 }
 
 
