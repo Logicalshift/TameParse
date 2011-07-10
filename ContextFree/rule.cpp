@@ -72,7 +72,7 @@ bool rule::operator<(const rule& compareTo) const {
     
     // The nonterminal should be reasonably fast to compare
     if (m_NonTerminal < compareTo.m_NonTerminal)    return true;
-    if (m_NonTerminal > compareTo.m_NonTerminal)    return false;
+    if (compareTo.m_NonTerminal < m_NonTerminal)    return false;
     
     // Compare the items
     return compare_items(compareTo) < 0;

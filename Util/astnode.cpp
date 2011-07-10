@@ -46,14 +46,14 @@ bool astnode::operator<(const astnode& compareTo) const {
     if (&compareTo == this) return false;
     
     if (m_Nonterminal < compareTo.m_Nonterminal || m_Lexeme < compareTo.m_Lexeme) return true;
-    if (m_Nonterminal > compareTo.m_Nonterminal || m_Lexeme > compareTo.m_Lexeme) return false;
+    if (compareTo.m_Nonterminal < m_Nonterminal || compareTo.m_Lexeme < m_Lexeme) return false;
     
     if (children().size() < compareTo.children().size()) return true;
     if (children().size() > compareTo.children().size()) return false;
     
     for (int x=0; x<children().size(); x++) {
         if (children()[x] < compareTo.children()[x]) return true;
-        if (children()[x] > compareTo.children()[x]) return false;
+        if (compareTo.children()[x] < children()[x]) return false;
     }
     
     return false;

@@ -45,16 +45,16 @@ bool conflict::compare(const conflict* a, const conflict* b) {
 
 /// \brief Orders this conflict relative to another
 bool conflict::operator<(const conflict& compareTo) const {
-    if (m_StateId < compareTo.m_StateId) return true;
-    if (m_StateId > compareTo.m_StateId) return false;
+    if (m_StateId < compareTo.m_StateId)    return true;
+    if (m_StateId > compareTo.m_StateId)    return false;
     
-    if (m_Token < compareTo.m_Token) return true;
-    if (m_Token > compareTo.m_Token) return false;
+    if (m_Token < compareTo.m_Token)        return true;
+    if (compareTo.m_Token < m_Token)        return false;
     
-    if (m_Shift < compareTo.m_Shift) return true;
-    if (m_Shift > compareTo.m_Shift) return false;
+    if (m_Shift < compareTo.m_Shift)        return true;
+    if (m_Shift > compareTo.m_Shift)        return false;
     
-    if (m_Reduce < compareTo.m_Reduce) return true;
+    if (m_Reduce < compareTo.m_Reduce)      return true;
     
     return false;
 }

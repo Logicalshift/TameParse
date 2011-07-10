@@ -83,6 +83,8 @@ namespace util {
         /// \brief Reference to the item in this container
         reference* m_Ref;
         
+    private:
+        
     public:
         /// \brief Dereferences the content of this container
         inline ItemType* item() { return m_Ref->m_Item; }
@@ -123,6 +125,21 @@ namespace util {
         /// \brief Ordering operator
         inline bool operator<(const container& compareTo) const {
             return ItemType::compare(m_Ref->m_Item, compareTo.m_Ref->m_Item);
+        }
+        
+        /// \brief Ordering operator
+        inline bool operator>(const container& compareTo) const {
+            return compareTo.operator<(*this);
+        }
+        
+        /// \brief Ordering operator
+        inline bool operator>=(const container& compareTo) const {
+            return !operator<(*this);
+        }
+        
+        /// \brief Ordering operator
+        inline bool operator<=(const container& compareTo) const {
+            return !operator>(*this);
         }
         
         /// \brief Comparison operator

@@ -122,8 +122,8 @@ namespace lr {
         }
 
         inline bool operator!=(const lr_state& compareTo) const { return !operator==(compareTo); }
-        inline bool operator>(const lr_state& compareTo) const { return !operator<(compareTo) && !operator==(compareTo); }
-        inline bool operator<=(const lr_state& compareTo) const { return operator<(compareTo) || operator==(compareTo); }
+        inline bool operator>(const lr_state& compareTo) const  { return compareTo.operator<(*this); }
+        inline bool operator<=(const lr_state& compareTo) const { return !operator>(compareTo); }
         inline bool operator>=(const lr_state& compareTo) const { return !operator<(compareTo); }
         
     public:

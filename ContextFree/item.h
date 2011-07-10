@@ -81,9 +81,9 @@ namespace contextfree {
         virtual bool operator<(const item& compareTo) const;
         
         inline bool operator!=(const item& compareTo) const { return !operator==(compareTo); }
-        inline bool operator<=(const item& compareTo) const { return operator<(compareTo) || operator==(compareTo); }
+        inline bool operator>(const item& compareTo) const  { return compareTo.operator<(*this); }
+        inline bool operator<=(const item& compareTo) const { return !operator>(compareTo); }
         inline bool operator>=(const item& compareTo) const { return !operator<(compareTo); }
-        inline bool operator>(const item& compareTo) const  { return !operator<(compareTo) && !operator==(compareTo); }
         
         /// \brief Creates a clone of this item
         virtual item* clone() const = 0;

@@ -35,7 +35,7 @@ namespace dfa {
         ///
         /// By default, actions with lower symbol IDs are more important than those with higher symbol IDs
         virtual bool operator<(const accept_action& compareTo) const;
-        inline bool operator>(const accept_action& compareTo) const { return !operator<(compareTo); }
+        inline bool operator>(const accept_action& compareTo) const { return compareTo.operator<(*this); }
         
         /// \brief Determines if this action is equivalent to another
         virtual bool operator==(const accept_action* compareTo) const;
@@ -44,8 +44,8 @@ namespace dfa {
         inline bool operator==(const accept_action& compareTo) const { return operator==(&compareTo); }
         inline bool operator!=(const accept_action& compareTo) const { return !operator==(compareTo); }
 
-        inline bool operator<=(const accept_action& compareTo) const { return operator<(compareTo) || operator==(compareTo); }
-        inline bool operator>=(const accept_action& compareTo) const { return !operator<(compareTo) || operator==(compareTo); }
+        inline bool operator<=(const accept_action& compareTo) const { return !operator>(compareTo); }
+        inline bool operator>=(const accept_action& compareTo) const { return !operator<(compareTo); }
 
         /// \brief Destructor
         virtual ~accept_action();

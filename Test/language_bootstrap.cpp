@@ -169,6 +169,11 @@ void test_language_bootstrap::run_tests() {
                 
                 wcerr << L"Clash between " << formatter::to_string(*usedIdentifiers[identifier], bs.get_grammar(), bs.get_terminals()) << endl;
                 wcerr << L"  and " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
+                
+                wcerr << ((*usedIdentifiers[identifier]) == **nextRule ? L"  (are equal) " : L"  (are not equal) ");
+                wcerr << ((*usedIdentifiers[identifier]) < **nextRule ? L"(are less than) " : L"(are not less than) ");
+                wcerr << (**nextRule < (*usedIdentifiers[identifier]) ? L"(are greater than) " : L"(are not greater than) ");
+                wcerr << endl;
             } else {
                 usedIdentifiers[identifier] = *nextRule;
             }
