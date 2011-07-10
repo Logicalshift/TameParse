@@ -32,7 +32,14 @@ bool item::operator==(const item& compareTo) const {
 
 /// \brief Orders this item relative to another item
 bool item::operator<(const item& compareTo) const {
-    return compareTo.type() < type() || compareTo.symbol() < symbol();
+    // Compare types
+    int ourType     = type();
+    int theirType   = compareTo.type();
+    if (ourType < theirType) return true;
+    if (theirType < ourType) return false;
+    
+    // Compare symbols
+    return symbol() < compareTo.symbol();
 }
 
 /// \brief Comparison function, returns true if a is less than b

@@ -724,7 +724,7 @@ namespace lr {
                 
                 // Get the state
                 int state = m_Stack->state;
-                std::wcerr << state << L" " << (la.item()?la->content<wchar_t>():L"$") << std::endl;
+                std::wcerr << state << L" " << (la.item()?la->content<wchar_t>():L"$") << L" (" << (la.item()?la->matched():-1) << L")" << std::endl;
                 
                 // Get the action for this lookahead
                 int sym;

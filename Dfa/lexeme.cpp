@@ -53,7 +53,11 @@ position lexeme::final_pos() const {
 /// \brief Ordering operator
 bool lexeme::operator<(const lexeme& compareTo) const {
     if (m_Matched < compareTo.m_Matched) return true;
+    if (m_Matched > compareTo.m_Matched) return false;
+    
     if (m_Symbols < compareTo.m_Symbols) return true;
+    if (m_Symbols > compareTo.m_Symbols) return false;
+    
     if (m_Position < compareTo.m_Position) return true;
     
     return false;

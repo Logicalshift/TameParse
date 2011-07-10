@@ -83,7 +83,10 @@ namespace dfa {
         
         /// \brief Orders this range relative to another
         inline bool operator<(const range<T>& compareTo) const {
-            return m_Lower < compareTo.m_Lower || (m_Lower == compareTo.m_Lower && m_Upper < compareTo.m_Upper);
+            if (m_Lower < compareTo.m_Lower)    return true;
+            if (m_Lower < compareTo.m_Lower)    return false;
+            
+            return m_Upper < compareTo.m_Upper;
         }
         
         /// \brief Orders this range relative to another

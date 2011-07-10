@@ -112,8 +112,11 @@ namespace lr {
         /// \brief Orders this action
         inline bool operator<(const lr_action& compareTo) const {
             if (m_Item < compareTo.m_Item)              return true;
+            if (m_Item > compareTo.m_Item)              return false;
             if (m_Type < compareTo.m_Type)              return true;
+            if (m_Type > compareTo.m_Type)              return false;
             if (m_NextState < compareTo.m_NextState)    return true;
+            if (m_NextState > compareTo.m_NextState)    return false;
             if (m_Rule < compareTo.m_Rule)              return true;
             
             return false;
