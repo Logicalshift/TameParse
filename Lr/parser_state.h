@@ -413,7 +413,7 @@ namespace lr {
     ///
     /// This version takes several parameters: the current lookahead token, the ID of the symbol and whether or not it's
     /// a terminal symbol, and the range of actions that might apply to this particular symbol.
-    template<class I, class A> template<class actions> inline parser<I,A>::state::result parser<I,A>::state::process_generic(
+    template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(
                                                           actions& actDelegate, 
                                                           const lexeme_container& la, 
                                                           int symbol, bool isTerminal,
@@ -452,7 +452,7 @@ namespace lr {
     }
     
     /// \brief Performs a single parsing action, and returns the result
-    template<class I, class A> template<class actions> inline parser<I,A>::state::result parser<I,A>::state::process_generic(actions& actDelegate) {
+    template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(actions& actDelegate) {
         // Fetch the lookahead
         const lexeme_container& la = actDelegate.look(this);
         
