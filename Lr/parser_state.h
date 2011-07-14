@@ -175,18 +175,10 @@ namespace lr {
                 return false;
                 
             case lr_action::act_guard:
-            {
-                // Check the guard symbol
-                int guardSym = check_guard(act->m_NextState, 0);
-                
-                if (guardSym >= 0) {
-                    // The guard symbol was matched
-                    abort();
-                }
-                
-                // The guard symbol was not matched
+                // Guards are not processed by this method. Just shift the symbol away so we don't get asked again
+                // (There's no action to perform: guards just disambiguate which other possible actions should be done)
+                // See process() for how guards are handled
                 return true;
-            }
                 
             default:
                 return false;
@@ -442,9 +434,33 @@ namespace lr {
                 }
             }
             
-            // Perform this action
-            if (act->m_Type == lr_action::act_accept) return parser_result::accept;
+            // Guard actions are not performed by the 'perform' method, but are handled separately
+            else if (act->m_Type == lr_action::act_guard) {
+                // Check if this guard generates a guard symbol
+                // TODO: move this into actions so we can check guards recursively if we need to
+                int guardSym = check_guard(act->m_NextState, 0);
+                
+                // If the guard was not matched, continue to the next action for this symbol
+                if (guardSym < 0) {
+                    continue;
+                }
+                
+                // If the guard symbol was matched, then we need to try processing it
+                if (process_guard(actDelegate, la, guardSym)) {
+                    // More data if the guard is processed successfully
+                    return parser_result::more;
+                } else {
+                    // Try the next action if it was not
+                    continue;
+                }
+            }
             
+            // The accepting action finishes the parse
+            else if (act->m_Type == lr_action::act_accept) {
+                return parser_result::accept;
+            }
+            
+            // Perform this action
             if (perform_generic(la, act, actDelegate)) {
                 // Move on to the next lookahead value if needed
                 actDelegate.next(this);
@@ -455,6 +471,7 @@ namespace lr {
         // We reject if we reach here
         return parser_result::reject;
     }
+    
     
     /// \brief Performs a single parsing action, and returns the result
     template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(actions& actDelegate) {
@@ -486,6 +503,103 @@ namespace lr {
         }
         
         return process_generic(actDelegate, la, sym, isTerminal, act, end);
+    }
+    
+    /// \brief Updates the state according to the actions required by a guard symbol
+    ///
+    /// This will return true if the guard symbol could be successfully processed, or false if it could not.
+    /// Specifically, if a guard symbol generates a reduce action which does not result in it eventually being shifted,
+    /// this will return false so that the parser can try the other actions associated with the specified symbol.
+    ///
+    /// Practical experience indicates that guards are often used in situations that are not quite LALR(1); checking
+    /// whether or not reductions will be successful makes them easier to use as they will not cause spurious reductions
+    /// in situations where it's not appropriate.
+    template<class I, class A> template<class actions> bool parser<I, A>::state::process_guard(actions& actDelegate, 
+                                                                                               const lexeme_container& la, 
+                                                                                               int guardSymbol) {
+        typedef parser_tables::action_iterator action_iterator;
+        
+        // Fetch the actions for this symbol
+        int              state = m_Stack->state;
+        action_iterator  act;
+        action_iterator  end;
+        
+        act = m_Tables->find_nonterminal(state, guardSymbol);
+        end = m_Tables->last_nonterminal_action(state);
+        
+        // Sanity check
+        if (act == end)                     return false;
+        if (act->m_SymbolId != guardSymbol) return false;
+        
+        // If the action is a reduce action, then we need to check that we can actually perform the reduction
+        bool canReduce = false;
+        for (action_iterator checkAction = act; checkAction != end; checkAction++) {
+            // Give up if this action doesn't refer to the guard symbol
+            if (checkAction->m_SymbolId != guardSymbol) break;
+            
+            // If this is a reduce or weakreduce action, check if we can reduce this symbol
+            if (checkAction->m_Type == lr_action::act_reduce || checkAction->m_Type == lr_action::act_weakreduce) {
+                if (can_reduce_nonterminal(guardSymbol)) {
+                    canReduce = true;
+                    break;
+                }
+            }
+            
+            // Shift actions are always allowed
+            else if (checkAction->m_Type == lr_action::act_shift) {
+                canReduce = true;
+                break;
+            }
+        }
+        
+        // Nothing to do if we can't reduce this symol
+        if (!canReduce) {
+            return false;
+        }
+        
+        // Now we know the reduction can be performed, perform them all at once so we don't end up repeatedly re-evaluating
+        // the guard condition
+        for (;;) {
+            // Work out what to do for the current action
+            if (act == end) {
+                // BUG! We should always end on a shift
+                return true;
+            }
+            
+            if (act->m_SymbolId != guardSymbol) {
+                // BUG! can_reduce was incorrect
+                return true;
+            }
+            
+            if (act->m_Type == lr_action::act_weakreduce) {
+                // Check if we can perform a reduction
+                if (!can_reduce_nonterminal(guardSymbol)) {
+                    // Try the next action if we can't reduce this item
+                    act++;
+                    continue;
+                }
+            }
+            
+            if (act->m_Type == lr_action::act_guard) {
+                // TODO: deal with guards on guards (maybe should never happen?)
+                act++;
+                continue;
+            }
+            
+            // Perform this action
+            if (perform_generic(la, act, actDelegate)) {
+                // Finish once a new symbol is requested
+                break;
+            }
+            
+            // Get the new action for the guard in the new state, then keep going
+            state   = m_Stack->state;
+            act     = m_Tables->find_nonterminal(state, guardSymbol);
+            end     = m_Tables->last_nonterminal_action(state);
+        }
+        
+        // Looks good
+        return true;
     }
 }
 

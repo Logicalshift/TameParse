@@ -431,6 +431,17 @@ namespace lr {
             /// \brief Performs a single parsing action, and returns the result
             template<class actions> inline result process_generic(actions& actDelegate);
             
+            /// \brief Updates the state according to the actions required by a guard symbol
+            ///
+            /// This will return true if the guard symbol could be successfully processed, or false if it could not.
+            /// Specifically, if a guard symbol generates a reduce action which does not result in it eventually being shifted,
+            /// this will return false so that the parser can try the other actions associated with the specified symbol.
+            ///
+            /// Practical experience indicates that guards are often used in situations that are not quite LALR(1); checking
+            /// whether or not reductions will be successful makes them easier to use as they will not cause spurious reductions
+            /// in situations where it's not appropriate.
+            template<class actions> bool process_guard(actions& actDelegate, const lexeme_container& la, int guardSymbol);
+            
         public:
             /// \brief Performs a single parsing action, and returns the result
             inline result process() {
