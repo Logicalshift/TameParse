@@ -479,11 +479,10 @@ namespace lr {
     /// \brief Performs a single parsing action, and returns the result
     template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(actions& actDelegate) {
         // Fetch the lookahead
-        const lexeme_container& la = actDelegate.look(this);
+        lexeme_container la = actDelegate.look(this);
         
         // Get the state
         int state = m_Stack->state;
-        std::wcerr << state << L" " << (la.item()?la->content<wchar_t>():L"$") << L" (" << (la.item()?la->matched():-1) << L")" << std::endl;
         
         // Get the action for this lookahead
         int                             sym;
