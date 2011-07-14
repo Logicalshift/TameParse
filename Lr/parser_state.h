@@ -441,7 +441,7 @@ namespace lr {
             else if (act->m_Type == lr_action::act_guard) {
                 // Check if this guard generates a guard symbol
                 // TODO: move this into actions so we can check guards recursively if we need to
-                int guardSym = check_guard(act->m_NextState, 0);
+                int guardSym = actions.check_guard(this, act->m_NextState);
                 
                 // If the guard was not matched, continue to the next action for this symbol
                 if (guardSym < 0) {

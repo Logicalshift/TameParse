@@ -230,6 +230,11 @@ namespace lr {
                 inline void next(state* state) {
                     state->next();
                 }
+                
+                /// \brief Returns -1 or the guard symbol matched by the lookahead with the specified initial guard state
+                inline int check_guard(state* state, int initialState) {
+                    return state->check_guard(initialState, 0);
+                }
             };
             
             friend class guard_actions;
@@ -295,6 +300,11 @@ namespace lr {
                 /// \brief Sets the current state of the parser
                 inline void set_state(state* state, int newState) {
                     m_Stack.top() = newState;
+                }
+                
+                /// \brief Returns -1 or the guard symbol matched by the lookahead with the specified initial guard state
+                inline int check_guard(state* state, int initialState) {
+                    return state->check_guard(initialState, m_Offset);
                 }
             };
 
