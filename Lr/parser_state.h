@@ -250,6 +250,9 @@ namespace lr {
                 
                 // If this is a weak reduce action, then check if the action is successful
                 if (act->m_Type == lr_action::act_weakreduce) {
+                    // TODO: if we've previously tested this symbol to see if it will reduce and the parser state hasn't changed
+                    // then we can just re-use the existing information.
+                    // TODO: see if this produces a meaningful speedup before complicating the code
                     if (la.item() != NULL) {
                         // Standard symbol: use the usual form of can_reduce
                         if (!can_reduce(la)) {
