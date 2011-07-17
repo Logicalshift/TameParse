@@ -138,7 +138,7 @@ namespace lr {
     /// generated. This is to support guard actions (where we are only interested in storing the state) as
     /// well as standard actions (where we want to call the actions object to actually perform the action)
     ///
-    template<class I, class A> /* C++ you suck */ template<class actions> inline bool parser<I, A>::state::perform_generic(const lexeme_container& lookahead, const action* act, actions& actDelegate) {
+    template<class I, class A> template<class actions> inline bool parser<I, A>::state::perform_generic(const lexeme_container& lookahead, const action* act, actions& actDelegate) {
         switch (act->m_Type) {
             case lr_action::act_ignore:
                 // Discard the current lookahead

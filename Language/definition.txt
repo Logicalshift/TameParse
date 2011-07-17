@@ -82,12 +82,11 @@ language ParserLanguage {
 		<Keywords-Definition>		= keywords '{' (<Keyword-Definition>)* '}'
 		
 		<Keyword-Definition>		= identifier
-									| identifier '=' string
-									| identifier '=' character
+									| identifier '=' (regex | string | character)
 		
 		<Weak-Symbols-Definition>	= weak-lexer '{' (<Lexeme-Definition>)* '}'
 		
-		<Lexeme-Definition> 		= identifier '=' regex
+		<Lexeme-Definition> 		= identifier '=' (regex | string | character)
 									| identifier '=' identifier '.' identifier
 		
 		//

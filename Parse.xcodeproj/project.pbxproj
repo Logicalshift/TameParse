@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4B020CB313D3372B00F407AD /* definition_file.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CB113D3372B00F407AD /* definition_file.cpp */; };
+		4B020CB413D3372B00F407AD /* definition_file.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CB213D3372B00F407AD /* definition_file.h */; };
+		4B020CB813D337F200F407AD /* toplevel_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CB613D337F200F407AD /* toplevel_block.cpp */; };
+		4B020CB913D337F200F407AD /* toplevel_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CB713D337F200F407AD /* toplevel_block.h */; };
+		4B020CBC13D3380500F407AD /* language_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CBA13D3380500F407AD /* language_block.cpp */; };
+		4B020CBD13D3380500F407AD /* language_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CBB13D3380500F407AD /* language_block.h */; };
+		4B020CC013D3381400F407AD /* import_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CBE13D3381400F407AD /* import_block.cpp */; };
+		4B020CC113D3381400F407AD /* import_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CBF13D3381400F407AD /* import_block.h */; };
+		4B020CCC13D338E000F407AD /* grammar_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CCA13D338E000F407AD /* grammar_block.cpp */; };
+		4B020CCD13D338E000F407AD /* grammar_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CCB13D338E000F407AD /* grammar_block.h */; };
+		4B020CD013D338F300F407AD /* lexer_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CCE13D338F300F407AD /* lexer_block.cpp */; };
+		4B020CD113D338F300F407AD /* lexer_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CCF13D338F300F407AD /* lexer_block.h */; };
+		4B020CD413D3392000F407AD /* language_unit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B020CD213D3392000F407AD /* language_unit.cpp */; };
+		4B020CD513D3392000F407AD /* language_unit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B020CD313D3392000F407AD /* language_unit.h */; };
 		4B1A91A71366FF1F0018E595 /* ndfa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91A51366FF1F0018E595 /* ndfa.cpp */; };
 		4B1A91A81366FF1F0018E595 /* ndfa.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B1A91A61366FF1F0018E595 /* ndfa.h */; };
 		4B1A91AC136707680018E595 /* accept_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91AA136707680018E595 /* accept_action.cpp */; };
@@ -129,6 +143,20 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4B020CB113D3372B00F407AD /* definition_file.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = definition_file.cpp; sourceTree = "<group>"; };
+		4B020CB213D3372B00F407AD /* definition_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = definition_file.h; sourceTree = "<group>"; };
+		4B020CB613D337F200F407AD /* toplevel_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = toplevel_block.cpp; sourceTree = "<group>"; };
+		4B020CB713D337F200F407AD /* toplevel_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = toplevel_block.h; sourceTree = "<group>"; };
+		4B020CBA13D3380500F407AD /* language_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_block.cpp; sourceTree = "<group>"; };
+		4B020CBB13D3380500F407AD /* language_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_block.h; sourceTree = "<group>"; };
+		4B020CBE13D3381400F407AD /* import_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = import_block.cpp; sourceTree = "<group>"; };
+		4B020CBF13D3381400F407AD /* import_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = import_block.h; sourceTree = "<group>"; };
+		4B020CCA13D338E000F407AD /* grammar_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = grammar_block.cpp; sourceTree = "<group>"; };
+		4B020CCB13D338E000F407AD /* grammar_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grammar_block.h; sourceTree = "<group>"; };
+		4B020CCE13D338F300F407AD /* lexer_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer_block.cpp; sourceTree = "<group>"; };
+		4B020CCF13D338F300F407AD /* lexer_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_block.h; sourceTree = "<group>"; };
+		4B020CD213D3392000F407AD /* language_unit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_unit.cpp; sourceTree = "<group>"; };
+		4B020CD313D3392000F407AD /* language_unit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_unit.h; sourceTree = "<group>"; };
 		4B1A91A51366FF1F0018E595 /* ndfa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ndfa.cpp; sourceTree = "<group>"; };
 		4B1A91A61366FF1F0018E595 /* ndfa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ndfa.h; sourceTree = "<group>"; };
 		4B1A91AA136707680018E595 /* accept_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = accept_action.cpp; sourceTree = "<group>"; };
@@ -502,6 +530,20 @@
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
 				4B7F0C641393F2680012C085 /* formatter.h */,
+				4B020CB113D3372B00F407AD /* definition_file.cpp */,
+				4B020CB213D3372B00F407AD /* definition_file.h */,
+				4B020CB613D337F200F407AD /* toplevel_block.cpp */,
+				4B020CB713D337F200F407AD /* toplevel_block.h */,
+				4B020CBA13D3380500F407AD /* language_block.cpp */,
+				4B020CBB13D3380500F407AD /* language_block.h */,
+				4B020CBE13D3381400F407AD /* import_block.cpp */,
+				4B020CBF13D3381400F407AD /* import_block.h */,
+				4B020CD213D3392000F407AD /* language_unit.cpp */,
+				4B020CD313D3392000F407AD /* language_unit.h */,
+				4B020CCA13D338E000F407AD /* grammar_block.cpp */,
+				4B020CCB13D338E000F407AD /* grammar_block.h */,
+				4B020CCE13D338F300F407AD /* lexer_block.cpp */,
+				4B020CCF13D338F300F407AD /* lexer_block.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
@@ -560,6 +602,13 @@
 				4BEDDA7813BBB91E002FBD79 /* guard.h in Headers */,
 				4B2A687513C9B4EF00957CEF /* lr1_item_set.h in Headers */,
 				4B68195813CA52BE0085CA95 /* parser_state.h in Headers */,
+				4B020CB413D3372B00F407AD /* definition_file.h in Headers */,
+				4B020CB913D337F200F407AD /* toplevel_block.h in Headers */,
+				4B020CBD13D3380500F407AD /* language_block.h in Headers */,
+				4B020CC113D3381400F407AD /* import_block.h in Headers */,
+				4B020CCD13D338E000F407AD /* grammar_block.h in Headers */,
+				4B020CD113D338F300F407AD /* lexer_block.h in Headers */,
+				4B020CD513D3392000F407AD /* language_unit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,6 +742,13 @@
 				4B556F17139A8B13002C7154 /* conflict.cpp in Sources */,
 				4BEDDA7713BBB91E002FBD79 /* guard.cpp in Sources */,
 				4B2A687413C9B4EF00957CEF /* lr1_item_set.cpp in Sources */,
+				4B020CB313D3372B00F407AD /* definition_file.cpp in Sources */,
+				4B020CB813D337F200F407AD /* toplevel_block.cpp in Sources */,
+				4B020CBC13D3380500F407AD /* language_block.cpp in Sources */,
+				4B020CC013D3381400F407AD /* import_block.cpp in Sources */,
+				4B020CCC13D338E000F407AD /* grammar_block.cpp in Sources */,
+				4B020CD013D338F300F407AD /* lexer_block.cpp in Sources */,
+				4B020CD413D3392000F407AD /* language_unit.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
