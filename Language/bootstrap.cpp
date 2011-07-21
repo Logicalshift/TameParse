@@ -202,7 +202,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Production") << simpleEbnfItemList;
     
     ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item;
-    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.simple_ebnf_item;
+    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.ebnf_item;
     
     ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal;
     ((*result) += L"Simple-Ebnf-Item") << nt.terminal;
