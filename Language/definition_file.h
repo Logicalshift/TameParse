@@ -9,15 +9,48 @@
 #ifndef _LANGUAGE_DEFINITION_FILE_H
 #define _LANGUAGE_DEFINITION_FILE_H
 
+#include <vector>
+
+#include "Language/block.h"
+#include "Language/toplevel_block.h"
+
 namespace language {
     ///
     /// \brief Describes the content of a definition file
     ///
-    class definition_file {
+    class definition_file : public block {
+    public:
+        /// \brief List of top level blocks
+        typedef std::vector<toplevel_block*> block_list;
+        
+        /// \brief Iterator for accessing the blocks
+        typedef block_list::const_iterator iterator;
+        
     private:
+        /// \brief The blocks that make up this definition file
+        block_list m_Blocks;
         
     public:
+        /// \brief Creates a new definition file, containing no blocks
+        definition_file();
         
+        /// \brief Creates a new definition file by copying an existing one
+        definition_file(const definition_file& copyFrom);
+        
+        /// \brief Assigns the value of this definition file
+        definition_file& operator=(const definition_file& copyFrom);
+        
+        /// \brief Destroys this definition file object
+        virtual ~definition_file();
+        
+        /// \brief Adds a new top-level block to this object; this object will be responsible for freeing the block
+        void add(toplevel_block* newBlock);
+        
+        /// \brief The first block in the definition file
+        inline const iterator begin() const { return m_Blocks.begin(); }
+        
+        /// \brief The final block in the definition file
+        inline const iterator end() const   { return m_Blocks.end(); }
     };
 }
 

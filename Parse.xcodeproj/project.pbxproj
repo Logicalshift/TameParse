@@ -85,6 +85,10 @@
 		4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */; };
 		4B7F0C651393F2690012C085 /* formatter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C631393F2680012C085 /* formatter.cpp */; };
 		4B7F0C661393F2690012C085 /* formatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C641393F2680012C085 /* formatter.h */; };
+		4BB6615713DB16F500CDED59 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB6615613DB16F500CDED59 /* block.cpp */; };
+		4BB6615913DB170800CDED59 /* block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB6615813DB170800CDED59 /* block.h */; };
+		4BB6615C13DB273400CDED59 /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB6615A13DB273400CDED59 /* process.cpp */; };
+		4BB6615D13DB273400CDED59 /* process.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB6615B13DB273400CDED59 /* process.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -228,6 +232,10 @@
 		4B7F0C611393E9FE0012C085 /* language_bootstrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_bootstrap.h; sourceTree = "<group>"; };
 		4B7F0C631393F2680012C085 /* formatter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formatter.cpp; sourceTree = "<group>"; };
 		4B7F0C641393F2680012C085 /* formatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = formatter.h; sourceTree = "<group>"; };
+		4BB6615613DB16F500CDED59 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
+		4BB6615813DB170800CDED59 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = block.h; sourceTree = "<group>"; };
+		4BB6615A13DB273400CDED59 /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
+		4BB6615B13DB273400CDED59 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -530,6 +538,8 @@
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
 				4B7F0C641393F2680012C085 /* formatter.h */,
+				4BB6615613DB16F500CDED59 /* block.cpp */,
+				4BB6615813DB170800CDED59 /* block.h */,
 				4B020CB113D3372B00F407AD /* definition_file.cpp */,
 				4B020CB213D3372B00F407AD /* definition_file.h */,
 				4B020CB613D337F200F407AD /* toplevel_block.cpp */,
@@ -544,6 +554,8 @@
 				4B020CCB13D338E000F407AD /* grammar_block.h */,
 				4B020CCE13D338F300F407AD /* lexer_block.cpp */,
 				4B020CCF13D338F300F407AD /* lexer_block.h */,
+				4BB6615A13DB273400CDED59 /* process.cpp */,
+				4BB6615B13DB273400CDED59 /* process.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
@@ -609,6 +621,8 @@
 				4B020CCD13D338E000F407AD /* grammar_block.h in Headers */,
 				4B020CD113D338F300F407AD /* lexer_block.h in Headers */,
 				4B020CD513D3392000F407AD /* language_unit.h in Headers */,
+				4BB6615913DB170800CDED59 /* block.h in Headers */,
+				4BB6615D13DB273400CDED59 /* process.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -749,6 +763,8 @@
 				4B020CCC13D338E000F407AD /* grammar_block.cpp in Sources */,
 				4B020CD013D338F300F407AD /* lexer_block.cpp in Sources */,
 				4B020CD413D3392000F407AD /* language_unit.cpp in Sources */,
+				4BB6615713DB16F500CDED59 /* block.cpp in Sources */,
+				4BB6615C13DB273400CDED59 /* process.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
