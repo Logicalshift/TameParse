@@ -56,7 +56,7 @@ language ParserLanguage {
 		
 		<Import-Block>			= import string
 		
-		<Language-Inherits>		= ':' identifier
+		<Language-Inherits>		= ':' identifier (',' identifier)*
 		
 		//
 		// The language block
