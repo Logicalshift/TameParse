@@ -122,6 +122,11 @@ rule& rule::operator<<(const rule& rule) {
 
 /// \brief Returns the identifier for this rule in the specified grammar
 int rule::identifier(const grammar& gram) const {
+    // DANGER WILL ROBINSON:
+    //   If a grammar is freed, then a new grammar created and this rule put into it, there is a non-zero chance
+    //   of m_LastGrammar being wrong!
+    //
+    //   OK for now. Rules are usually one-shot affairs.
     if (&gram == m_LastGrammar) return m_Identifier;
     
     m_LastGrammar = &gram;
