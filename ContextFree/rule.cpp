@@ -47,6 +47,7 @@ rule::rule(const int newNt)
 rule& rule::operator=(const rule& copyFrom) {
     m_NonTerminal   = copyFrom.m_NonTerminal;
     m_Items         = copyFrom.m_Items;
+    m_LastGrammar   = NULL;
     
     return *this;
 }
