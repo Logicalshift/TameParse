@@ -219,7 +219,7 @@ namespace contextfree {
         /// \brief Comparison function, returns true if a is less than b
         static bool compare(const item& a, const item& b);
     };
-};
+}
 
 #include "ContextFree/standard_items.h"
 #include "ContextFree/ebnf_items.h"

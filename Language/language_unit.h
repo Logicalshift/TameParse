@@ -35,7 +35,7 @@ namespace language {
             unit_keywords_definition,
             
             /// \brief A grammar definition
-            unit_grammar_definition,
+            unit_grammar_definition
         };
         
     private:

@@ -133,7 +133,7 @@ void test_dfa_single_regex::run_tests() {
     test("a-or-b-c3", "(a|b?)c", "c", "b");
 
     test("escape1", "\\a", "\a", "b");
-    test("escape2", "\\e", "\e", "b");
+    test("escape2", "\\e", "\x1b", "b");
     test("escape3", "\\n", "\n", "b");
     test("escape4", "\\r", "\r", "b");
     test("escape5", "\\f", "\f", "b");

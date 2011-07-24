@@ -80,7 +80,7 @@ namespace lr {
             ///
             /// If the guard rule is accepted, then the guard symbol is set as the lookahead (this is retrieved from the rule
             /// that is reduced)
-            act_guard,
+            act_guard
         };
         
     private:

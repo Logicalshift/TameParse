@@ -49,7 +49,7 @@ symbol_string ndfa_regex::convert(wstring source) {
     
     // Fill it in, treating the characters as unsigned
     for (wstring::iterator it=source.begin(); it != source.end(); it++) {
-        result += (int)(unsigned wchar_t)*it;
+        result += (int)(unsigned)(wchar_t)*it;
     }
     
     // This is the result
@@ -79,7 +79,7 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     
     // Fill it in, treating the characters as unsigned
     for (wchar_t* pos = source; *pos != 0; pos++) {
-        result += (int)(unsigned wchar_t)*pos;
+        result += (int)(unsigned)(wchar_t)*pos;
     }
     
     // This is the result

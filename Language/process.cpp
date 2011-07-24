@@ -27,7 +27,7 @@ wstring process::dequote_string(const wstring& string) {
             switch (string[pos]) {
                     // Single character quotations
                 case 'a':   result += L'\a'; break;
-                case 'e':   result += L'\e'; break;
+                case 'e':   result += 0x1b; break;
                 case 'n':   result += L'\n'; break;
                 case 'r':   result += L'\r'; break;
                 case 'f':   result += L'\f'; break;

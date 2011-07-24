@@ -86,6 +86,6 @@ namespace util {
             return *a < *b;
         }
     };
-};
+}
 
 #endif

@@ -16,10 +16,10 @@ void Parse::HelloWorld(const char * s)
 	 ParsePriv *theObj = new ParsePriv;
 	 theObj->HelloWorldPriv(s);
 	 delete theObj;
-};
+}
 
 void ParsePriv::HelloWorldPriv(const char * s) 
 {
 	std::cout << s << std::endl;
-};
+}
 
