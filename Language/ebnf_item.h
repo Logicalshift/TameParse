@@ -53,6 +53,9 @@ namespace language {
         /// \brief A list of EBNF items
         typedef std::vector<ebnf_item*> ebnf_item_list;
         
+        /// \brief Child item iterator
+        typedef ebnf_item_list::const_iterator iterator;
+        
     private:
         /// \brief The type of this item
         type m_Type;
@@ -72,7 +75,37 @@ namespace language {
         ebnf_item_list m_ChildItems;
         
     public:
+        /// \brief Creates an EBNF item (sourceIdentifier.identifier)
+        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, position start = position(), position end = position());
+
+        /// \brief Creates an EBNF item which doesn't specify a symbol
+        ebnf_item(type typ, position start = position(), position end = position());
         
+        /// \brief Creates an EBNF item by copying an existing one
+        ebnf_item(const ebnf_item& copyFrom);
+        
+        /// \brief Destructor
+        virtual ~ebnf_item();
+        
+        /// \brief Fills the content of this item with the content of the specified item
+        ebnf_item& operator=(const ebnf_item& copyFrom);
+        
+        /// \brief Adds a child item to this item
+        ///
+        /// This item will delete the item when it has finished with it.
+        void add_child(ebnf_item* newChild);
+        
+        /// \brief The identifier of the source language, or the empty string for items from this language
+        inline const std::wstring& source_identifier() { return m_SourceIdentifier; }
+        
+        /// \brief The identifier for this item (if it is a simple terminal or nonterminal item)
+        inline const std::wstring& identifier() const { return m_Identifier; }
+        
+        /// \brief The first child item for this item
+        inline iterator begin() const { return m_ChildItems.begin(); }
+        
+        /// \brief The item immediately after the final child item
+        inline iterator end() const { return  m_ChildItems.end(); }
     };
 }
 
