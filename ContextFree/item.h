@@ -67,6 +67,9 @@ namespace contextfree {
         /// \brief Copying isn't allowed
         item(const item& copyFrom);
         
+        /// \brief Disabled assignment
+        item& operator=(const item& assignFrom);
+       
     public:
         /// \brief Standard constructor
         explicit inline item(int symbol) : m_Symbol(symbol) { }

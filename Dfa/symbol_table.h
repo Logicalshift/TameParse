@@ -122,6 +122,10 @@ namespace dfa {
             }
             return mySize;
         }
+        
+    private:
+        /// \brief Disabled assignment
+        symbol_level<T, mask, shift>& operator=(const symbol_level<T, mask, shift>& assignFrom);
     };
     
     /// \brief Structure representing a level of symbols stored in this translator

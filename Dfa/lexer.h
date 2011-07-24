@@ -28,7 +28,10 @@ namespace dfa {
         
         /// \brief No copying for this class
         inline lexer(const lexer& copyFrom) { }
-        
+
+        /// \brief Disabled assignment
+        lexer& operator=(const lexer& assignFrom);
+
     public:
         /// \brief Creates a default lexer
         lexer();

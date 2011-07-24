@@ -67,7 +67,10 @@ namespace dfa {
     private:
         /// \brief The current state (used while building up the NDFA)
         int m_CurrentState;
-        
+
+        /// \brief Disabled assignment
+        ndfa& operator=(const ndfa& assignFrom);
+
     protected:
         /// \brief Creates a new NDFA with the specified data
         ndfa(state_list* states, symbol_map* symbols, accept_action_for_state* accept);

@@ -33,6 +33,9 @@ namespace dfa {
         /// \brief The symbol ID that was matched by this lexeme
         int m_Matched;
         
+        /// \brief Disabled assignment
+        lexeme& operator=(const lexeme& assignFrom);
+        
     public:
         /// \brief Creates a nonsensical empty lexeme
         lexeme();

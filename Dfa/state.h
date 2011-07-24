@@ -27,7 +27,10 @@ namespace dfa {
         
         /// \brief The transitions for this state
         transition_set m_Transitions;
-        
+
+        /// \brief Disabled assignment
+        state& operator=(const state& assignFrom);
+
     public:
         /// \brief Iterator for the transitions from this state
         typedef transition_set::const_iterator iterator;

@@ -21,6 +21,9 @@ namespace dfa {
         /// \brief The table for this item
         symbol_table<T> m_Table;
         
+        /// \brief Disabled assignment
+        symbol_translator<T>& operator=(const symbol_translator<T>& assignFrom);
+        
     public:
         /// \brief Copy constructor
         symbol_translator(const symbol_translator& copyFrom)

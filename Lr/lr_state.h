@@ -73,7 +73,10 @@ namespace lr {
         ///
         /// Note that the identifier is not used when comparing states
         int m_Identifier;
-        
+
+        /// \brief Disabled assignment
+        lr_state& operator=(const lr_state& assignFrom);
+
     public:
         /// \brief Constructs an empty state
         lr_state() : m_Identifier(-1) { }

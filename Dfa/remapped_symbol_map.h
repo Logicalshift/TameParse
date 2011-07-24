@@ -33,6 +33,9 @@ namespace dfa {
         /// \brief Maps IDs in the old set to IDs in this map
         old_to_new_map m_OldToNew;
         
+        /// \brief Disabled assignment
+        remapped_symbol_map& operator=(const remapped_symbol_map& assignFrom);
+        
     public:
         /// \brief Generates an empty remapped symbol map
         remapped_symbol_map();

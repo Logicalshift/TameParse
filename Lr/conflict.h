@@ -81,6 +81,9 @@ namespace lr {
         /// and/or could be propagated from)
         reduce_conflicts m_Reduce;
         
+        /// \brief Disabled assignment
+        conflict& operator=(const conflict& assignFrom);
+        
     public:
         /// \brief Creates a new conflict object (describing a non-conflict)
         conflict(int stateId, const contextfree::item_container& token);

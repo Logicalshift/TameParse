@@ -35,6 +35,9 @@ namespace contextfree {
         /// \brief The rules that are included in this item (by default there is 1, which is initialised as being empty)
         rule_list* m_Rules;
         
+        /// \brief Disabled assignment
+        ebnf& operator=(const ebnf& assignFrom);
+
     protected:
         /// \brief Adds a new rule to this construction
         void add_rule(const rule& newRule);

@@ -96,6 +96,9 @@ namespace lr {
         /// \brief The rule that this refers to.
         contextfree::rule_container m_Rule;
         
+        /// \brief Disabled assignment
+        lr_action& operator=(const lr_action& assignFrom);
+        
     public:
         /// \brief Creates a shift or goto action (with no rule)
         lr_action(action_type type, const contextfree::item_container& item, int nextState);

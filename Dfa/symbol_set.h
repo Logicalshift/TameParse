@@ -54,7 +54,7 @@ namespace dfa {
         
         /// \brief The symbols in this set
         symbol_store m_Symbols;
-        
+
     public:
         /// \brief Creates an empty symbol set
         symbol_set();

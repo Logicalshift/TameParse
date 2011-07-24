@@ -45,6 +45,9 @@ namespace contextfree {
         
         /// \brief The priority of this guard compared to other guards
         int m_Priority;
+
+        /// \brief Disabled assignment
+        guard& operator=(const guard& assignFrom);
         
     public:
         /// \brief Creates a new guard item, with a specified priority

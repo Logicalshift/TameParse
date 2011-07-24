@@ -42,6 +42,9 @@ namespace lr {
         /// \brief Contains the lookahead sets for this item
         lookahead_for_item m_Lookahead;
         
+        /// \brief Disabled assignment
+        lalr_state& operator=(const lalr_state& assignFrom);
+        
     public:
         /// \brief Constructs an empty state
         lalr_state();

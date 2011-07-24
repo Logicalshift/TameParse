@@ -340,12 +340,12 @@ void test_lalr_general::run_tests() {
     // Create another parser, this one with a particular type of empty production (accepts arbitrary strings of ids)
     grammar emptyProd;
 
-    sPrime  = emptyProd.id_for_nonterminal(L"S'");
-    s       = emptyProd.id_for_nonterminal(L"S");
+    nonterminal sPrime2(emptyProd.id_for_nonterminal(L"S'"));
+    nonterminal s2(emptyProd.id_for_nonterminal(L"S"));
 
-    (emptyProd += sPrime) << s;
-    (emptyProd += s);
-    (emptyProd += s) << s << idId;
+    (emptyProd += sPrime2) << s2;
+    (emptyProd += s2);
+    (emptyProd += s2) << s2 << idId;
     
     lalr_builder emptyBuilder(emptyProd, terms);
 

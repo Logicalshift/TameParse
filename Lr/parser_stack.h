@@ -98,6 +98,9 @@ namespace lr {
             
             internal_stack(const internal_stack& copyFrom);
             
+            /// \brief Disabled assignment
+            internal_stack& operator=(const internal_stack& assignFrom);
+            
         public:
             /// \brief Creates a new stack
             internal_stack()
