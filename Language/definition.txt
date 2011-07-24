@@ -95,9 +95,9 @@ language ParserLanguage {
 		
 		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
 		
-		<Nonterminal-Definition>	= [=> nonterminal '='] nonterminal '=' <Production> ('|' <Production>)* newline
-									| nonterminal "+=" <Production> ('|' <Production>)* newline
-									| replace <Nonterminal> '=' <Production> ('|' <Production>)* newline
+		<Nonterminal-Definition>	= [=> nonterminal '='] nonterminal '=' <Production> ('|' <Production>)*
+									| nonterminal "+=" <Production> ('|' <Production>)*
+									| replace <Nonterminal> '=' <Production> ('|' <Production>)*
 		
 		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
 		<Production>				= (Simple-Ebnf-Item)*
@@ -111,7 +111,7 @@ language ParserLanguage {
 									| <Simple-Ebnf-Item> '*'
 									| <Simple-Ebnf-Item> '+'
 									| <Simple-Ebnf-Item> '?'
-									| '(' <Ebnf-Item> ')'
+									| '(' <Ebnf-Item>* ')'
 		
 		<Guard>						= "[=>" (<Ebnf-Item>)* ']'
 		
