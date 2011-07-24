@@ -13,29 +13,34 @@ using namespace contextfree;
 
 /// \brief Creates a rule (with the empty nonterminal)
 rule::rule() 
-: m_NonTerminal(new empty_item(), true) {
+: m_NonTerminal(new empty_item(), true)
+, m_LastGrammar(NULL) {
 }
 
 /// \brief Creates a copy of a rule
 rule::rule(const rule& copyFrom)
 : m_NonTerminal(copyFrom.m_NonTerminal)
-, m_Items(copyFrom.m_Items) {
+, m_Items(copyFrom.m_Items)
+, m_LastGrammar(NULL) {
 }
 
 /// \brief Creates a copy of a rule with an alternative nonterminal
 rule::rule(const rule& copyFrom, const item_container& nonTerminal)
 : m_NonTerminal(nonTerminal)
-, m_Items(copyFrom.m_Items) {
+, m_Items(copyFrom.m_Items)
+, m_LastGrammar(NULL) {
 }
 
 /// \brief Creates an empty rule, which reduces to the specified item
 rule::rule(const item_container& nonTerminal)
-: m_NonTerminal(nonTerminal) {
+: m_NonTerminal(nonTerminal)
+, m_LastGrammar(NULL) {
 }
 
 /// \brief Creates an empty rule with a nonterminal identifier
 rule::rule(const int newNt)
-: m_NonTerminal(new contextfree::nonterminal(newNt), true) {
+: m_NonTerminal(new contextfree::nonterminal(newNt), true)
+, m_LastGrammar(NULL) {
 }
 
 /// \brief Copies the content of a rule into this one
