@@ -538,6 +538,8 @@
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
 				4B7F0C641393F2680012C085 /* formatter.h */,
+				4BB6615A13DB273400CDED59 /* process.cpp */,
+				4BB6615B13DB273400CDED59 /* process.h */,
 				4BB6615613DB16F500CDED59 /* block.cpp */,
 				4BB6615813DB170800CDED59 /* block.h */,
 				4B020CB113D3372B00F407AD /* definition_file.cpp */,
@@ -554,8 +556,6 @@
 				4B020CCB13D338E000F407AD /* grammar_block.h */,
 				4B020CCE13D338F300F407AD /* lexer_block.cpp */,
 				4B020CCF13D338F300F407AD /* lexer_block.h */,
-				4BB6615A13DB273400CDED59 /* process.cpp */,
-				4BB6615B13DB273400CDED59 /* process.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
