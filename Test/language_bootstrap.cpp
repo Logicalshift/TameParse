@@ -182,6 +182,42 @@ void test_language_bootstrap::run_tests() {
     
     report("RulesAllUnique", allUnique);
     
+    // Hrm, still got an issue, maybe some rules don't compare equal with themselves?
+    bool equality = true;
+    for (int ntId = 0; ntId < bs.get_grammar().max_nonterminal(); ntId++) {
+        const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
+        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
+            if (!nextRule->operator==(**nextRule)) {
+                equality = false;
+                
+                wcerr << L"Equality fail: " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
+            }
+
+            if (nextRule->operator<(**nextRule)) {
+                equality = false;
+                
+                wcerr << L"Less than fail: " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
+            }
+            
+            for (int ntId2 = 0; ntId2 < bs.get_grammar().max_nonterminal(); ntId2++) {
+                const rule_list& nt2Rules = bs.get_grammar().rules_for_nonterminal(ntId);
+                for (rule_list::const_iterator nextRule2 = nt2Rules.begin(); nextRule2 != ntRules.end(); nextRule2++) {
+                    // Ignore the existing rule
+                    if (nextRule2 == nextRule) continue;
+                    
+                    if ((*nextRule) < (*nextRule2) && (*nextRule2) < (*nextRule)) {
+                        equality = false;
+                        wcerr << L"Ordering fail: "
+                              << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals())
+                              << L" vs " << formatter::to_string(**nextRule2, bs.get_grammar(), bs.get_terminals());
+                    }
+                }
+            }
+        }
+    }
+    
+    report("RulesEquality", equality);
+    
     // Get the conflicts in the grammar
     conflict_list conflicts;
     conflict::find_conflicts(bs.get_builder(), conflicts);

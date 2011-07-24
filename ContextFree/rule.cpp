@@ -13,7 +13,7 @@ using namespace contextfree;
 
 /// \brief Creates a rule (with the empty nonterminal)
 rule::rule() 
-: m_NonTerminal(new empty_item(), true){
+: m_NonTerminal(new empty_item(), true) {
 }
 
 /// \brief Creates a copy of a rule
