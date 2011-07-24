@@ -400,7 +400,7 @@ void test_lalr_general::run_tests() {
     (contextSensitive += L"<Matching-Cs>") << a << someBs << c;
     
     guard matchBguard;
-    (*matchBguard.get_rule()) << matchingBs;
+    (*matchBguard.get_rule()) << matchingBs << c;
     
     (contextSensitive += L"<Context-Sensitive>") << matchBguard << matchingCs;
     
@@ -416,6 +416,7 @@ void test_lalr_general::run_tests() {
     symbol_string threeOfEach;
     symbol_string csDoesntMatch1;
     symbol_string csDoesntMatch2;
+    symbol_string csDoesntMatch3;
     
     for (int x=0; x<3; x++) threeOfEach += aId;
     for (int x=0; x<3; x++) threeOfEach += bId;
@@ -428,10 +429,14 @@ void test_lalr_general::run_tests() {
     for (int x=0; x<2; x++) csDoesntMatch2 += aId;
     for (int x=0; x<2; x++) csDoesntMatch2 += bId;
     for (int x=0; x<3; x++) csDoesntMatch2 += cId;
+    
+    for (int x=0; x<3; x++) csDoesntMatch3 += aId;
+    for (int x=0; x<4; x++) csDoesntMatch3 += bId;
+    for (int x=0; x<3; x++) csDoesntMatch3 += cId;
 
     // Now test it out
     report("ContextSensitive1", can_parse(threeOfEach, simpleCsParser, lex));
     report("ContextSensitive2", !can_parse(csDoesntMatch1, simpleCsParser, lex));
     report("ContextSensitive3", !can_parse(csDoesntMatch2, simpleCsParser, lex));
-
+    report("ContextSensitive4", !can_parse(csDoesntMatch3, simpleCsParser, lex));
 }

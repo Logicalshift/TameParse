@@ -19,7 +19,7 @@ language ContextSensitive {
 					  | 'a' 'b'* 'c'
 		
 		// Matches the context-sensitive language a^n b^n c^n
-		<Context-Sensitive> = [=> <Matching-Bs>] <Matching-Cs>
+		<Context-Sensitive> = [=> <Matching-Bs> 'c'] <Matching-Cs>
 		
 	}
 }
