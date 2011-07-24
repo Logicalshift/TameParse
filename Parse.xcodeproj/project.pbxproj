@@ -69,6 +69,12 @@
 		4B556F18139A8B13002C7154 /* conflict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B556F16139A8B13002C7154 /* conflict.h */; };
 		4B5E44F113DC7B6A001FF896 /* lexeme_definition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44EF13DC7B6A001FF896 /* lexeme_definition.cpp */; };
 		4B5E44F213DC7B6A001FF896 /* lexeme_definition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44F013DC7B6A001FF896 /* lexeme_definition.h */; };
+		4B5E44F713DC9A28001FF896 /* ebnf_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44F313DC9A27001FF896 /* ebnf_item.cpp */; };
+		4B5E44F813DC9A28001FF896 /* ebnf_item.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44F413DC9A27001FF896 /* ebnf_item.h */; };
+		4B5E44F913DC9A28001FF896 /* nonterminal_definition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44F513DC9A27001FF896 /* nonterminal_definition.cpp */; };
+		4B5E44FA13DC9A28001FF896 /* nonterminal_definition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44F613DC9A28001FF896 /* nonterminal_definition.h */; };
+		4B5E44FD13DC9A5D001FF896 /* production_definition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */; };
+		4B5E44FE13DC9A5D001FF896 /* production_definition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44FC13DC9A5C001FF896 /* production_definition.h */; };
 		4B68195813CA52BE0085CA95 /* parser_state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B68195713CA52BE0085CA95 /* parser_state.h */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
@@ -217,6 +223,12 @@
 		4B556F16139A8B13002C7154 /* conflict.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = conflict.h; sourceTree = "<group>"; };
 		4B5E44EF13DC7B6A001FF896 /* lexeme_definition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexeme_definition.cpp; sourceTree = "<group>"; };
 		4B5E44F013DC7B6A001FF896 /* lexeme_definition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexeme_definition.h; sourceTree = "<group>"; };
+		4B5E44F313DC9A27001FF896 /* ebnf_item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ebnf_item.cpp; sourceTree = "<group>"; };
+		4B5E44F413DC9A27001FF896 /* ebnf_item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ebnf_item.h; sourceTree = "<group>"; };
+		4B5E44F513DC9A27001FF896 /* nonterminal_definition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nonterminal_definition.cpp; sourceTree = "<group>"; };
+		4B5E44F613DC9A28001FF896 /* nonterminal_definition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nonterminal_definition.h; sourceTree = "<group>"; };
+		4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = production_definition.cpp; sourceTree = "<group>"; };
+		4B5E44FC13DC9A5C001FF896 /* production_definition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = production_definition.h; sourceTree = "<group>"; };
 		4B68195713CA52BE0085CA95 /* parser_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_state.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
@@ -562,6 +574,12 @@
 				4B5E44F013DC7B6A001FF896 /* lexeme_definition.h */,
 				4B020CCA13D338E000F407AD /* grammar_block.cpp */,
 				4B020CCB13D338E000F407AD /* grammar_block.h */,
+				4B5E44F513DC9A27001FF896 /* nonterminal_definition.cpp */,
+				4B5E44F613DC9A28001FF896 /* nonterminal_definition.h */,
+				4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */,
+				4B5E44FC13DC9A5C001FF896 /* production_definition.h */,
+				4B5E44F313DC9A27001FF896 /* ebnf_item.cpp */,
+				4B5E44F413DC9A27001FF896 /* ebnf_item.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
@@ -630,6 +648,9 @@
 				4BB6615913DB170800CDED59 /* block.h in Headers */,
 				4BB6615D13DB273400CDED59 /* process.h in Headers */,
 				4B5E44F213DC7B6A001FF896 /* lexeme_definition.h in Headers */,
+				4B5E44F813DC9A28001FF896 /* ebnf_item.h in Headers */,
+				4B5E44FA13DC9A28001FF896 /* nonterminal_definition.h in Headers */,
+				4B5E44FE13DC9A5D001FF896 /* production_definition.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -773,6 +794,9 @@
 				4BB6615713DB16F500CDED59 /* block.cpp in Sources */,
 				4BB6615C13DB273400CDED59 /* process.cpp in Sources */,
 				4B5E44F113DC7B6A001FF896 /* lexeme_definition.cpp in Sources */,
+				4B5E44F713DC9A28001FF896 /* ebnf_item.cpp in Sources */,
+				4B5E44F913DC9A28001FF896 /* nonterminal_definition.cpp in Sources */,
+				4B5E44FD13DC9A5D001FF896 /* production_definition.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
