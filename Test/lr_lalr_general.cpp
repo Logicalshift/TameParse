@@ -375,27 +375,63 @@ void test_lalr_general::run_tests() {
     report("OneId", can_parse(oneId, emptyParser, lex));
     report("TwoIds", can_parse(twoIds, emptyParser, lex));
     report("ManyIds", can_parse(manyIds, emptyParser, lex));
+
+    // Test of our ability to accept some context-sensitive languages
+    grammar contextSensitive;
     
-#if 0
-    // Run the parser 50000 times
-    for (int x=0; x<50000; x++) {
-        stringstream stream2(test2);
-        simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
-        
-        parse2->parse();
-        delete parse2;
-    }
-#endif
+    int aId = terms.add_symbol(L"'a'");
+    int bId = terms.add_symbol(L"'b'");
+    int cId = terms.add_symbol(L"'c'");
+
+    terminal a(aId);
+    terminal b(bId);
+    terminal c(cId);
     
-#if 0
-    // Build the parser 10000 times
-    for (int x=0; x<10000; x++) {
-        // Build this grammar
-        lalr_builder builder(dragon446, terms);
-        
-        // S' defines the language
-        builder.add_initial_state(s);
-        builder.complete_parser();
-    }
-#endif
+    nonterminal matchingBs(contextSensitive.id_for_nonterminal(L"<Matching-Bs>"));
+    nonterminal matchingCs(contextSensitive.id_for_nonterminal(L"<Matching-Cs>"));
+    nonterminal csLan(contextSensitive.id_for_nonterminal(L"<Context-Sensitive>"));
+    
+    ebnf_repeating someBs;
+    (*someBs.get_rule()) << b;
+    
+    (contextSensitive += L"<Matching-Bs>") << a << matchingBs << b;
+    (contextSensitive += L"<Matching-Bs>") << a << b;
+    (contextSensitive += L"<Matching-Cs>") << a << matchingCs << c;
+    (contextSensitive += L"<Matching-Cs>") << a << someBs << c;
+    
+    guard matchBguard;
+    (*matchBguard.get_rule()) << matchingBs;
+    
+    (contextSensitive += L"<Context-Sensitive>") << matchBguard << matchingCs;
+    
+    // Build our context-sensitve parser
+    lalr_builder csBuilder(contextSensitive, terms);
+    csBuilder.add_initial_state(csLan);
+    csBuilder.complete_parser();
+    
+    // Create a parser for this grammar
+    simple_parser simpleCsParser(csBuilder);
+    
+    // And some test strings
+    symbol_string threeOfEach;
+    symbol_string csDoesntMatch1;
+    symbol_string csDoesntMatch2;
+    
+    for (int x=0; x<3; x++) threeOfEach += aId;
+    for (int x=0; x<3; x++) threeOfEach += bId;
+    for (int x=0; x<3; x++) threeOfEach += cId;
+    
+    for (int x=0; x<3; x++) csDoesntMatch1 += aId;
+    for (int x=0; x<2; x++) csDoesntMatch1 += bId;
+    for (int x=0; x<3; x++) csDoesntMatch1 += cId;
+
+    for (int x=0; x<2; x++) csDoesntMatch2 += aId;
+    for (int x=0; x<2; x++) csDoesntMatch2 += bId;
+    for (int x=0; x<3; x++) csDoesntMatch2 += cId;
+
+    // Now test it out
+    report("ContextSensitive1", can_parse(threeOfEach, simpleCsParser, lex));
+    report("ContextSensitive2", !can_parse(csDoesntMatch1, simpleCsParser, lex));
+    report("ContextSensitive3", !can_parse(csDoesntMatch2, simpleCsParser, lex));
+
 }
