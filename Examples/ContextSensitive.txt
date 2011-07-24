@@ -5,6 +5,8 @@
 /// We're not resolving ambiguities here, so if the parser is set to avoid guards when there is no ambiguity, then this will
 /// not distinguish the context-sensitive language (but could be made to)
 ///
+/// (This type of language is sometimes known as an 'Indexed Language')
+///
 language ContextSensitive {
 	grammar {
 		
