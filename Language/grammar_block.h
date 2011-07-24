@@ -9,11 +9,13 @@
 #ifndef _LANGUAGE_GRAMMAR_BLOCK_H
 #define _LANGUAGE_GRAMMAR_BLOCK_H
 
+#include "Language/block.h"
+
 namespace language {
     ///
     /// \brief Representation of a block that defines the grammar for a language
     ///
-    class grammar_block {
+    class grammar_block : public block {
         
     };
 }

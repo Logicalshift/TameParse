@@ -9,12 +9,13 @@
 #ifndef _LANGUAGE_LANGUAGE_UNIT_H
 #define _LANGUAGE_LANGUAGE_UNIT_H
 
+#include "Language/block.h"
 #include "Language/grammar_block.h"
 #include "Language/lexer_block.h"
 
 namespace language {
     /// \brief Class that represents an item in a language definition
-    class language_unit {
+    class language_unit : public block {
     public:
         /// \brief An enumeration of the types of language unit
         enum unit_type {

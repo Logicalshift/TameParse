@@ -16,6 +16,10 @@ language_unit::language_unit(unit_type type, lexer_block* lexer)
 : m_Grammar(NULL)
 , m_LexerBlock(lexer)
 , m_Type(type) {
+    if (lexer) {
+        set_start_pos(lexer->start_pos());
+        set_end_pos(lexer->end_pos());
+    }
 }
 
 /// \brief Defines this as a language unit with a grammar
@@ -23,6 +27,10 @@ language_unit::language_unit(grammar_block* grammar)
 : m_Grammar(grammar)
 , m_LexerBlock(NULL)
 , m_Type(unit_grammar_definition) {
+    if (grammar) {
+        set_start_pos(grammar->start_pos());
+        set_end_pos(grammar->end_pos());
+    }
 }
 
 /// \brief Copies a language unit
@@ -49,6 +57,9 @@ language_unit& language_unit::operator=(const language_unit& copyFrom) {
     
     if (copyFrom.m_Grammar)     m_Grammar       = new grammar_block(*copyFrom.m_Grammar);
     if (copyFrom.m_LexerBlock)  m_LexerBlock    = new lexer_block(*copyFrom.m_LexerBlock);
+    
+    set_start_pos(copyFrom.start_pos());
+    set_end_pos(copyFrom.end_pos());
     
     // Return this object
     return *this;
