@@ -1,0 +1,23 @@
+///
+/// Test language; matches the context-sensitive language a^n b^n c^n
+///
+/// (Ie, aaabbbccc will match but aaabbccc won't)
+/// We're not resolving ambiguities here, so if the parser is set to avoid guards when there is no ambiguity, then this will
+/// not distinguish the context-sensitive language (but could be made to)
+///
+language ContextSensitive {
+	grammar {
+		
+		// Matches 'aaabbb' etc (ie, a series of as followed by an equal series of bs)
+		<Matching-Bs> = 'a' <Matching-Bs> 'b'
+		              | 'a' 'b'
+		
+		// Matches 'aaabbccc' etc (ie, a matching series of as and cs with any number of bs between them)
+		<Matching-Cs> = 'a' <Matching-Cs> 'c'
+					  | 'a' 'b'* 'c'
+		
+		// Matches the context-sensitive language a^n b^n c^n
+		<Context-Sensitive> = [=> <Matching-Bs>] <Matching-Cs>
+		
+	}
+}
