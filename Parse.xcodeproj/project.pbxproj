@@ -552,10 +552,10 @@
 				4B020CBF13D3381400F407AD /* import_block.h */,
 				4B020CD213D3392000F407AD /* language_unit.cpp */,
 				4B020CD313D3392000F407AD /* language_unit.h */,
-				4B020CCA13D338E000F407AD /* grammar_block.cpp */,
-				4B020CCB13D338E000F407AD /* grammar_block.h */,
 				4B020CCE13D338F300F407AD /* lexer_block.cpp */,
 				4B020CCF13D338F300F407AD /* lexer_block.h */,
+				4B020CCA13D338E000F407AD /* grammar_block.cpp */,
+				4B020CCB13D338E000F407AD /* grammar_block.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
