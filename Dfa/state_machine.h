@@ -30,6 +30,9 @@ namespace dfa {
         /// \brief Row data
         int* m_Row;
         
+        state_machine_flat_table(const state_machine_flat_table& copyFrom);
+        state_machine_flat_table& operator=(state_machine_flat_table& copyFrom);
+        
     public:
         /// \brief Initialises an invalid row
         inline state_machine_flat_table()

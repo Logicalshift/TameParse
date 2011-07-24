@@ -61,6 +61,9 @@ namespace language {
         };
         
     private:
+        bootstrap& operator=(const bootstrap& assignFrom);
+        bootstrap(const bootstrap& copyFrom);
+        
         /// \brief The lexer for this language
         dfa::lexer* m_Lexer;
         

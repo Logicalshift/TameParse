@@ -122,6 +122,9 @@ namespace dfa {
         /// \brief Array containing a list of possible accept actions for accepting states
         int* m_Accept;
         
+        dfa_lexer& operator=(const dfa_lexer& copyFrom);
+        dfa_lexer(const dfa_lexer& copyFrom);
+        
     private:
         /// \brief Fills in an entry in the accept array
         template<typename iterator> inline void fill_accept(int& target, iterator begin, iterator end) {

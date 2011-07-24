@@ -75,6 +75,9 @@ namespace lr {
         /// \brief Maps the ID of guard rules to their initial state (if they generate an accepting action, then the guard is matched)
         std::map<int, int> m_StatesForGuard;
         
+        lalr_builder(const lalr_builder& copyFrom);
+        lalr_builder& operator=(const lalr_builder& copyFrom);
+        
     public:
         /// \brief Creates a new builder for the specified grammar
         ///

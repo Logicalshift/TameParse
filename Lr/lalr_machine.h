@@ -65,6 +65,9 @@ namespace lr {
         /// \brief Transition for each state in this machine
         transition_for_state m_Transitions;
         
+        lalr_machine(const lalr_machine& copyFrom);
+        lalr_machine& operator=(const lalr_machine& copyFrom);
+        
     public:
         /// \brief Creates an empty LALR machine, which will reference the specified gramamr
         lalr_machine(contextfree::grammar& gram);

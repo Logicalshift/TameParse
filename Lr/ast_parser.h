@@ -38,6 +38,9 @@ namespace lr {
         /// \brief The stream of lexemes that this actions object will read from
         lexeme_stream* m_Stream;
         
+        ast_parser_actions(const ast_parser_actions& copyFrom);
+        ast_parser_actions& operator=(ast_parser_actions& copyFrom);
+        
     public:
         /// \brief Creates a new actions object that will read from the specified stream.
         ///
