@@ -41,6 +41,9 @@ ebnf_item::~ebnf_item() {
 
 /// \brief Fills the content of this item with the content of the specified item
 ebnf_item& ebnf_item::operator=(const ebnf_item& copyFrom) {
+    // Can't assign to ourselves
+    if (&copyFrom == this) return *this;
+    
     // Clear out the child items
     for (ebnf_item_list::iterator toDelete = m_ChildItems.begin(); toDelete != m_ChildItems.end(); toDelete++) {
         delete *toDelete;
