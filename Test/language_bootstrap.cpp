@@ -247,6 +247,9 @@ void test_language_bootstrap::run_tests() {
     
     report("CanParseLanguageDefinition", acceptedDefault);
     
+    definition_file* defn = bs.get_definition(defParser->get_item().item());
+    report("CanGetDefinition", defn != NULL);
+    
     delete defParser;
     delete defaultStream;
     
