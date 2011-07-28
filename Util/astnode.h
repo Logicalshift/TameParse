@@ -59,6 +59,9 @@ namespace util {
             }
         }
         
+        /// \brief The ID of the rule for this node
+        inline int rule() const { return m_Rule; }
+        
         /// \brief The nonterminal ID for this node
         inline int nonterminal() const { return m_Nonterminal; }
         
