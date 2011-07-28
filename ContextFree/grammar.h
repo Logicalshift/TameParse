@@ -49,9 +49,6 @@ namespace contextfree {
         typedef std::map<int, item_container> identifier_item_map;
         
     private:
-        /// \brief The first unused nonterminal ID
-        int m_MaxNonterminal;
-        
         /// \brief The nonterminals in this class
         nonterminal_rule_map m_Nonterminals;
         
@@ -80,7 +77,7 @@ namespace contextfree {
         
     public:
         /// \brief Returns the first unused nonterminal ID
-        inline int max_nonterminal() const { return m_MaxNonterminal; }
+        inline int max_nonterminal() const { return (int)m_ItemIdentifiers.size(); }
         
         /// \brief Returns the rules for the nonterminal with the specified identifier
         rule_list& rules_for_nonterminal(int id);

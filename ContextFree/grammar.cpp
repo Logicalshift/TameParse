@@ -12,14 +12,11 @@ using namespace std;
 using namespace contextfree;
 
 /// \brief Creates an empty grammar
-grammar::grammar() 
-: m_MaxNonterminal(0) {
+grammar::grammar() {
 }
 
 /// \brief Returns the rules for the nonterminal with the specified identifier
 rule_list& grammar::rules_for_nonterminal(int id) {
-    if (id >= m_MaxNonterminal) m_MaxNonterminal = id + 1;
-    
     return m_Nonterminals[id];
 }
 
@@ -59,9 +56,16 @@ int grammar::id_for_nonterminal(const wstring& name) {
     
     // Generate a new entry if it doesn't exist
     if (found == m_NameToNonterminal.end()) {
-        // Use the next available nonterminal ID
-        int newIdentifier = m_MaxNonterminal;
-        m_MaxNonterminal++;
+        // Use the next available item ID as the identifier of the new nonterminal
+        // (It's technically possible to have nonterminals with arbitrary IDs, but things make a lot more sense when the 
+        // nonterminal IDs match with other item IDs ['nonterminal' is a bit confusing in and of itself, as the EBNF items
+        // are all also technically nonterminals, as are guards. We also use the empty symbol as a placeholder occasionally])
+        int newIdentifier = (int) m_ItemIdentifiers.size();
+        
+        // Store as an item
+        item_container newNonterminal(new nonterminal(newIdentifier), true);
+        m_ItemIdentifiers[newNonterminal]   = newIdentifier;
+        m_ItemForIdentifier[newIdentifier]  = newNonterminal;
         
         // Store this rule
         found = m_NameToNonterminal.insert(pair<wstring, int>(name, newIdentifier)).first;
@@ -134,7 +138,7 @@ const item_container& grammar::item_with_identifier(int id) const {
     if (found != m_ItemForIdentifier.end()) return found->second;
     
     // Return the placeholder rule container if it wasn't found
-    return empty_container;    
+    return empty_container;
 }
 
 /// \brief Clears the caches associated with this grammar
