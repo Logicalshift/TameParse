@@ -158,6 +158,7 @@ namespace lr {
                 
             case lr_action::act_reduce:
             case lr_action::act_weakreduce:
+            case lr_action::act_accept:                 // An accepting action is the same as a reducing action
             {
                 // For reduce actions, the 'm_NextState' field actually refers to the rule that's being reduced
                 const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
