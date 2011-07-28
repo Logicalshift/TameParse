@@ -118,7 +118,7 @@ int grammar::identifier_for_item(const item_container& item) const {
     // Create a new rule if we haven't set an ID for this one yet
     int newId                   = (int) m_ItemIdentifiers.size();
     m_ItemIdentifiers[item]     = newId;
-    //m_ItemForIdentifier[newId]  = item;
+    m_ItemForIdentifier[newId]  = item;
     
     return newId;
 }
