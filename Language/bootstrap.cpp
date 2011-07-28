@@ -85,7 +85,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.identifier        = add_terminal(languageNdfa, L"identifier", L"[A-Za-z\\-][A-Za-z\\-0-9]*");
     t.nonterminal       = add_terminal(languageNdfa, L"nonterminal", L"\\<[A-Za-z\\-][A-Za-z\\-0-9]*\\>");
     t.regex             = add_terminal(languageNdfa, L"regex", L"/([^/]|(\\\\/))+/");
-    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\"))*\"");
+    t.string            = add_terminal(languageNdfa, L"string", L"\"([^\"]|(\\\\\"))*\"");
     t.character         = add_terminal(languageNdfa, L"character", L"'(.|(\\\\.))'");
     
     // Ignored elements
