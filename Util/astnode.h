@@ -62,7 +62,7 @@ namespace util {
         /// \brief The ID of the rule for this node
         inline int rule() const { return m_Rule; }
         
-        /// \brief The nonterminal ID for this node
+        /// \brief The identifier of the item representing the nonterminal for this node
         inline int item_identifier() const { return m_ItemIdentifier; }
         
         /// \brief The lexeme associated with this node (will be NULL if this node doesn't contain a lexeme)
