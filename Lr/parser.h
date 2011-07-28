@@ -210,7 +210,7 @@ namespace lr {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, act->m_NextState, items));
+                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, rule.m_RuleId, items));
                             break;
                         }
                     }                    
