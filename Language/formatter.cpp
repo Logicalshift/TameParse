@@ -509,7 +509,9 @@ std::wstring formatter::to_string(const util::astnode& node, const contextfree::
     
     // Write out this node
     if (node.nonterminal() >= 0) {
-        res << gram.name_for_nonterminal(node.nonterminal());
+        const item_container& thisItem  = gram.item_with_identifier(node.nonterminal());
+        
+        res << to_string(*thisItem, gram, dict);
         if (node.lexeme().item()) {
             res << L" " << dict.name_for_symbol(node.lexeme()->matched()) << L" \"" << node.lexeme()->content<wchar_t>() << L"\"";
         }
