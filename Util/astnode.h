@@ -27,8 +27,8 @@ namespace util {
         typedef std::vector<astnode_container> node_list;
         
     private:
-        /// \brief The identifier of the nonterminal associated with this node (or -1 for a terminal node)
-        int m_Nonterminal;
+        /// \brief The identifier of the grammar item associated with this node (or -1 for a terminal node)
+        int m_ItemIdentifier;
         
         /// \brief The identifier of the rule that was matched for this node (or -1 for a terminal node)
         int m_Rule;
@@ -43,8 +43,8 @@ namespace util {
         /// \brief Creates an empty AST node (not recommended you do this, it doesn't make much sense)
         astnode();
         
-        /// \brief Creates an AST node with a nonterminal ID
-        astnode(int nonterminal, int rule = -1);
+        /// \brief Creates an AST node with the specified rule and item identifier
+        astnode(int itemIdentifier, int rule = -1);
         
         /// \brief Creates an AST node from a lexeme
         astnode(const dfa::lexeme_container& terminal);
@@ -63,7 +63,7 @@ namespace util {
         inline int rule() const { return m_Rule; }
         
         /// \brief The nonterminal ID for this node
-        inline int nonterminal() const { return m_Nonterminal; }
+        inline int item_identifier() const { return m_ItemIdentifier; }
         
         /// \brief The lexeme associated with this node (will be NULL if this node doesn't contain a lexeme)
         inline const dfa::lexeme_container& lexeme() const { return m_Lexeme; }

@@ -508,8 +508,8 @@ std::wstring formatter::to_string(const util::astnode& node, const contextfree::
     wstringstream res;
     
     // Write out this node
-    if (node.nonterminal() >= 0) {
-        const item_container& thisItem  = gram.item_with_identifier(node.nonterminal());
+    if (node.item_identifier() >= 0) {
+        const item_container& thisItem  = gram.item_with_identifier(node.item_identifier());
         
         res << to_string(*thisItem, gram, dict);
         if (node.lexeme().item()) {

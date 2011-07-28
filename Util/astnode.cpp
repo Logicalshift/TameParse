@@ -13,22 +13,22 @@ using namespace util;
 
 /// \brief Creates an empty AST node
 astnode::astnode()
-: m_Nonterminal(-1) 
+: m_ItemIdentifier(-1) 
 , m_Rule(-1) 
 , m_Lexeme()
 , m_Children() {
 }
 
 /// \brief Creates an AST node with a nonterminal ID
-astnode::astnode(int nonterminal, int rule)
-: m_Nonterminal(nonterminal)
+astnode::astnode(int itemIdentifier, int rule)
+: m_ItemIdentifier(itemIdentifier)
 , m_Rule(rule)
 , m_Lexeme(NULL, false) {
 }
 
 /// \brief Creates an AST node from a lexeme
 astnode::astnode(const dfa::lexeme_container& terminal)
-: m_Nonterminal(-1)
+: m_ItemIdentifier(-1)
 , m_Lexeme(terminal) {
 }
 
@@ -45,8 +45,8 @@ astnode* astnode::clone() const {
 bool astnode::operator<(const astnode& compareTo) const {
     if (&compareTo == this) return false;
     
-    if (m_Nonterminal < compareTo.m_Nonterminal || m_Lexeme < compareTo.m_Lexeme) return true;
-    if (compareTo.m_Nonterminal < m_Nonterminal || compareTo.m_Lexeme < m_Lexeme) return false;
+    if (m_ItemIdentifier < compareTo.m_ItemIdentifier || m_Lexeme < compareTo.m_Lexeme) return true;
+    if (compareTo.m_ItemIdentifier < m_ItemIdentifier || compareTo.m_Lexeme < m_Lexeme) return false;
     
     if (children().size() < compareTo.children().size()) return true;
     if (children().size() > compareTo.children().size()) return false;

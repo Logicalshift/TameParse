@@ -292,7 +292,7 @@ definition_file* bootstrap::get_definition(const util::astnode* ast) {
     if (!ast) return NULL;
     
     // Should be a parser-language AST node
-    if (ast->nonterminal() != nt.parser_language->symbol()) return NULL;
+    if (ast->item_identifier() != nt.parser_language->symbol()) return NULL;
     
     return NULL;
 }
