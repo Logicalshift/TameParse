@@ -10,6 +10,8 @@
 
 #include "formatter.h"
 
+#include "Util/astnode.h"
+
 #include "ContextFree/grammar.h"
 #include "ContextFree/item.h"
 #include "ContextFree/terminal_dictionary.h"
@@ -21,6 +23,7 @@
 #include "Lr/conflict.h"
 
 using namespace std;
+using namespace util;
 using namespace contextfree;
 using namespace lr;
 using namespace language;
@@ -496,5 +499,48 @@ wstring formatter::to_string(const conflict& conf, const grammar& gram, const te
     }
     
     // Produce the final string
+    return res.str();
+}
+
+/// \brief Turns a AST node into a string description
+std::wstring formatter::to_string(const util::astnode& node, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict) {
+    // Begin building the result
+    wstringstream res;
+    
+    // Write out this node
+    if (node.nonterminal() >= 0) {
+        res << gram.name_for_nonterminal(node.nonterminal());
+        if (node.lexeme().item()) {
+            res << L" " << dict.name_for_symbol(node.lexeme()->matched()) << L" \"" << node.lexeme()->content<wchar_t>() << L"\"";
+        }
+    } else if (node.lexeme().item()) {
+        res << dict.name_for_symbol(node.lexeme()->matched()) << L" \"" << node.lexeme()->content<wchar_t>() << L"\"";
+    } else {
+        res << L"(Unknown symbol)";
+    }
+    
+    // Write out the children for this node
+    for (astnode::node_list::const_iterator child = node.children().begin(); child != node.children().end(); child++) {
+        // Get the conversion for this child
+        wstring childString = to_string(**child, gram, dict);
+        
+        // True if there are more children after this one
+        bool moreChildren = (child + 1) != node.children().end();
+        
+        // Append to the result (indenting as we go)
+        res << endl << L"+- ";
+        for (wstring::iterator nextChar = childString.begin(); nextChar != childString.end(); nextChar++) {
+            res << *nextChar;
+            if (*nextChar == L'\n') {
+                if (moreChildren) {
+                    res << L"|  ";
+                } else {
+                    res << L"   ";
+                }
+            }
+        }
+    }
+    
+    // Return this as the result
     return res.str();
 }

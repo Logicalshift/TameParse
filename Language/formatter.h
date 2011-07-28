@@ -14,6 +14,10 @@
 
 #include "ContextFree/item.h"
 
+namespace util {
+    class astnode;
+}
+
 namespace contextfree {
     class terminal;
     class terminal_dictionary;
@@ -82,6 +86,10 @@ namespace language {
     public:
         /// \brief Turns a LALR conflict into a string description
         static std::wstring to_string(const lr::conflict& conflict, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
+        
+    public:
+        /// \brief Turns a AST node into a string description
+        static std::wstring to_string(const util::astnode& node, const contextfree::grammar& gram, const contextfree::terminal_dictionary& dict);
     };
 }
 
