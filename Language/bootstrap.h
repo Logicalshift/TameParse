@@ -60,6 +60,36 @@ namespace language {
                 newline,                        // \n or \r
                 whitespace,                     // Any kind of whitespace
                 comment;                        // Comment
+            
+            int
+                id_identifier,
+                id_nonterminal,
+                id_regex,
+                id_string,
+                id_character,
+                id_language,
+                id_grammar,
+                id_lexersymbols,
+                id_lexer,
+                id_weaklexer,
+                id_ignore,
+                id_keywords,
+                id_equals,
+                id_question,
+                id_plus,
+                id_star,
+                id_colon,
+                id_openparen,
+                id_closeparen,
+                id_opencurly,
+                id_closecurly,
+                id_dot,
+                id_pipe,
+                id_openguard,
+                id_closesquare,
+                id_newline,
+                id_whitespace,
+                id_comment;
         };
         
     private:
@@ -108,6 +138,29 @@ namespace language {
                 nonterminal,
                 terminal,
                 basic_terminal;
+            
+            int
+                id_parser_language,
+                id_toplevel_block,
+                id_language_block,
+                id_language_inherits,
+                id_language_definition,
+                id_lexer_symbols_definition,
+                id_lexer_definition,
+                id_ignore_definition,
+                id_keywords_definition,
+                id_keyword_definition,
+                id_weak_symbols_definition,
+                id_lexeme_definition,
+                id_grammar_definition,
+                id_nonterminal_definition,
+                id_production,
+                id_ebnf_item,
+                id_simple_ebnf_item,
+                id_guard,
+                id_nonterminal,
+                id_terminal,
+                id_basic_terminal;
         } nt;
         
         /// \brief Dictionary of all of the terminals in this language

@@ -28,7 +28,7 @@ language ParserLanguage {
 		character		= /'(.|\\.)'/
 	}
 	
-	// Ignored symbols
+	/// Ignored symbols
 	ignore {
 		newline			= /[\n\r]/
 		whitespace		= /[ \t]/

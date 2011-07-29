@@ -93,6 +93,36 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.whitespace        = add_terminal(languageNdfa, L"whitespace", L"[ \t]+");
     t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
     
+    // Store the IDs for the terminals
+    t.id_language       = t.language	->symbol();
+	t.id_grammar        = t.grammar     ->symbol();
+    t.id_lexersymbols   = t.lexersymbols->symbol();
+    t.id_lexer          = t.lexer       ->symbol();
+    t.id_weaklexer      = t.weaklexer   ->symbol();
+    t.id_ignore         = t.ignore      ->symbol();
+    t.id_keywords       = t.keywords    ->symbol();
+	t.id_equals         = t.equals      ->symbol();
+    t.id_question       = t.question    ->symbol();
+    t.id_plus           = t.plus        ->symbol();
+    t.id_star           = t.star        ->symbol();
+    t.id_colon          = t.colon       ->symbol();
+    t.id_openparen      = t.openparen   ->symbol();
+    t.id_closeparen     = t.closeparen  ->symbol();
+    t.id_opencurly      = t.opencurly   ->symbol();
+    t.id_closecurly     = t.closecurly  ->symbol();
+    t.id_dot            = t.dot         ->symbol();
+    t.id_pipe           = t.pipe        ->symbol();
+    t.id_openguard      = t.openguard   ->symbol();
+    t.id_closesquare    = t.closesquare ->symbol();
+    t.id_identifier     = t.identifier  ->symbol();
+    t.id_nonterminal    = t.nonterminal ->symbol();
+    t.id_regex          = t.regex       ->symbol();
+    t.id_string         = t.string      ->symbol();
+    t.id_character      = t.character   ->symbol();
+    t.id_newline        = t.newline     ->symbol();
+    t.id_whitespace     = t.whitespace  ->symbol();
+    t.id_comment        = t.comment     ->symbol();
+    
     // Build into a DFA
     ndfa* uniqueSyms = languageNdfa->to_ndfa_with_unique_symbols();
     delete languageNdfa;
@@ -130,6 +160,29 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.nonterminal              = result->get_nonterminal(L"Nonterminal");
     nt.terminal                 = result->get_nonterminal(L"Terminal");
     nt.basic_terminal           = result->get_nonterminal(L"Basic-Terminal");
+
+	// Store the IDs for these nonterminals
+	nt.id_parser_language         	= nt.parser_language         ->symbol();
+    nt.id_toplevel_block            = nt.toplevel_block          ->symbol();
+    nt.id_language_block            = nt.language_block          ->symbol();
+    nt.id_language_inherits         = nt.language_inherits       ->symbol();
+    nt.id_language_definition       = nt.language_definition     ->symbol();
+    nt.id_lexer_symbols_definition  = nt.lexer_symbols_definition->symbol();	
+    nt.id_lexer_definition          = nt.lexer_definition        ->symbol();
+    nt.id_ignore_definition         = nt.ignore_definition       ->symbol();
+    nt.id_keywords_definition       = nt.keywords_definition     ->symbol();
+    nt.id_keyword_definition        = nt.keyword_definition      ->symbol();
+    nt.id_weak_symbols_definition   = nt.weak_symbols_definition ->symbol();
+    nt.id_lexeme_definition         = nt.lexeme_definition       ->symbol();
+    nt.id_grammar_definition        = nt.grammar_definition      ->symbol();
+    nt.id_nonterminal_definition    = nt.nonterminal_definition  ->symbol();
+    nt.id_production                = nt.production              ->symbol();
+    nt.id_ebnf_item                 = nt.ebnf_item               ->symbol();
+    nt.id_simple_ebnf_item          = nt.simple_ebnf_item        ->symbol();
+    nt.id_guard                     = nt.guard                   ->symbol();
+    nt.id_nonterminal               = nt.nonterminal             ->symbol();
+    nt.id_terminal                  = nt.terminal                ->symbol();
+    nt.id_basic_terminal            = nt.basic_terminal          ->symbol();
     
     // Generate productions
     ebnf_repeating_optional listToplevel;
@@ -292,7 +345,7 @@ definition_file* bootstrap::get_definition(const util::astnode* ast) {
     if (!ast) return NULL;
     
     // Should be a parser-language AST node
-    if (ast->item_identifier() != nt.parser_language->symbol()) return NULL;
+    if (ast->item_identifier() != nt.id_parser_language) return NULL;
     
     return NULL;
 }
