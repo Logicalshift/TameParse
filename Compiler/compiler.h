@@ -16,7 +16,9 @@ namespace compiler {
     /// \brief Class that handles compiling a definition file into a parser in a particular language
     ///
     class compiler {
-        
+    private:
+        /// \brief The definition file that this compiler will handle
+        language::definition_file_container m_DefinitionFile;
     };
 }
 

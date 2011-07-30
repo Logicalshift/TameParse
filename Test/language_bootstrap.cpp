@@ -249,8 +249,8 @@ void test_language_bootstrap::run_tests() {
     
     wcerr << formatter::to_string(*defParser->get_item(), bs.get_grammar(), bs.get_terminals()) << endl;
     
-    definition_file* defn = bs.get_definition(defParser->get_item().item());
-    report("CanGetDefinition", defn != NULL);
+    definition_file_container defn = bs.get_definition(defParser->get_item().item());
+    report("CanGetDefinition", defn.item() != NULL);
     
     delete defParser;
     delete defaultStream;

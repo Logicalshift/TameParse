@@ -34,7 +34,7 @@ namespace util {
     /// This class actually stores a reference to an object, and copying a container will do reference counting to avoid
     /// having to copy the item or using extra memory.
     ///
-    /// ItemType must implement a clone() method to create a copy of the class, and a static compare(ItemType, ItemType)
+    /// ItemType must implement a clone() method to create a copy of the class, and a static compare(ItemType*, ItemType*)
     /// method to order them (it should return true if the first item is less than the second).
     ///
     template<typename ItemType, typename ItemAllocator = simple_constructor<ItemType> > class container {

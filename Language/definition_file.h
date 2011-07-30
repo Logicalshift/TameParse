@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "util/container.h"
 #include "Language/block.h"
 #include "Language/toplevel_block.h"
 
@@ -51,7 +52,20 @@ namespace language {
         
         /// \brief The final block in the definition file
         inline const iterator end() const   { return m_Blocks.end(); }
+        
+    public:
+        /// \brief Creates a clone of this file
+        inline definition_file* clone() const { return new definition_file(*this); }
+        
+        /// \brief Compares two definition files
+        inline static bool compare(const definition_file* a, const definition_file* b) {
+            // Just do a direct pointer compare
+            return a < b;
+        }
     };
+    
+    /// \brief Container for definition files
+    typedef util::container<definition_file> definition_file_container;
 }
 
 #endif
