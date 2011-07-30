@@ -423,5 +423,98 @@ toplevel_block* bootstrap::get_toplevel(const util::astnode* toplevel) {
 }
 
 language_block* bootstrap::get_language(const util::astnode* language) {
+    // Sanity check
+    if (!language)                                              return NULL;
+    if (language->item_identifier() != nt.id_language_block)   return NULL;
+    
+    // <Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+    const astnode* languageKeyword      = (*language)[0];
+    const astnode* languageIdentifier   = (*language)[1];
+    const astnode* inherits             = (*language)[2];
+    const astnode* definitionList       = (*language)[4];
+    const astnode* closeCurly           = (*language)[5];
+    
+    // Sanity check
+    if (!languageKeyword->lexeme().item())      return NULL;
+    if (!languageIdentifier->lexeme().item())   return NULL;
+    if (!closeCurly->lexeme().item())           return NULL;
+    
+    // Start building the result
+    language_block* result = new language_block(languageIdentifier->lexeme()->content<wchar_t>(), languageKeyword->lexeme()->pos(), closeCurly->lexeme()->final_pos());
+    
+    // Fill in the inheritence list
+    if (inherits->children().size() != 0) {
+        // These aren't currently used by the bootstrap language, so we ignore them for now
+        // Return null so we get a test failure if we ever add these
+        delete result;
+        return NULL;
+    }
+    
+    // Fill in the definition list
+    if (!get_language_defn_list(result, definitionList)) {
+        delete result;
+        return NULL;
+    }
+    
+    // This is the result
+    return result;
+}
+
+bool bootstrap::get_language_defn_list(language_block* block, const util::astnode* defn_list) {
+    // Sanity check
+    if (!block)     return false;
+    if (!defn_list) return false;
+    
+    // 0 or 2 items
+    if (defn_list->children().size() == 0) {
+        // Final item
+        return true;
+    }
+    
+    if (defn_list->children().size() != 2) {
+        // Invalid item
+        return false;
+    }
+    
+    // Process the rest of the list
+    if (!get_language_defn_list(block, (*defn_list)[0])) {
+        return false;
+    }
+    
+    // Get the item at this index
+    language_unit* nextUnit = get_language_defn((*defn_list)[1]);
+    if (!nextUnit) {
+        return false;
+    }
+    
+    // Add to this item
+    block->add_unit(nextUnit);
+    return true;
+}
+
+language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
+    // Sanity check
+    if (!defn)                                                  return NULL;
+    if (defn->item_identifier() != nt.id_language_definition)   return NULL;
+    if (defn->children().size() != 1)                           return NULL;
+    
+    // Action depends on the type of the child node
+    const astnode*  child   = (*defn)[0];
+    int             childId = child->item_identifier();
+    
+    if (childId == nt.id_lexer_symbols_definition) {
+        
+    } else if (childId == nt.id_lexer_definition) {
+        
+    } else if (childId == nt.id_ignore_definition) {
+        
+    } else if (childId == nt.id_weak_symbols_definition) {
+        
+    } else if (childId == nt.id_keywords_definition) {
+        
+    } else if (childId == nt.id_grammar_definition) {
+        
+    }
+    
     return NULL;
 }

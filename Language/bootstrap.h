@@ -213,6 +213,8 @@ namespace language {
         bool                get_toplevel_list(definition_file* file, const util::astnode* toplevel_list);
         toplevel_block*     get_toplevel(const util::astnode* toplevel);
         language_block*     get_language(const util::astnode* language);
+        bool                get_language_defn_list(language_block* block, const util::astnode* defn_list);
+        language_unit*      get_language_defn(const util::astnode* defn);
     };
 }
 
