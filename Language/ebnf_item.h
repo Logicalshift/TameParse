@@ -37,6 +37,9 @@ namespace language {
             /// \brief A guard item
             ebnf_guard,
             
+            /// \brief An alternative between 2 different items
+            ebnf_alternative,
+            
             /// \brief Repeat 0 or more times (Kleene star)
             ebnf_repeat_zero,
             

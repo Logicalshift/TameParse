@@ -549,7 +549,15 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         
         return new language_unit(language_unit::unit_keywords_definition, result);
     } else if (childId == nt.id_grammar_definition) {
+        // Grammar block
+        grammar_block* result = new grammar_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_grammar_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(result);
     }
     
     return NULL;
@@ -667,4 +675,292 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
     
     // Unknown
     return false;
+}
+
+bool bootstrap::get_grammar_block(grammar_block* block, const util::astnode* nonterminal_list) {
+    // Sanity check
+    if (nonterminal_list == NULL)       return false;
+    
+    // If the list has no children, then we've reached the end
+    if (nonterminal_list->children().size() == 0) return true;
+    
+    // The list should have 2 children now
+    if (nonterminal_list->children().size() != 2) return false;
+    
+    // Recurse on the left-hand side
+    if (!get_grammar_block(block, (*nonterminal_list)[0])) {
+        return false;
+    }
+    
+    // RHS = <NonTerminal>
+    // The bootstrap language only supports <NonTerminal> = [=>] nonterminal '=' <Production> (| <Production)*
+    const astnode* nonterminal          = (*nonterminal_list)[1];
+    const astnode* ntIdentifier         = (*nonterminal)[1];
+    const astnode* ntFirstProduction    = (*nonterminal)[3];
+    const astnode* ntMoreProductions    = (*nonterminal)[4];
+    
+    // Create the new nonterminal definition
+    nonterminal_definition* newDefn = new nonterminal_definition(ntIdentifier->lexeme()->content<wchar_t>());
+    
+    // Process the initial production
+    production_definition* initialProduction = get_production_definition(ntFirstProduction);
+    if (initialProduction == NULL) {
+        delete newDefn;
+        return false;
+    }
+    
+    newDefn->add_production(initialProduction);
+    
+    // Process the production list
+    if (!get_production_list(newDefn, ntMoreProductions)) {
+        delete newDefn;
+        return false;
+    }
+    
+    // Productions all OK: add and return
+    block->add_nonterminal(newDefn);
+    return true;
+}
+
+bool bootstrap::get_production_list(nonterminal_definition* nonterm, const util::astnode* production_list) {
+    // Sanity check
+    if (!production_list)   return false;
+    
+    // Finished if there are no child nodes
+    if (production_list->children().size() == 0) return true;
+    
+    // Should be three nodes
+    if (production_list->children().size() != 3) return false;
+    
+    // Process the list continuation
+    if (!get_production_list(nonterm, (*production_list)[0])) {
+        return false;
+    }
+    
+    // Process the next production
+    production_definition* nextDefn = get_production_definition((*production_list)[2]);
+    
+    if (nextDefn == NULL) {
+        return false;
+    }
+    
+    nonterm->add_production(nextDefn);
+    return true;
+}
+
+production_definition* bootstrap::get_production_definition(const util::astnode* production_defn) {
+    // Sanity check
+    if (production_defn == NULL)                                return NULL;
+    if (production_defn->item_identifier() != nt.id_production) return NULL;
+    
+    // A production is just a list of EBNF items
+    production_definition* newProd = new production_definition();
+    
+    if (!get_ebnf_list(newProd, (*production_defn)[0])) {
+        delete newProd;
+        return NULL;
+    }
+    
+    return newProd;
+}
+
+bool bootstrap::get_ebnf_list(production_definition* defn, const util::astnode* ebnf_item_list) {
+    // Sanity check
+    if (ebnf_item_list == NULL)         return false;
+    
+    // Finished once the list is empty
+    if (ebnf_item_list->children().size() == 0) {
+        return true;
+    }
+    
+    // Should be two items
+    if (ebnf_item_list->children().size() != 2) {
+        return false;
+    }
+    
+    // Process the LHS of the definition
+    if (!get_ebnf_list(defn, (*ebnf_item_list)[0])) {
+        return false;
+    }
+    
+    // Process the RHS of the definition
+    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1]);
+    if (newItem == NULL) {
+        return false;
+    }
+    
+    // Add this item
+    defn->add_item(newItem);
+    return true;
+}
+
+bool bootstrap::get_ebnf_list(ebnf_item* defn, const util::astnode* ebnf_item_list) {
+    // Sanity check
+    if (ebnf_item_list == NULL)         return false;
+    
+    // Finished once the list is empty
+    if (ebnf_item_list->children().size() == 0) {
+        return true;
+    }
+    
+    // Should be two items
+    if (ebnf_item_list->children().size() != 2) {
+        return false;
+    }
+    
+    // Process the LHS of the definition
+    if (!get_ebnf_list(defn, (*ebnf_item_list)[0])) {
+        return false;
+    }
+    
+    // Process the RHS of the definition
+    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1]);
+    if (newItem == NULL) {
+        return false;
+    }
+    
+    // Add this item
+    defn->add_child(newItem);
+    return true;
+}
+
+ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
+    // Sanity check
+    if (ebnf == NULL) return NULL;
+    
+    // Action depends on the type of this node
+    int nodeType = ebnf->item_identifier();
+    
+    if (nodeType == nt.id_ebnf_item) {
+        // First item is always a simple item
+        ebnf_item* simple = get_ebnf_item((*ebnf)[0]);
+        
+        if (simple == NULL) {
+            return NULL;
+        }
+        
+        // Might be of the form (a | b)
+        if (ebnf->children().size() == 3) {
+            // An alternative item
+            ebnf_item* alternative = get_ebnf_item((*ebnf)[2]);
+            
+            if (alternative == NULL) {
+                delete simple;
+                return NULL;
+            }
+            
+            // Generate the final result
+            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative);
+            newItem->add_child(simple);
+            newItem->add_child(alternative);
+            
+            return newItem;
+        } else {
+            // Just the simple item
+            return simple;
+        }
+    }
+    
+    else if (nodeType == nt.id_simple_ebnf_item) {
+        // Might be a simple nonterminal, terminal, one of the various closures, a parenthesized list or a guard
+        if (ebnf->children().size() == 1) {
+            // Nonterminal, terminal or guard
+            return get_ebnf_item((*ebnf)[0]);
+        } 
+        
+        else if (ebnf->children().size() == 2) {
+            // Closure of some variety
+            ebnf_item* closedItem = get_ebnf_item((*ebnf)[0]);
+            
+            if (closedItem == NULL) {
+                return NULL;
+            }
+            
+            // Closure depends on the following symbol
+            int closureSymbol = (*ebnf)[1]->lexeme()->matched();
+
+            if (closureSymbol == t.id_star) {
+                // 0 or more (Kleene star)
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_zero);
+                newItem->add_child(closedItem);
+                return newItem;
+            } else if (closureSymbol == t.id_plus) {
+                // 1 or more
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_one);
+                newItem->add_child(closedItem);
+                return newItem;
+            } else if (closureSymbol == t.id_question) {
+                // 0 or 1
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_optional);
+                newItem->add_child(closedItem);
+                return newItem;
+            } else {
+                // Unknown type of thing
+                delete closedItem;
+                return NULL;
+            }
+        } 
+        
+        else if (ebnf->children().size() == 3) {
+            // Parenthesized list
+            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_parenthesized);
+            
+            if (!get_ebnf_list(newItem, (*ebnf)[1])) {
+                delete newItem;
+                return NULL;
+            }
+            
+            return newItem;
+        }
+        
+        else {
+            // Unknown simple item type
+            return NULL;
+        }
+    }
+    
+    else if (nodeType == nt.id_nonterminal) {
+        // Just a nonterminal
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", (*ebnf)[0]->lexeme()->content<wchar_t>());
+    }
+    
+    else if (nodeType == nt.id_terminal) {
+        // Can only contain a basic_terminal
+        return get_ebnf_item((*ebnf)[0]);
+    }
+    
+    else if (nodeType == nt.id_basic_terminal) {
+        // String, identifier or character
+        const astnode*  terminal    = (*ebnf)[0];
+        ebnf_item::type itemType    = ebnf_item::ebnf_terminal;
+        int             lexemeType  = terminal->lexeme()->matched();
+        
+        if (lexemeType == t.id_identifier) {
+            itemType = ebnf_item::ebnf_terminal;
+        } else if (lexemeType == t.id_string) {
+            itemType = ebnf_item::ebnf_terminal_string;
+        } else if (lexemeType == t.id_character) {
+            itemType = ebnf_item::ebnf_terminal_character;
+        } else {
+            // Probably a keyword matched as a weak symbol
+            // TODO: need to substitute weak symbols appropriately so the AST makes more sense
+        }
+        
+        return new ebnf_item(itemType, L"", terminal->lexeme()->content<wchar_t>());
+    }
+    
+    else if (nodeType == nt.id_guard) {
+        // Guard (of the form [=> item_list ]
+        ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_guard);
+        
+        if (!get_ebnf_list(newItem, (*ebnf)[1])) {
+            delete newItem;
+            return NULL;
+        }
+        
+        return newItem;
+    }
+    
+    // Unknown item type
+    return NULL;
 }

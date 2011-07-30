@@ -210,12 +210,18 @@ namespace language {
         definition_file* get_definition(const util::astnode* ast);
         
     private:
-        bool                get_toplevel_list(definition_file* file, const util::astnode* toplevel_list);
-        toplevel_block*     get_toplevel(const util::astnode* toplevel);
-        language_block*     get_language(const util::astnode* language);
-        bool                get_language_defn_list(language_block* block, const util::astnode* defn_list);
-        language_unit*      get_language_defn(const util::astnode* defn);
-        bool                get_lexer_block(lexer_block* block, const util::astnode* defn);
+        bool                    get_toplevel_list(definition_file* file, const util::astnode* toplevel_list);
+        toplevel_block*         get_toplevel(const util::astnode* toplevel);
+        language_block*         get_language(const util::astnode* language);
+        bool                    get_language_defn_list(language_block* block, const util::astnode* defn_list);
+        language_unit*          get_language_defn(const util::astnode* defn);
+        bool                    get_lexer_block(lexer_block* block, const util::astnode* defn);
+        bool                    get_grammar_block(grammar_block* block, const util::astnode* nonterminal_list);
+        bool                    get_production_list(nonterminal_definition* nonterm, const util::astnode* production_list);
+        production_definition*  get_production_definition(const util::astnode* production_defn);
+        bool                    get_ebnf_list(production_definition* defn, const util::astnode* ebnf_item_list);
+        ebnf_item*              get_ebnf_item(const util::astnode* ebnf);
+        bool                    get_ebnf_list(ebnf_item* defn, const util::astnode* ebnf_item_list);
     };
 }
 
