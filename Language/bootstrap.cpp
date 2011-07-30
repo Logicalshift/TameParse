@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <iostream>
+
 #include "bootstrap.h"
 
 #include "Dfa/ndfa_regex.h"
@@ -13,7 +15,9 @@
 #include "Lr/weak_symbols.h"
 #include "Lr/ignored_symbols.h"
 #include "Lr/lalr_builder.h"
+#include "Language/formatter.h"
 
+using namespace std;
 using namespace util;
 using namespace dfa;
 using namespace contextfree;
@@ -366,7 +370,7 @@ bool bootstrap::get_toplevel_list(definition_file* file, const util::astnode* to
     if (!toplevel_list) return false;
     
     // If there are no children, then there's nothing more to do
-    if (toplevel_list->children().size() == 0) { 
+    if (toplevel_list->children().size() == 0) {
         return true;
     }
     
@@ -375,14 +379,14 @@ bool bootstrap::get_toplevel_list(definition_file* file, const util::astnode* to
         return false;
     }
     
-    // Otherwise, this block will be (repeat, toplevel_block)
-    if (!get_toplevel_list(file, (*toplevel_list)[0])) {
+    // Otherwise, this block will be (repeat, toplevel_block). ASTs are in reverse!
+    if (!get_toplevel_list(file, (*toplevel_list)[1])) {
         // Error further down the list
         return false;
     }
     
     // Add the next top-level block
-    toplevel_block* nextBlock = get_toplevel((*toplevel_list)[1]);
+    toplevel_block* nextBlock = get_toplevel((*toplevel_list)[0]);
     if (!nextBlock) {
         return false;
     }
