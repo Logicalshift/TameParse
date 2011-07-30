@@ -217,22 +217,18 @@ contextfree::grammar* bootstrap::create_grammar() {
     // Some simple definitions
     ebnf_repeating_optional lexemeList;
     ebnf_repeating_optional keywordDefinitionList;
-    ebnf_repeating_optional lexemeOrIdentifierList;
-    ebnf_alternate          lexemeOrIdentifier;
     
     (*lexemeList.get_rule()) << nt.lexeme_definition;
-    (*lexemeOrIdentifier.get_rule()) << nt.lexeme_definition;
-    (*lexemeOrIdentifier.add_rule()) << t.identifier;
-    (*lexemeOrIdentifierList.get_rule()) << lexemeOrIdentifier;
     (*keywordDefinitionList.get_rule()) << nt.keyword_definition;
     
     ((*result) += L"Lexer-Symbols-Definition") << t.lexersymbols << t.opencurly << lexemeList << t.closecurly;
     ((*result) += L"Lexer-Definition") << t.lexer << t.opencurly << lexemeList << t.closecurly;
-    ((*result) += L"Ignore-Definition") << t.ignore << t.opencurly << lexemeOrIdentifierList << t.closecurly;
+    ((*result) += L"Ignore-Definition") << t.ignore << t.opencurly << keywordDefinitionList << t.closecurly;
     ((*result) += L"Keywords-Definition") << t.keywords << t.opencurly << keywordDefinitionList << t.closecurly;
     ((*result) += L"Keyword-Definition") << t.identifier;
     ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.string;
     ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.character;
+    ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.regex;
     ((*result) += L"Weak-Symbols-Definition") << t.weaklexer << t.opencurly << lexemeList << t.closecurly;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.regex;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.identifier << t.dot << t.identifier;
@@ -503,18 +499,172 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
     int             childId = child->item_identifier();
     
     if (childId == nt.id_lexer_symbols_definition) {
+        // Lexer symbols block
+        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_lexer_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(language_unit::unit_lexer_symbols, result);
     } else if (childId == nt.id_lexer_definition) {
+        // Lexer definition block
+        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_lexer_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(language_unit::unit_lexer_definition, result);
     } else if (childId == nt.id_ignore_definition) {
+        // Ignore definition block
+        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_lexer_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(language_unit::unit_ignore_definition, result);
     } else if (childId == nt.id_weak_symbols_definition) {
+        // Weak symbols block
+        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_lexer_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(language_unit::unit_weak_symbols_definition, result);
     } else if (childId == nt.id_keywords_definition) {
+        // Keywords definition block
+        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
+        if (!get_lexer_block(result, (*child)[2])) {
+            delete result;
+            return NULL;
+        }
+        
+        return new language_unit(language_unit::unit_keywords_definition, result);
     } else if (childId == nt.id_grammar_definition) {
         
     }
     
     return NULL;
+}
+
+bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
+    // Sanity check
+    if (!defn)                          return false;
+    
+    // Reached the end of this block if the number of child items is 0
+    if (defn->children().size() == 0)   return true;
+    
+    // If the size is 2, then this is a repeating item
+    const astnode* dataItem         = NULL;
+    const astnode* preceedingItem   = NULL;
+    
+    if (defn->children().size() == 1) {
+        dataItem        = (*defn)[0];
+    } else if (defn->children().size() == 2) {
+        preceedingItem  = (*defn)[0];
+        dataItem        = (*defn)[1];
+    } else {
+        return false;
+    }
+    
+    // Populate the block with any items that preceed this one
+    if (preceedingItem) {
+        if (!get_lexer_block(block, preceedingItem)) {
+            return false;
+        }
+    }
+    
+    // Deal with the data item
+    int dataItemId = dataItem->item_identifier();
+    
+    if (dataItemId == nt.id_lexeme_definition) {
+        // Lexeme definition
+        const astnode* lexemeIdentifier = (*dataItem)[0];
+        
+        if (dataItem->children().size() == 3) {
+            // <Lexeme-Definition> = identifier '=' regex
+            const astnode* regex = (*dataItem)[2];
+            
+            lexeme_definition* newLexeme = new lexeme_definition(lexeme_definition::regex, 
+                                                                 lexemeIdentifier->lexeme()->content<wchar_t>(), 
+                                                                 regex->lexeme()->content<wchar_t>(), 
+                                                                 lexemeIdentifier->lexeme()->pos(), 
+                                                                 regex->lexeme()->final_pos());
+
+            block->add_definition(newLexeme);
+            return true;
+        } else if (dataItem->children().size() == 5) {
+            // <Lexeme-Definition> = identifier '=' identifier '.' identifier
+            return false;       // Not supported yet
+        } else {
+            // Unknown
+            return false;
+        }
+    }
+    
+    else if (dataItemId == nt.id_keyword_definition) {
+        // Keyword definition
+        const astnode* keywordIdentifier = (*dataItem)[0];
+        
+        if (dataItem->children().size() == 1) {
+            // Just an identifier
+            lexeme_definition* newKeyword = new lexeme_definition(lexeme_definition::literal,
+                                                                  keywordIdentifier->lexeme()->content<wchar_t>(),
+                                                                  keywordIdentifier->lexeme()->content<wchar_t>(),
+                                                                  keywordIdentifier->lexeme()->pos(),
+                                                                  keywordIdentifier->lexeme()->final_pos());
+
+            block->add_definition(newKeyword);
+            return true;
+        } else if (dataItem->children().size() == 3) {
+            // identifier '=' string/character/regex
+            const astnode*          defn    = (*dataItem)[2];
+            lexeme_definition::type type    = lexeme_definition::string;
+            
+            if (defn->lexeme()->matched() == t.id_string) {
+                type = lexeme_definition::string;
+            } else if (defn->lexeme()->matched() == t.id_character) {
+                type = lexeme_definition::character;
+            } else if (defn->lexeme()->matched() == t.id_regex) {
+                type = lexeme_definition::regex;
+            } else {
+                return false;
+            }
+            
+            lexeme_definition* newKeyword = new lexeme_definition(type,
+                                                                  keywordIdentifier->lexeme()->content<wchar_t>(),
+                                                                  defn->lexeme()->content<wchar_t>(),
+                                                                  keywordIdentifier->lexeme()->pos(),
+                                                                  defn->lexeme()->final_pos());
+            
+            block->add_definition(newKeyword);
+            return true;               // Not supported
+        } else {
+            // Unknown
+            return false;
+        }
+    }
+    
+    else if (dataItem->lexeme().item() && dataItem->lexeme()->matched() == t.id_identifier) {
+        // Literal identifier (in ignore list): works like keyword
+        lexeme_definition* newKeyword = new lexeme_definition(lexeme_definition::literal,
+                                                              dataItem->lexeme()->content<wchar_t>(),
+                                                              dataItem->lexeme()->content<wchar_t>(),
+                                                              dataItem->lexeme()->pos(),
+                                                              dataItem->lexeme()->final_pos());
+        
+        block->add_definition(newKeyword);
+        return true;
+    }
+    
+    // Unknown
+    return false;
 }

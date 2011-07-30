@@ -215,6 +215,7 @@ namespace language {
         language_block*     get_language(const util::astnode* language);
         bool                get_language_defn_list(language_block* block, const util::astnode* defn_list);
         language_unit*      get_language_defn(const util::astnode* defn);
+        bool                get_lexer_block(lexer_block* block, const util::astnode* defn);
     };
 }
 
