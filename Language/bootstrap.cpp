@@ -14,6 +14,7 @@
 #include "Lr/ignored_symbols.h"
 #include "Lr/lalr_builder.h"
 
+using namespace util;
 using namespace dfa;
 using namespace contextfree;
 using namespace lr;
@@ -347,5 +348,76 @@ definition_file* bootstrap::get_definition(const util::astnode* ast) {
     // Should be a parser-language AST node
     if (ast->item_identifier() != nt.id_parser_language) return NULL;
     
+    // Create the block
+    definition_file* result = new definition_file();
+    
+    // One level: a toplevel block list
+    if (!get_toplevel_list(result, (*ast)[0])) {
+        delete result;
+        return NULL;
+    }
+    
+    return result;
+}
+
+bool bootstrap::get_toplevel_list(definition_file* file, const util::astnode* toplevel_list) {
+    // Can't check the block type (we don't have the item ID for ( TopLevel-Block )*)
+    if (!file)          return false;
+    if (!toplevel_list) return false;
+    
+    // If there are no children, then there's nothing more to do
+    if (toplevel_list->children().size() == 0) { 
+        return true;
+    }
+    
+    // Otherwise must be 2 children
+    if (toplevel_list->children().size() != 2) { 
+        return false;
+    }
+    
+    // Otherwise, this block will be (repeat, toplevel_block)
+    if (!get_toplevel_list(file, (*toplevel_list)[0])) {
+        // Error further down the list
+        return false;
+    }
+    
+    // Add the next top-level block
+    toplevel_block* nextBlock = get_toplevel((*toplevel_list)[1]);
+    if (!nextBlock) {
+        return false;
+    }
+    
+    // Add it to the definition file
+    file->add(nextBlock);
+    return true;
+}
+
+toplevel_block* bootstrap::get_toplevel(const util::astnode* toplevel) {
+    // Must be a toplevel block
+    if (!toplevel)                                              return NULL;
+    if (toplevel->item_identifier() != nt.id_toplevel_block)    return NULL;
+    
+    // Can either be a language or an import block
+    if (toplevel->children().size() != 1)                       return NULL;
+    
+    const astnode* child = (*toplevel)[0];
+    if (child->item_identifier() == nt.id_language_block) {
+        // Language block
+        language_block* language = get_language(child);
+        if (language) {
+            // New toplevel block
+            return new toplevel_block(language);
+        } else {
+            // Failed to create the block
+            return NULL;
+        }
+    } else {
+        // Note: import blocks aren't actually used by the bootstrap language at the moment
+        // Unknown block type
+        return NULL;
+    }
+}
+
+language_block* bootstrap::get_language(const util::astnode* language) {
     return NULL;
 }
