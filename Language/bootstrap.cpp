@@ -380,13 +380,13 @@ bool bootstrap::get_toplevel_list(definition_file* file, const util::astnode* to
     }
     
     // Otherwise, this block will be (repeat, toplevel_block). ASTs are in reverse!
-    if (!get_toplevel_list(file, (*toplevel_list)[1])) {
+    if (!get_toplevel_list(file, (*toplevel_list)[0])) {
         // Error further down the list
         return false;
     }
     
     // Add the next top-level block
-    toplevel_block* nextBlock = get_toplevel((*toplevel_list)[0]);
+    toplevel_block* nextBlock = get_toplevel((*toplevel_list)[1]);
     if (!nextBlock) {
         return false;
     }

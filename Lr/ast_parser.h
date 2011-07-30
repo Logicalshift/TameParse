@@ -74,7 +74,7 @@ namespace lr {
             astnode* newNode = new astnode(nonterminal, rule);
             
             // Add the contents of the reduce list to this node
-            newNode->add_children(reduce.begin(), reduce.end());
+            newNode->add_children(reduce.rbegin(), reduce.rend());
             
             // Create the container for this node
             return astnode_container(newNode, true);

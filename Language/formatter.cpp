@@ -522,12 +522,12 @@ std::wstring formatter::to_string(const util::astnode& node, const contextfree::
     }
     
     // Write out the children for this node
-    for (astnode::node_list::const_reverse_iterator child = node.children().rbegin(); child != node.children().rend(); child++) {
+    for (astnode::node_list::const_iterator child = node.children().begin(); child != node.children().end(); child++) {
         // Get the conversion for this child
         wstring childString = to_string(**child, gram, dict);
         
         // True if there are more children after this one
-        bool moreChildren = (child + 1) != node.children().rend();
+        bool moreChildren = (child + 1) != node.children().end();
         
         // Append to the result (indenting as we go)
         res << endl << L"+- ";
