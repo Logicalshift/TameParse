@@ -77,7 +77,7 @@ language ParserLanguage {
 		
 		<Lexer-Definition> 			= lexer '{' (<Lexeme-Definition>)* '}'
 		
-		<Ignore-Definition>			= ignore '{' (<Lexeme-Definition> | identifier)* '}'
+		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
 		
 		<Keywords-Definition>		= keywords '{' (<Keyword-Definition>)* '}'
 		
