@@ -217,6 +217,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         // How this is rewritten depends on the action
         switch (act->type()) {
             case lr_action::act_shift:
+            case lr_action::act_shiftstrong:
             case lr_action::act_ignore:
             case lr_action::act_accept:
                 // Preserve the action
@@ -284,6 +285,12 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
             
             // Add a duplicate action referring to the weak symbol, identical to the action for the strong symbol
             lr_action_container weakEquivAct(new lr_action(*act, *weakEquiv), true);
+            
+            // Shift actions become shift-strong actions (so the symbol ID is substituted)
+            if (weakEquivAct->type() == lr_action::act_shift) {
+                weakEquivAct->set_type(lr_action::act_shiftstrong);
+            }
+            
             newActions.insert(weakEquivAct);
         }
     }

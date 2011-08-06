@@ -26,6 +26,7 @@ static inline int action_score(int action) {
             return 1;
             
         case lr_action::act_shift:
+        case lr_action::act_shiftstrong:
         case lr_action::act_divert:
             // Shift actions are preferred if there's a conflict
             return 2;
@@ -60,7 +61,7 @@ static inline bool compare_actions(const parser_tables::action& a, const parser_
 }
 
 /// \brief Creates a parser from the result of the specified builder class
-parser_tables::parser_tables(const lalr_builder& builder) {
+parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* weakSymbols) {
     // Allocate the tables
     m_NumStates             = builder.count_states();
     m_NonterminalActions    = new action*[m_NumStates];
@@ -171,6 +172,49 @@ parser_tables::parser_tables(const lalr_builder& builder) {
         m_Rules[ruleId->second].m_RuleId        = rule->identifier(gram);
         m_Rules[ruleId->second].m_Length        = (int)rule->items().size();
     }
+    
+    // Fill in the weak symbols table
+    if (!weakSymbols) {
+        // No weak symbols
+        m_NumWeakToStrong   = 0;
+        m_WeakToStrong      = NULL;
+    } else {
+        // Count the number of weak symbols
+        m_NumWeakToStrong   = 0;
+        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); weakForStrong++) {
+            m_NumWeakToStrong += weakForStrong->second.size();
+        }
+        
+        // Fill in the table as an unordered list
+        m_WeakToStrong      = new symbol_equivalent[m_NumWeakToStrong];
+        int pos = 0;
+        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); weakForStrong++) {
+            // Fetch the strong symbol
+            const item_container& strong = weakForStrong->first;
+            
+            // We're only actually mapping terminal symbols here (which is all that should be in this array anyway)
+            if (strong->type() != item::terminal) continue;
+            
+            // Iterate through the weak symbols that this symbol is matched to
+            for (item_set::const_iterator weakItem = weakForStrong->second.begin(); weakItem != weakForStrong->second.end(); weakItem++) {
+                // Fetch the weak symbol that this item is mapped to
+                const item_container& weak = *weakItem;
+                
+                // Should be a terminal item
+                if (weak->type() != item::terminal) continue;
+                
+                // Fill in this item
+                symbol_equivalent equiv = { weak->symbol(), strong->symbol() };
+                m_WeakToStrong[pos++]   = equiv;
+            }
+        }
+        
+        // In case there were any mappings between non terminal symbols, update the symbol count
+        m_NumWeakToStrong = pos;
+        
+        // Sort the items
+        sort(m_WeakToStrong, m_WeakToStrong + m_NumWeakToStrong);
+    }
 }
 
 /// \brief Copy constructor
@@ -241,4 +285,5 @@ parser_tables::~parser_tables() {
     delete[] m_Rules;
     delete[] m_Counts;
     delete[] m_EndGuardStates;
+    if (m_WeakToStrong) delete[] m_WeakToStrong;
 }

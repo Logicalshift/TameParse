@@ -329,7 +329,7 @@ bootstrap::bootstrap() {
     // TODO: log information about shift/reduce and reduce/reduce conflicts
     
     // Turn into the finished parser
-    m_Parser = new ast_parser(*m_Builder);
+    m_Parser = new ast_parser(*m_Builder, &weak);
 }
 
 /// \brief Destructor
@@ -942,8 +942,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
         } else if (lexemeType == t.id_character) {
             itemType = ebnf_item::ebnf_terminal_character;
         } else {
-            // Probably a keyword matched as a weak symbol
-            // TODO: need to substitute weak symbols appropriately so the AST makes more sense
+            return NULL;
         }
         
         return new ebnf_item(itemType, L"", terminal->lexeme()->content<wchar_t>());

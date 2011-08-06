@@ -114,6 +114,9 @@ static void dump(const lr_action_set& actions, const grammar& gram, const termin
             case lr_action::act_ignore:
                 wcerr << L"IGNORE ";
                 break;
+            case lr_action::act_shiftstrong:
+                wcerr << L"SHIFT-STRONG ";
+                break;
         }
         dump(*(*it)->item(), gram, dict);
         
@@ -307,7 +310,7 @@ void test_lalr_general::run_tests() {
     report("StateOrderingWorks", state_comparison_always_reversible(builder.machine()));
     
     // Create a parser for this grammar
-    simple_parser p(builder);
+    simple_parser p(builder, NULL);
     character_lexer lex;
     
     symbol_string test1;
@@ -353,7 +356,7 @@ void test_lalr_general::run_tests() {
     emptyBuilder.complete_parser();
 
     dump_machine(emptyBuilder);
-    simple_parser emptyParser(emptyBuilder);
+    simple_parser emptyParser(emptyBuilder, NULL);
     
     // Some simple checks to see if this parser works
     symbol_string empty;
@@ -410,7 +413,7 @@ void test_lalr_general::run_tests() {
     csBuilder.complete_parser();
     
     // Create a parser for this grammar
-    simple_parser simpleCsParser(csBuilder);
+    simple_parser simpleCsParser(csBuilder, NULL);
     
     // And some test strings
     symbol_string threeOfEach;

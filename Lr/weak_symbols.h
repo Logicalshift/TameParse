@@ -38,6 +38,9 @@ namespace lr {
         /// \brief Maps symbols to sets of symbols
         typedef std::map<contextfree::item_container, contextfree::item_set> item_map;
         
+        /// \brief Iterator that retrieves the map between strong and weak symbols
+        typedef item_map::const_iterator strong_iterator;
+        
     private:
         /// \brief Item map that describes the set of weak symbols that should be considered equivalent to a
         /// particular strong symbol
@@ -95,6 +98,12 @@ namespace lr {
             // Return an empty set if there wasn't
             return emptySet;
         }
+        
+        /// \brief An iterator referencing the first symbol in the strong-to-weak map
+        inline strong_iterator begin_strong() const { return m_StrongToWeak.begin(); }
+        
+        /// \brief An iterator referencing symbol after the last symbol in the strong-to-weak map
+        inline strong_iterator end_strong() const { return m_StrongToWeak.end(); }
     };
 }
 

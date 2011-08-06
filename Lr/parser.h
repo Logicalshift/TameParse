@@ -65,8 +65,8 @@ namespace lr {
         : m_ParserTables(tables) { }
 
         /// \brief Creates a parser from the result of the specified builder class
-        parser(const lalr_builder& builder) 
-        : m_ParserTables(builder) { }
+        parser(const lalr_builder& builder, const weak_symbols* weakSymbols) 
+        : m_ParserTables(builder, weakSymbols) { }
 
         /// \brief Destructor
         virtual ~parser() { }

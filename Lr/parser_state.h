@@ -149,6 +149,16 @@ namespace lr {
                 actDelegate.shift(this, act, lookahead);
                 return true;
                 
+            case lr_action::act_shiftstrong:
+            {
+                // Fetch the strong equivalent of this symbol
+                int strongEquiv = m_Tables->strong_for_weak(lookahead->matched());
+                
+                // Push a new lexeme with a different symbol onto the stack
+                actDelegate.shift(this, act, lexeme_container(new dfa::lexeme(lookahead->content(), lookahead->pos(), strongEquiv), true));
+                return true;
+            }
+                
             case lr_action::act_divert:
                 // Push the new state on to the stack
                 actDelegate.shift(this, act, lookahead);
@@ -352,6 +362,7 @@ namespace lr {
             
             switch (act->m_Type) {
                 case lr_action::act_shift:
+                case lr_action::act_shiftstrong:
                 case lr_action::act_accept:
                     // This terminal will result in a shift: this is successful
                     return true;
@@ -549,7 +560,7 @@ namespace lr {
             }
             
             // Shift actions are always allowed
-            else if (checkAction->m_Type == lr_action::act_shift) {
+            else if (checkAction->m_Type == lr_action::act_shift || checkAction->m_Type == lr_action::act_shiftstrong) {
                 canReduce = true;
                 break;
             }

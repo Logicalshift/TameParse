@@ -361,6 +361,10 @@ std::wstring formatter::to_string(const lr::lr_action& act, const contextfree::g
         case lr_action::act_shift:
             res << L"Shift to " << act.next_state() << L" ";
             break;
+            
+        case lr_action::act_shiftstrong:
+            res << L"Shift strong equivalent to " << act.next_state() << L" ";
+            break;
     }
     
     // Output the symbol this action occurs on

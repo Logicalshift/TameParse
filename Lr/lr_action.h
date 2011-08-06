@@ -43,6 +43,10 @@ namespace lr {
             /// \brief If the terminal is seen, then it is placed on the stack and the next terminal is read
             act_shift,
             
+            /// \brief If the terminal is seen, then it is substituted for its 'strong' equivalent, placed on the stack and the
+            /// next terminal is read
+            act_shiftstrong,
+            
             /// \brief If the terminal is seen, discard it and look at the next one
             act_ignore,
             
@@ -132,6 +136,9 @@ namespace lr {
         
         /// \brief The type of action that this represents
         inline action_type type() const { return m_Type; }
+        
+        /// \brief Changes the type of this action
+        inline void set_type(action_type newType) { m_Type = newType; }
         
         /// \brief The item that this refers to. For shift or reduce actions this will be a terminal. For goto actions, this will be a nonterminal
         inline const contextfree::item_container& item() const { return m_Item; }

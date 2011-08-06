@@ -12,6 +12,7 @@
 #include <algorithm>
 
 #include "Lr/lalr_builder.h"
+#include "Lr/weak_symbols.h"
 #include "Dfa/lexer.h"
 
 namespace lr {
@@ -61,6 +62,22 @@ namespace lr {
             int m_NumNonterms;
         };
         
+        /// \brief Structure that maps a weak symbol to its strong equivalent
+        struct symbol_equivalent {
+            int m_OriginalSymbol;
+            int m_MappedTo;
+            
+            /// \brief Compares this to another symbol_equivalent object (only the original symbol is actually compared so we can use find())
+            inline bool operator==(const symbol_equivalent& compareTo) const {
+                return m_OriginalSymbol == compareTo.m_OriginalSymbol;
+            }
+            
+            /// \brief Orders this structure
+            inline bool operator<(const symbol_equivalent& compareTo) const { 
+                return m_OriginalSymbol < compareTo.m_OriginalSymbol;
+            }
+        };
+        
         /// \brief The number of states in this parser
         int m_NumStates;
         
@@ -91,9 +108,15 @@ namespace lr {
         /// \brief The reduce rules
         reduce_rule* m_Rules;
         
+        /// \brief The number of items in the weak to strong map
+        int m_NumWeakToStrong;
+        
+        /// \brief Ordered list of weak symbols and their strong equivalent
+        symbol_equivalent* m_WeakToStrong;
+        
     public:
         /// \brief Creates a parser from the result of the specified builder class
-        parser_tables(const lalr_builder& builder);
+        parser_tables(const lalr_builder& builder, const weak_symbols* weakSyms);
 
         /// \brief Copy constructor
         parser_tables(const parser_tables& copyFrom);
@@ -150,6 +173,22 @@ namespace lr {
         /// \brief Returns true if the specified state has an end of guard symbol
         inline bool has_end_of_guard(int stateId) const {
             return std::binary_search(m_EndGuardStates, m_EndGuardStates + m_NumEndOfGuards, stateId);
+        }
+        
+        /// \brief Finds the strong symbol that is equivalent to a given weak terminal symbol
+        inline int strong_for_weak(int weakTerminal) const {
+            // If there are no symbols in the map, then just return the terminal symbol
+            if (m_NumWeakToStrong == 0) return weakTerminal;
+            
+            // Look up the symbol in the map
+            const symbol_equivalent     search  = { weakTerminal, 0 };
+            const symbol_equivalent*    found   = std::find(m_WeakToStrong, m_WeakToStrong + m_NumWeakToStrong, search);
+            if (found != m_WeakToStrong + m_NumWeakToStrong) {
+                return found->m_MappedTo;
+            }
+            
+            // Nothing was found
+            return weakTerminal;
         }
     };
 }
