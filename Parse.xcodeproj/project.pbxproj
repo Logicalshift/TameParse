@@ -99,6 +99,8 @@
 		4BB6615D13DB273400CDED59 /* process.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB6615B13DB273400CDED59 /* process.h */; };
 		4BBC319613E4AEEF0059AC14 /* language_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BBC319413E4AEEF0059AC14 /* language_compiler.cpp */; };
 		4BBC319713E4AEEF0059AC14 /* language_compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BBC319513E4AEEF0059AC14 /* language_compiler.h */; };
+		4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD41D3E13ED9AF500C86FD2 /* error.cpp */; };
+		4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD41D4113ED9AFF00C86FD2 /* error.h */; };
 		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
 		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
@@ -256,6 +258,8 @@
 		4BB6615B13DB273400CDED59 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		4BBC319413E4AEEF0059AC14 /* language_compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_compiler.cpp; sourceTree = "<group>"; };
 		4BBC319513E4AEEF0059AC14 /* language_compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_compiler.h; sourceTree = "<group>"; };
+		4BD41D3E13ED9AF500C86FD2 /* error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error.cpp; sourceTree = "<group>"; };
+		4BD41D4113ED9AFF00C86FD2 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
@@ -426,6 +430,8 @@
 		4BBC319213E4AE6D0059AC14 /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
+				4BD41D3E13ED9AF500C86FD2 /* error.cpp */,
+				4BD41D4113ED9AFF00C86FD2 /* error.h */,
 				4BBC319413E4AEEF0059AC14 /* language_compiler.cpp */,
 				4BBC319513E4AEEF0059AC14 /* language_compiler.h */,
 			);
@@ -666,6 +672,7 @@
 				4B5E44FA13DC9A28001FF896 /* nonterminal_definition.h in Headers */,
 				4B5E44FE13DC9A5D001FF896 /* production_definition.h in Headers */,
 				4BBC319713E4AEEF0059AC14 /* language_compiler.h in Headers */,
+				4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,6 +820,7 @@
 				4B5E44F913DC9A28001FF896 /* nonterminal_definition.cpp in Sources */,
 				4B5E44FD13DC9A5D001FF896 /* production_definition.cpp in Sources */,
 				4BBC319613E4AEEF0059AC14 /* language_compiler.cpp in Sources */,
+				4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

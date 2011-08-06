@@ -7,3 +7,20 @@
 //
 
 #include "Compiler/language_compiler.h"
+
+using namespace compiler;
+
+/// \brief Creates a compiler that will compile the specified language block
+language_compiler::language_compiler(language::language_block* block) {
+    
+}
+
+/// \brief Destructor
+language_compiler::~language_compiler() {
+    
+}
+
+/// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
+void language_compiler::compile() {
+    
+}

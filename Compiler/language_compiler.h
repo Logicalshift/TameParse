@@ -6,8 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _COMPILER_COMPILER_H
-#define _COMPILER_COMPILER_H
+#ifndef _COMPILER_LANGUAGE_COMPILER_H
+#define _COMPILER_LANGUAGE_COMPILER_H
 
 #include "ContextFree/grammar.h"
 #include "ContextFree/terminal_dictionary.h"
@@ -34,6 +34,16 @@ namespace compiler {
         
         /// \brief The grammar defined by the language
         contextfree::grammar m_Grammar;
+        
+    public:
+        /// \brief Creates a compiler that will compile the specified language block
+        language_compiler(language::language_block* block);
+        
+        /// \brief Destructor
+        virtual ~language_compiler();
+        
+        /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
+        void compile();
     };
     
     // TODO: need to add virtual methods to make it possible to write a subclass that can deal with more complex languages 
