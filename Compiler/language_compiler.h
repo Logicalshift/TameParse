@@ -9,7 +9,10 @@
 #ifndef _COMPILER_COMPILER_H
 #define _COMPILER_COMPILER_H
 
+#include "ContextFree/grammar.h"
+#include "ContextFree/terminal_dictionary.h"
 #include "Language/language_block.h"
+#include "Dfa/ndfa_regex.h"
 
 namespace compiler {
     ///
@@ -22,6 +25,15 @@ namespace compiler {
     private:
         /// \brief The language block that this will compile
         language::language_block* m_Language;
+        
+        /// \brief The dictionary of terminals defined by the language
+        contextfree::terminal_dictionary m_Terminals;
+        
+        /// \brief The lexer defined by the language (as a NDFA)
+        dfa::ndfa_regex m_Lexer;
+        
+        /// \brief The grammar defined by the language
+        contextfree::grammar m_Grammar;
     };
     
     // TODO: need to add virtual methods to make it possible to write a subclass that can deal with more complex languages 
