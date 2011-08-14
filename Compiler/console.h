@@ -25,8 +25,6 @@ namespace compiler {
     ///
     class console {
     public:
-        /// \brief Creates a copy of this console
-        virtual console* clone() const;
         
         /// \brief Orders this console with respect to another (default operation is just a pointer compare)
         virtual bool operator<(const console& compareTo) const;
@@ -39,6 +37,9 @@ namespace compiler {
             
             return a->operator<(*b);
         }
+
+        /// \brief Creates a copy of this console
+        virtual console* clone() const = 0;
         
     public:
         /// \brief Reports an error to the console
@@ -56,21 +57,28 @@ namespace compiler {
         /// \brief Retrieves the value of the option with the specified name.
         ///
         /// If the option is not set, then this should return an empty string
-        virtual std::wstring& get_option(const std::wstring& name) = 0;
+        virtual const std::wstring& get_option(const std::wstring& name) const = 0;
         
         /// \brief The name of the initial input file
-        virtual std::wstring& input_file() = 0;
+        virtual const std::wstring& input_file() const = 0;
         
     public:
-        /// \brief Opens a file with the specified name for reading
+        /// \brief Converts a wstring filename to whatever is the preferred format for the current system
+        virtual std::string convert_filename(const std::wstring& filename);
+        
+        /// \brief Opens a text file with the specified name for reading
         ///
-        /// The caller should delete the stream once it has finished with it
+        /// The caller should delete the stream once it has finished with it. The default encoding used by the console library
+        /// is UTF-8.
         virtual std::wistream* open_file(const std::wstring& filename) = 0;
         
-        /// \brief Opens an output file with the specified name for writing
+        /// \brief Opens an output file with the specified name for writing binary data
         ///
-        /// The caller should delete the stream once it has finished writing to it
-        virtual std::wostream* open_file_for_writing(const std::wstring& filename) = 0;
+        /// The caller should delete the stream once it has finished writing to it. The parser primarily writes binary files
+        /// to ensure that the output is consistent between locales.
+        ///
+        /// (This is an annoying compromise added to deal with C++'s completely useless support for locales and unicode)
+        virtual std::ostream* open_binary_file_for_writing(const std::wstring& filename) = 0;
     };
     
     typedef util::container<console> console_container;
