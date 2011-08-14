@@ -11,8 +11,8 @@
 using namespace compiler;
 
 /// \brief Creates a compiler that will compile the specified language block
-language_compiler::language_compiler(language::language_block* block) {
-    
+language_compiler::language_compiler(console_container& console, language::language_block* block)
+: compilation_stage(console) {
 }
 
 /// \brief Destructor
