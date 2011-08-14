@@ -27,7 +27,30 @@ console* std_console::clone() const {
 
 /// \brief Reports an error to the console
 void std_console::report_error(const error& error) {
+    // Fetch the output stream
+    wostream& out = message_stream();
     
+    // Use the verbose stream if this is not a warning or error message
+    if (error.sev() < error::sev_warning) {
+        out = verbose_stream();
+    }
+    
+    // Write a formatted error message, beginning with the file that suffered the failure
+    if (!error.filename().empty()) {
+        out << error.filename() << L":";
+    } else {
+        out << L":";
+    }
+    
+    // Write out the line number if it's >= 0
+    if (error.pos().line() >= 0) {
+        out << error.pos().line() << L":";
+    } else {
+        out << L":";
+    }
+    
+    // Write out the error description
+    out << L" " << error.description();
 }
 
 /// \brief Retrieves a stream where log messages can be sent to (these are generally always displayed, but may be
