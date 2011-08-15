@@ -89,8 +89,7 @@ std::wistream* std_console::open_file(const std::wstring& filename) {
     
     // Open using a wfstream and the current locale
     // TODO: make this work with UTF-8!
-    // Mrgh, there's no simple or standard way to do this. There's no commonly accepted library way to do this, either.
-    // Welcome to the 1980s.
+    // This will use whatever the standard is for the C++ library that is in use
     wfstream    readFile;
 
     readFile.open(latin1Filename.c_str(), fstream::in);

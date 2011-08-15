@@ -11,6 +11,7 @@
 using namespace compiler;
 
 /// \brief Creates a new compilation stage which will use the specified console object
-compilation_stage::compilation_stage(console_container& console)
-: m_Console(console) {
+compilation_stage::compilation_stage(console_container& console, const std::wstring& filename)
+: m_Console(console)
+, m_Filename(filename) {
 }

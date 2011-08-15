@@ -9,6 +9,8 @@
 #ifndef _COMPILER_LANGUAGE_COMPILER_H
 #define _COMPILER_LANGUAGE_COMPILER_H
 
+#include <set>
+
 #include "ContextFree/grammar.h"
 #include "ContextFree/terminal_dictionary.h"
 #include "Language/language_block.h"
@@ -36,9 +38,15 @@ namespace compiler {
         /// \brief The grammar defined by the language
         contextfree::grammar m_Grammar;
         
+        /// \brief The IDs of symbols defined as being 'weak'
+        std::set<int> m_WeakSymbols;
+        
+        /// \brief The IDs of symbols defined as being 'ignored'
+        std::set<int> m_IgnoredSymbols;
+        
     public:
         /// \brief Creates a compiler that will compile the specified language block
-        language_compiler(console_container& console, language::language_block* block);
+        language_compiler(console_container& console, const std::wstring& filename, language::language_block* block);
         
         /// \brief Destructor
         virtual ~language_compiler();

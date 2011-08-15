@@ -81,6 +81,36 @@ namespace dfa {
         inline int add_regex(int initialState, std::wstring regex, const accept_action& action) {
             return add_regex(initialState, convert(regex), action);
         }
+        
+        /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+        int add_literal(int initialState, const symbol_string& literal);
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state and adding an accepting action
+        inline int add_literal(int initialState, const symbol_string& regex, const accept_action& action) {
+            int finalState = add_literal(initialState, regex);
+            accept(finalState, action);
+            return finalState;
+        }
+        
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(int initialState, std::string regex) {
+            return add_literal(initialState, convert(regex));
+        }
+        
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(int initialState, std::wstring regex) {
+            return add_literal(initialState, convert(regex));
+        }
+        
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(int initialState, std::string regex, const accept_action& action) {
+            return add_literal(initialState, convert(regex), action);
+        }
+        
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(int initialState, std::wstring regex, const accept_action& action) {
+            return add_literal(initialState, convert(regex), action);
+        }
 
     protected:
         ///

@@ -9,6 +9,8 @@
 #ifndef _COMPILER_COMPILATION_STAGE_H
 #define _COMPILER_COMPILATION_STAGE_H
 
+#include <string>
+
 #include "console.h"
 
 namespace compiler {
@@ -23,12 +25,15 @@ namespace compiler {
         /// \brief The console which this compilation stage should use to perform I/O
         mutable console_container m_Console;
         
+        /// \brief The filename that this stage is compiling
+        std::wstring m_Filename;
+        
         compilation_stage(const compilation_stage& noCopying);
         compilation_stage& operator=(const compilation_stage& noCopying);
         
     public:
         /// \brief Creates a new compilation stage which will use the specified console object
-        compilation_stage(console_container& console);
+        compilation_stage(console_container& console, const std::wstring& filename);
         
         /// \brief Performs the actions associated with this compilation stage
         virtual void compile() = 0;
@@ -36,6 +41,9 @@ namespace compiler {
     protected:
         /// \brief The console which this compilation stage will use to send its results
         inline console& cons() const { return *m_Console; }
+        
+        /// \brief The name of the file which this compilation stage is affecting
+        inline const std::wstring& filename() const { return m_Filename; }
     };
 }
 

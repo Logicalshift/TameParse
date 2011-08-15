@@ -86,9 +86,28 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     return result;        
 }
 
+/// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
+    // Can't really do anything if the initial state is invalid
+    if (initialState < 0 || initialState >= count_states()) return initialState;
+    
+    // Create a constructor in the initial state
+    builder cons = get_cons();
+    cons.goto_state(get_state(initialState));
+    
+    // Compile as a straight string
+    for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); pos++) {
+        // Add the next string
+        cons >> *pos;
+    }
+    
+    // Return the final state
+    return ((state)cons).identifier();
+}
+
 /// \brief Compiles a regular expression starting at the specified state, returning the final state
 int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
-    // Can't really do anythign if the initial state is invalid
+    // Can't really do anything if the initial state is invalid
     if (initialState < 0 || initialState >= count_states()) return initialState;
     
     // Create a constructor in the initial state
