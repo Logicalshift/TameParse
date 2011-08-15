@@ -53,6 +53,12 @@ namespace compiler {
         
         /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
         void compile();
+        
+    private:
+        /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
+        ///
+        /// Returns the number of new items that were defined
+        int add_ebnf_lexer_items(language::ebnf_item* item);
     };
     
     // TODO: need to add virtual methods to make it possible to write a subclass that can deal with more complex languages 

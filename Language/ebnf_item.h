@@ -68,7 +68,7 @@ namespace language {
         
         /// \brief The identifier of this item (if it's a simple nonterminal or terminal)
         ///
-        /// For a string or a character, this will be the (unquoted) string or character that should be matched at this point.
+        /// For a string or a character, this will be the (quoted) string or character that should be matched at this point.
         /// For guards and the various EBNF items, this will be empty
         std::wstring m_Identifier;
         
@@ -93,6 +93,9 @@ namespace language {
         /// \brief Fills the content of this item with the content of the specified item
         ebnf_item& operator=(const ebnf_item& copyFrom);
         
+        /// \brief Returns the type of this item
+        inline type get_type() { return m_Type; }
+        
         /// \brief Adds a child item to this item
         ///
         /// This item will delete the item when it has finished with it.
@@ -102,6 +105,9 @@ namespace language {
         inline const std::wstring& source_identifier() { return m_SourceIdentifier; }
         
         /// \brief The identifier for this item (if it is a simple terminal or nonterminal item)
+        ///
+        /// For a string or a character, this will be the (quoted) string or character that should be matched at this point.
+        /// For guards and the various EBNF items, this will be empty
         inline const std::wstring& identifier() const { return m_Identifier; }
         
         /// \brief The first child item for this item

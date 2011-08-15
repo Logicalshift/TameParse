@@ -30,6 +30,9 @@ language_compiler::~language_compiler() {
 
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_compiler::compile() {
+    // Write out a verbose message
+    cons().verbose_stream() << endl << L"== Constructing lexer NDFA" << endl;
+    
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
         if ((*lexerSymbols)->type() != language_unit::unit_lexer_symbols) continue;
@@ -116,6 +119,95 @@ void language_compiler::compile() {
     }
     
     // Create symbols for any items defined in the grammar
+    int implicitCount = 0;
+    
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+        // Only interested in grammar blocks here
+        if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
+        
+        // Fetch the grammar block
+        grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
+        
+        // Iterate through the nonterminals
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+            // Iterate through the productions
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+                // Iterate through the items in this production
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                    implicitCount += add_ebnf_lexer_items(*ebnfItem);
+                }
+            }
+        }
+    }
     
     // Build the grammar
+}
+
+/// \brief Adds any lexer items that are defined by a specific EBNF item to this object
+int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
+    int count = 0;
+    
+    switch (item->get_type()) {
+        case ebnf_item::ebnf_guard:
+        case ebnf_item::ebnf_alternative:
+        case ebnf_item::ebnf_repeat_zero:
+        case ebnf_item::ebnf_repeat_one:
+        case ebnf_item::ebnf_optional:
+        case ebnf_item::ebnf_parenthesized:
+            // Process the child items for these types of object
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+                count += add_ebnf_lexer_items(*childItem);
+            }
+            break;
+            
+        case ebnf_item::ebnf_terminal:
+        {
+            // Nothing to do if this item is from another language
+            if (item->source_identifier().size() > 0) {
+                break;
+            }
+            
+            // Check if this terminal already has an identifier
+            if (m_Terminals.symbol_for_name(item->identifier()) >= 0) {
+                // Already defined
+                break;
+            }
+            
+            // Defining literal symbols in this way produces a warning
+            wstringstream warningMsg;
+            warningMsg << L"Implicitly defining keyword: " << item->identifier();
+            cons().report_error(error(error::sev_warning, filename(), L"IMPLICIT_LEXER_SYMBOL", warningMsg.str(), item->start_pos()));
+            
+            // Define a new literal string
+            int symId = m_Terminals.add_symbol(item->identifier());
+            m_Lexer.add_literal(0, item->identifier(), symId);
+
+            count++;
+            break;
+        }
+            
+        case ebnf_item::ebnf_terminal_character:
+        case ebnf_item::ebnf_terminal_string:
+        {
+            // Strings and characters always create a new definition in the lexer if they don't already exist
+            if (m_Terminals.symbol_for_name(item->identifier()) >= 0) {
+                // Already defined in the lexer
+                break;
+            }
+            
+            // Define a new symbol
+            int symId = m_Terminals.add_symbol(item->identifier());
+            m_Lexer.add_literal(0, process::dequote_string(item->identifier()), symId);
+            
+            count++;
+            break;
+        }
+            
+        case ebnf_item::ebnf_nonterminal:
+            // Nothing to do
+            break;
+    }
+    
+    // Return the count
+    return count;
 }
