@@ -255,20 +255,20 @@ contextfree::grammar* bootstrap::create_grammar() {
     // Productions
     ((*result) += L"Production") << simpleEbnfItemList;
     
-    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item;
-    ((*result) += L"Ebnf-Item") << nt.simple_ebnf_item << t.pipe << nt.ebnf_item;
+    ((*result) += L"Ebnf-Item") << simpleEbnfItemList;
+    ((*result) += L"Ebnf-Item") << simpleEbnfItemList << t.pipe << nt.ebnf_item;
     
     ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal;
     ((*result) += L"Simple-Ebnf-Item") << nt.terminal;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
     ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
-    ((*result) += L"Simple-Ebnf-Item") << t.openparen << ebnfItemList << t.closeparen;
+    ((*result) += L"Simple-Ebnf-Item") << t.openparen << nt.ebnf_item << t.closeparen;
     ((*result) += L"Simple-Ebnf-Item") << nt.guard;
     
     ((*result) += L"Nonterminal") << t.nonterminal;
     
-    ((*result) += L"Guard") << t.openguard << ebnfItemList << t.closesquare;
+    ((*result) += L"Guard") << t.openguard << nt.ebnf_item << t.closesquare;
     
     ((*result) += L"Terminal") << nt.basic_terminal;
     ((*result) += L"Basic-Terminal") << t.identifier;
@@ -354,7 +354,7 @@ definition_file_container bootstrap::get_definition(const util::astnode* ast) {
     // One level: a toplevel block list
     if (!get_toplevel_list(result, (*ast)[0])) {
         delete result;
-        return definition_file_container();
+        return definition_file_container(NULL, true);
     }
     
     return definition_file_container(result, true);

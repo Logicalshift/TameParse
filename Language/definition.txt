@@ -102,8 +102,8 @@ language ParserLanguage {
 		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
 		<Production>				= (Simple-Ebnf-Item)*
 		
-		<Ebnf-Item>					= <Simple-Ebnf-Item>
-									| <Simple-Ebnf-Item> '|' <Ebnf-Item>
+		<Ebnf-Item>					= <Simple-Ebnf-Item>*
+									| <Simple-Ebnf-Item>* '|' <Ebnf-Item>
 		
 		<Simple-Ebnf-Item>			= <Nonterminal>
 									| <Terminal>
@@ -111,9 +111,9 @@ language ParserLanguage {
 									| <Simple-Ebnf-Item> '*'
 									| <Simple-Ebnf-Item> '+'
 									| <Simple-Ebnf-Item> '?'
-									| '(' <Ebnf-Item>* ')'
+									| '(' <Ebnf-Item> ')'
 		
-		<Guard>						= "[=>" (<Ebnf-Item>)* ']'
+		<Guard>						= "[=>" <Ebnf-Item> ']'
 		
 		<Nonterminal>				= nonterminal
 									| identifier '.' nonterminal
