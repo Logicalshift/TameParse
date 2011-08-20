@@ -11,8 +11,9 @@
 using namespace language;
 
 /// \brief Creates a new nonterminal definition for a nonterminal with the specified identifier
-nonterminal_definition::nonterminal_definition(const std::wstring& identifier, position start, position end)
+nonterminal_definition::nonterminal_definition(type definitionType, const std::wstring& identifier, position start, position end)
 : block(start, end)
+, m_Type(definitionType)
 , m_Identifier(identifier ){
 }
 

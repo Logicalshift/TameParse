@@ -59,13 +59,16 @@ namespace language {
         
     public:
         /// \brief Creates a new nonterminal definition for a nonterminal with the specified identifier
-        nonterminal_definition(const std::wstring& identifier, position start = position(), position end = position());
+        nonterminal_definition(type definitionType, const std::wstring& identifier, position start = position(), position end = position());
         
         /// \brief Creates a new nonterminal definition by copying an existing one
         nonterminal_definition(const nonterminal_definition& copyFrom);
         
         /// \brief Destructor
         virtual ~nonterminal_definition();
+        
+        /// \brief The type of this definition
+        inline type get_type() { return m_Type; }
         
         /// \brief Assigns the value of this nonterminal by copying an existing one
         nonterminal_definition& operator=(const nonterminal_definition& copyFrom);

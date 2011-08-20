@@ -41,6 +41,7 @@ void language_compiler::compile() {
     }
     
     // Create symbols for all of the items defined in lexer blocks
+    // TODO: make it possible to redeclare literal symbols
     for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
         // Fetch the lexer block
         lexer_block* lex = (*lexerBlock)->lexer_definition();
@@ -140,7 +141,52 @@ void language_compiler::compile() {
         }
     }
     
-    // Build the grammar
+    // Build the grammar itself
+    // If we reach here, then every terminal symbol in the grammar should be defined somewhere in the terminal dictionary
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+        // Only interested in grammar blocks here
+        if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
+        
+        // Fetch the grammar block that we're going to compile
+        grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
+        
+        // Iterate through the nonterminals
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+            // Get the identifier for the nonterminal that this maps to
+            int nonterminalId = m_Grammar.id_for_nonterminal((*nonterminal)->identifier());
+            
+            // The nonterminal is already defined if there is at least one rule for it
+            // It's possible that a nonterminal will get added to the grammar early if it is referenced before it is defined
+            bool alreadyDefined = m_Grammar.rules_for_nonterminal(nonterminalId).size() > 0;
+            
+            // It's an error to use '=' definitions to redefine a nonterminal with existing rules
+            if ((*nonterminal)->get_type() == nonterminal_definition::assignment && alreadyDefined) {
+                wstringstream msg;
+                msg << L"Duplicate nonterminal definition: " << (*nonterminal)->identifier();
+                cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_NONTERMINAL_DEFINITION", msg.str(), (*nonterminal)->start_pos()));
+            }
+            
+            // The 'replace' operator should empty the existing rules
+            if ((*nonterminal)->get_type() == nonterminal_definition::replace && alreadyDefined) {
+                m_Grammar.rules_for_nonterminal(nonterminalId).clear();
+            }
+            
+            // Define the productions associated with this nonterminal
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+                // Create the builder for this production
+                grammar::builder thisBuilder = m_Grammar += contextfree::nonterminal(nonterminalId);
+                
+                // Append the items in this production
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                    // Compile each item in turn
+                    thisBuilder << compile_item(*ebnfItem);
+                }
+            }
+        }
+    }
+    
+    // TODO: display errors if there are any nonterminals used in the defintions that do not reference any existing item
+    // TODO: display a summary of what the grammar and NDFA contains if we're in verbose mode
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
@@ -181,6 +227,9 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
             m_Lexer.add_literal(0, item->identifier(), symId);
+            
+            // Symbols defined within the parser grammar count as weak symbols
+            m_WeakSymbols.insert(symId);
 
             count++;
             break;
@@ -199,6 +248,9 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
             int symId = m_Terminals.add_symbol(item->identifier());
             m_Lexer.add_literal(0, process::dequote_string(item->identifier()), symId);
             
+            // Symbols defined within the parser count as weak symbols
+            m_WeakSymbols.insert(symId);
+            
             count++;
             break;
         }
@@ -210,4 +262,48 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
     
     // Return the count
     return count;
+}
+
+
+/// \brief Compiles an EBNF item from the language into a context-free grammar item
+///
+/// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
+/// to be missing from the terminal dictionary.
+item_container language_compiler::compile_item(ebnf_item* item) {
+    switch (item->get_type()) {
+        case ebnf_item::ebnf_terminal:
+        case ebnf_item::ebnf_terminal_character:
+        case ebnf_item::ebnf_terminal_string:
+        {
+            // Get the ID of this terminal. We can just use the identifier supplied in the item, as it will be unique
+            int terminalId = m_Terminals.symbol_for_name(item->identifier());
+            
+            // Return a new terminal item
+            return item_container(new terminal(terminalId), true);
+            break;
+        }
+            
+        case ebnf_item::ebnf_nonterminal:
+        {
+            // Get or create the ID for this nonterminal.
+            int nonterminalId = m_Grammar.id_for_nonterminal(item->identifier());
+            
+            // Return a new nonterminal item
+            return item_container(new nonterminal(nonterminalId), true);
+        }
+            
+        case ebnf_item::ebnf_parenthesized:
+        case ebnf_item::ebnf_optional:
+        case ebnf_item::ebnf_repeat_one:
+        case ebnf_item::ebnf_repeat_zero:
+        case ebnf_item::ebnf_guard:
+        case ebnf_item::ebnf_alternative:
+
+        default:
+            // Unknown item type
+            cons().report_error(error(error::sev_bug, filename(), L"UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
+            
+            return item_container(new empty_item(), true);
+            break;
+    }
 }

@@ -700,7 +700,7 @@ bool bootstrap::get_grammar_block(grammar_block* block, const util::astnode* non
     const astnode* ntMoreProductions    = (*nonterminal)[4];
     
     // Create the new nonterminal definition
-    nonterminal_definition* newDefn = new nonterminal_definition(ntIdentifier->lexeme()->content<wchar_t>());
+    nonterminal_definition* newDefn = new nonterminal_definition(nonterminal_definition::assignment, ntIdentifier->lexeme()->content<wchar_t>());
     
     // Process the initial production
     production_definition* initialProduction = get_production_definition(ntFirstProduction);
