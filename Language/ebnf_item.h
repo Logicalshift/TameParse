@@ -50,6 +50,12 @@ namespace language {
             ebnf_optional,
             
             /// \brief A parenthesized item
+            ///
+            /// This is used to group items together into a single item. It does not necessarily represent where the user
+            /// added parentheses. In particular, the precendence of alternatives means that they typically generate
+            /// extra parenthesized items. That is, the sequence (a b | c d) should be represented as ((a b) | (c d)).
+            /// As the ebnf_alternative item can only have two children, this must be done by generating new parenthesized
+            /// items.
             ebnf_parenthesized
         };
         
@@ -114,7 +120,7 @@ namespace language {
         inline iterator begin() const { return m_ChildItems.begin(); }
         
         /// \brief The item immediately after the final child item
-        inline iterator end() const { return  m_ChildItems.end(); }
+        inline iterator end() const { return m_ChildItems.end(); }
     };
 }
 

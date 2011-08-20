@@ -832,10 +832,11 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
     int nodeType = ebnf->item_identifier();
     
     if (nodeType == nt.id_ebnf_item) {
-        // First item is always a simple item
-        ebnf_item* simple = get_ebnf_item((*ebnf)[0]);
+        // First item is always a simple item list
+        ebnf_item* leftHandSide = new ebnf_item(ebnf_item::ebnf_parenthesized);
         
-        if (simple == NULL) {
+        if (!get_ebnf_list(leftHandSide, (*ebnf)[0])) {
+            delete leftHandSide;
             return NULL;
         }
         
@@ -845,19 +846,19 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
             ebnf_item* alternative = get_ebnf_item((*ebnf)[2]);
             
             if (alternative == NULL) {
-                delete simple;
+                delete leftHandSide;
                 return NULL;
             }
             
             // Generate the final result
             ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative);
-            newItem->add_child(simple);
+            newItem->add_child(leftHandSide);
             newItem->add_child(alternative);
             
             return newItem;
         } else {
-            // Just the simple item
-            return simple;
+            // Just the item list
+            return leftHandSide;
         }
     }
     
@@ -903,14 +904,8 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
         
         else if (ebnf->children().size() == 3) {
             // Parenthesized list
-            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_parenthesized);
-            
-            if (!get_ebnf_list(newItem, (*ebnf)[1])) {
-                delete newItem;
-                return NULL;
-            }
-            
-            return newItem;
+            // Just contains an EBNF item: process that separately
+            return get_ebnf_item((*ebnf)[1]);
         }
         
         else {
@@ -949,13 +944,18 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
     }
     
     else if (nodeType == nt.id_guard) {
-        // Guard (of the form [=> item_list ]
-        ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_guard);
+        // Guard (of the form [=> ebnf_item ]
+        ebnf_item* newItem      = new ebnf_item(ebnf_item::ebnf_guard);
+        ebnf_item* guardContent = get_ebnf_item((*ebnf)[1]);
         
-        if (!get_ebnf_list(newItem, (*ebnf)[1])) {
+        if (guardContent == NULL) {
             delete newItem;
             return NULL;
         }
+        
+        // Add the guard content
+        // TODO: could add the children of the guard content here (doesn't make a lot of difference to the end result, though)
+        newItem->add_child(guardContent);
         
         return newItem;
     }
