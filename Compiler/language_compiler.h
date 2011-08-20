@@ -60,11 +60,11 @@ namespace compiler {
         /// Returns the number of new items that were defined
         int add_ebnf_lexer_items(language::ebnf_item* item);
 
-        /// \brief Compiles an EBNF item from the language into a context-free grammar item
+        /// \brief Compiles an EBNF item from the language into a context-free grammar item onto the end of the specified rule
         ///
         /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
         /// to be missing from the terminal dictionary.
-        contextfree::item_container compile_item(language::ebnf_item* item);
+        void compile_item(contextfree::rule& target, language::ebnf_item* item);
     };
     
     // TODO: need to add virtual methods to make it possible to write a subclass that can deal with more complex languages 

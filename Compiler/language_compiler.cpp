@@ -173,14 +173,17 @@ void language_compiler::compile() {
             
             // Define the productions associated with this nonterminal
             for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
-                // Create the builder for this production
-                grammar::builder thisBuilder = m_Grammar += contextfree::nonterminal(nonterminalId);
+                // Get a rule for this production
+                rule_container newRule(new rule(nonterminalId), true);
                 
                 // Append the items in this production
                 for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
-                    // Compile each item in turn
-                    thisBuilder << compile_item(*ebnfItem);
+                    // Compile each item in turn and append them to the rule
+                    compile_item(*newRule, *ebnfItem);
                 }
+                
+                // Add the rule to the list for this nonterminal
+                m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
             }
         }
     }
@@ -269,7 +272,7 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
 ///
 /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
 /// to be missing from the terminal dictionary.
-item_container language_compiler::compile_item(ebnf_item* item) {
+void language_compiler::compile_item(rule& rule, ebnf_item* item) {
     switch (item->get_type()) {
         case ebnf_item::ebnf_terminal:
         case ebnf_item::ebnf_terminal_character:
@@ -278,8 +281,8 @@ item_container language_compiler::compile_item(ebnf_item* item) {
             // Get the ID of this terminal. We can just use the identifier supplied in the item, as it will be unique
             int terminalId = m_Terminals.symbol_for_name(item->identifier());
             
-            // Return a new terminal item
-            return item_container(new terminal(terminalId), true);
+            // Add a new terminal item
+            rule << item_container(new terminal(terminalId), true);
             break;
         }
             
@@ -289,21 +292,82 @@ item_container language_compiler::compile_item(ebnf_item* item) {
             int nonterminalId = m_Grammar.id_for_nonterminal(item->identifier());
             
             // Return a new nonterminal item
-            return item_container(new nonterminal(nonterminalId), true);
+            rule << item_container(new nonterminal(nonterminalId), true);
+            break;
         }
             
         case ebnf_item::ebnf_parenthesized:
+        {
+            // Just append the items inside this one to the rule
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+                compile_item(rule, *childItem);
+            }
+            break;
+        }
+        
         case ebnf_item::ebnf_optional:
+        {
+            // Compile into an optional item
+            ebnf_optional* newItem = new ebnf_optional();
+            compile_item(*newItem->get_rule(), (*item)[0]);
+            
+            // Append to the rule
+            rule << item_container(newItem, true);
+            break;
+        }
+            
         case ebnf_item::ebnf_repeat_one:
+        {
+            // Compile into a repeating item
+            ebnf_repeating* newItem = new ebnf_repeating();
+            compile_item(*newItem->get_rule(), (*item)[0]);
+            
+            // Append to the rule
+            rule << item_container(newItem, true);
+            break;
+        }
+
         case ebnf_item::ebnf_repeat_zero:
+        {
+            // Compile into a repeating item
+            ebnf_repeating_optional* newItem = new ebnf_repeating_optional();
+            compile_item(*newItem->get_rule(), (*item)[0]);
+            
+            // Append to the rule
+            rule << item_container(newItem, true);
+            break;
+        }
+            
         case ebnf_item::ebnf_guard:
+        {
+            // Compile into a guard item
+            guard* newItem = new guard();
+            compile_item(*newItem->get_rule(), (*item)[0]);
+            
+            // Append to the rule
+            rule << item_container(newItem, true);
+            break;
+        }
+            
         case ebnf_item::ebnf_alternative:
+        {
+            // Compile into an alternate item
+            ebnf_alternate* newItem = new ebnf_alternate();
+            
+            // Left-hand side
+            compile_item(*newItem->get_rule(), (*item)[0]);
+            
+            // Right-hand side
+            compile_item(*newItem->add_rule(), (*item)[1]);
+            
+            // Append to the rule
+            rule << item_container(newItem, true);
+            break;
+        }
 
         default:
             // Unknown item type
             cons().report_error(error(error::sev_bug, filename(), L"UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
-            
-            return item_container(new empty_item(), true);
             break;
     }
 }

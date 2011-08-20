@@ -121,6 +121,9 @@ namespace language {
         
         /// \brief The item immediately after the final child item
         inline iterator end() const { return m_ChildItems.end(); }
+        
+        /// \brief Returns the child item at the specified index
+        inline ebnf_item* operator[](int index) { return m_ChildItems[index]; }
     };
 }
 
