@@ -45,6 +45,9 @@ namespace compiler {
         /// \brief Reports an error to the console
         virtual void report_error(const error& error) = 0;
         
+        /// \brief Returns the exit code that the application should use (if there's an error, this will be non-zero)
+        virtual int exit_code() = 0;
+        
         /// \brief Retrieves a stream where log messages can be sent to (these are generally always displayed, but may be
         /// suppressed if the console has a 'silent' mode)
         virtual std::wostream& message_stream() = 0;

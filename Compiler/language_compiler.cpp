@@ -18,7 +18,7 @@ using namespace compiler;
 using namespace language;
 
 /// \brief Creates a compiler that will compile the specified language block
-language_compiler::language_compiler(console_container& console, const std::wstring& filename, language::language_block* block)
+language_compiler::language_compiler(console_container& console, const std::wstring& filename, const language::language_block* block)
 : compilation_stage(console, filename)
 , m_Language(block) {
 }
@@ -31,7 +31,7 @@ language_compiler::~language_compiler() {
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_compiler::compile() {
     // Write out a verbose message
-    cons().verbose_stream() << endl << L"== Constructing lexer NDFA" << endl;
+    cons().verbose_stream() << L"  = Constructing lexer NDFA" << endl;
     
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {

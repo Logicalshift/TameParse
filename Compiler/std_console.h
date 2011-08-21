@@ -20,6 +20,9 @@ namespace compiler {
         /// \brief A filename that this console should read from
         std::wstring m_InputFilename;
         
+        /// \brief The exit code to use
+        int m_ExitCode;
+        
     public:
         /// \brief Creates a standard console with the specified input filename
         std_console(const std::wstring& inputFilename);
@@ -38,6 +41,9 @@ namespace compiler {
         /// \brief Retrieves a stream where verbose messages can be sent to (these are generally not displayed unless the
         /// console is configured to)
         virtual std::wostream& verbose_stream();
+        
+        /// \brief Returns the exit code that the application should use (if there's an error, this will be non-zero)
+        virtual int exit_code();
         
     public:
         /// \brief Retrieves the value of the option with the specified name.

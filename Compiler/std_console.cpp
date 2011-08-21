@@ -17,22 +17,30 @@ using namespace compiler;
 
 /// \brief Creates a standard console with the specified input filename
 std_console::std_console(const std::wstring& inputFilename)
-: m_InputFilename(inputFilename) {
+: m_InputFilename(inputFilename)
+, m_ExitCode(0) {
 }
 
 /// \brief Creates a copy of this console
 console* std_console::clone() const {
-    return new std_console(m_InputFilename);
+    std_console* res = new std_console(m_InputFilename);
+    res->m_ExitCode = m_ExitCode;
+    return res;
 }
 
 /// \brief Reports an error to the console
 void std_console::report_error(const error& error) {
-    // Fetch the output stream
-    wostream* out = &message_stream();
+    // Errors go to wcerr by default
+    wostream* out = &wcerr;
     
     // Use the verbose stream if this is not a warning or error message
     if (error.sev() < error::sev_warning) {
         out = &verbose_stream();
+    }
+    
+    // Set the exit code if the error is severe enough
+    if (error.sev() >= error::sev_error) {
+        m_ExitCode = error.sev();
     }
     
     // Write a formatted error message, beginning with the file that suffered the failure
@@ -50,21 +58,21 @@ void std_console::report_error(const error& error) {
     }
     
     // Write out the error description
-    *out << L" " << error.description();
+    *out << L" " << error.description() << endl;
 }
 
 /// \brief Retrieves a stream where log messages can be sent to (these are generally always displayed, but may be
 /// suppressed if the console has a 'silent' mode)
 std::wostream& std_console::message_stream() {
-    // Output messages to wcerr by default
-    return wcerr;
+    // Output messages to wcout by default
+    return wcout;
 }
 
 /// \brief Retrieves a stream where verbose messages can be sent to (these are generally not displayed unless the
 /// console is configured to)
 std::wostream& std_console::verbose_stream() {
-    // Output verbose messages to wcerr by default
-    return wcerr;
+    // Output verbose messages to wcout by default
+    return wcout;
 }
 
 /// \brief Retrieves the value of the option with the specified name.
@@ -134,3 +142,9 @@ std::ostream* std_console::open_binary_file_for_writing(const std::wstring& file
     // Return as the result
     return result;
 }
+
+/// \brief Returns the exit code that the application should use (if there's an error, this will be non-zero)
+int std_console::exit_code() {
+    return m_ExitCode;
+}
+

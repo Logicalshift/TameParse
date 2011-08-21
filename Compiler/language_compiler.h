@@ -27,7 +27,7 @@ namespace compiler {
     class language_compiler : public compilation_stage {
     private:
         /// \brief The language block that this will compile
-        language::language_block* m_Language;
+        const language::language_block* m_Language;
         
         /// \brief The dictionary of terminals defined by the language
         contextfree::terminal_dictionary m_Terminals;
@@ -46,7 +46,7 @@ namespace compiler {
         
     public:
         /// \brief Creates a compiler that will compile the specified language block
-        language_compiler(console_container& console, const std::wstring& filename, language::language_block* block);
+        language_compiler(console_container& console, const std::wstring& filename, const language::language_block* block);
         
         /// \brief Destructor
         virtual ~language_compiler();
