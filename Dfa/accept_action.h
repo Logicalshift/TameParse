@@ -34,6 +34,8 @@ namespace dfa {
         /// \brief Determines if this action is less important than another
         ///
         /// By default, actions with lower symbol IDs are more important than those with higher symbol IDs
+        ///
+        /// TODO: work out a way of ensuring that this is properly commutative when this class is subclassed
         virtual bool operator<(const accept_action& compareTo) const;
         inline bool operator>(const accept_action& compareTo) const { return compareTo.operator<(*this); }
         

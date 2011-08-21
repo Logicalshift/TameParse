@@ -25,11 +25,8 @@ namespace language {
             /// \brief A lexer symbols block (symbols that can be re-used when defining the lexer, but which don't actually produce terminal symbols)
             unit_lexer_symbols,
             
-            /// \brief The primary lexer definition
-            unit_lexer_definition,
-            
-            /// \brief The ignore symbols definition
-            unit_ignore_definition,
+            /// \brief The weak keyword symbols definition
+            unit_weak_keywords_definition,
             
             /// \brief The weak symbols definition
             unit_weak_lexer_definition,
@@ -37,8 +34,11 @@ namespace language {
             /// \brief The keyword symbols definition
             unit_keywords_definition,
             
-            /// \brief The weak keyword symbols definition
-            unit_weak_keywords_definition,
+            /// \brief The primary lexer definition
+            unit_lexer_definition,
+            
+            /// \brief The ignore symbols definition
+            unit_ignore_definition,
             
             /// \brief A grammar definition
             unit_grammar_definition
