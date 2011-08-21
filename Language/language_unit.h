@@ -19,6 +19,9 @@ namespace language {
     public:
         /// \brief An enumeration of the types of language unit
         enum unit_type {
+            /// \brief Not a language unit
+            unit_null,
+            
             /// \brief A lexer symbols block (symbols that can be re-used when defining the lexer, but which don't actually produce terminal symbols)
             unit_lexer_symbols,
             

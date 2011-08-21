@@ -40,87 +40,116 @@ void language_compiler::compile() {
         // TODO: implement me
     }
     
-    // Create symbols for all of the items defined in lexer blocks
+    // Order that lexer blocks should be processed in (the priority of the symbols)
+    language_unit::unit_type lexerDefinitionOrder[] = { 
+            language_unit::unit_weak_keywords_definition, 
+            language_unit::unit_weak_lexer_definition, 
+            language_unit::unit_keywords_definition, 
+            language_unit::unit_lexer_definition, 
+            language_unit::unit_ignore_definition,
+        
+            language_unit::unit_null
+        };
+    
     // TODO: make it possible to redeclare literal symbols
-    for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
-        // Fetch the lexer block
-        lexer_block* lex = (*lexerBlock)->any_lexer_block();
-        
-        // Ignore blocks that don't define lexer symbols
-        if (!lex) continue;
-        
-        // Fetch the type
-        language_unit::unit_type blockType = (*lexerBlock)->type();
-        
-        // Ignore lexer symbols blocks
-        if (blockType == language_unit::unit_lexer_symbols) continue;
-        
-        // Add the symbols to the lexer
-        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-            // It's an error to define the same symbol twice
-            if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                wstringstream msg;
-                msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
-            }
-            
-            // Add the symbol ID
-            int symId = m_Terminals.add_symbol((*lexerItem)->identifier());
-            
-            // Action depends on the type of item
-            switch ((*lexerItem)->get_type()) {
-                case lexeme_definition::regex:
-                {
-                    // Remove the '/' symbols from the regex
-                    wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
-                    
-                    // Add to the NDFA
-                    m_Lexer.add_regex(0, withoutSlashes, symId);
-                    break;
-                }
-                    
-                case lexeme_definition::literal:
-                {
-                    // Add as a literal to the NDFA
-                    m_Lexer.add_literal(0, (*lexerItem)->identifier(), symId);
-                    break;
-                }
 
-                case lexeme_definition::string:
-                case lexeme_definition::character:
-                {
-                    // Add as a literal to the NDFA
-                    // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), symId);
-                    break;
-                }
-
-                default:
-                    // Unknown type of lexeme definition
-                    cons().report_error(error(error::sev_bug, filename(), L"UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
-                    break;
-            }
+    // Process each of the lexer block types in the appropriate order
+    // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
+    // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
+    // defined in the grammar itself (as the grammar must be processed last)
+    for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; thisType++) {
+        // Create symbols for all of the items defined in lexer blocks
+        for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
+            // Fetch the lexer block
+            lexer_block* lex = (*lexerBlock)->any_lexer_block();
             
-            // Add the symbol to the set appropriate for the block type
-            switch (blockType) {
-                case language_unit::unit_ignore_definition:
-                    // Add as an ignored symbol
-                    m_IgnoredSymbols.insert(symId);
-                    break;
-                    
-                case language_unit::unit_weak_lexer_definition:
-                case language_unit::unit_weak_keywords_definition:
-                    // Add as a weak symbol
-                    m_WeakSymbols.insert(symId);
-                    break;
-                    
-                default:
-                    break;
+            // Ignore blocks that don't define lexer symbols
+            if (!lex) continue;
+            
+            // Fetch the type
+            language_unit::unit_type blockType = (*lexerBlock)->type();
+            
+            // Process only the block types that belong in this pass
+            if (blockType != *thisType) continue;
+            
+            // Add the symbols to the lexer
+            for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+                // It's an error to define the same symbol twice
+                if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                    wstringstream msg;
+                    msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                }
+                
+                // Add the symbol ID
+                int symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                
+                // Set the type of this symbol
+                m_TypeForTerminal[symId] = blockType;
+                
+                // Mark it as unused provided that we're not defining the ignored symbols (which are generally unused by definition)
+                if (blockType != language_unit::unit_ignore_definition) {
+                    m_UnusedSymbols.insert(symId);
+                }
+                
+                // Store where it is defined
+                m_TerminalDefinition[symId] = *lexerItem;
+                
+                // Action depends on the type of item
+                switch ((*lexerItem)->get_type()) {
+                    case lexeme_definition::regex:
+                    {
+                        // Remove the '/' symbols from the regex
+                        wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
+                        
+                        // Add to the NDFA
+                        m_Lexer.add_regex(0, withoutSlashes, symId);
+                        break;
+                    }
+                        
+                    case lexeme_definition::literal:
+                    {
+                        // Add as a literal to the NDFA
+                        m_Lexer.add_literal(0, (*lexerItem)->identifier(), symId);
+                        break;
+                    }
+
+                    case lexeme_definition::string:
+                    case lexeme_definition::character:
+                    {
+                        // Add as a literal to the NDFA
+                        // We can do both characters and strings here (dequote_string will work on both kinds of item)
+                        m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), symId);
+                        break;
+                    }
+
+                    default:
+                        // Unknown type of lexeme definition
+                        cons().report_error(error(error::sev_bug, filename(), L"UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
+                        break;
+                }
+                
+                // Add the symbol to the set appropriate for the block type
+                switch (blockType) {
+                    case language_unit::unit_ignore_definition:
+                        // Add as an ignored symbol
+                        m_IgnoredSymbols.insert(symId);
+                        break;
+                        
+                    case language_unit::unit_weak_lexer_definition:
+                    case language_unit::unit_weak_keywords_definition:
+                        // Add as a weak symbol
+                        m_WeakSymbols.insert(symId);
+                        break;
+                        
+                    default:
+                        break;
+                }
             }
         }
     }
     
-    // Create symbols for any items defined in the grammar
+    // Create symbols for any items defined in the grammar (these are all weak, so they must be defined first)
     int implicitCount = 0;
     
     for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
@@ -185,13 +214,54 @@ void language_compiler::compile() {
                 
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
+                
+                // Remember where this rule was defined
+                m_RuleDefinition[newRule->identifier(m_Grammar)] = *production;
             }
         }
     }
     
-    // TODO: display warnings (or information?) if there are any items that are declared in lexer blocks but never used
-    // TODO: display errors if there are any nonterminals used in the defintions that do not reference any existing item
-    // TODO: display a summary of what the grammar and NDFA contains if we're in verbose mode
+    // Display warnings for unused symbols
+    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
+        // Ignore symbols that we don't have a definition location for
+        if (!m_TerminalDefinition[*unused]) {
+            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
+            continue;
+        }        
+
+        // Indicate that this symbol was defined but not used in the grammar
+        wstringstream msg;
+        
+        msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
+        
+        cons().report_error(error(error::sev_warning, filename(), L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused]->start_pos()));
+    }
+    
+    // Any nonterminal with no rules is one that was referenced but not defined
+    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_nonterminal(); nonterminalId++) {
+        // This nonterminal ID is unused if it has no rules
+        if (m_Grammar.rules_for_nonterminal(nonterminalId).size() == 0) {
+            // Find the place where this nonterminal was first used
+            block*          firstUsage  = m_FirstNonterminalUsage[nonterminalId];
+            position        usagePos    = firstUsage?firstUsage->start_pos():position(-1, -1, -1);
+            
+            // Generate the message
+            wstringstream   msg;
+            msg << L"Undefined nonterminal: " << m_Grammar.name_for_nonterminal(nonterminalId);
+            
+            cons().report_error(error(error::sev_error, filename(), L"UNDEFINED_NONTERMINAL", msg.str(), usagePos));
+        }
+    }
+    
+    // Display a summary of what the grammar and NDFA contains if we're in verbose mode
+    wostream& summary = cons().verbose_stream();
+    
+    summary << L"    Number of NDFA states:                  " << m_Lexer.count_states() << endl;
+    summary << L"    Number of lexer symbols:                " << m_Terminals.count_symbols() << endl;
+    summary << L"          ... which are weak:               " << (int)m_WeakSymbols.size() << endl;
+    summary << L"          ... which are implicitly defined: " << implicitCount << endl;
+    summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
+    summary << L"    Number of nonterminals:                 " << m_Grammar.max_nonterminal() << endl;
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
@@ -232,7 +302,11 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
             m_Lexer.add_literal(0, item->identifier(), symId);
-            
+            m_UnusedSymbols.insert(symId);
+
+            // Set the type of this symbol
+            m_TypeForTerminal[symId] = language_unit::unit_weak_keywords_definition;
+
             // Symbols defined within the parser grammar count as weak symbols
             m_WeakSymbols.insert(symId);
 
@@ -252,6 +326,10 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new symbol
             int symId = m_Terminals.add_symbol(item->identifier());
             m_Lexer.add_literal(0, process::dequote_string(item->identifier()), symId);
+            m_UnusedSymbols.insert(symId);
+            
+            // Set the type of this symbol
+            m_TypeForTerminal[symId] = language_unit::unit_weak_keywords_definition;
             
             // Symbols defined within the parser count as weak symbols
             m_WeakSymbols.insert(symId);
@@ -283,6 +361,9 @@ void language_compiler::compile_item(rule& rule, ebnf_item* item) {
             // Get the ID of this terminal. We can just use the identifier supplied in the item, as it will be unique
             int terminalId = m_Terminals.symbol_for_name(item->identifier());
             
+            // Remove from the unused list
+            m_UnusedSymbols.erase(terminalId);
+            
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
             break;
@@ -292,6 +373,11 @@ void language_compiler::compile_item(rule& rule, ebnf_item* item) {
         {
             // Get or create the ID for this nonterminal.
             int nonterminalId = m_Grammar.id_for_nonterminal(item->identifier());
+            
+            // Mark the place where this nonterminal was first used (this is later used to report an error if this nonterminal is undefined)
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = item;
+            }
             
             // Return a new nonterminal item
             rule << item_container(new nonterminal(nonterminalId), true);

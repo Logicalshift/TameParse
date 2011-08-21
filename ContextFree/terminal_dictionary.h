@@ -79,6 +79,9 @@ namespace contextfree {
         /// than the supplied symbol
         int split(int symbol);
         
+        /// \brief Total number of symbols defined in this dictionary
+        inline int count_symbols() const { return (int)m_SymbolToName.size(); }
+        
     public:
         /// \brief Returns the parent of the specified symbol (identical to the symbol if it wasn't split off from another symbol)
         inline int parent_of(int symbol) const {

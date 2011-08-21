@@ -16,6 +16,7 @@
 #include "Language/language_block.h"
 #include "Dfa/ndfa_regex.h"
 #include "Compiler/compilation_stage.h"
+#include "Language/language_unit.h"
 
 namespace compiler {
     ///
@@ -43,6 +44,21 @@ namespace compiler {
         
         /// \brief The IDs of symbols defined as being 'ignored'
         std::set<int> m_IgnoredSymbols;
+        
+        /// \brief Symbols defined in the lexer that are marked as 'unused'
+        std::set<int> m_UnusedSymbols;
+        
+        /// \brief The type of the definition for each terminal symbol
+        std::map<int, language::language_unit::unit_type> m_TypeForTerminal;
+        
+        /// \brief Maps terminal IDs to the block where they are declared (used for reporting errors later on)
+        std::map<int, language::block*> m_TerminalDefinition;
+        
+        /// \brief Maps nonterminal IDs to the point where they were first used
+        std::map<int, language::block*> m_FirstNonterminalUsage;
+        
+        /// \brief Maps rule IDs to the block where they are declared (used for reporting errors later on)
+        std::map<int, language::block*> m_RuleDefinition;
         
     public:
         /// \brief Creates a compiler that will compile the specified language block
