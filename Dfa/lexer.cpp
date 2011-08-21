@@ -135,3 +135,9 @@ bool lexer::verify() {
     
     return isOk;
 }
+
+/// \brief Estimation of the size of this lexer
+size_t lexer::size() const {
+    if (!m_Lexer) return 0;
+    return m_Lexer->size();
+}

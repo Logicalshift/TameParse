@@ -90,7 +90,7 @@ language_compiler::~language_compiler() {
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_compiler::compile() {
     // Write out a verbose message
-    cons().verbose_stream() << L"  = Constructing lexer NDFA" << endl;
+    cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar" << endl;
     
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
@@ -184,7 +184,7 @@ void language_compiler::compile() {
 
                     default:
                         // Unknown type of lexeme definition
-                        cons().report_error(error(error::sev_bug, filename(), L"UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
+                        cons().report_error(error(error::sev_bug, filename(), L"BUG_UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
                         break;
                 }
                 
@@ -514,7 +514,7 @@ void language_compiler::compile_item(rule& rule, ebnf_item* item) {
 
         default:
             // Unknown item type
-            cons().report_error(error(error::sev_bug, filename(), L"UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
+            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
             break;
     }
 }

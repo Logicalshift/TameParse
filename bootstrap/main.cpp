@@ -12,6 +12,7 @@
 #include "Compiler/console.h"
 #include "Compiler/std_console.h"
 #include "Compiler/language_compiler.h"
+#include "Compiler/lexer_compiler.h"
 
 using namespace std;
 using namespace dfa;
@@ -66,8 +67,13 @@ int main (int argc, const char * argv[])
         return 1;
     }
     
+    // Stage 1: interpret the language and generate the NDFA and grammar
     language_compiler languageStage(consContainer, L"definition.txt", lBlock);
     languageStage.compile();
+    
+    // Stage 2: compile the lexer
+    lexer_compiler lexerStage(consContainer, L"definition.txt", &languageStage);
+    lexerStage.compile();
     
     // Done
     return cons.exit_code();

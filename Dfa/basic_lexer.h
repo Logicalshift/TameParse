@@ -94,6 +94,9 @@ namespace dfa {
         ///
         virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const = 0;
         
+        /// \brief Estimated size in bytes of this lexer
+        virtual size_t size() const = 0;
+        
         /// \brief Creates a new lexer that will read from the specified stream (which must not be destroyed while the lexer is in use)
         template<typename Char, typename Traits> inline lexeme_stream* create_stream_from(std::basic_istream<Char, Traits>& input) const {
             return create_stream(new stream_stream<Char, Traits>(input));
@@ -309,6 +312,11 @@ namespace dfa {
         virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const {
             if (!stream) return NULL;
             return new dfa_stream(m_StateMachine, m_Accept, stream);
+        }
+        
+        /// \brief Estimated size in bytes of this lexer
+        virtual size_t size() const {
+            return m_StateMachine.size();
         }
     };
 }

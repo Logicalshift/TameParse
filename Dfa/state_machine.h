@@ -66,7 +66,7 @@ namespace dfa {
         }
         
         /// \brief Total size of this row
-        inline size_t size(int maxSet) {
+        inline size_t size(int maxSet) const {
             return sizeof(*this) + sizeof(int) * maxSet;
         }
     };
@@ -144,7 +144,7 @@ namespace dfa {
         }
         
         /// \brief Total size of this row
-        inline size_t size(int maxSet) {
+        inline size_t size(int maxSet) const {
             return sizeof(*this) + sizeof(entry) * m_NumEntries;
         }
     };
@@ -203,12 +203,12 @@ namespace dfa {
         }
         
         /// \brief Size in bytes of this state machine
-        inline size_t size() {
+        inline size_t size() const {
             size_t mySize = sizeof(*this);
             mySize += m_Translator.size() + sizeof(m_Translator);
             
             for (int x=0; x<m_MaxState; x++) {
-                mySize += m_States[x].size();
+                mySize += m_States[x].size(m_MaxSet);
             }
 
             return mySize;

@@ -16,8 +16,6 @@
 
 namespace dfa {
     /// \brief Class used to build and run lexers
-    ///
-    /// When this class is first created, it can be used t
     class lexer : public basic_lexer {
     private:
         /// \brief NULL if the NDFA is compiled, or the NDFA associated with this lexer
@@ -84,6 +82,10 @@ namespace dfa {
         /// This should be called before compile(). If compile() has already been called, this will return false regardless.
         /// This is primarily intended for testing purposes.
         bool verify();
+        
+    public:
+        /// \brief Estimation of the size of this lexer
+        virtual size_t size() const;
     };
 }
 

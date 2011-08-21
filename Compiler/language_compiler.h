@@ -81,6 +81,11 @@ namespace compiler {
         /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
         /// to be missing from the terminal dictionary.
         void compile_item(contextfree::rule& target, language::ebnf_item* item);
+        
+    public:
+        inline dfa::ndfa* ndfa()                                { return &m_Lexer; }
+        inline contextfree::terminal_dictionary* terminals()    { return &m_Terminals; }
+        inline std::set<int>* weak_symbols()                    { return &m_WeakSymbols; }
     };
     
     // TODO: need to add virtual methods to make it possible to write a subclass that can deal with more complex languages 
