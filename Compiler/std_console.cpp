@@ -52,11 +52,44 @@ void std_console::report_error(const error& error) {
     
     // Write out the line number if it's >= 0
     if (error.pos().line() >= 0) {
-        *out << error.pos().line() << L":";
+        *out << error.pos().line()+1 << L":";
+    } else {
+        *out << L":";
+    }
+
+    if (error.pos().column() >= 0) {
+        *out << error.pos().column()+1 << L":";
     } else {
         *out << L":";
     }
     
+    // Write out the error severity
+    switch (error.sev()) {
+        case error::sev_info:
+        case error::sev_message:
+            break;
+            
+        case error::sev_warning:
+            *out << L" warning:";
+            break;
+            
+        case error::sev_error:
+            *out << L" error:";
+            break;
+            
+        case error::sev_fatal:
+            *out << L" serious error:";
+            break;
+            
+        case error::sev_bug:
+            *out << L" compiler failure:";
+            break;
+            
+        default:
+            *out << L" unknown:";
+            break;
+    }
+
     // Write out the error description
     *out << L" " << error.description() << endl;
 }
