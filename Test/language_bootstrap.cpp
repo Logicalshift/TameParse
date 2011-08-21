@@ -148,7 +148,7 @@ void test_language_bootstrap::run_tests() {
     report("MatchGrammar", test_lex("grammar", bs.get_lexer(), bs.get_terminal_items().grammar->symbol(), bs.get_terminals()));
     report("MatchLexer", test_lex("lexer", bs.get_lexer(), bs.get_terminal_items().lexer->symbol(), bs.get_terminals()));
     report("MatchLexerSymbols", test_lex("lexer-symbols", bs.get_lexer(), bs.get_terminal_items().lexersymbols->symbol(), bs.get_terminals()));
-    report("MatchWeakLexer", test_lex("weaklexer", bs.get_lexer(), bs.get_terminal_items().weaklexer->symbol(), bs.get_terminals()));
+    report("MatchWeak", test_lex("weak", bs.get_lexer(), bs.get_terminal_items().weak->symbol(), bs.get_terminals()));
     report("MatchIgnore", test_lex("ignore", bs.get_lexer(), bs.get_terminal_items().ignore->symbol(), bs.get_terminals()));
     report("MatchKeywords", test_lex("keywords", bs.get_lexer(), bs.get_terminal_items().keywords->symbol(), bs.get_terminals()));
     report("MatchWhitespace", test_lex("  ", bs.get_lexer(), bs.get_terminal_items().whitespace->symbol(), bs.get_terminals()));

@@ -40,6 +40,20 @@ language ParserLanguage {
 	keywords {
 	}
 	
+	/// Weak keywords
+	/// Declared here to suppress warnings
+	weak keywords {
+		language
+		import
+		lexer-symbols
+		lexer
+		ignore
+		weak
+		keywords
+		grammar
+		replace
+	}
+	
 	/// The grammar itself
 	grammar {
 	
@@ -65,7 +79,6 @@ language ParserLanguage {
 		<Language-Definition>	= <Lexer-Symbols-Definition>
 								| <Lexer-Definition>
 								| <Ignore-Definition>
-								| <Weak-Symbols-Definition>
 								| <Keywords-Definition>
 								| <Grammar-Definition>
 								
@@ -75,16 +88,14 @@ language ParserLanguage {
 		
 		<Lexer-Symbols-Definition>	= lexer-symbols '{' (<Lexeme-Definition>)* '}'
 		
-		<Lexer-Definition> 			= lexer '{' (<Lexeme-Definition>)* '}'
+		<Lexer-Definition> 			= weak? lexer '{' (<Lexeme-Definition>)* '}'
 		
 		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
 		
-		<Keywords-Definition>		= keywords '{' (<Keyword-Definition>)* '}'
+		<Keywords-Definition>		= weak? keywords '{' (<Keyword-Definition>)* '}'
 		
 		<Keyword-Definition>		= identifier
 									| identifier '=' (regex | string | character)
-		
-		<Weak-Symbols-Definition>	= weak-lexer '{' (<Lexeme-Definition>)* '}'
 		
 		<Lexeme-Definition> 		= identifier '=' (regex | string | character)
 									| identifier '=' identifier '.' identifier

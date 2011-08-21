@@ -29,10 +29,13 @@ namespace language {
             unit_ignore_definition,
             
             /// \brief The weak symbols definition
-            unit_weak_symbols_definition,
+            unit_weak_lexer_definition,
             
             /// \brief The keyword symbols definition
             unit_keywords_definition,
+            
+            /// \brief The weak keyword symbols definition
+            unit_weak_keywords_definition,
             
             /// \brief A grammar definition
             unit_grammar_definition
@@ -67,6 +70,12 @@ namespace language {
         /// \brief The type of this language unit
         inline unit_type type() const { return m_Type; }
         
+        /// \brief If this is any kind of lexer block, this will return it (use the type() call to get the type of lexer block
+        /// that this is)
+        inline lexer_block* any_lexer_block() const {
+            return m_LexerBlock;
+        }
+        
         /// \brief If this is a lexer symbols block, this will return the lexer block that defines its content (otherwise null)
         inline lexer_block* lexer_symbols() const {
             if (m_Type == unit_lexer_symbols)
@@ -91,9 +100,17 @@ namespace language {
                 return NULL;
         }
         
+        /// \brief If this is a weak keywords block, this will return the lexer block that defines its content (otherwise null)
+        inline lexer_block* weak_keywords_definition() const {
+            if (m_Type == unit_weak_keywords_definition)
+                return m_LexerBlock;
+            else
+                return NULL;
+        }
+        
         /// \brief If this is a weak symbols block, this will return the lexer block that defines its content (otherwise null)
-        inline lexer_block* weak_symbols_definition() const {
-            if (m_Type == unit_weak_symbols_definition)
+        inline lexer_block* weak_lexer_definition() const {
+            if (m_Type == unit_weak_lexer_definition)
                 return m_LexerBlock;
             else
                 return NULL;

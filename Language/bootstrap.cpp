@@ -67,7 +67,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.grammar           = add_terminal(languageNdfa, L"grammar", L"grammar");
     t.lexersymbols      = add_terminal(languageNdfa, L"lexer-symbols", L"lexer-symbols");
     t.lexer             = add_terminal(languageNdfa, L"lexer", L"lexer");
-    t.weaklexer         = add_terminal(languageNdfa, L"weaklexer", L"weaklexer");
+    t.weak              = add_terminal(languageNdfa, L"weak", L"weak");
     t.ignore            = add_terminal(languageNdfa, L"ignore", L"ignore");
     t.keywords          = add_terminal(languageNdfa, L"keywords", L"keywords");
     
@@ -103,7 +103,7 @@ dfa::ndfa* bootstrap::create_dfa() {
 	t.id_grammar        = t.grammar     ->symbol();
     t.id_lexersymbols   = t.lexersymbols->symbol();
     t.id_lexer          = t.lexer       ->symbol();
-    t.id_weaklexer      = t.weaklexer   ->symbol();
+    t.id_weak           = t.weak        ->symbol();
     t.id_ignore         = t.ignore      ->symbol();
     t.id_keywords       = t.keywords    ->symbol();
 	t.id_equals         = t.equals      ->symbol();
@@ -154,7 +154,6 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.ignore_definition        = result->get_nonterminal(L"Ignore-Definition");
     nt.keywords_definition      = result->get_nonterminal(L"Keywords-Definition");
     nt.keyword_definition       = result->get_nonterminal(L"Keyword-Definition");
-    nt.weak_symbols_definition  = result->get_nonterminal(L"Weak-Symbols-Definition");
     nt.lexeme_definition        = result->get_nonterminal(L"Lexeme-Definition");
     nt.grammar_definition       = result->get_nonterminal(L"Grammar-Definition");
     nt.nonterminal_definition   = result->get_nonterminal(L"Nonterminal-Definition");
@@ -177,7 +176,6 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.id_ignore_definition         = nt.ignore_definition       ->symbol();
     nt.id_keywords_definition       = nt.keywords_definition     ->symbol();
     nt.id_keyword_definition        = nt.keyword_definition      ->symbol();
-    nt.id_weak_symbols_definition   = nt.weak_symbols_definition ->symbol();
     nt.id_lexeme_definition         = nt.lexeme_definition       ->symbol();
     nt.id_grammar_definition        = nt.grammar_definition      ->symbol();
     nt.id_nonterminal_definition    = nt.nonterminal_definition  ->symbol();
@@ -210,26 +208,26 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Language-Definition") << nt.lexer_symbols_definition;
     ((*result) += L"Language-Definition") << nt.lexer_definition;
     ((*result) += L"Language-Definition") << nt.ignore_definition;
-    ((*result) += L"Language-Definition") << nt.weak_symbols_definition;
     ((*result) += L"Language-Definition") << nt.keywords_definition;
     ((*result) += L"Language-Definition") << nt.grammar_definition;
     
     // Some simple definitions
+    ebnf_optional           optionalWeak;
     ebnf_repeating_optional lexemeList;
     ebnf_repeating_optional keywordDefinitionList;
     
     (*lexemeList.get_rule()) << nt.lexeme_definition;
     (*keywordDefinitionList.get_rule()) << nt.keyword_definition;
+    (*optionalWeak.get_rule()) << t.weak;
     
     ((*result) += L"Lexer-Symbols-Definition") << t.lexersymbols << t.opencurly << lexemeList << t.closecurly;
-    ((*result) += L"Lexer-Definition") << t.lexer << t.opencurly << lexemeList << t.closecurly;
+    ((*result) += L"Lexer-Definition") << optionalWeak << t.lexer << t.opencurly << lexemeList << t.closecurly;
     ((*result) += L"Ignore-Definition") << t.ignore << t.opencurly << keywordDefinitionList << t.closecurly;
-    ((*result) += L"Keywords-Definition") << t.keywords << t.opencurly << keywordDefinitionList << t.closecurly;
+    ((*result) += L"Keywords-Definition") << optionalWeak << t.keywords << t.opencurly << keywordDefinitionList << t.closecurly;
     ((*result) += L"Keyword-Definition") << t.identifier;
     ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.string;
     ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.character;
     ((*result) += L"Keyword-Definition") << t.identifier << t.equals << t.regex;
-    ((*result) += L"Weak-Symbols-Definition") << t.weaklexer << t.opencurly << lexemeList << t.closecurly;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.regex;
     ((*result) += L"Lexeme-Definition") << t.identifier << t.equals << t.identifier << t.dot << t.identifier;
     
@@ -298,6 +296,7 @@ bootstrap::bootstrap() {
     weaklings.insert(t.lexersymbols);
     weaklings.insert(t.lexer);
     weaklings.insert(t.ignore);
+    weaklings.insert(t.weak);
     weaklings.insert(t.keywords);
     
     weak.add_symbols(*dfa, weaklings, m_Terminals);
@@ -510,14 +509,18 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         return new language_unit(language_unit::unit_lexer_symbols, result);
     } else if (childId == nt.id_lexer_definition) {
         // Lexer definition block
-        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexeme_container    lexerKw         = (*child)[1]->lexeme();
+        lexeme_container    closingCurly    = (*child)[4]->lexeme();
+        bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        if (!get_lexer_block(result, (*child)[2])) {
+        lexer_block* result = new lexer_block(lexerKw->pos(), closingCurly->final_pos());
+        
+        if (!get_lexer_block(result, (*child)[3])) {
             delete result;
             return NULL;
         }
         
-        return new language_unit(language_unit::unit_lexer_definition, result);
+        return new language_unit(isWeak?language_unit::unit_weak_lexer_definition:language_unit::unit_lexer_definition, result);
     } else if (childId == nt.id_ignore_definition) {
         // Ignore definition block
         lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
@@ -528,26 +531,20 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         }
         
         return new language_unit(language_unit::unit_ignore_definition, result);
-    } else if (childId == nt.id_weak_symbols_definition) {
-        // Weak symbols block
-        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
-        
-        if (!get_lexer_block(result, (*child)[2])) {
-            delete result;
-            return NULL;
-        }
-        
-        return new language_unit(language_unit::unit_weak_symbols_definition, result);
     } else if (childId == nt.id_keywords_definition) {
         // Keywords definition block
-        lexer_block* result = new lexer_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexeme_container    lexerKw         = (*child)[1]->lexeme();
+        lexeme_container    closingCurly    = (*child)[4]->lexeme();
+        bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        if (!get_lexer_block(result, (*child)[2])) {
+        lexer_block* result = new lexer_block(lexerKw->pos(), closingCurly->final_pos());
+        
+        if (!get_lexer_block(result, (*child)[3])) {
             delete result;
             return NULL;
         }
         
-        return new language_unit(language_unit::unit_keywords_definition, result);
+        return new language_unit(isWeak?language_unit::unit_weak_keywords_definition:language_unit::unit_keywords_definition, result);
     } else if (childId == nt.id_grammar_definition) {
         // Grammar block
         grammar_block* result = new grammar_block((*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());

@@ -44,7 +44,7 @@ void language_compiler::compile() {
     // TODO: make it possible to redeclare literal symbols
     for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
         // Fetch the lexer block
-        lexer_block* lex = (*lexerBlock)->lexer_definition();
+        lexer_block* lex = (*lexerBlock)->any_lexer_block();
         
         // Ignore blocks that don't define lexer symbols
         if (!lex) continue;
@@ -108,7 +108,8 @@ void language_compiler::compile() {
                     m_IgnoredSymbols.insert(symId);
                     break;
                     
-                case language_unit::unit_weak_symbols_definition:
+                case language_unit::unit_weak_lexer_definition:
+                case language_unit::unit_weak_keywords_definition:
                     // Add as a weak symbol
                     m_WeakSymbols.insert(symId);
                     break;

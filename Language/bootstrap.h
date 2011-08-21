@@ -39,7 +39,7 @@ namespace language {
                 grammar,                        // Keyword
                 lexersymbols,                   // Keyword
                 lexer,                          // Keyword
-                weaklexer,                      // Keyword
+                weak,                           // Keyword
                 ignore,                         // Keyword
                 keywords,                       // Keyword
                 
@@ -71,8 +71,8 @@ namespace language {
                 id_grammar,
                 id_lexersymbols,
                 id_lexer,
-                id_weaklexer,
                 id_ignore,
+                id_weak,
                 id_keywords,
                 id_equals,
                 id_question,
@@ -127,7 +127,6 @@ namespace language {
                 ignore_definition,
                 keywords_definition,
                 keyword_definition,
-                weak_symbols_definition,
                 lexeme_definition,
                 grammar_definition,
                 nonterminal_definition,
@@ -150,7 +149,6 @@ namespace language {
                 id_ignore_definition,
                 id_keywords_definition,
                 id_keyword_definition,
-                id_weak_symbols_definition,
                 id_lexeme_definition,
                 id_grammar_definition,
                 id_nonterminal_definition,
