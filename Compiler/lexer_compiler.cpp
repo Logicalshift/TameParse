@@ -90,7 +90,24 @@ void lexer_compiler::compile() {
     
     // Build up the weak symbols set if there are any
     if (weakSymbolIds->size() > 0) {
+        // Build up the weak symbol set as a series of items
+        item_set weakSymSet;
         
+        // Count how many symbols there were initially
+        int initialSymCount = terminals->count_symbols();
+        
+        // Iterate through the symbol IDs
+        for (set<int>::iterator weakSymId = weakSymbolIds->begin(); weakSymId != weakSymbolIds->end(); weakSymId++) {
+            weakSymSet.insert(item_container(new terminal(*weakSymId), true));
+        }
+        
+        // Add these symbols to the weak symbols object
+        m_WeakSymbols.add_symbols(*m_Dfa, weakSymSet, *terminals);
+        
+        // Display how many new terminal symbols were added
+        int finalSymCount = terminals->count_symbols();
+        
+        cons().verbose_stream() << L"    Number of extra weak symbols:           " << finalSymCount - initialSymCount << endl;
     }
     
     // Build the final lexer
