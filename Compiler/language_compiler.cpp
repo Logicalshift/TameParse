@@ -189,6 +189,7 @@ void language_compiler::compile() {
         }
     }
     
+    // TODO: display warnings (or information?) if there are any items that are declared in lexer blocks but never used
     // TODO: display errors if there are any nonterminals used in the defintions that do not reference any existing item
     // TODO: display a summary of what the grammar and NDFA contains if we're in verbose mode
 }
