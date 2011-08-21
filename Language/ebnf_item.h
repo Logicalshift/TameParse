@@ -85,7 +85,7 @@ namespace language {
         
     public:
         /// \brief Creates an EBNF item (sourceIdentifier.identifier)
-        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, position start = position(), position end = position());
+        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, position start, position end);
 
         /// \brief Creates an EBNF item which doesn't specify a symbol
         ebnf_item(type typ, position start = position(), position end = position());

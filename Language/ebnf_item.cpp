@@ -68,5 +68,25 @@ ebnf_item& ebnf_item::operator=(const ebnf_item& copyFrom) {
 ///
 /// This item will delete the item when it has finished with it.
 void ebnf_item::add_child(ebnf_item* newChild) {
+    // Update the position of this item
+    if (newChild->start_pos() != position() || newChild->end_pos() != position()) {
+        // If this item has a null position, then just set the position
+        if (start_pos() == position() && end_pos() == position()) {
+            set_start_pos(newChild->start_pos());
+            set_end_pos(newChild->end_pos());
+        } else {
+            // If the start position is less than the current start position, then update it
+            if (newChild->start_pos() < start_pos()) {
+                set_start_pos(newChild->start_pos());
+            }
+            
+            // If the end position if greater than the current end position, then update it
+            if (newChild->end_pos() > end_pos()) {
+                set_end_pos(end_pos());
+            }
+        }
+    }
+    
+    // Add this as a child item
     m_ChildItems.push_back(newChild);
 }

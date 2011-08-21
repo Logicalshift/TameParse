@@ -70,6 +70,17 @@ namespace dfa {
         }
         
         /// \brief Compares two positions
+        inline bool operator==(const position& compareTo) const {
+            if (m_Line != compareTo.m_Line)     return false;
+            if (m_Column != compareTo.m_Column) return false;
+            
+            return m_Offset == compareTo.m_Offset;
+        }
+        
+        /// \brief Compares two positions
+        inline bool operator!=(const position& compareTo) const { return !operator==(compareTo); }
+        
+        /// \brief Compares two positions
         inline bool operator<(const position& compareTo) const {
             if (m_Line < compareTo.m_Line)      return true;
             if (m_Line > compareTo.m_Line)      return false;
@@ -79,6 +90,17 @@ namespace dfa {
             
             return m_Offset < compareTo.m_Offset;
         }
+        
+        /// \brief Compares two positions
+        
+        /// \brief Compares two positions
+        inline bool operator>(const position& compareTo) const { return compareTo.operator<(*this); }
+        
+        /// \brief Compares two positions
+        inline bool operator>=(const position& compareTo) const { return !operator<(compareTo); }
+        
+        /// \brief Compares two positions
+        inline bool operator<=(const position& compareTo) const { return !operator>(compareTo); }
     };
     
     ///

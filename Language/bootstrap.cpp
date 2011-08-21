@@ -916,7 +916,8 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
     
     else if (nodeType == nt.id_nonterminal) {
         // Just a nonterminal
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", (*ebnf)[0]->lexeme()->content<wchar_t>());
+        lexeme_container nt = (*ebnf)[0]->lexeme();
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", nt->content<wchar_t>(), nt->pos(), nt->final_pos());
     }
     
     else if (nodeType == nt.id_terminal) {
@@ -940,7 +941,8 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
             return NULL;
         }
         
-        return new ebnf_item(itemType, L"", terminal->lexeme()->content<wchar_t>());
+        lexeme_container term = terminal->lexeme();
+        return new ebnf_item(itemType, L"", term->content<wchar_t>(), term->pos(), term->final_pos());
     }
     
     else if (nodeType == nt.id_guard) {
