@@ -371,6 +371,22 @@ namespace dfa {
         ///
         /// You can supply a list of initial states to create a DFA with multiple start conditions. These will become states 0, 1, 2, etc in the final DFA.
         ndfa* to_dfa(const std::vector<int>& initialState) const;
+        
+        /// \brief Compacts a DFA, reducing the number of states
+        ///
+        /// For DFAs with only a single initial state, this may have one extra state than is required. If firstAction is set
+        /// to true, then the resulting DFA will only have final states that contain the first action (rather than all possible
+        /// actions): this will generally result in a smaller DFA, at the cost of being able to distinguish states that are
+        /// ambiguous.
+        ndfa* to_compact_dfa(const std::vector<int>& initialState, bool firstAction = false);
+        
+        /// \brief Compacts a DFA, reducing the number of states
+        inline ndfa* to_compact_dfa(int initialState = 0, bool firstAction = false) {
+            std::vector<int> initial;
+            initial.push_back(initialState);
+            
+            return to_compact_dfa(initial, firstAction);
+        }
     };
 }
     
