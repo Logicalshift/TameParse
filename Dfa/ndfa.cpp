@@ -651,7 +651,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             
             // Iterate through the remaining states, and put any that have a different transition set into a new state
             int splitStateId    = -1;
-            int numToMatch      = (int) targetStateForSymbol.size();
+            int numToMatch      = firstState.count_transitions();
             vector<int> toRemove;
             curState++;
             for (; curState != thisState.end(); curState++) {
@@ -698,7 +698,8 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             
             // Remove the states that are no longer in the current state
             for (vector<int>::iterator removeState = toRemove.begin(); removeState != toRemove.end(); removeState++) {
-                thisState.erase(*removeState);
+                // TODO: pointers!
+                newStates[newStateId].erase(*removeState);
             }
         }
     }
