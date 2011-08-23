@@ -636,7 +636,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         int maxNewState = (int) newStates.size();
         for (int newStateId = 0; newStateId < maxNewState; newStateId++) {
             // Split any symbol that has a transition to more than one different (new) state
-            state_set& thisState = newStates[newStateId];
+            state_set thisState = newStates[newStateId];                        // TODO: use pointers to state sets instead
             if (thisState.size() <= 1) continue;
             
             // Use the first state in the set as the template; split off any state that doesn't match it
@@ -656,12 +656,12 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             curState++;
             for (; curState != thisState.end(); curState++) {
                 // Check through the items in this state
-                const state&    thisState   = get_state(*curState);
-                bool            different   = thisState.count_transitions() != numToMatch;
+                const state&    originalState   = get_state(*curState);
+                bool            different       = originalState.count_transitions() != numToMatch;
                 
                 if (!different) {
                     // Number of transitions are the same: need to check that they are actually the same set of transitions
-                    for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+                    for (state::iterator transit = originalState.begin(); transit != originalState.end(); transit++) {
                         // Check the target state
                         map<int, int>::iterator originalTransition = targetStateForSymbol.find(transit->symbol_set());
                         
