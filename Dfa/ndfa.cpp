@@ -511,3 +511,195 @@ bool ndfa::verify_is_dfa() const {
     // Looks good
     return true;
 }
+
+/// \brief Class used to compare accepting actions
+class order_actions {
+public:
+    /// Returns true if one accept action is less than another
+    inline bool operator()(accept_action* a, accept_action* b) {
+        if (a == b)     return false;
+        if (a == NULL)  return true;
+        if (b == NULL)  return false;
+        
+        return *a < *b;
+    }
+};
+
+/// \brief Compacts a DFA, reducing the number of states
+///
+/// For DFAs with only a single initial state, this may have one extra state than is required. If firstAction is set
+/// to true, then the resulting DFA will only have final states that contain the first action (rather than all possible
+/// actions): this will generally result in a smaller DFA, at the cost of being able to distinguish states that are
+/// ambiguous.
+ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) const {
+    // Set of states from the original (this) DFA
+    typedef set<int> state_set;
+    
+    // Vector of new states
+    typedef vector<state_set> new_states;
+
+    // Maps state IDs in the original (this) set to IDs in the 'new' set
+    typedef map<int, int> state_map;
+    
+    // Set of actions
+    typedef set<accept_action*, order_actions> action_set;
+
+    // Variables used to represent our new state machine
+    new_states  newStates;
+    state_map   oldToNew;
+    
+    // Create the set of initial states. We assume that each state can only appear once in the initialState vector; the result
+    // will be incorrect if they appear more than once
+    for (vector<int>::const_iterator initial = initialState.begin(); initial != initialState.end(); initial++) {
+        // Each initial state becomes an initial state in the new DFA
+        newStates.push_back(state_set());
+        state_set& thisState = newStates.back();
+        
+        // Create a new state containing just this item
+        oldToNew[*initial] = (int) newStates.size()-1;
+        thisState.insert(*initial);
+    }
+    
+    // Bundle all of the non-accepting states up into a single state
+    // (If all of the remaining states are accepting then we'll end up with a free bonus state here :-/)
+    int nonAcceptingStates = (int) newStates.size();
+    newStates.push_back(state_set());
+    
+    // Also remember which new state contains which set of accepting actions
+    map<action_set, int> stateForActions;
+    
+    // Iterate through the states
+    for (int stateId = 0; stateId < count_states(); stateId++) {
+        // If this state is already mapped, then ignore it
+        if (oldToNew.find(stateId) != oldToNew.end()) continue;
+        
+        // Try to fetch the accept actions for this state
+        accept_action_for_state::const_iterator acceptActions = m_Accept->find(stateId);
+
+        // If this state is not an accepting state then add it to the non-accepting set
+        if (acceptActions == m_Accept->end() || acceptActions->second.empty()) {
+            newStates[nonAcceptingStates].insert(stateId);
+            oldToNew[stateId] = nonAcceptingStates;
+        }
+        
+        // For accepting states, either create a new state or use an existing one
+        else {
+            // Build up a set of actions
+            action_set actions;
+            
+            if (firstAction) {
+                // Choose only the 'first' action (the one that compares 'highest')
+                accept_action* smallestAction = acceptActions->second[0];
+                for (accept_action_list::const_iterator action = acceptActions->second.begin(); 
+                     action != acceptActions->second.end(); action++) {
+                    if ((*smallestAction) < (**action)) {
+                        smallestAction = *action;
+                    }
+                }
+                
+                // Add this action to the set
+                actions.insert(smallestAction);
+            } else {
+                // Create a set of all of the accept actions for this state
+                for (accept_action_list::const_iterator action = acceptActions->second.begin(); 
+                     action != acceptActions->second.end(); action++) {
+                    actions.insert(*action);
+                }
+            }
+            
+            // Get the state that's mapped to this set of actions
+            map<action_set, int>::const_iterator existingState = stateForActions.find(actions);
+            int targetState;
+            
+            if (existingState == stateForActions.end()) {
+                // Create a new state
+                targetState = (int) newStates.size()-1;
+                newStates.push_back(state_set());
+            } else {
+                // Add to the existing state
+                targetState = existingState->second;
+            }
+            
+            // Add to the appropriate state
+            newStates[targetState].insert(stateId);
+            oldToNew[stateId] = targetState;
+        }
+    }
+    
+    // Now, iterate through the states until there are no changes to make
+    bool changed = true;
+    while (changed) {
+        // No changes so far this pass
+        changed = false;
+        
+        // Iterate through the set of 'new' states
+        int maxNewState = (int) newStates.size();
+        for (int newStateId = 0; newStateId < maxNewState; newStateId++) {
+            // Split any symbol that has a transition to more than one different (new) state
+            state_set& thisState = newStates[newStateId];
+            if (thisState.size() <= 1) continue;
+            
+            // Use the first state in the set as the template; split off any state that doesn't match it
+            map<int, int> targetStateForSymbol;
+            
+            state_set::iterator curState    = thisState.begin();
+            const state&        firstState  = get_state(*curState);
+            
+            for (state::iterator transit = firstState.begin(); transit != firstState.end(); transit++) {
+                targetStateForSymbol[transit->symbol_set()] = oldToNew[transit->new_state()];
+            }
+            
+            // Iterate through the remaining states, and put any that have a different transition set into a new state
+            int splitStateId    = -1;
+            int numToMatch      = (int) targetStateForSymbol.size();
+            vector<int> toRemove;
+            curState++;
+            for (; curState != thisState.end(); curState++) {
+                // Check through the items in this state
+                const state&    thisState   = get_state(*curState);
+                bool            different   = thisState.count_transitions() != numToMatch;
+                
+                if (!different) {
+                    // Number of transitions are the same: need to check that they are actually the same set of transitions
+                    for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+                        // Check the target state
+                        map<int, int>::iterator originalTransition = targetStateForSymbol.find(transit->symbol_set());
+                        
+                        // ... this state is different if the first state doesn't have this symbol set
+                        if (originalTransition == targetStateForSymbol.end()) {
+                            different = true;
+                            break;
+                        }
+                        
+                        // ... this state is different if the target state is different
+                        if (originalTransition->second != oldToNew[transit->new_state()]) {
+                            different = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // Just leave the states that are the same alone
+                if (!different) continue;
+                
+                // This state is different to the first state, so we split it off into a new set
+                if (splitStateId == -1) {
+                    // Assign a new state
+                    changed         = true;
+                    splitStateId    = (int) newStates.size()-1;
+                    newStates.push_back(state_set());
+                }
+                
+                // Move this state into the new state
+                toRemove.push_back(*curState);                  // Have to remove the state later due to iterator semantics :-/
+                newStates[splitStateId].insert(*curState);
+                oldToNew[*curState] = splitStateId;
+            }
+            
+            // Remove the states that are no longer in the current state
+            for (vector<int>::iterator removeState = toRemove.begin(); removeState != toRemove.end(); removeState++) {
+                thisState.erase(*removeState);
+            }
+        }
+    }
+}
