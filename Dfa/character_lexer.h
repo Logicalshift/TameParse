@@ -44,6 +44,11 @@ namespace dfa {
         /// The lexeme_stream should take ownership of the supplied lexer_symbol_stream and delete it once it has finished with it
         ///
         virtual lexeme_stream* create_stream(lexer_symbol_stream* stream) const;
+        
+        ///
+        /// \brief The number of bytes used by this lexer
+        ///
+        virtual size_t size() const;
     };
 }
 

@@ -46,3 +46,10 @@ lexeme_stream& character_lexer::lstream::operator>>(lexeme*& result) {
 lexeme_stream* character_lexer::create_stream(lexer_symbol_stream* stream) const {
     return new lstream(stream);
 }
+
+///
+/// \brief The number of bytes used by this lexer
+///
+size_t character_lexer::size() const {
+    return sizeof(character_lexer);
+}
