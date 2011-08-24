@@ -80,15 +80,6 @@ void lexer_compiler::compile() {
         return;
     }
     
-    // Compact the resulting DFA
-    cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
-    dfa::ndfa* dfa = stage2->to_compact_dfa();
-    delete stage2;
-    
-    // Write some information about the DFA we just produced
-    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << dfa->count_states() << endl;
-    m_Dfa = dfa;
-    
     // TODO: need a way to find out where terminals were defined to display messages about them
     // TODO: identify any terminals that are always replaced by other terminals (warning)
     // TODO: also identify any terminals that clash with terminals at the same level (warning)
@@ -107,13 +98,22 @@ void lexer_compiler::compile() {
         }
         
         // Add these symbols to the weak symbols object
-        m_WeakSymbols.add_symbols(*m_Dfa, weakSymSet, *terminals);
+        m_WeakSymbols.add_symbols(*stage2, weakSymSet, *terminals);
         
         // Display how many new terminal symbols were added
         int finalSymCount = terminals->count_symbols();
         
         cons().verbose_stream() << L"    Number of extra weak symbols:           " << finalSymCount - initialSymCount << endl;
     }
+    
+    // Compact the resulting DFA
+    cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
+    dfa::ndfa* dfa = stage2->to_compact_dfa();
+    delete stage2;
+    
+    // Write some information about the DFA we just produced
+    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << dfa->count_states() << endl;
+    m_Dfa = dfa;
     
     // Build the final lexer
     m_Lexer = new lexer(*dfa);
