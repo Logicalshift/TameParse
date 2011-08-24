@@ -34,7 +34,7 @@ void std_console::report_error(const error& error) {
     wostream* out = &wcerr;
     
     // Use the verbose stream if this is not a warning or error message
-    if (error.sev() < error::sev_warning) {
+    if (error.sev() < error::sev_detail) {
         out = &verbose_stream();
     }
     
@@ -67,6 +67,10 @@ void std_console::report_error(const error& error) {
     switch (error.sev()) {
         case error::sev_info:
         case error::sev_message:
+            break;
+            
+        case error::sev_detail:
+            *out << L"    ";
             break;
             
         case error::sev_warning:

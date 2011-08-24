@@ -29,6 +29,9 @@ namespace compiler {
             /// \brief Some information about a particular file
             sev_info,
             
+            /// \brief Detail about the previous warning or error
+            sev_detail,
+            
             /// \brief A warning about something that could be wrong with the file (but which does not prevent the generator from producing results)
             sev_warning,
             
