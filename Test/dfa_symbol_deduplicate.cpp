@@ -32,7 +32,7 @@ static bool check_ranges(const symbol_map& original, const remapped_symbol_map& 
     // Iterate through the old symbol sets
     for (symbol_map::iterator oldSymbols = original.begin(); oldSymbols != original.end(); oldSymbols++) {
         // Set of symbols that haven't been remapped
-        symbol_set notMapped = oldSymbols->first;
+        symbol_set notMapped = *oldSymbols->first;
         
         // Get the IDs that this has been remapped to
         new_symbols remappedSets = remapped.new_symbols(oldSymbols->second);
