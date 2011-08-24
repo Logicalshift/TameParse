@@ -72,16 +72,21 @@ void lexer_compiler::compile() {
     cons().verbose_stream() << L"    Final number of character sets:         " << stage1->symbols().count_sets() << endl;
     
     // Compile the NDFA to a DFA
-    dfa::ndfa* dfa = stage1->to_dfa();
+    dfa::ndfa* stage2 = stage1->to_dfa();
     delete stage1;
     
-    if (!dfa) {
+    if (!stage2) {
         cons().report_error(error(error::sev_bug, filename(), L"BUG_DFA_FAILED_TO_COMPILE", L"Failed to compile DFA", position(-1, -1, -1)));
         return;
     }
     
+    // Compact the resulting DFA
+    cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
+    dfa::ndfa* dfa = stage2->to_compact_dfa();
+    delete stage2;
+    
     // Write some information about the DFA we just produced
-    cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << dfa->count_states() << endl;
+    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << dfa->count_states() << endl;
     m_Dfa = dfa;
     
     // TODO: need a way to find out where terminals were defined to display messages about them
