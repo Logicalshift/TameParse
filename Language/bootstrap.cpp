@@ -132,8 +132,11 @@ dfa::ndfa* bootstrap::create_dfa() {
     ndfa* uniqueSyms = languageNdfa->to_ndfa_with_unique_symbols();
     delete languageNdfa;
     
-    ndfa* result = uniqueSyms->to_dfa();
+    ndfa* dfa = uniqueSyms->to_dfa();
     delete uniqueSyms;
+    
+    ndfa* result = dfa->to_compact_dfa();
+    delete dfa;
     
     return result;
 }

@@ -633,8 +633,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         changed = false;
         
         // Iterate through the set of 'new' states
-        int maxNewState = (int) newStates.size();
-        for (int newStateId = 0; newStateId < maxNewState; newStateId++) {
+        for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
             // Split any symbol that has a transition to more than one different (new) state
             state_set thisState = newStates[newStateId];                        // TODO: use pointers to state sets instead
             if (thisState.size() <= 1) continue;
@@ -703,4 +702,44 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             }
         }
     }
+    
+    // Build the final state machine from the result
+    ndfa* result = new ndfa();
+
+    // Add all of the states
+    for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
+        // Add a new state
+        result->add_state();
+    }
+
+    // Build the transitions and accepting actions
+    for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
+        // Ignore empty states
+        if (newStates[newStateId].empty()) continue;
+        
+        // Add the transitions for this state: we only need a single template state as the mapped transitions for each symbol
+        // will be the same
+        int             templateStateId = *newStates[newStateId].begin();
+        const state&    templateState   = get_state(templateStateId);
+        
+        for (state::iterator originalTransit = templateState.begin(); originalTransit != templateState.end(); originalTransit++) {
+            int                 symbolSetId = originalTransit->symbol_set();
+            const symbol_set&   symbolSet   = (*m_Symbols)[symbolSetId];
+            
+            result->add_transition(newStateId, symbolSet, oldToNew[originalTransit->new_state()]);
+        }
+        
+        // Copy the accept actions from the template state
+        // TODO: if firstAction is set, then only copy the 'most important' action
+        const accept_action_list& actions = actions_for_state(templateStateId);
+        for (accept_action_list::const_iterator act = actions.begin(); act != actions.end(); act++) {
+            result->accept(newStateId, (*act)->clone());
+        }
+    }
+    
+    // Mark as deterministic
+    result->m_IsDeterministic = m_IsDeterministic;
+    
+    // Return the minimized DFA
+    return result;
 }
