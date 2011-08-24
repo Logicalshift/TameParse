@@ -532,26 +532,6 @@ public:
 /// actions): this will generally result in a smaller DFA, at the cost of being able to distinguish states that are
 /// ambiguous.
 ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) const {
-    // DEBUG: ghetto copy algorithm
-    ndfa* testResult = new ndfa();
-    
-    for (int stateId = 0; stateId < count_states(); stateId++) {
-        testResult->add_state();
-        
-        for (state::iterator transit = get_state(stateId).begin(); transit != get_state(stateId).end(); transit++) {
-            testResult->add_transition(stateId, symbols()[transit->symbol_set()], transit->new_state());
-        }
-
-        const accept_action_list& actions = actions_for_state(stateId);
-        for (accept_action_list::const_iterator act = actions.begin(); act != actions.end(); act++) {
-            testResult->accept(stateId, **act);
-        }
-    }
-    
-    testResult->m_IsDeterministic = m_IsDeterministic;
-    return testResult;
-    
-    
     // Set of states from the original (this) DFA
     typedef set<int> state_set;
     
@@ -568,8 +548,6 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     new_states  newStates;
     state_map   oldToNew;
     
-#if 0
-    
     // Create the set of initial states. We assume that each state can only appear once in the initialState vector; the result
     // will be incorrect if they appear more than once
     for (vector<int>::const_iterator initial = initialState.begin(); initial != initialState.end(); initial++) {
@@ -580,15 +558,6 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         // Create a new state containing just this item
         oldToNew[*initial] = (int) newStates.size()-1;
         thisState.insert(*initial);
-    }
-    
-#endif
-    
-    // DEBUG: make the state machine identical to the original
-    for (int stateId = 0; stateId < count_states(); stateId++) {
-        newStates.push_back(state_set());
-        newStates[stateId].insert(stateId);
-        oldToNew[stateId] = stateId;
     }
     
     // Bundle all of the non-accepting states up into a single state
@@ -735,18 +704,18 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     }
     
     // Build the final state machine from the result
-    ndfa* result = new ndfa();
-
-    // Add all of the states
-    for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
-        // Add a new state
-        result->add_state();
-    }
 
     // Build the transitions and accepting actions
+    state_list*                 states      = new state_list();
+    symbol_map*                 symbolMap   = new symbol_map(*m_Symbols);
+    accept_action_for_state*    accept      = new accept_action_for_state();
+    
     for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
         // Ignore empty states
         if (newStates[newStateId].empty()) continue;
+        
+        state* newState = new state(newStateId);
+        states->push_back(newState);
         
         // Add the transitions for this state: we only need a single template state as the mapped transitions for each symbol
         // will be the same
@@ -754,22 +723,23 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         const state&    templateState   = get_state(templateStateId);
         
         for (state::iterator originalTransit = templateState.begin(); originalTransit != templateState.end(); originalTransit++) {
-            int                 symbolSetId = originalTransit->symbol_set();
-            const symbol_set&   symbolSet   = (*m_Symbols)[symbolSetId];
-            int                 targetState = oldToNew[originalTransit->new_state()];
+            int symbolSetId = originalTransit->symbol_set();
+            int targetState = oldToNew[originalTransit->new_state()];
             
-            result->add_transition(newStateId, symbolSet, targetState);
+            newState->add(transition(symbolSetId, targetState));
         }
         
         // Copy the accept actions from the template state
         // TODO: if firstAction is set, then only copy the 'most important' action
-        const accept_action_list& actions = actions_for_state(templateStateId);
+        const accept_action_list&   actions         = actions_for_state(templateStateId);
+        accept_action_list&         targetActions   = (*accept)[newStateId];
         for (accept_action_list::const_iterator act = actions.begin(); act != actions.end(); act++) {
-            result->accept(newStateId, (*act)->clone());
+            targetActions.push_back((*act)->clone());
         }
     }
     
     // Mark as deterministic
+    ndfa* result = new ndfa(states, symbolMap, accept);
     result->m_IsDeterministic = m_IsDeterministic;
     
     // Return the minimized DFA
