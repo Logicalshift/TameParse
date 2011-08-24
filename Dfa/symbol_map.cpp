@@ -22,6 +22,12 @@ symbol_map::symbol_map() {
 symbol_map::~symbol_map() {
 }
 
+/// \brief Copy constructor
+symbol_map::symbol_map(const symbol_map& copyFrom)
+: m_IdForSymbols(copyFrom.m_IdForSymbols)
+, m_SymbolsForId(copyFrom.m_SymbolsForId) {
+}
+
 /// \brief Returns an identifier for a set of symbols (assigning a new one as needed)
 int symbol_map::identifier_for_symbols(const symbol_set& symbols) {
     // Try to find this symbol set in this object
@@ -36,10 +42,10 @@ int symbol_map::identifier_for_symbols(const symbol_set& symbols) {
     int newId = (int)m_SymbolsForId.size();
     
     // Add to the symbol map
-    symbol_id_map::iterator newSymbols = m_IdForSymbols.insert(pair<symbol_set, int>(symbols, newId)).first;
+    symbol_id_map::iterator newSymbols = m_IdForSymbols.insert(pair<symbol_set_container, int>(symbols, newId)).first;
     
     // Add to the ID vector
-    m_SymbolsForId.push_back(&newSymbols->first);
+    m_SymbolsForId.push_back(newSymbols->first);
     
     // Return the new ID
     return newId;
@@ -70,12 +76,12 @@ bool symbol_map::has_duplicates() const {
     // Iterate through all of the symbols in the map
     for (symbol_map::iterator checkSet = begin(); checkSet != end(); checkSet++) {
         // Iterate through all of the ranges in this set
-        for (symbol_set::iterator checkRange = checkSet->first.begin(); checkRange != checkSet->first.end(); checkRange++) {
+        for (symbol_set::iterator checkRange = checkSet->first->begin(); checkRange != checkSet->first->end(); checkRange++) {
             // Check these against each other set (which isn't the same as this one)
             for (symbol_map::iterator againstSet = begin(); againstSet != end(); againstSet++) {
                 if (againstSet == checkSet) continue;
                 
-                for (symbol_set::iterator againstRange = againstSet->first.begin(); againstRange != againstSet->first.end(); againstRange++) {
+                for (symbol_set::iterator againstRange = againstSet->first->begin(); againstRange != againstSet->first->end(); againstRange++) {
                     // Must not overlap
                     if (againstRange->overlaps(*checkRange)) return true;
                 }

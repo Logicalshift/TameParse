@@ -12,6 +12,7 @@
 #include <set>
 
 #include "Dfa/range.h"
+#include "Util/container.h"
 
 namespace dfa {
     ///
@@ -133,6 +134,19 @@ namespace dfa {
         inline symbol_set excluding(const symbol_range& toExclude) const { symbol_set result = *this; result.exclude(toExclude); return result; }
         
     public:
+        /// \brief Clones this symbol set
+        inline symbol_set* clone() const { return new symbol_set(*this); }
+        
+        /// \brief Orders two symbol sets
+        inline static bool compare(const symbol_set* a, const symbol_set* b) {
+            if (a == b) return false;
+            if (a == NULL) return true;
+            if (b == NULL) return false;
+            
+            return *a < *b;
+        }
+        
+    public:
         /// \brief True if this is an empty symbol set
         inline bool empty() {
             return m_Symbols.empty();
@@ -159,6 +173,9 @@ namespace dfa {
         /// \brief Orders this symbol set
         inline bool operator>=(const symbol_set& compareTo) const { return !operator<(compareTo); }
     };
+    
+    /// \brief Container for symbol sets
+    typedef util::container<symbol_set> symbol_set_container;
 }
 
 #endif

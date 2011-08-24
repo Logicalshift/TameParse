@@ -160,7 +160,7 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     // Iterate through the sets in the source
     for (symbol_map::iterator symSet = source.begin(); symSet != source.end(); symSet++) {
         // Add this into the sets containing this range
-        add_set(setsContainingRange, symSet->first, symSet->second);
+        add_set(setsContainingRange, *symSet->first, symSet->second);
     }
     
     // Create the result

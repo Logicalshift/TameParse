@@ -21,8 +21,8 @@ namespace dfa {
     class symbol_map {
     private:
         /// \brief Storage type
-        typedef std::vector<const symbol_set*> symbol_set_map;
-        typedef std::map<const symbol_set, int> symbol_id_map;
+        typedef std::vector<symbol_set_container> symbol_set_map;
+        typedef std::map<symbol_set_container, int> symbol_id_map;
         
         /// \brief Maps identifiers to symbols
         symbol_set_map m_SymbolsForId;
@@ -36,6 +36,9 @@ namespace dfa {
         
         /// \brief Constructor
         symbol_map();
+        
+        /// \brief Copy constructor
+        symbol_map(const symbol_map& copyFrom);
         
         /// \brief Destructor
         virtual ~symbol_map();
