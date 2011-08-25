@@ -14,6 +14,7 @@
 #include "Language/block.h"
 #include "Language/language_block.h"
 #include "Language/import_block.h"
+#include "Language/parser_block.h"
 
 namespace language {
     /// \brief Class representing a toplevel block
@@ -25,12 +26,18 @@ namespace language {
         /// \brief NULL if this is not an import block, otherwise the import block represented by this item
         import_block* m_ImportBlock;
         
+        /// \brief NULL if this isn not a parser block, otherwise the parser block represented by this item
+        parser_block* m_ParserBlock;
+        
     public:
         /// \brief Creates a new top level block containing a language block
         toplevel_block(language_block* language);
         
         /// \brief Creates a new top level block containing an import block
         toplevel_block(import_block* import);
+        
+        /// \brief Creates a new top level block containing a parser block
+        toplevel_block(parser_block* parser);
         
         /// \brief Copies an existing toplevel block
         toplevel_block(const toplevel_block& copyFrom);
@@ -46,6 +53,9 @@ namespace language {
         
         /// \brief NULL, or the import block represented by this toplevel block
         inline const import_block* import() const { return m_ImportBlock; }
+        
+        /// \brief NULL, or the parser block represented byt his toplevel block
+        inline const parser_block* parser() const { return m_ParserBlock; }
     };
 }
 

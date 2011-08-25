@@ -288,7 +288,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     (*startSymbolList.get_rule()) << nt.parser_startsymbol;
     ((*result) += L"Parser-Block") << t.parser << t.identifier << t.colon << t.identifier 
                                    << t.opencurly << startSymbolList << t.closecurly;
-    ((*result) += L"Parser-StartSymbol") << nt.nonterminal;
+    ((*result) += L"Parser-StartSymbol") << t.nonterminal;
     
     // Return the new grammar
     return result;
@@ -430,7 +430,14 @@ toplevel_block* bootstrap::get_toplevel(const util::astnode* toplevel) {
         }
     } else if (child->item_identifier() == nt.id_parser_block) {
         // Parser block
-        return NULL;
+        parser_block* parser = get_parser_block(child);
+        if (parser) {
+            // New toplevel block
+            return new toplevel_block(parser);
+        } else {
+            // Failed to create the block
+            return NULL;
+        }
     } else {
         // Note: import blocks aren't actually used by the bootstrap language at the moment
         // Unknown block type
@@ -438,10 +445,36 @@ toplevel_block* bootstrap::get_toplevel(const util::astnode* toplevel) {
     }
 }
 
+parser_block* bootstrap::get_parser_block(const util::astnode* parserBlock) {
+    // Sanity check
+    if (!parserBlock)                                           return NULL;
+    if (parserBlock->item_identifier() != nt.id_parser_block)   return NULL;
+    if (parserBlock->children().size() != 7)                    return NULL;
+    
+    // <Parser-Block> = parser identifier ':' identifier '{' (<Parser-StartSymbol>)+ '}'
+    const astnode* parserKeyword        = (*parserBlock)[0];
+    const astnode* parserIdentifier     = (*parserBlock)[1];
+    const astnode* languageIdentifier   = (*parserBlock)[3];
+    const astnode* startSymbolList      = (*parserBlock)[5];
+    
+    // Fill up the list of start symbols
+    vector<wstring> startSymbols;
+    
+    const astnode* curNode = startSymbolList;
+    while (curNode->children().size() == 2) {
+        startSymbols.push_back((*(*curNode)[1])[0]->lexeme()->content<wchar_t>());
+        curNode = (*curNode)[0];
+    }
+    startSymbols.push_back((*(*curNode)[0])[0]->lexeme()->content<wchar_t>());
+    
+    // Create the result
+    return new parser_block(parserIdentifier->lexeme()->content<wchar_t>(), languageIdentifier->lexeme()->content<wchar_t>(), startSymbols, parserKeyword->lexeme()->pos(), (*parserBlock)[6]->lexeme()->final_pos());
+}
+
 language_block* bootstrap::get_language(const util::astnode* language) {
     // Sanity check
     if (!language)                                              return NULL;
-    if (language->item_identifier() != nt.id_language_block)   return NULL;
+    if (language->item_identifier() != nt.id_language_block)    return NULL;
     
     // <Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
     const astnode* languageKeyword      = (*language)[0];

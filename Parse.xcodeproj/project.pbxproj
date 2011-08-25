@@ -192,6 +192,9 @@
 		4BE2A4AF140198820061D9A2 /* lexer_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE2A4AE140198820061D9A2 /* lexer_compiler.cpp */; };
 		4BE2A4B0140198820061D9A2 /* lexer_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE2A4AE140198820061D9A2 /* lexer_compiler.cpp */; };
 		4BE2A4B31401988D0061D9A2 /* lexer_compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE2A4B21401988D0061D9A2 /* lexer_compiler.h */; };
+		4BE2A4B51406E7200061D9A2 /* parser_block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BE2A4B41406E7200061D9A2 /* parser_block.h */; };
+		4BE2A4B71406E7460061D9A2 /* parser_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE2A4B61406E7460061D9A2 /* parser_block.cpp */; };
+		4BE2A4B81406E7460061D9A2 /* parser_block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BE2A4B61406E7460061D9A2 /* parser_block.cpp */; };
 		4BEDDA7713BBB91E002FBD79 /* guard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BEDDA7513BBB91E002FBD79 /* guard.cpp */; };
 		4BEDDA7813BBB91E002FBD79 /* guard.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BEDDA7613BBB91E002FBD79 /* guard.h */; };
 		4BF31978136D6B3E00C68ACB /* lr_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31976136D6B3E00C68ACB /* lr_item.cpp */; };
@@ -391,6 +394,8 @@
 		4BDD091A13B63A1D00BC01EA /* lr_weaksymbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_weaksymbols.h; sourceTree = "<group>"; };
 		4BE2A4AE140198820061D9A2 /* lexer_compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer_compiler.cpp; sourceTree = "<group>"; };
 		4BE2A4B21401988D0061D9A2 /* lexer_compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_compiler.h; sourceTree = "<group>"; };
+		4BE2A4B41406E7200061D9A2 /* parser_block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_block.h; sourceTree = "<group>"; };
+		4BE2A4B61406E7460061D9A2 /* parser_block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_block.cpp; sourceTree = "<group>"; };
 		4BEDDA7513BBB91E002FBD79 /* guard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = guard.cpp; sourceTree = "<group>"; };
 		4BEDDA7613BBB91E002FBD79 /* guard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = guard.h; sourceTree = "<group>"; };
 		4BF31976136D6B3E00C68ACB /* lr_item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_item.cpp; sourceTree = "<group>"; };
@@ -716,6 +721,8 @@
 				4B020CBB13D3380500F407AD /* language_block.h */,
 				4B020CBE13D3381400F407AD /* import_block.cpp */,
 				4B020CBF13D3381400F407AD /* import_block.h */,
+				4BE2A4B61406E7460061D9A2 /* parser_block.cpp */,
+				4BE2A4B41406E7200061D9A2 /* parser_block.h */,
 				4B020CD213D3392000F407AD /* language_unit.cpp */,
 				4B020CD313D3392000F407AD /* language_unit.h */,
 				4B020CCE13D338F300F407AD /* lexer_block.cpp */,
@@ -807,6 +814,7 @@
 				4BCA82C413F7E2AF001043D0 /* console.h in Headers */,
 				4BCA82C613F7E2AF001043D0 /* std_console.h in Headers */,
 				4BE2A4B31401988D0061D9A2 /* lexer_compiler.h in Headers */,
+				4BE2A4B51406E7200061D9A2 /* parser_block.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -996,6 +1004,7 @@
 				4BD613441401138B00AA560E /* std_console.cpp in Sources */,
 				4BD613461401138B00AA560E /* language_compiler.cpp in Sources */,
 				4BE2A4AF140198820061D9A2 /* lexer_compiler.cpp in Sources */,
+				4BE2A4B71406E7460061D9A2 /* parser_block.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1067,6 +1076,7 @@
 				4BCA82C313F7E2AF001043D0 /* console.cpp in Sources */,
 				4BCA82C513F7E2AF001043D0 /* std_console.cpp in Sources */,
 				4BE2A4B0140198820061D9A2 /* lexer_compiler.cpp in Sources */,
+				4BE2A4B81406E7460061D9A2 /* parser_block.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

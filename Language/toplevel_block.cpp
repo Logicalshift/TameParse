@@ -13,7 +13,8 @@ using namespace language;
 /// \brief Creates a new top level block containing a language block
 toplevel_block::toplevel_block(language_block* language)
 : m_ImportBlock(NULL)
-, m_LanguageBlock(language) {
+, m_LanguageBlock(language)
+, m_ParserBlock(NULL) {
     if (language) {
         set_start_pos(language->start_pos());
         set_end_pos(language->end_pos());
@@ -23,17 +24,26 @@ toplevel_block::toplevel_block(language_block* language)
 /// \brief Creates a new top level block containing an import block
 toplevel_block::toplevel_block(import_block* import) 
 : m_ImportBlock(import)
-, m_LanguageBlock(NULL) {
+, m_LanguageBlock(NULL)
+, m_ParserBlock(NULL) {
     if (import) {
         set_start_pos(import->start_pos());
         set_end_pos(import->end_pos());
     }
 }
 
+/// \brief Creates a new top level block containing a parser block
+toplevel_block::toplevel_block(parser_block* parser)
+: m_ImportBlock(NULL)
+, m_LanguageBlock(NULL)
+, m_ParserBlock(parser) {
+}
+
 /// \brief Copies an existing toplevel block
 toplevel_block::toplevel_block(const toplevel_block& copyFrom)
 : m_ImportBlock(NULL)
-, m_LanguageBlock(NULL) {
+, m_LanguageBlock(NULL)
+, m_ParserBlock(NULL) {
     (*this) = copyFrom;
 }
 
@@ -41,6 +51,7 @@ toplevel_block::toplevel_block(const toplevel_block& copyFrom)
 toplevel_block::~toplevel_block() {
     if (m_ImportBlock)      delete m_ImportBlock;
     if (m_LanguageBlock)    delete m_LanguageBlock;
+    if (m_ParserBlock)      delete m_ParserBlock;
 }
 
 /// \brief Assigns this block
@@ -51,6 +62,7 @@ toplevel_block& toplevel_block::operator=(const toplevel_block& copyFrom) {
     // Self-destruct
     if (m_ImportBlock)      delete m_ImportBlock;
     if (m_LanguageBlock)    delete m_LanguageBlock;
+    if (m_ParserBlock)      delete m_ParserBlock;
     
     // Copy
     set_start_pos(copyFrom.start_pos());
@@ -58,6 +70,7 @@ toplevel_block& toplevel_block::operator=(const toplevel_block& copyFrom) {
     
     if (copyFrom.language())    m_LanguageBlock = new language_block(*copyFrom.language());
     if (copyFrom.import())      m_ImportBlock   = new import_block(*copyFrom.import());
+    if (copyFrom.parser())      m_ParserBlock   = new parser_block(*copyFrom.parser());
     
     // That was tedious
     return *this;
