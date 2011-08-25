@@ -52,6 +52,7 @@ language ParserLanguage {
 		keywords
 		grammar
 		replace
+		parser
 	}
 	
 	/// The grammar itself
@@ -65,6 +66,7 @@ language ParserLanguage {
 		
 		<TopLevel-Block>		= <Language-Block>
 								| <Import-Block>
+								| <Parser-Block>
 		
 		<Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
 		
@@ -135,5 +137,20 @@ language ParserLanguage {
 		<Basic-Terminal>			= identifier
 									| string
 									| character
+									
+		//
+		// The parser declaration block
+		//
+		
+		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)* '}'
+		
+		<Parser-StartSymbol>		= <Nonterminal>
 	}
+}
+
+//
+// The rather unoriginally named parser for this language
+//
+parser Parser : ParserLanguage {
+	<Parser-Language>
 }
