@@ -70,6 +70,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.weak              = add_terminal(languageNdfa, L"weak", L"weak");
     t.ignore            = add_terminal(languageNdfa, L"ignore", L"ignore");
     t.keywords          = add_terminal(languageNdfa, L"keywords", L"keywords");
+    t.parser            = add_terminal(languageNdfa, L"parser", L"parser");
     
     // Single character elements (these are also weak)
 	t.equals            = add_terminal(languageNdfa, L"'='", L"\\=");
@@ -147,26 +148,28 @@ contextfree::grammar* bootstrap::create_grammar() {
     grammar* result = new grammar();
     
     // Generate nonterminals
-    nt.parser_language          = result->get_nonterminal(L"Parser-Language");
-    nt.toplevel_block           = result->get_nonterminal(L"TopLevel-Block");
-    nt.language_block           = result->get_nonterminal(L"Language-Block");
-    nt.language_inherits        = result->get_nonterminal(L"Language-Inherits");
-    nt.language_definition      = result->get_nonterminal(L"Language-Definition");
-    nt.lexer_symbols_definition = result->get_nonterminal(L"Lexer-Symbols-Definition");
-    nt.lexer_definition         = result->get_nonterminal(L"Lexer-Definition");
-    nt.ignore_definition        = result->get_nonterminal(L"Ignore-Definition");
-    nt.keywords_definition      = result->get_nonterminal(L"Keywords-Definition");
-    nt.keyword_definition       = result->get_nonterminal(L"Keyword-Definition");
-    nt.lexeme_definition        = result->get_nonterminal(L"Lexeme-Definition");
-    nt.grammar_definition       = result->get_nonterminal(L"Grammar-Definition");
-    nt.nonterminal_definition   = result->get_nonterminal(L"Nonterminal-Definition");
-    nt.production               = result->get_nonterminal(L"Production");
-    nt.ebnf_item                = result->get_nonterminal(L"Ebnf-Item");
-    nt.simple_ebnf_item         = result->get_nonterminal(L"Simple-Ebnf-Item");
-    nt.guard                    = result->get_nonterminal(L"Guard");
-    nt.nonterminal              = result->get_nonterminal(L"Nonterminal");
-    nt.terminal                 = result->get_nonterminal(L"Terminal");
-    nt.basic_terminal           = result->get_nonterminal(L"Basic-Terminal");
+    nt.parser_language              = result->get_nonterminal(L"Parser-Language");
+    nt.toplevel_block               = result->get_nonterminal(L"TopLevel-Block");
+    nt.language_block               = result->get_nonterminal(L"Language-Block");
+    nt.language_inherits            = result->get_nonterminal(L"Language-Inherits");
+    nt.language_definition          = result->get_nonterminal(L"Language-Definition");
+    nt.lexer_symbols_definition     = result->get_nonterminal(L"Lexer-Symbols-Definition");
+    nt.lexer_definition             = result->get_nonterminal(L"Lexer-Definition");
+    nt.ignore_definition            = result->get_nonterminal(L"Ignore-Definition");
+    nt.keywords_definition          = result->get_nonterminal(L"Keywords-Definition");
+    nt.keyword_definition           = result->get_nonterminal(L"Keyword-Definition");
+    nt.lexeme_definition            = result->get_nonterminal(L"Lexeme-Definition");
+    nt.grammar_definition           = result->get_nonterminal(L"Grammar-Definition");
+    nt.nonterminal_definition       = result->get_nonterminal(L"Nonterminal-Definition");
+    nt.production                   = result->get_nonterminal(L"Production");
+    nt.ebnf_item                    = result->get_nonterminal(L"Ebnf-Item");
+    nt.simple_ebnf_item             = result->get_nonterminal(L"Simple-Ebnf-Item");
+    nt.guard                        = result->get_nonterminal(L"Guard");
+    nt.nonterminal                  = result->get_nonterminal(L"Nonterminal");
+    nt.terminal                     = result->get_nonterminal(L"Terminal");
+    nt.basic_terminal               = result->get_nonterminal(L"Basic-Terminal");
+    nt.parser_block                 = result->get_nonterminal(L"Parser-Block");
+    nt.parser_startsymbol           = result->get_nonterminal(L"Parser-StartSymbol");
 
 	// Store the IDs for these nonterminals
 	nt.id_parser_language         	= nt.parser_language         ->symbol();
@@ -189,6 +192,8 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.id_nonterminal               = nt.nonterminal             ->symbol();
     nt.id_terminal                  = nt.terminal                ->symbol();
     nt.id_basic_terminal            = nt.basic_terminal          ->symbol();
+    nt.id_parser_block              = nt.parser_block            ->symbol();
+    nt.id_parser_startsymbol        = nt.parser_startsymbol      ->symbol();
     
     // Generate productions
     ebnf_repeating_optional listToplevel;
@@ -197,6 +202,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     
     // Top level block (language)
     ((*result) += L"TopLevel-Block") << nt.language_block;
+    ((*result) += L"TopLevel-Block") << nt.parser_block;
     
     // Language block ('language x (: y) { ... }
     ebnf_optional           optionalLanguageInherits;
@@ -275,6 +281,14 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Basic-Terminal") << t.identifier;
     ((*result) += L"Basic-Terminal") << t.string;
     ((*result) += L"Basic-Terminal") << t.character;
+
+    // The parser block
+    ebnf_repeating startSymbolList;
+
+    (*startSymbolList.get_rule()) << nt.parser_startsymbol;
+    ((*result) += L"Parser-Block") << t.parser << t.identifier << t.colon << t.identifier 
+                                   << t.opencurly << startSymbolList << t.closecurly;
+    ((*result) += L"Parser-StartSymbol") << nt.nonterminal;
     
     // Return the new grammar
     return result;
@@ -301,6 +315,7 @@ bootstrap::bootstrap() {
     weaklings.insert(t.ignore);
     weaklings.insert(t.weak);
     weaklings.insert(t.keywords);
+    weaklings.insert(t.parser);
     
     weak.add_symbols(*dfa, weaklings, m_Terminals);
     
@@ -413,6 +428,9 @@ toplevel_block* bootstrap::get_toplevel(const util::astnode* toplevel) {
             // Failed to create the block
             return NULL;
         }
+    } else if (child->item_identifier() == nt.id_parser_block) {
+        // Parser block
+        return NULL;
     } else {
         // Note: import blocks aren't actually used by the bootstrap language at the moment
         // Unknown block type

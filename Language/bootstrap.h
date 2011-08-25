@@ -42,6 +42,7 @@ namespace language {
                 weak,                           // Keyword
                 ignore,                         // Keyword
                 keywords,                       // Keyword
+                parser,                         // Keyword
                 
                 equals,                         // '='
                 question,                       // '?'
@@ -74,6 +75,7 @@ namespace language {
                 id_ignore,
                 id_weak,
                 id_keywords,
+                id_parser,
                 id_equals,
                 id_question,
                 id_plus,
@@ -136,7 +138,9 @@ namespace language {
                 guard,
                 nonterminal,
                 terminal,
-                basic_terminal;
+                basic_terminal,
+                parser_block,
+                parser_startsymbol;
             
             int
                 id_parser_language,
@@ -158,7 +162,9 @@ namespace language {
                 id_guard,
                 id_nonterminal,
                 id_terminal,
-                id_basic_terminal;
+                id_basic_terminal,
+                id_parser_block,
+                id_parser_startsymbol;
         } nt;
         
         /// \brief Dictionary of all of the terminals in this language
