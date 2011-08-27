@@ -38,12 +38,12 @@ namespace compiler {
         /// \brief Performs the actions associated with this compilation stage
         virtual void compile() = 0;
         
+        /// \brief The name of the file which this compilation stage is affecting
+        inline const std::wstring& filename() const { return m_Filename; }
+        
     protected:
         /// \brief The console which this compilation stage will use to send its results
         inline console& cons() const { return *m_Console; }
-        
-        /// \brief The name of the file which this compilation stage is affecting
-        inline const std::wstring& filename() const { return m_Filename; }
     };
 }
 

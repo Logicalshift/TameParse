@@ -13,6 +13,7 @@
 #include "Compiler/std_console.h"
 #include "Compiler/language_compiler.h"
 #include "Compiler/lexer_compiler.h"
+#include "Compiler/lr_parser_compiler.h"
 
 using namespace std;
 using namespace dfa;
@@ -74,6 +75,13 @@ int main (int argc, const char * argv[])
     // Stage 2: compile the lexer
     lexer_compiler lexerStage(consContainer, L"definition.txt", &languageStage);
     lexerStage.compile();
+    
+    // Stage 3: compile the LR parser
+    vector<wstring> startSymbols;
+    startSymbols.push_back(L"<Parser-Language>");
+
+    lr_parser_compiler lrStage(consContainer, L"definition.txt", &languageStage, &lexerStage, startSymbols);
+    lrStage.compile();
     
     // Done
     return cons.exit_code();

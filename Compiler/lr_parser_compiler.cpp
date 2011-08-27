@@ -6,11 +6,16 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <sstream>
 #include "lr_parser_compiler.h"
+#include "Lr/conflict.h"
+#include "Language/formatter.h"
 
 using namespace std;
 using namespace dfa;
+using namespace contextfree;
 using namespace lr;
+using namespace language;
 using namespace compiler;
 
 /// \brief Constructor
@@ -19,8 +24,27 @@ lr_parser_compiler::lr_parser_compiler(console_container& console, const std::ws
 , m_Language(languageCompiler)
 , m_LexerCompiler(lexerCompiler)
 , m_StartSymbols(startSymbols)
+, m_StartPosition(position(-1,-1,-1))
 , m_Parser(NULL) {
-	
+	// Add empty positions for each symbol
+	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+		m_SymbolStartPosition.push_back(position(-1,-1,-1));
+	}
+}
+
+/// \brief Constructure which builds the list of start symbols from a parser block
+lr_parser_compiler::lr_parser_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler, lexer_compiler* lexerCompiler, parser_block* parserBlock) 
+: compilation_stage(console, filename)
+, m_Language(languageCompiler)
+, m_LexerCompiler(lexerCompiler)
+, m_StartPosition(parserBlock->start_pos())
+, m_StartSymbols(parserBlock->start_symbols())
+, m_Parser(NULL) {
+	// Make all the symbols begin in the same place as this block
+	// TODO: actually record where the symbols are specified
+	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+		m_SymbolStartPosition.push_back(m_StartPosition);
+	}	
 }
 
 /// \brief Destructor
@@ -42,46 +66,162 @@ void lr_parser_compiler::compile() {
 
 	// Sanity check (language)
 	if (!m_Language) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE", L"Language compiler stage was not supplied to parser stage", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE", L"Language compiler stage was not supplied to parser stage", m_StartPosition));
 		return;
 	}
 
 	if (!m_Language->ndfa()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_NDFA", L"Language compiler stage has not generated a lexer", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_NDFA", L"Language compiler stage has not generated a lexer", m_StartPosition));
 		return;
 	}
 
 	if (!m_Language->terminals()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_TERMINALS", L"Language compiler stage has not generated a terminal dictionary", position(-1, -1, -1)));		
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_TERMINALS", L"Language compiler stage has not generated a terminal dictionary", m_StartPosition));		
 		return;
 	}
 
 	if (!m_Language->weak_symbols()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_WEAK_SYMBOLS", L"Language compiler stage has not generated a weak symbols action table", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_WEAK_SYMBOLS", L"Language compiler stage has not the set of weak symbols", m_StartPosition));
 		return;
 	}
 
+	if (!m_Language->ignored_symbols()) {
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_IGNORE_SYMBOLS", L"Language compiler stage has not generated the set of ignore symbols", m_StartPosition));
+	}
+
 	if (!m_Language->grammar()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_GRAMMAR", L"Language compiler stage has not generated a grammar", position(-1, -1, -1)));		
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_GRAMMAR", L"Language compiler stage has not generated a grammar", m_StartPosition));		
 		return;
 	}
 
 	// Sanity check (lexer)
 	if (!m_LexerCompiler) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER", L"Lexer compiler stage was not supplied to parser stage", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER", L"Lexer compiler stage was not supplied to parser stage", m_StartPosition));
 		return;
 	}
 
 	if (!m_LexerCompiler->dfa()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER_DFA", L"Lexer compiler stage has not generate a DFA", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER_DFA", L"Lexer compiler stage has not generate a DFA", m_StartPosition));
 		return;
 	}
 
 	if (!m_LexerCompiler->weak_symbols()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER_DFA", L"Lexer compiler stage has not generate a weak symbols rewriter", position(-1, -1, -1)));
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LEXER_DFA", L"Lexer compiler stage has not generate a weak symbols rewriter", m_StartPosition));
 		return;
 	}
 
 	// Create a new parser builder
 	m_Parser = new lalr_builder(*m_Language->grammar(), *m_Language->terminals());
+
+	// Get the nonterminal items corresponding to the start symbols
+	vector<item_container> startItems;
+
+	for (size_t startSymbolId = 0; startSymbolId < m_StartSymbols.size(); startSymbolId++) {
+		// Get the symbol
+		const wstring& startSymbol = m_StartSymbols[startSymbolId];
+
+		// Find the nonterminal item corresponding to this symbol
+		if (!m_Language->grammar()->nonterminal_is_defined(startSymbol)) {
+			// Report an error if this nonterminal is not defined
+			wstringstream msg;
+			msg << L"Start symbol is not defined: " << startSymbol;
+
+			cons().report_error(error(error::sev_error, filename(), L"UNDEFINED_NONTERMINAL", msg.str(), m_SymbolStartPosition[startSymbolId]));
+			continue;
+		}
+
+		// Add to the list of start items
+		startItems.push_back(m_Language->grammar()->get_nonterminal(startSymbol));
+	}
+
+	// Give up if there are no symbols defined
+	if (startItems.empty()) {
+		cons().report_error(error(error::sev_error, filename(), L"NO_START_SYMBOLS", L"No start symbols are defined", m_StartPosition));
+		return;
+	}
+
+	// Add the initial states to the LALR builder
+	m_InitialStates.clear();
+	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); initialItem++) {
+		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
+	}
+
+	// Build the parser
+	cons().verbose_stream() << L"  = Building parser";
+	m_Parser->complete_parser();
+
+	// Get any conflicts that might exist
+	conflict_list conflictList;
+	conflict::find_conflicts(*m_Parser, conflictList);
+
+	// Report the conflicts
+	// TODO: make the way that conflicts are reported (warnings or errors) configurable
+	error::severity shiftReduceSev 	= error::sev_warning;
+	error::severity reduceReduceSev	= error::sev_error;
+
+	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); conflict++) {
+		// We don't understand the conflict type if there are no reduce items
+		if ((*conflict)->first_reduce_item() == (*conflict)->last_reduce_item()) {
+			cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
+			continue;
+		}
+
+		// Test the type of this conflict
+		if ((*conflict)->first_shift_item() != (*conflict)->last_shift_item()) {
+			// Shift/reduce conflict: we report the 'shift' part of the conflict as the first line
+			for (lr0_item_set::const_iterator shiftItem = (*conflict)->first_shift_item(); shiftItem != (*conflict)->last_shift_item(); shiftItem++) {
+				// Start building the message
+				wstringstream 	shiftMessage;
+				error::severity	sev = shiftReduceSev;
+
+				// Add the beginning of the message
+				if (shiftItem == (*conflict)->first_shift_item()) {
+					// Displaying the shift/reduce warning if we're on the first shift item
+					shiftMessage << L"Shift/reduce conflict on";
+					shiftMessage << L" '" << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << L"':";
+				} else {
+					// Displaying additional items
+					shiftMessage << L"or shift to";
+					sev = error::sev_detail;
+				}
+
+				// Add the item being shifted
+				shiftMessage << L" " << formatter::to_string(**shiftItem, *m_Language->grammar(), *m_Language->terminals());
+
+				// Display the warning/error
+				int 		ruleId 	= (*shiftItem)->rule()->identifier(*m_Language->grammar());
+				position 	rulePos	= m_Language->rule_definition_pos(ruleId);
+				cons().report_error(error(sev, m_Language->filename(), L"CONFLICT_SHIFT_REDUCE", shiftMessage.str(), rulePos));
+			}
+		}
+
+		// Display the reductions for this conflict
+		for (conflict::reduce_iterator reduceItem = (*conflict)->first_reduce_item(); reduceItem != (*conflict)->last_reduce_item(); reduceItem++) {
+			// Start building the message
+			wstring         reduceCode      = L"DETAIL_REDUCE";
+			error::severity reductionSev    = error::sev_detail;
+			wstringstream	reduceMessage;
+
+			if (reduceItem == (*conflict)->first_reduce_item() && (*conflict)->first_shift_item() == (*conflict)->last_shift_item()) {
+				// This is a reduce/reduce conflict
+				reductionSev = reduceReduceSev;
+				reduceCode = L"CONFLICT_REDUCE_REDUCE";
+				reduceMessage << L"Reduce/reduce conflict on";
+				reduceMessage << L" '" << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << L"':";
+			} else {
+				// Displaying additional items
+				reduceMessage << L"or reduce to";
+			}
+
+			// Add the item being reduced
+			reduceMessage << L" " << formatter::to_string(*reduceItem->first->rule(), *m_Language->grammar(), *m_Language->terminals());
+			
+			// Display the message for this item
+			int 		ruleId 	= reduceItem->first->rule()->identifier(*m_Language->grammar());
+			position 	rulePos	= m_Language->rule_definition_pos(ruleId);
+			cons().report_error(error(reductionSev, m_Language->filename(), reduceCode, reduceMessage.str(), rulePos));
+
+			// TODO: for reduce/reduce conflicts, display the context in which the reduction can occur
+		}
+	}
 }

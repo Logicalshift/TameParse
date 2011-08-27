@@ -76,6 +76,11 @@ int grammar::id_for_nonterminal(const wstring& name) {
     return found->second;
 }
 
+/// \brief Returns true if a nonterminal is defined with the specified name
+bool grammar::nonterminal_is_defined(const std::wstring& name) {
+    return m_NameToNonterminal.find(name) != m_NameToNonterminal.end();
+}
+
 /// \brief Returns an item container for the nonterminal with the specified name
 item_container grammar::get_nonterminal(const std::wstring& name) {
     return item_container(new nonterminal(id_for_nonterminal(name)), true);

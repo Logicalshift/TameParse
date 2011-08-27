@@ -103,6 +103,9 @@ namespace contextfree {
         
         /// \brief Returns an item container for the nonterminal with the specified name
         item_container get_nonterminal(const std::wstring& name);
+
+        /// \brief Returns true if a nonterminal is defined with the specified name
+        bool nonterminal_is_defined(const std::wstring& name);
         
     public:
         /// \brief Returns an identifier given a rule. Identifiers are numbered from 0.
