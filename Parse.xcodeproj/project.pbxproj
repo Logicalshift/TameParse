@@ -105,6 +105,9 @@
 		4BCA82C413F7E2AF001043D0 /* console.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCA82BE13F7E2AF001043D0 /* console.h */; };
 		4BCA82C513F7E2AF001043D0 /* std_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCA82BF13F7E2AF001043D0 /* std_console.cpp */; };
 		4BCA82C613F7E2AF001043D0 /* std_console.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCA82C013F7E2AF001043D0 /* std_console.h */; };
+		4BCF835C14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCF835A14090D7A003CB7CB /* lr_parser_compiler.cpp */; };
+		4BCF835D14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCF835A14090D7A003CB7CB /* lr_parser_compiler.cpp */; };
+		4BCF835E14090D7A003CB7CB /* lr_parser_compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCF835B14090D7A003CB7CB /* lr_parser_compiler.h */; };
 		4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD41D3E13ED9AF500C86FD2 /* error.cpp */; };
 		4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD41D4113ED9AFF00C86FD2 /* error.h */; };
 		4BD612C1140112B000AA560E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD612C0140112B000AA560E /* main.cpp */; };
@@ -360,6 +363,8 @@
 		4BCA82BE13F7E2AF001043D0 /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		4BCA82BF13F7E2AF001043D0 /* std_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = std_console.cpp; sourceTree = "<group>"; };
 		4BCA82C013F7E2AF001043D0 /* std_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = std_console.h; sourceTree = "<group>"; };
+		4BCF835A14090D7A003CB7CB /* lr_parser_compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_parser_compiler.cpp; sourceTree = "<group>"; };
+		4BCF835B14090D7A003CB7CB /* lr_parser_compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_parser_compiler.h; sourceTree = "<group>"; };
 		4BD41D3E13ED9AF500C86FD2 /* error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error.cpp; sourceTree = "<group>"; };
 		4BD41D4113ED9AFF00C86FD2 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		4BD612BD140112B000AA560E /* bootstrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bootstrap; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -558,6 +563,8 @@
 				4BBC319513E4AEEF0059AC14 /* language_compiler.h */,
 				4BE2A4AE140198820061D9A2 /* lexer_compiler.cpp */,
 				4BE2A4B21401988D0061D9A2 /* lexer_compiler.h */,
+				4BCF835A14090D7A003CB7CB /* lr_parser_compiler.cpp */,
+				4BCF835B14090D7A003CB7CB /* lr_parser_compiler.h */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -815,6 +822,7 @@
 				4BCA82C613F7E2AF001043D0 /* std_console.h in Headers */,
 				4BE2A4B31401988D0061D9A2 /* lexer_compiler.h in Headers */,
 				4BE2A4B51406E7200061D9A2 /* parser_block.h in Headers */,
+				4BCF835E14090D7A003CB7CB /* lr_parser_compiler.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1005,6 +1013,7 @@
 				4BD613461401138B00AA560E /* language_compiler.cpp in Sources */,
 				4BE2A4AF140198820061D9A2 /* lexer_compiler.cpp in Sources */,
 				4BE2A4B71406E7460061D9A2 /* parser_block.cpp in Sources */,
+				4BCF835C14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1077,6 +1086,7 @@
 				4BCA82C513F7E2AF001043D0 /* std_console.cpp in Sources */,
 				4BE2A4B0140198820061D9A2 /* lexer_compiler.cpp in Sources */,
 				4BE2A4B81406E7460061D9A2 /* parser_block.cpp in Sources */,
+				4BCF835D14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

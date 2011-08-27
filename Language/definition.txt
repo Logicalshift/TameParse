@@ -142,7 +142,7 @@ language ParserLanguage {
 		// The parser declaration block
 		//
 		
-		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)* '}'
+		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)+ '}'
 		
 		<Parser-StartSymbol>		= <Nonterminal>
 	}

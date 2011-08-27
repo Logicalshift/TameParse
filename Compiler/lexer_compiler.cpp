@@ -46,9 +46,9 @@ lexer_compiler::~lexer_compiler() {
 /// \brief Compiles the lexer
 void lexer_compiler::compile() {
     // Grab the input
-    ndfa*                   ndfa            = m_Language->ndfa();
+    const ndfa*             ndfa            = m_Language->ndfa();
     terminal_dictionary*    terminals       = m_Language->terminals();
-    set<int>*               weakSymbolIds   = m_Language->weak_symbols();
+    const set<int>*         weakSymbolIds   = m_Language->weak_symbols();
     
     // Sanity check
     if (!ndfa || !terminals || !weakSymbolIds) {
