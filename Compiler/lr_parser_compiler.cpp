@@ -147,7 +147,7 @@ void lr_parser_compiler::compile() {
 	}
 
 	// Build the parser
-	cons().verbose_stream() << L"  = Building parser";
+	cons().verbose_stream() << L"  = Building parser" << endl;
 	m_Parser->complete_parser();
 
 	// Get any conflicts that might exist
@@ -181,7 +181,7 @@ void lr_parser_compiler::compile() {
 					shiftMessage << L" '" << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << L"':";
 				} else {
 					// Displaying additional items
-					shiftMessage << L"or shift to";
+					shiftMessage << L"or shift:";
 					sev = error::sev_detail;
 				}
 
@@ -210,7 +210,7 @@ void lr_parser_compiler::compile() {
 				reduceMessage << L" '" << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << L"':";
 			} else {
 				// Displaying additional items
-				reduceMessage << L"or reduce to";
+				reduceMessage << L"or reduce:";
 			}
 
 			// Add the item being reduced

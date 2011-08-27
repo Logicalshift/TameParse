@@ -147,10 +147,3 @@ language ParserLanguage {
 		<Parser-StartSymbol>		= <Nonterminal>
 	}
 }
-
-//
-// The rather unoriginally named parser for this language
-//
-parser Parser : ParserLanguage {
-	<Parser-Language>
-}

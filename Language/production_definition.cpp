@@ -56,4 +56,17 @@ production_definition& production_definition::operator=(const production_definit
 /// This object will become responsible for destroying the item that is passed in
 void production_definition::add_item(ebnf_item* newItem) {
     m_Items.push_back(newItem);
+    
+    if (start_pos() == end_pos()) {
+        set_start_pos(newItem->start_pos());
+        set_end_pos(newItem->end_pos());
+    }
+    
+    if (newItem->start_pos() < start_pos()) {
+        set_start_pos(newItem->end_pos());
+    }
+    
+    if (newItem->end_pos() > end_pos()) {
+        set_end_pos(newItem->end_pos());
+    }
 }

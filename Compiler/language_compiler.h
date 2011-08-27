@@ -114,7 +114,7 @@ namespace compiler {
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {
             std::map<int, language::block*>::const_iterator found = m_RuleDefinition.find(id);
-            if (found == m_TerminalDefinition.end()) return dfa::position(-1, -1, -1);
+            if (found == m_RuleDefinition.end()) return dfa::position(-1, -1, -1);
             return found->second->start_pos();            
         }
     };
