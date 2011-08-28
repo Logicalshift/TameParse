@@ -535,6 +535,64 @@ const std::set<lalr_builder::lr_item_id>& lalr_builder::spontaneous_for_item(int
 /// the lookahead symbol that generated the conflict, and this will add the items where the lookahead was generated to
 /// the set. This is the set of states that are reached by a reduction on the specified symbol.
 void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_container lookaheadItem, std::set<lr_item_id>& sourceItems) const {
-    // TODO: implement me
-}
+    // TODO: could add caches so we don't have to repeatedly search the entire set of spontaneous and propagated lookaheads
 
+    // Set of visited items (which should not be processed again)
+    set<lr_item_id> visited;
+
+    // Items that need to be processed
+    queue<lr_item_id> toProcess;
+
+    // Begin by processing the initial target state
+    toProcess.push(lr_item_id(state, item));
+
+    // Iterate until there's no more work to do
+    while (!toProcess.empty()) {
+        // Get the next item to process
+        lr_item_id nextItem = toProcess.front();
+        toProcess.pop();
+
+        // Ignore this item if it has already been visited
+        if (visited.find(nextItem) != visited.end()) continue;
+        visited.insert(nextItem);
+
+        // Search through the spontaneous tables for items that generate this lookahead
+        for (propagation::const_iterator spontaneous = m_Spontaneous.begin(); spontaneous != m_Spontaneous.end(); spontaneous++) {
+            // Get the lookahead for this item
+            const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.first)->lookahead_for(spontaneous->first.second);
+            
+            // Ignore items that would not have generated the lookahead symbol
+            if (la.find(lookaheadItem) == la.end()) continue;
+
+            // Search for items that target this one
+            for (set<lr_item_id>::const_iterator target = spontaneous->second.begin(); target != spontaneous->second.end(); target++) {
+                // Ignore items that do not target this one
+                if (*target != nextItem) continue;
+                
+                // This item does target this one: add the source to the set
+                sourceItems.insert(spontaneous->first);
+                break;
+            }
+        }
+
+        // Search through the propagation tables for items that generate this lookahead
+        for (propagation::const_iterator propagate = m_Propagate.begin(); propagate != m_Propagate.end(); propagate++) {
+            // Get the lookahead for this item
+            const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.first)->lookahead_for(propagate->first.second);
+            
+            // Ignore items that would not have generated the lookahead symbol
+            if (la.find(lookaheadItem) == la.end()) continue;
+            
+            // Search for items that target this one
+            for (set<lr_item_id>::const_iterator target = propagate->second.begin(); target != propagate->second.end(); target++) {
+                // Ignore items that do not target this one
+                if (*target != nextItem) continue;
+                
+                // This item does target this one: add the source to the set, and process anything that propagates to here
+                sourceItems.insert(propagate->first);
+                toProcess.push(propagate->first);
+                break;
+            }
+        }
+    }
+}
