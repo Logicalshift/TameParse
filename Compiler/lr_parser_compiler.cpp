@@ -239,7 +239,28 @@ void lr_parser_compiler::compile() {
 			position 	rulePos	= m_Language->rule_definition_pos(ruleId);
 			cons().report_error(error(reductionSev, m_Language->filename(), reduceCode, reduceMessage.str(), rulePos));
 
-			// TODO: for reduce/reduce conflicts, display the context in which the reduction can occur
+			// For reduce/reduce conflicts, display the context in which the reduction can occur
+            for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); possibleState++) {
+                // Generate a detail message for this item
+                const conflict::lr_item_id& itemId = *possibleState;
+                
+                // Get the relevant item
+                const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+                
+                // Work out the rule position for this item
+                if (item->at_end()) continue;
+                if (*item->rule()->items()[item->offset()] != *reduceItem->first->rule()->nonterminal()) continue;
+                
+                int 		reducedRuleId 	= item->rule()->identifier(*m_Language->grammar());
+                position 	reducedRulePos	= m_Language->rule_definition_pos(reducedRuleId);
+                
+                // Generate a message
+                wstringstream detailMessage;
+                detailMessage << L"  in: " << formatter::to_string(*item, *m_Language->grammar(), *m_Language->terminals());
+                
+                // Write it out
+                cons().report_error(error(error::sev_detail, m_Language->filename(), L"DETAIL_REDUCE_IN", detailMessage.str(), reducedRulePos));
+            }
 		}
 	}
 }
