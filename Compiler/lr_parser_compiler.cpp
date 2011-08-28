@@ -240,27 +240,48 @@ void lr_parser_compiler::compile() {
 			cons().report_error(error(reductionSev, m_Language->filename(), reduceCode, reduceMessage.str(), rulePos));
 
 			// For reduce/reduce conflicts, display the context in which the reduction can occur
-            for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); possibleState++) {
-                // Generate a detail message for this item
-                const conflict::lr_item_id& itemId = *possibleState;
-                
-                // Get the relevant item
-                const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
-                
-                // Work out the rule position for this item
-                if (item->at_end()) continue;
-                if (*item->rule()->items()[item->offset()] != *reduceItem->first->rule()->nonterminal()) continue;
-                
-                int 		reducedRuleId 	= item->rule()->identifier(*m_Language->grammar());
-                position 	reducedRulePos	= m_Language->rule_definition_pos(reducedRuleId);
-                
-                // Generate a message
-                wstringstream detailMessage;
-                detailMessage << L"  in: " << formatter::to_string(*item, *m_Language->grammar(), *m_Language->terminals());
-                
-                // Write it out
-                cons().report_error(error(error::sev_detail, m_Language->filename(), L"DETAIL_REDUCE_IN", detailMessage.str(), reducedRulePos));
-            }
+            set<item_container> displayedNonterminals;
+            report_reduce_conflict(reduceItem, reduceItem->first->rule()->nonterminal(), displayedNonterminals, 0);
 		}
 	}
+}
+
+/// \brief Reports errors for a particular reduce conflict (the 'in' and 'to' messages)
+void lr_parser_compiler::report_reduce_conflict(lr::conflict::reduce_iterator& reduceItem, item_container nonterminal, set<item_container>& displayedNonterminals, int level) {
+    // Only display the set for a given target nonterminal once
+    if (displayedNonterminals.find(nonterminal) != displayedNonterminals.end()) {
+        return;
+    }
+
+    // Mark this nonterminal as being displayed (so we won't iterate over it)
+    displayedNonterminals.insert(nonterminal);
+    
+    // For reduce/reduce conflicts, display the context in which the reduction can occur
+    for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); possibleState++) {
+        // Generate a detail message for this item
+        const conflict::lr_item_id& itemId = *possibleState;
+        
+        // Get the relevant item
+        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+
+        // Ignore this item if it's not on the correct nonterminal
+        if (item->at_end()) continue;
+        if (*item->rule()->items()[item->offset()] != *nonterminal) continue;
+
+        // Work out the rule position for this item
+        int 		reducedRuleId 	= item->rule()->identifier(*m_Language->grammar());
+        position 	reducedRulePos	= m_Language->rule_definition_pos(reducedRuleId);
+        
+        // Generate a message
+        wstringstream detailMessage;
+        detailMessage << wstring((level+1)*2, L' ');
+        detailMessage << (level==0?L"in: ":L"to: ");
+        detailMessage << formatter::to_string(*item, *m_Language->grammar(), *m_Language->terminals());
+        
+        // Write it out
+        cons().report_error(error(error::sev_detail, m_Language->filename(), L"DETAIL_REDUCE_IN", detailMessage.str(), reducedRulePos));
+        
+        // Display the set for the nonterminals for this rule
+        report_reduce_conflict(reduceItem, item->rule()->nonterminal(), displayedNonterminals, level+1);
+    }
 }

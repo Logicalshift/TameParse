@@ -18,6 +18,7 @@
 #include "Dfa/position.h"
 #include "Language/parser_block.h"
 #include "Lr/lalr_builder.h"
+#include "Lr/conflict.h"
 
 namespace compiler {
 	///
@@ -59,6 +60,10 @@ namespace compiler {
 
 		/// \brief Compiles the parser specified by the parameters to this stage
 		void compile();
+
+	private:
+		/// \brief Reports errors for a particular reduce conflict (the 'in' and 'to' messages)
+		void report_reduce_conflict(lr::conflict::reduce_iterator& reduceItem, contextfree::item_container nonterminal, std::set<contextfree::item_container>& displayedNonterminals, int level);
 	};
 }
 
