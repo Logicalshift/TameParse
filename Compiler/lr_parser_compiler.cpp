@@ -198,7 +198,7 @@ void lr_parser_compiler::compile() {
 					shiftMessage << L" '" << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << L"':";
 				} else {
 					// Displaying additional items
-					shiftMessage << L"or shift:";
+					shiftMessage << L"  in:";
 					sev = error::sev_detail;
 				}
 
