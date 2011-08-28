@@ -9,6 +9,7 @@
 #include <sstream>
 #include "lr_parser_compiler.h"
 #include "Lr/conflict.h"
+#include "Lr/ignored_symbols.h"
 #include "Language/formatter.h"
 
 using namespace std;
@@ -58,6 +59,9 @@ lr_parser_compiler::~lr_parser_compiler() {
 
 /// \brief Compiles the parser specified by the parameters to this stage
 void lr_parser_compiler::compile() {
+    // Verbose message to say which stage we're at
+	cons().verbose_stream() << L"  = Building parser" << endl;
+
 	// Recycle the parser generator if it already exists
 	if (m_Parser) {
 		delete m_Parser;
@@ -139,15 +143,26 @@ void lr_parser_compiler::compile() {
 		cons().report_error(error(error::sev_error, filename(), L"NO_START_SYMBOLS", L"No start symbols are defined", m_StartPosition));
 		return;
 	}
+    
+    // Generate the ignore actions
+    ignored_symbols* ignored = new ignored_symbols();
+    action_rewriter_container ignoreContainer(ignored, true);
+    
+    for (set<int>::iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
+        ignored->add_item(terminal(*ignoredTerminalId));
+    }
 
 	// Add the initial states to the LALR builder
 	m_InitialStates.clear();
 	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); initialItem++) {
 		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
 	}
+    
+    // Add the weak symbols and ignore items actions
+    m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
+    m_Parser->add_rewriter(ignoreContainer);
 
 	// Build the parser
-	cons().verbose_stream() << L"  = Building parser" << endl;
 	m_Parser->complete_parser();
 
 	// Get any conflicts that might exist
@@ -174,7 +189,7 @@ void lr_parser_compiler::compile() {
 				wstringstream 	shiftMessage;
 				error::severity	sev = shiftReduceSev;
 
-				// Add the beginning of the message
+				// Message is different if this is the initial message for this conflict vs a detail message
 				if (shiftItem == (*conflict)->first_shift_item()) {
 					// Displaying the shift/reduce warning if we're on the first shift item
 					shiftMessage << L"Shift/reduce conflict on";
@@ -202,6 +217,7 @@ void lr_parser_compiler::compile() {
 			error::severity reductionSev    = error::sev_detail;
 			wstringstream	reduceMessage;
 
+            // This is a reduce/reduce conflict if this is the first conflict in the list (ie, no other shift or reduce items)
 			if (reduceItem == (*conflict)->first_reduce_item() && (*conflict)->first_shift_item() == (*conflict)->last_shift_item()) {
 				// This is a reduce/reduce conflict
 				reductionSev = reduceReduceSev;
