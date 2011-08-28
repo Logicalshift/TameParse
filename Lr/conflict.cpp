@@ -148,21 +148,61 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                 }
             }
         }
-        
-        // Iterate through the closure to find the items that can be reduced as part of this conflict
-        for (lr1_item_set::const_iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
-            if ((*nextItem)->at_end()) {
-                // This item will result in a reduction, depending on its lookahead
-                const lr1_item::lookahead_set& la = (*nextItem)->lookahead();
 
-                if (la.find(conflictToken) != la.end()) {
-                    // The conflicted token is in the lookahead: add this to the conflict list
-                    conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(**nextItem);
-                    
-                    // TODO: fill in the set of items that this can reduce to
-                    // TODO: if the reduction is not in a kernel item (which probably means that we've got an empty production), then we need to be able to trace these as well. Should be possible as we know which kernel items are passed in to generate_closure.
+        // Iterate through the items in the state to look for the reduce actions
+        for (int itemId = 0; itemId < thisState.count_items(); itemId++) {
+            // Get the item that this refers to
+            const lalr_state::container& thisItem = thisState[itemId];
+
+            // Get the lookahead for this item
+            const lr1_item::lookahead_set& la = *thisState.lookahead_for(thisItem);
+
+            // If this state isn't a reducing state, then compute the closure to see if it produces any reducing states on the conflicted nonterminal
+            if (!thisItem->at_end()) {
+                // Fetch the rule for this item
+                const rule& rule    = *thisItem->rule();
+                int         offset  = thisItem->offset();
+
+                // Generate the closure for this item
+                lr1_item        nextItem(thisItem, la);
+                lr1_item_set    itemClosure;
+
+                rule.items()[offset]->closure(nextItem, itemClosure, *gram);
+
+                // For any items in the closure that are at the end and have a reduce action, generate some reduce information
+                for (lr1_item_set::iterator closureItem = itemClosure.begin(); closureItem != itemClosure.end(); closureItem++) {
+                    // Ignore items that are not at the end of the closure
+                    if (!(*closureItem)->at_end()) continue;
+
+                    // Ignore items that do not contain the closure item in their lookahead
+                    if ((*closureItem)->lookahead().find(conflictToken) == (*closureItem)->lookahead().end()) continue;
+
+                    // This item is part of the conflict: add a new reduce item
+                    conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(**closureItem);
+
+                    // Add a reduction action for this (for this nonterminal, we just end up in the same state)
+                    reduceTo.insert(conflict::lr_item_id(stateId, itemId));
                 }
+
+                // TODO: if the symbols following the current state can be reduced to the empty symbol then we need to indicate where the rest of the lookahead comes from
+                continue;
             }
+
+            // This is a reducing state
+
+            // This isn't part of the conflict if it isn't being reduced based on the 
+            if (la.find(conflictToken) == la.end()) continue;
+
+            // Add a conflict for this item
+            conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(thisItem);
+
+            // Work out which states can be reached by looking at the spontaneous and lookahead propagation
+            typedef set<conflict::lr_item_id>  lr_item_id_set;
+            lr_item_id_set sourceItems;
+            builder.find_lookahead_source(stateId, itemId, conflictToken, sourceItems);
+
+            // Add to the reduce set
+            reduceTo.insert(sourceItems.begin(), sourceItems.end());
         }
         
         // Add the new conflict to the list

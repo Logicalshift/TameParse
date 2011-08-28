@@ -46,14 +46,11 @@ namespace lr {
     ///
     class conflict {
     public:
-        /// \brief Description of a state where a reduction of a conflicted token can end up.
-        ///
-        /// First item is the nonterminal that is being reduced. Second item is the state ID that is reached by
-        /// the reduction.
-        typedef std::pair<contextfree::item_container, int> reduce_state;
+        /// \brief Pair indicating the state and item ID of a particular LR item
+        typedef lalr_builder::lr_item_id lr_item_id;
         
-        /// \brief Set of possible states that can be reached by a reduction
-        typedef std::set<reduce_state> possible_reduce_states;
+        /// \brief Set of possible states and items that can be reached by a reduction
+        typedef std::set<lr_item_id> possible_reduce_states;
         
         /// \brief Maps LR(0) items that can be reduced by a particular 
         typedef std::map<lr0_item_container, possible_reduce_states> reduce_conflicts;

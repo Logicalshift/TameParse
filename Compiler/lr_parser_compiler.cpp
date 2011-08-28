@@ -159,6 +159,8 @@ void lr_parser_compiler::compile() {
 	}
     
     // Add the weak symbols and ignore items actions
+    // TODO: it might be good to have a way to supply extra rewriters from other stages instead of just having them
+    // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
     m_Parser->add_rewriter(ignoreContainer);
 

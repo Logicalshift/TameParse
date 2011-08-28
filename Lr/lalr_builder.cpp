@@ -522,3 +522,19 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
 const std::set<lalr_builder::lr_item_id>& lalr_builder::propagations_for_item(int state, int item) const {
     return m_Propagate[lr_item_id(state, item)];
 }
+
+/// \brief Returns the items that the item in the specified state generates spontaneous lookaheads for
+const std::set<lalr_builder::lr_item_id>& lalr_builder::spontaneous_for_item(int state, int item) const {
+    return m_Spontaneous[lr_item_id(state, item)];
+}
+
+/// \brief Finds the set of items that were used in the generation of the lookahead for the specified item
+///
+/// This is used to help with resolving reduction conflicts: if you know where a particular terminal symbol comes from,
+/// it is possible to see why a conflict exists. Pass in the state and item ID that the lookahead was generated for, and
+/// the lookahead symbol that generated the conflict, and this will add the items where the lookahead was generated to
+/// the set. This is the set of states that are reached by a reduction on the specified symbol.
+void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_container lookaheadItem, std::set<lr_item_id>& sourceItems) const {
+    // TODO: implement me
+}
+
