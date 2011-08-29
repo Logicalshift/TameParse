@@ -377,7 +377,7 @@
 		4BD612C2140112B000AA560E /* bootstrap.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = bootstrap.1; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* TameParseLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = TameParseLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
-		4BD7FDFE132D05D600025433 /* TameParseLibProj.xcconfig */ = {isa = PBXFileReference; path = TameParseLibProj.xcconfig; sourceTree = "<group>"; };
+		4BD7FDFE132D05D600025433 /* TameParseLibProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TameParseLibProj.xcconfig; sourceTree = "<group>"; };
 		4BD7FDFF132D05D600025433 /* TameParseLibTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TameParseLibTarget.xcconfig; sourceTree = "<group>"; };
 		4BD7FE00132D05D600025433 /* TameParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
 		4BD7FE02132D05D600025433 /* TameParsePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TameParsePriv.h; sourceTree = "<group>"; };
@@ -553,9 +553,17 @@
 			name = Language;
 			sourceTree = "<group>";
 		};
+		4B8A0100140BE5F300187196 /* OutputStages */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = OutputStages;
+			sourceTree = "<group>";
+		};
 		4BBC319213E4AE6D0059AC14 /* Compiler */ = {
 			isa = PBXGroup;
 			children = (
+				4B8A0100140BE5F300187196 /* OutputStages */,
 				4BD41D3E13ED9AF500C86FD2 /* error.cpp */,
 				4BD41D4113ED9AFF00C86FD2 /* error.h */,
 				4BCA82BB13F7E2AF001043D0 /* compilation_stage.cpp */,
