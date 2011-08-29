@@ -99,6 +99,9 @@
 		4BB6615D13DB273400CDED59 /* process.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB6615B13DB273400CDED59 /* process.h */; };
 		4BBC319613E4AEEF0059AC14 /* language_compiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BBC319413E4AEEF0059AC14 /* language_compiler.cpp */; };
 		4BBC319713E4AEEF0059AC14 /* language_compiler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BBC319513E4AEEF0059AC14 /* language_compiler.h */; };
+		4BC47968140BD34100C2F189 /* output_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BC47966140BD34100C2F189 /* output_stage.cpp */; };
+		4BC47969140BD34100C2F189 /* output_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BC47966140BD34100C2F189 /* output_stage.cpp */; };
+		4BC4796A140BD34100C2F189 /* output_stage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BC47967140BD34100C2F189 /* output_stage.h */; };
 		4BCA82C113F7E2AF001043D0 /* compilation_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCA82BB13F7E2AF001043D0 /* compilation_stage.cpp */; };
 		4BCA82C213F7E2AF001043D0 /* compilation_stage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCA82BC13F7E2AF001043D0 /* compilation_stage.h */; };
 		4BCA82C313F7E2AF001043D0 /* console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCA82BD13F7E2AF001043D0 /* console.cpp */; };
@@ -357,6 +360,8 @@
 		4BB6615B13DB273400CDED59 /* process.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
 		4BBC319413E4AEEF0059AC14 /* language_compiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_compiler.cpp; sourceTree = "<group>"; };
 		4BBC319513E4AEEF0059AC14 /* language_compiler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_compiler.h; sourceTree = "<group>"; };
+		4BC47966140BD34100C2F189 /* output_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = output_stage.cpp; sourceTree = "<group>"; };
+		4BC47967140BD34100C2F189 /* output_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = output_stage.h; sourceTree = "<group>"; };
 		4BCA82BB13F7E2AF001043D0 /* compilation_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = compilation_stage.cpp; sourceTree = "<group>"; };
 		4BCA82BC13F7E2AF001043D0 /* compilation_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compilation_stage.h; sourceTree = "<group>"; };
 		4BCA82BD13F7E2AF001043D0 /* console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console.cpp; sourceTree = "<group>"; };
@@ -565,6 +570,8 @@
 				4BE2A4B21401988D0061D9A2 /* lexer_compiler.h */,
 				4BCF835A14090D7A003CB7CB /* lr_parser_compiler.cpp */,
 				4BCF835B14090D7A003CB7CB /* lr_parser_compiler.h */,
+				4BC47966140BD34100C2F189 /* output_stage.cpp */,
+				4BC47967140BD34100C2F189 /* output_stage.h */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -823,6 +830,7 @@
 				4BE2A4B31401988D0061D9A2 /* lexer_compiler.h in Headers */,
 				4BE2A4B51406E7200061D9A2 /* parser_block.h in Headers */,
 				4BCF835E14090D7A003CB7CB /* lr_parser_compiler.h in Headers */,
+				4BC4796A140BD34100C2F189 /* output_stage.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1014,6 +1022,7 @@
 				4BE2A4AF140198820061D9A2 /* lexer_compiler.cpp in Sources */,
 				4BE2A4B71406E7460061D9A2 /* parser_block.cpp in Sources */,
 				4BCF835C14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */,
+				4BC47968140BD34100C2F189 /* output_stage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1087,6 +1096,7 @@
 				4BE2A4B0140198820061D9A2 /* lexer_compiler.cpp in Sources */,
 				4BE2A4B81406E7460061D9A2 /* parser_block.cpp in Sources */,
 				4BCF835D14090D7A003CB7CB /* lr_parser_compiler.cpp in Sources */,
+				4BC47969140BD34100C2F189 /* output_stage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
