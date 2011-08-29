@@ -491,6 +491,9 @@ namespace lr {
             session* newSession = new session(actions);
             return new state(m_ParserTables, initialState, newSession);
         }
+        
+        /// \brief Retrieves the tables for this parser
+        inline const parser_tables& get_tables() const { return m_ParserTables; }
     };
     
     ///

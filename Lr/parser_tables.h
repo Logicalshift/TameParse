@@ -127,6 +127,9 @@ namespace lr {
         /// \brief Destructor
         virtual ~parser_tables();
         
+        /// \brief Calculates the size in bytes of these parser tables
+        virtual size_t size() const;
+        
     private:
         /// \brief Compares a symbol to an action
         inline static bool compare_symbols(const action& a, int symbol) {
@@ -189,6 +192,17 @@ namespace lr {
             
             // Nothing was found
             return weakTerminal;
+        }
+
+    public:
+        /// \brief Returns the total number of action items for the specified state
+        inline int count_actions_for_state(int stateId) const {
+            return m_Counts[stateId].m_NumTerms + m_Counts[stateId].m_NumNonterms;
+        }
+
+        /// \brief Returns the number of states in these tables
+        inline int count_states() const { 
+            return m_NumStates;
         }
     };
 }

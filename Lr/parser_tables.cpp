@@ -287,3 +287,23 @@ parser_tables::~parser_tables() {
     delete[] m_EndGuardStates;
     if (m_WeakToStrong) delete[] m_WeakToStrong;
 }
+
+/// \brief Calculates the size in bytes of these parser tables
+size_t parser_tables::size() const {
+    // Start with the size of this class
+    size_t total = sizeof(parser_tables);
+    
+    // Add in the size of the various arrays
+    total += 2 * sizeof(action*) * m_NumStates;                 // Size of the nonterminal and terminal action arrays
+    total += sizeof(action_count) * m_NumStates;                // m_Counts
+    total += sizeof(reduce_rule) * m_NumRules;                  // m_Rules
+    
+    // Add up the size of the various rule arrays
+    for (int stateId = 0; stateId < m_NumStates; stateId++) {
+        total += sizeof(action) * m_Counts[stateId].m_NumTerms;
+        total += sizeof(action) * m_Counts[stateId].m_NumNonterms;
+    }
+    
+    // This is the result
+    return total;
+}

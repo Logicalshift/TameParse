@@ -11,6 +11,7 @@
 #include "Lr/conflict.h"
 #include "Lr/ignored_symbols.h"
 #include "Language/formatter.h"
+#include "Lr/ast_parser.h"
 
 using namespace std;
 using namespace dfa;
@@ -26,7 +27,8 @@ lr_parser_compiler::lr_parser_compiler(console_container& console, const std::ws
 , m_LexerCompiler(lexerCompiler)
 , m_StartSymbols(startSymbols)
 , m_StartPosition(position(-1,-1,-1))
-, m_Parser(NULL) {
+, m_Parser(NULL)
+, m_Tables(NULL) {
 	// Add empty positions for each symbol
 	for (size_t x=0; x<m_StartSymbols.size(); x++) {
 		m_SymbolStartPosition.push_back(position(-1,-1,-1));
@@ -40,7 +42,8 @@ lr_parser_compiler::lr_parser_compiler(console_container& console, const std::ws
 , m_LexerCompiler(lexerCompiler)
 , m_StartPosition(parserBlock->start_pos())
 , m_StartSymbols(parserBlock->start_symbols())
-, m_Parser(NULL) {
+, m_Parser(NULL)
+, m_Tables(NULL) {
 	// Make all the symbols begin in the same place as this block
 	// TODO: actually record where the symbols are specified
 	for (size_t x=0; x<m_StartSymbols.size(); x++) {
@@ -55,6 +58,11 @@ lr_parser_compiler::~lr_parser_compiler() {
 		delete m_Parser;
 		m_Parser = NULL;
 	}
+    
+    if (m_Tables) {
+        delete m_Tables;
+        m_Tables = NULL;
+    }
 }
 
 /// \brief Compiles the parser specified by the parameters to this stage
@@ -67,6 +75,11 @@ void lr_parser_compiler::compile() {
 		delete m_Parser;
 		m_Parser = NULL;
 	}
+    
+    if (m_Tables) {
+        delete m_Tables;
+        m_Tables = NULL;
+    }
 
 	// Sanity check (language)
 	if (!m_Language) {
@@ -244,6 +257,20 @@ void lr_parser_compiler::compile() {
             report_reduce_conflict(reduceItem, reduceItem->first->rule()->nonterminal(), displayedNonterminals, 0);
 		}
 	}
+    
+    // Build an actual AST parser so we can display some stats
+    m_Tables = new parser_tables(*m_Parser, m_LexerCompiler->weak_symbols());
+    
+    // Display some stats
+    int totalActions = 0;
+    for (int stateId = 0; stateId < m_Tables->count_states(); stateId++) {
+        totalActions += m_Tables->count_actions_for_state(stateId);
+    }
+    
+    cons().verbose_stream() << L"    Number of states in the parser:         " << m_Parser->count_states() << endl;
+    cons().verbose_stream() << L"    Total number of parse actions:          " << totalActions << endl;
+    cons().verbose_stream() << L"    Average number of actions per state:    " << totalActions / m_Tables->count_states() << endl;
+    cons().verbose_stream() << L"    Approximate size of final parse tables: " << m_Tables->size()/1024 << L" kilobytes" << endl;
 }
 
 /// \brief Reports errors for a particular reduce conflict (the 'in' and 'to' messages)

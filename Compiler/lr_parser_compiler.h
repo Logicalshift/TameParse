@@ -19,6 +19,7 @@
 #include "Language/parser_block.h"
 #include "Lr/lalr_builder.h"
 #include "Lr/conflict.h"
+#include "Lr/ast_parser.h"
 
 namespace compiler {
 	///
@@ -47,6 +48,9 @@ namespace compiler {
         
 		/// \brief The LALR builder that contains the resulting parser
 		lr::lalr_builder* m_Parser;
+        
+        /// \brief The parser tables for the final parser
+        lr::parser_tables* m_Tables;
 
 	public:
 		/// \brief Constructor, without using a parser block
@@ -64,6 +68,13 @@ namespace compiler {
 	private:
 		/// \brief Reports errors for a particular reduce conflict (the 'in' and 'to' messages)
 		void report_reduce_conflict(lr::conflict::reduce_iterator& reduceItem, contextfree::item_container nonterminal, std::set<contextfree::item_container>& displayedNonterminals, int level);
+        
+    public:
+        /// \brief Returns the parser built by this stage
+        inline lr::lalr_builder* get_parser() { return m_Parser; }
+        
+        /// \brief Returns the parse tables built by this stage
+        inline lr::parser_tables* get_tables() { return m_Tables; }
 	};
 }
 
