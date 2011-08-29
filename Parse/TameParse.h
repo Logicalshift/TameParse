@@ -13,11 +13,5 @@
 /* The classes below are exported */
 #pragma GCC visibility push(default)
 
-class Parse
-{
-	public:
-		void HelloWorld(const char *);
-};
-
 #pragma GCC visibility pop
 #endif

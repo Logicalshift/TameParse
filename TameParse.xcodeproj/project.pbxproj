@@ -177,8 +177,8 @@
 		4BD613421401138B00AA560E /* console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCA82BD13F7E2AF001043D0 /* console.cpp */; };
 		4BD613441401138B00AA560E /* std_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCA82BF13F7E2AF001043D0 /* std_console.cpp */; };
 		4BD613461401138B00AA560E /* language_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BBC319413E4AEEF0059AC14 /* language_stage.cpp */; };
-		4BD7FE01132D05D600025433 /* Parse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* Parse.h */; };
-		4BD7FE04132D05D700025433 /* Parse.cp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* Parse.cp */; };
+		4BD7FE01132D05D600025433 /* TameParse.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE00132D05D600025433 /* TameParse.h */; };
+		4BD7FE04132D05D700025433 /* TameParse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE03132D05D600025433 /* TameParse.cpp */; };
 		4BD7FE15132D08AA00025433 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE13132D08AA00025433 /* state.cpp */; };
 		4BD7FE16132D08AA00025433 /* state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE14132D08AA00025433 /* state.h */; };
 		4BD7FE19132D098A00025433 /* transition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE17132D098900025433 /* transition.cpp */; };
@@ -188,7 +188,7 @@
 		4BD7FE29132D0ED600025433 /* range.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE27132D0ED500025433 /* range.cpp */; };
 		4BD7FE2A132D0ED600025433 /* range.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD7FE28132D0ED500025433 /* range.h */; };
 		4BD7FE34132D4F1F00025433 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE33132D4F1F00025433 /* main.cpp */; };
-		4BD7FE39132D4F8200025433 /* Parse.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* Parse.dylib */; };
+		4BD7FE39132D4F8200025433 /* TameParseLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */; };
 		4BD7FE3C132D526C00025433 /* test_fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3A132D526C00025433 /* test_fixture.cpp */; };
 		4BD7FE3F132D53AF00025433 /* dfa_range.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3D132D53AF00025433 /* dfa_range.cpp */; };
 		4BD7FE43132D5ABE00025433 /* dfa_symbol_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */; };
@@ -375,13 +375,13 @@
 		4BD612BD140112B000AA560E /* bootstrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bootstrap; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD612C0140112B000AA560E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4BD612C2140112B000AA560E /* bootstrap.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = bootstrap.1; sourceTree = "<group>"; };
-		4BD7FDF9132D05D600025433 /* Parse.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Parse.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BD7FDF9132D05D600025433 /* TameParseLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = TameParseLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
-		4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseProj.xcconfig; sourceTree = "<group>"; };
-		4BD7FDFF132D05D600025433 /* ParseTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ParseTarget.xcconfig; sourceTree = "<group>"; };
-		4BD7FE00132D05D600025433 /* Parse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Parse.h; sourceTree = "<group>"; };
-		4BD7FE02132D05D600025433 /* ParsePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParsePriv.h; sourceTree = "<group>"; };
-		4BD7FE03132D05D600025433 /* Parse.cp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Parse.cp; sourceTree = "<group>"; };
+		4BD7FDFE132D05D600025433 /* TameParseLibProj.xcconfig */ = {isa = PBXFileReference; path = TameParseLibProj.xcconfig; sourceTree = "<group>"; };
+		4BD7FDFF132D05D600025433 /* TameParseLibTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TameParseLibTarget.xcconfig; sourceTree = "<group>"; };
+		4BD7FE00132D05D600025433 /* TameParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
+		4BD7FE02132D05D600025433 /* TameParsePriv.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TameParsePriv.h; sourceTree = "<group>"; };
+		4BD7FE03132D05D600025433 /* TameParse.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TameParse.cpp; sourceTree = "<group>"; };
 		4BD7FE13132D08AA00025433 /* state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = state.cpp; sourceTree = "<group>"; };
 		4BD7FE14132D08AA00025433 /* state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
 		4BD7FE17132D098900025433 /* transition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = transition.cpp; sourceTree = "<group>"; };
@@ -456,7 +456,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BD7FE39132D4F8200025433 /* Parse.dylib in Frameworks */,
+				4BD7FE39132D4F8200025433 /* TameParseLib.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -595,7 +595,7 @@
 				4B1A91F4136C1FF00018E595 /* Lr */,
 				4BFD4A731388384A00D6657D /* Language */,
 				4BBC319213E4AE6D0059AC14 /* Compiler */,
-				4BD7FDFB132D05D600025433 /* Parse */,
+				4BD7FDFB132D05D600025433 /* TameParseLib */,
 				4BD7FE32132D4F1F00025433 /* Test */,
 				4BD612BF140112B000AA560E /* bootstrap */,
 				4BD7FDFA132D05D600025433 /* Products */,
@@ -611,15 +611,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4BD7FDFB132D05D600025433 /* Parse */ = {
+		4BD7FDFB132D05D600025433 /* TameParseLib */ = {
 			isa = PBXGroup;
 			children = (
-				4BD7FDFE132D05D600025433 /* ParseProj.xcconfig */,
-				4BD7FDFF132D05D600025433 /* ParseTarget.xcconfig */,
-				4BD7FE00132D05D600025433 /* Parse.h */,
-				4BD7FE02132D05D600025433 /* ParsePriv.h */,
-				4BD7FE03132D05D600025433 /* Parse.cp */,
+				4BD7FDFE132D05D600025433 /* TameParseLibProj.xcconfig */,
+				4BD7FDFF132D05D600025433 /* TameParseLibTarget.xcconfig */,
+				4BD7FE00132D05D600025433 /* TameParse.h */,
+				4BD7FE02132D05D600025433 /* TameParsePriv.h */,
+				4BD7FE03132D05D600025433 /* TameParse.cpp */,
 			);
+			name = TameParseLib;
 			path = Parse;
 			sourceTree = "<group>";
 		};
@@ -670,7 +671,7 @@
 			isa = PBXGroup;
 			children = (
 				4BD7FE33132D4F1F00025433 /* main.cpp */,
-				4BD7FDF9132D05D600025433 /* Parse.dylib */,
+				4BD7FDF9132D05D600025433 /* TameParseLib.dylib */,
 				4BD7FE3A132D526C00025433 /* test_fixture.cpp */,
 				4BD7FE3B132D526C00025433 /* test_fixture.h */,
 				4BD7FE40132D547E00025433 /* Dfa */,
@@ -762,7 +763,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BD7FE01132D05D600025433 /* Parse.h in Headers */,
+				4BD7FE01132D05D600025433 /* TameParse.h in Headers */,
 				4BD7FE16132D08AA00025433 /* state.h in Headers */,
 				4BD7FE1A132D098A00025433 /* transition.h in Headers */,
 				4BD7FE26132D0E4B00025433 /* symbol_set.h in Headers */,
@@ -855,9 +856,9 @@
 			productReference = 4BD612BD140112B000AA560E /* bootstrap */;
 			productType = "com.apple.product-type.tool";
 		};
-		4BD7FDF8132D05D600025433 /* Parse */ = {
+		4BD7FDF8132D05D600025433 /* TameParseLib */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "Parse" */;
+			buildConfigurationList = 4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "TameParseLib" */;
 			buildPhases = (
 				4BF84F9A13B8DA7500B899B6 /* Run Script */,
 				4BD7FDF5132D05D600025433 /* Sources */,
@@ -869,9 +870,9 @@
 			dependencies = (
 				4BD612C9140112BF00AA560E /* PBXTargetDependency */,
 			);
-			name = Parse;
+			name = TameParseLib;
 			productName = Parse;
-			productReference = 4BD7FDF9132D05D600025433 /* Parse.dylib */;
+			productReference = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		4BD7FE2F132D4F1E00025433 /* Test */ = {
@@ -896,7 +897,7 @@
 /* Begin PBXProject section */
 		4BD7FDF0132D05D600025433 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "Parse" */;
+			buildConfigurationList = 4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "TameParse" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -909,7 +910,7 @@
 			projectRoot = "";
 			targets = (
 				4BD612BC140112B000AA560E /* bootstrap */,
-				4BD7FDF8132D05D600025433 /* Parse */,
+				4BD7FDF8132D05D600025433 /* TameParseLib */,
 				4BD7FE2F132D4F1E00025433 /* Test */,
 			);
 		};
@@ -1030,7 +1031,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BD7FE04132D05D700025433 /* Parse.cp in Sources */,
+				4BD7FE04132D05D700025433 /* TameParse.cpp in Sources */,
 				4BD7FE15132D08AA00025433 /* state.cpp in Sources */,
 				4BD7FE19132D098A00025433 /* transition.cpp in Sources */,
 				4BD7FE25132D0E4B00025433 /* symbol_set.cpp in Sources */,
@@ -1262,7 +1263,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "Parse" */ = {
+		4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "TameParse" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BD7FE05132D05D700025433 /* Debug */,
@@ -1271,7 +1272,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "Parse" */ = {
+		4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "TameParseLib" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4BD7FE08132D05D700025433 /* Debug */,

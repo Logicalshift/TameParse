@@ -21,10 +21,9 @@ using namespace lr;
 using namespace language;
 using namespace compiler;
 
-int main (int argc, const char * argv[])
-{
-    wcout << L"Parser bootstrapper" << endl;
-    wcout << L"===================" << endl << endl;
+int main (int argc, const char * argv[]) {
+    wcout << L"TameParse bootstrapper" << endl;
+    wcout << L"======================" << endl << endl;
     
     // Create the console object
     // We do the parsing stages manually so there's not much actual use for a filename
