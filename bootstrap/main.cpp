@@ -6,6 +6,7 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <unistd.h>
 #include <sstream>
 
 #include "Language/bootstrap.h"
@@ -14,6 +15,7 @@
 #include "Compiler/language_stage.h"
 #include "Compiler/lexer_stage.h"
 #include "Compiler/lr_parser_stage.h"
+#include "Compiler/OutputStages/cplusplus.h"
 
 using namespace std;
 using namespace dfa;
@@ -22,6 +24,9 @@ using namespace language;
 using namespace compiler;
 
 int main (int argc, const char * argv[]) {
+    char buf[512];
+    getcwd(buf, 512);
+    cout << buf << endl;
     wcout << L"TameParse bootstrapper" << endl;
     wcout << L"======================" << endl << endl;
     
@@ -81,6 +86,11 @@ int main (int argc, const char * argv[]) {
 
     lr_parser_stage lrStage(consContainer, L"definition.txt", &languageStage, &lexerStage, startSymbols);
     lrStage.compile();
+    
+    // Stage 4: build as a C++ parser
+    output_cplusplus cPlusPlus(consContainer, L"definition.txt", &lexerStage, &languageStage, &lrStage, L"tameparse_language", L"tameparse_language", L""); 
+    
+    cPlusPlus.compile();
     
     // Done
     return cons.exit_code();
