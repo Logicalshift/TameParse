@@ -1,5 +1,5 @@
 //
-//  language_compiler.cpp
+//  language_stage.cpp
 //  Parse
 //
 //  Created by Andrew Hunter on 30/07/2011.
@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "Compiler/language_compiler.h"
+#include "Compiler/language_stage.h"
 #include "Language/process.h"
 
 using namespace std;
@@ -77,18 +77,18 @@ namespace compiler {
 }
 
 /// \brief Creates a compiler that will compile the specified language block
-language_compiler::language_compiler(console_container& console, const std::wstring& filename, const language::language_block* block)
+language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block)
 : compilation_stage(console, filename)
 , m_Language(block) {
 }
 
 /// \brief Destructor
-language_compiler::~language_compiler() {
+language_stage::~language_stage() {
     
 }
 
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
-void language_compiler::compile() {
+void language_stage::compile() {
     // Write out a verbose message
     cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar" << endl;
     
@@ -324,7 +324,7 @@ void language_compiler::compile() {
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
-int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
+int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     int count = 0;
     
     switch (item->get_type()) {
@@ -411,7 +411,7 @@ int language_compiler::add_ebnf_lexer_items(language::ebnf_item* item) {
 ///
 /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
 /// to be missing from the terminal dictionary.
-void language_compiler::compile_item(rule& rule, ebnf_item* item) {
+void language_stage::compile_item(rule& rule, ebnf_item* item) {
     switch (item->get_type()) {
         case ebnf_item::ebnf_terminal:
         case ebnf_item::ebnf_terminal_character:

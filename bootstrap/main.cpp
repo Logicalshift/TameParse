@@ -11,9 +11,9 @@
 #include "Language/bootstrap.h"
 #include "Compiler/console.h"
 #include "Compiler/std_console.h"
-#include "Compiler/language_compiler.h"
-#include "Compiler/lexer_compiler.h"
-#include "Compiler/lr_parser_compiler.h"
+#include "Compiler/language_stage.h"
+#include "Compiler/lexer_stage.h"
+#include "Compiler/lr_parser_stage.h"
 
 using namespace std;
 using namespace dfa;
@@ -69,18 +69,18 @@ int main (int argc, const char * argv[])
     }
     
     // Stage 1: interpret the language and generate the NDFA and grammar
-    language_compiler languageStage(consContainer, L"definition.txt", lBlock);
+    language_stage languageStage(consContainer, L"definition.txt", lBlock);
     languageStage.compile();
     
     // Stage 2: compile the lexer
-    lexer_compiler lexerStage(consContainer, L"definition.txt", &languageStage);
+    lexer_stage lexerStage(consContainer, L"definition.txt", &languageStage);
     lexerStage.compile();
     
     // Stage 3: compile the LR parser
     vector<wstring> startSymbols;
     startSymbols.push_back(L"<Parser-Language>");
 
-    lr_parser_compiler lrStage(consContainer, L"definition.txt", &languageStage, &lexerStage, startSymbols);
+    lr_parser_stage lrStage(consContainer, L"definition.txt", &languageStage, &lexerStage, startSymbols);
     lrStage.compile();
     
     // Done

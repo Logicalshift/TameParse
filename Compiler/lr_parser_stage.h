@@ -1,19 +1,19 @@
 //
-//  lr_parser_compiler.h
+//  lr_parser_stage.h
 //  Parse
 //
 //  Created by Andrew Hunter on 27/08/2011.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _COMPILER_LR_PARSER_COMPILER_H
-#define _COMPILER_LR_PARSER_COMPILER_H
+#ifndef _COMPILER_LR_PARSER_STAGE_H
+#define _COMPILER_LR_PARSER_STAGE_H
 
 #include <string>
 
 #include "Compiler/compilation_stage.h"
-#include "Compiler/language_compiler.h"
-#include "Compiler/lexer_compiler.h"
+#include "Compiler/language_stage.h"
+#include "Compiler/lexer_stage.h"
 
 #include "Dfa/position.h"
 #include "Language/parser_block.h"
@@ -25,13 +25,13 @@ namespace compiler {
 	///
 	/// \brief Compilation stage that takes the results of compiling a grammar and a lexer and produces a LR parser
 	///
-	class lr_parser_compiler : public compilation_stage {
+	class lr_parser_stage : public compilation_stage {
 	private:
 		/// \brief The language compiler stage
-		language_compiler* m_Language;
+		language_stage* m_Language;
 
 		/// \brief The lexer compiler stage
-		lexer_compiler* m_LexerCompiler;
+		lexer_stage* m_LexerCompiler;
 
 		/// \brief The names of the nonterminals that are the start symbols for this language
 		std::vector<std::wstring> m_StartSymbols;
@@ -54,13 +54,13 @@ namespace compiler {
 
 	public:
 		/// \brief Constructor, without using a parser block
-		lr_parser_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler, lexer_compiler* lexerCompiler, const std::vector<std::wstring>& startSymbols);
+		lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, const std::vector<std::wstring>& startSymbols);
 
 		/// \brief Constructure which builds the list of start symbols from a parser block
-		lr_parser_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler, lexer_compiler* lexerCompiler, language::parser_block* parserBlock);
+		lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, language::parser_block* parserBlock);
 
 		/// \brief Destructor
-		~lr_parser_compiler();
+		~lr_parser_stage();
 
 		/// \brief Compiles the parser specified by the parameters to this stage
 		void compile();

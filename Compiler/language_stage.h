@@ -1,13 +1,13 @@
 //
-//  compiler.h
+//  language_stage.h
 //  Parse
 //
 //  Created by Andrew Hunter on 30/07/2011.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#ifndef _COMPILER_LANGUAGE_COMPILER_H
-#define _COMPILER_LANGUAGE_COMPILER_H
+#ifndef _COMPILER_LANGUAGE_STAGE_H
+#define _COMPILER_LANGUAGE_STAGE_H
 
 #include <set>
 
@@ -25,7 +25,7 @@ namespace compiler {
     /// This class handles the steps necessary to compile a language block with no inheritance into a grammar and a lexer.
     /// These can in turn be used to build a finished parser.
     ///
-    class language_compiler : public compilation_stage {
+    class language_stage : public compilation_stage {
     private:
         /// \brief The language block that this will compile
         const language::language_block* m_Language;
@@ -62,10 +62,10 @@ namespace compiler {
         
     public:
         /// \brief Creates a compiler that will compile the specified language block
-        language_compiler(console_container& console, const std::wstring& filename, const language::language_block* block);
+        language_stage(console_container& console, const std::wstring& filename, const language::language_block* block);
         
         /// \brief Destructor
-        virtual ~language_compiler();
+        virtual ~language_stage();
         
         /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
         void compile();

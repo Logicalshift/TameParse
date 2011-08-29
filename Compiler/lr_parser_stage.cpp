@@ -1,5 +1,5 @@
 //
-//  lr_parser_compiler.cpp
+//  lr_parser_stage.cpp
 //  Parse
 //
 //  Created by Andrew Hunter on 27/08/2011.
@@ -7,7 +7,7 @@
 //
 
 #include <sstream>
-#include "lr_parser_compiler.h"
+#include "lr_parser_stage.h"
 #include "Lr/conflict.h"
 #include "Lr/ignored_symbols.h"
 #include "Language/formatter.h"
@@ -21,7 +21,7 @@ using namespace language;
 using namespace compiler;
 
 /// \brief Constructor
-lr_parser_compiler::lr_parser_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler, lexer_compiler* lexerCompiler, const vector<wstring>& startSymbols)
+lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, const vector<wstring>& startSymbols)
 : compilation_stage(console, filename)
 , m_Language(languageCompiler)
 , m_LexerCompiler(lexerCompiler)
@@ -36,7 +36,7 @@ lr_parser_compiler::lr_parser_compiler(console_container& console, const std::ws
 }
 
 /// \brief Constructure which builds the list of start symbols from a parser block
-lr_parser_compiler::lr_parser_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler, lexer_compiler* lexerCompiler, parser_block* parserBlock) 
+lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, parser_block* parserBlock) 
 : compilation_stage(console, filename)
 , m_Language(languageCompiler)
 , m_LexerCompiler(lexerCompiler)
@@ -52,7 +52,7 @@ lr_parser_compiler::lr_parser_compiler(console_container& console, const std::ws
 }
 
 /// \brief Destructor
-lr_parser_compiler::~lr_parser_compiler() {
+lr_parser_stage::~lr_parser_stage() {
 	// Finished with the parser
 	if (m_Parser) {
 		delete m_Parser;
@@ -66,7 +66,7 @@ lr_parser_compiler::~lr_parser_compiler() {
 }
 
 /// \brief Compiles the parser specified by the parameters to this stage
-void lr_parser_compiler::compile() {
+void lr_parser_stage::compile() {
     // Verbose message to say which stage we're at
 	cons().verbose_stream() << L"  = Building parser" << endl;
 
@@ -274,7 +274,7 @@ void lr_parser_compiler::compile() {
 }
 
 /// \brief Reports errors for a particular reduce conflict (the 'in' and 'to' messages)
-void lr_parser_compiler::report_reduce_conflict(lr::conflict::reduce_iterator& reduceItem, item_container nonterminal, set<item_container>& displayedNonterminals, int level) {
+void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& reduceItem, item_container nonterminal, set<item_container>& displayedNonterminals, int level) {
     // Only display the set for a given target nonterminal once
     if (displayedNonterminals.find(nonterminal) != displayedNonterminals.end()) {
         return;

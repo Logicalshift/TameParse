@@ -10,8 +10,8 @@
 #define _COMPILER_OUTPUT_STAGE_H
 
 #include "Compiler/compilation_stage.h"
-#include "Compiler/language_compiler.h"
-#include "Compiler/lexer_compiler.h"
+#include "Compiler/language_stage.h"
+#include "Compiler/lexer_stage.h"
 
 namespace compiler {
 	///
@@ -22,7 +22,7 @@ namespace compiler {
 		
 	public:
 		/// \brief Creates a new output stage
-		output_stage(console_container& console, const std::wstring& filename, lexer_compiler* lexer, language_compiler* language);
+		output_stage(console_container& console, const std::wstring& filename, lexer_stage* lexer, language_stage* language);
 
 		/// \brief Destructor
 		virtual ~output_stage();
@@ -33,7 +33,7 @@ namespace compiler {
 		/// compiler is generated.
 		void compile();
 
-	public:
+	protected:
 	};
 }
 

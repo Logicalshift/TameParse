@@ -1,17 +1,17 @@
 //
-//  lexer_compiler.cpp
+//  lexer_stage.cpp
 //  Parse
 //
 //  Created by Andrew Hunter on 21/08/2011.
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-// TODO: it'd be nice to have a way of designing this so it's not dependent on the language_compiler stage
+// TODO: it'd be nice to have a way of designing this so it's not dependent on the language_stage stage
 //       (we don't do this at the moment to keep things reasonably simple, there's a lot of dependencies that means that DI
 //       wouldn't really fix the problem, and would just create a new 'giant constructor of doom' problem)
 
 #include <sstream>
-#include "Compiler/lexer_compiler.h"
+#include "Compiler/lexer_stage.h"
 
 using namespace std;
 using namespace dfa;
@@ -24,7 +24,7 @@ using namespace compiler;
 /// The compiler will not 'own' the objects passed in to this constructor; however, they must have a lifespan
 /// that is at least as long as the compiler itself (it's safe to call the destructor but no other call if they
 /// have been destroyed)
-lexer_compiler::lexer_compiler(console_container& console, const std::wstring& filename, language_compiler* languageCompiler)
+lexer_stage::lexer_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler)
 : compilation_stage(console, filename)
 , m_Language(languageCompiler)
 , m_Dfa(NULL)
@@ -32,7 +32,7 @@ lexer_compiler::lexer_compiler(console_container& console, const std::wstring& f
 }
 
 /// \brief Destroys the lexer compiler
-lexer_compiler::~lexer_compiler() {
+lexer_stage::~lexer_stage() {
     // Destroy the DFA if it exists
     if (m_Dfa) {
         delete m_Dfa;
@@ -44,7 +44,7 @@ lexer_compiler::~lexer_compiler() {
 }
 
 /// \brief Compiles the lexer
-void lexer_compiler::compile() {
+void lexer_stage::compile() {
     // Grab the input
     const ndfa*             ndfa            = m_Language->ndfa();
     terminal_dictionary*    terminals       = m_Language->terminals();
