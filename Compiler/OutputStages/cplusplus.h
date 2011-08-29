@@ -11,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <map>
 
 #include "Compiler/output_stage.h"
 
@@ -34,6 +35,12 @@ namespace compiler {
 
 		/// \brief The header file
 		std::ostream* m_HeaderFile;
+        
+        /// \brief Number of times a terminal symbol with a particular name has been used
+        std::map<std::string, int> m_TerminalSymbolCount;
+        
+        /// \brief Number of times a nonterminal symbol with a particular name has been used
+        std::map<std::string, int> m_NonterminalSymbolCount;
 
 	public:
 		/// \brief Creates a new output stage

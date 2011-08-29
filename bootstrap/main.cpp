@@ -88,7 +88,7 @@ int main (int argc, const char * argv[]) {
     lrStage.compile();
     
     // Stage 4: build as a C++ parser
-    output_cplusplus cPlusPlus(consContainer, L"definition.txt", &lexerStage, &languageStage, &lrStage, L"tameparse_language", L"tameparse_language", L""); 
+    output_cplusplus cPlusPlus(consContainer, L"definition.txt", &lexerStage, &languageStage, &lrStage, L"tameparse_language", L"tameparse_language", L"language"); 
     
     cPlusPlus.compile();
     
