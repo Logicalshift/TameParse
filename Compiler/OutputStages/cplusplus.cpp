@@ -381,20 +381,31 @@ void output_cplusplus::end_lexer_state_machine() {
 
 /// \brief About to write out the list of accepting states for a lexer
 void output_cplusplus::begin_lexer_accept_table() {
-	// TODO: implement me
+	// Start the accepting action tables
+	(*m_SourceFile) << "\nstatic const int s_AcceptingStates[] = {\n        ";
 }
 
 /// \brief The specified state is not an accepting state
 void output_cplusplus::nonaccepting_state(int stateId) {
-	// TODO: implement me
+	if (stateId > 0) {
+		(*m_SourceFile) << ", ";
+	}
+
+	// Non-accepting states get -1 as the action
+	(*m_SourceFile) << "-1";
 }
 
 /// \brief The specified state is an accepting state
 void output_cplusplus::accepting_state(int stateId, int acceptSymbolId) {
-	// TODO: implement me
+	if (stateId > 0) {
+		(*m_SourceFile) << ", ";
+	}
+
+	// Write out the action for this state
+	(*m_SourceFile) << acceptSymbolId;
 }
 
 /// \brief Finished the lexer acceptance table
 void output_cplusplus::end_lexer_accept_table() {
-	// TODO: implement me
+	(*m_SourceFile) << "\n    };\n";
 }
