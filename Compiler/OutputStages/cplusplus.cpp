@@ -298,8 +298,8 @@ void output_cplusplus::end_lexer_symbol_map() {
 	// Write it out
 	for (size_t tablePos = 0; tablePos < size; tablePos++) {
 		// Add newlines
-		if ((tablePos % 20) == 0) {
-			(*m_SourceFile) << "\n    ";
+		if ((tablePos % 10) == 0) {
+			(*m_SourceFile) << "\n        ";
 		}
 
 		// Write out this entry
@@ -314,6 +314,9 @@ void output_cplusplus::end_lexer_symbol_map() {
 
 	// Finished the table
 	(*m_SourceFile) << "\n    };\n";
+    
+    // Add the symbol table class
+    (*m_SourceFile) << "\nstatic const dfa::hard_coded_symbol_table<wchar_t> s_SymbolMap(s_SymbolMapTable);\n";
 }
 
 /// \brief About to begin writing out the lexer tables
