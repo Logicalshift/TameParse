@@ -52,7 +52,7 @@ namespace dfa {
         
         /// \brief Returns the ID of the symbol set of the specified symbol
         inline int set_for_symbol(symbol_type symbol) const {
-            return m_Table.Lookup(symbol);
+            return m_Table.lookup(symbol);
         }
         
         // \brief Returns the number of bytes required by the table

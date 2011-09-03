@@ -148,6 +148,8 @@ namespace dfa {
             return sizeof(*this) + sizeof(entry) * m_NumEntries;
         }
     };
+
+    // TODO: document the requirements for the row type class and the symbol_translator class
     
     ///
     /// \brief Class that represents a deterministic finite automaton (DFA)

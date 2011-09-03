@@ -15,7 +15,17 @@ namespace dfa {
     ///
     /// \brief Structure representing a level of symbols stored in this translator
     ///
-    template<class T, unsigned int mask, int shift> struct symbol_level {
+    /// A symbol level provides an action for a set of bits in a given character.
+    /// A suitable class needs to provide a lookup method that will map a given symbol
+    /// to the set it belongs to. This particular implementation looks up the action
+    /// for the set of bits represented by (symbol & mask) >> shift and then passes
+    /// the symbol on to the next type. It also provides methods for populating the
+    /// table, so it is suitable for use with dynamically generated DFAs.
+    ///
+    /// This implementation also specifies a default symbol, so it can short-circuit
+    /// cases where an entire block of items are mapped to the same symbol.
+    ///
+    template<typename next_level, unsigned int mask, int shift> struct symbol_level {
         /// \brief Default symbol to use at this level for items that are null
         int DefaultSymbol;
         
@@ -23,23 +33,25 @@ namespace dfa {
         static const int c_MaxIndex = (mask>>shift)+1;
         
         /// \brief null, or the symbols at this level
-        T** Symbols;
+        next_level** Symbols;
         
+        /// \brief Creates an empty symbol level
         symbol_level() {
             DefaultSymbol   = symbol_set::null;
             Symbols         = NULL;
         }
         
+        /// \brief Creates a copy of an existing symbol level
         symbol_level(const symbol_level& copyFrom) {
             DefaultSymbol   = copyFrom.DefaultSymbol;
             Symbols         = NULL;
             
             if (copyFrom.Symbols) {
-                Symbols = new T*[c_MaxIndex];
+                Symbols = new next_level*[c_MaxIndex];
                 
                 for (int x=0; x<c_MaxIndex; x++) {
                     if (copyFrom.Symbols[x]) {
-                        Symbols[x] = new T(*copyFrom.Symbols[x]);
+                        Symbols[x] = new next_level(*copyFrom.Symbols[x]);
                     } else {
                         Symbols[x] = NULL;
                     }
@@ -47,6 +59,7 @@ namespace dfa {
             }
         }
         
+        /// \brief Destructor
         ~symbol_level() {
             if (Symbols) {
                 for (int x=0; x<c_MaxIndex; x++) {
@@ -60,7 +73,7 @@ namespace dfa {
         inline void create(int index) {
             if (Symbols[index]) return;
             
-            Symbols[index]      = new T();
+            Symbols[index]      = new next_level();
         }
         
         /// \brief Sets all the symbols in the specified range to the specified symbol. The range must overlap this item.
@@ -86,7 +99,7 @@ namespace dfa {
             
             // Create the symbol set if needed
             if (!Symbols) {
-                Symbols = new T*[c_MaxIndex];
+                Symbols = new next_level*[c_MaxIndex];
                 for (int index=0; index < c_MaxIndex; index++) {
                     Symbols[index] = NULL;
                 }
@@ -95,7 +108,7 @@ namespace dfa {
             // Otherwise, create new entries (if needed) and add the range there as well
             for (int index = startIndex; index <= endIndex; index++) {
                 // Create a new entry if needed
-                if (!Symbols[index]) Symbols[index] = new T();
+                if (!Symbols[index]) Symbols[index] = new next_level();
                 
                 // Add the range there (with an updated base value)
                 Symbols[index]->add_range(base + (index << shift), range, symbol);
@@ -103,19 +116,19 @@ namespace dfa {
         }
         
         /// \brief Looks up a value in this table
-        inline int Lookup(int val) const {
+        inline int lookup(int val) const {
             if (!Symbols) return DefaultSymbol;
-            const T* next = Symbols[(val&mask)>>shift];
+            const next_level* next = Symbols[(val&mask)>>shift];
             if (!next) return DefaultSymbol;
             
-            return next->Lookup(val);
+            return next->lookup(val);
         }
         
         /// \brief The size of this item in bytes (used when computing the required size in memory of a particular lexer)
         inline size_t size() const {
-            size_t mySize = sizeof(symbol_level<T, mask, shift>);
+            size_t mySize = sizeof(symbol_level<next_level, mask, shift>);
             if (Symbols) {
-                mySize += sizeof(T*[c_MaxIndex]);
+                mySize += sizeof(next_level*[c_MaxIndex]);
                 for (int index=0; index<c_MaxIndex; index++) {
                     if (Symbols[index]) mySize += Symbols[index]->size();
                 }
@@ -125,10 +138,15 @@ namespace dfa {
         
     private:
         /// \brief Disabled assignment
-        symbol_level<T, mask, shift>& operator=(const symbol_level<T, mask, shift>& assignFrom);
+        symbol_level<next_level, mask, shift>& operator=(const symbol_level<next_level, mask, shift>& assignFrom);
     };
     
+    ///
     /// \brief Structure representing a level of symbols stored in this translator
+    ///
+    /// This specialization represents a 'base' symbol table, which maps items
+    /// represented as (symbol & mask) >> shift to symbol sets.
+    ///
     template<unsigned int mask, int shift> struct symbol_level<int, mask, shift> {
         /// \brief Number of entries at this level in the table
         static const int c_MaxIndex = (mask>>shift)+1;
@@ -178,7 +196,7 @@ namespace dfa {
         }
         
         /// \brief Looks up a value in this table
-        inline int Lookup(int val) const {
+        inline int lookup(int val) const {
             if (!Symbols) return DefaultSymbol;
             return Symbols[(val&mask)>>shift];
         }
@@ -216,12 +234,11 @@ namespace dfa {
     ///
     /// \brief Default format of a symbol table
     ///
-    /// (Single level, can handle 255 symbols of a generic type)
     template<class symbol_type, class table_type = symbol_level_for<symbol_type> > struct symbol_table {
         table_type Table;
         
-        inline int Lookup(symbol_type val) const {
-            return Table.Lookup(val);
+        inline int lookup(symbol_type val) const {
+            return Table.lookup(val);
         }
         
         inline void add_range(const range<int>& range, int symbol) {
