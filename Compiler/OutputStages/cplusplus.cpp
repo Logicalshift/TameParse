@@ -267,11 +267,11 @@ void output_cplusplus::end_nonterminal_symbols() {
 /// \brief Starting to write out the symbol map for the lexer
 void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
 	// Write out the number of symbol sets
-	(*m_HeaderFile) << L"\npublic:\n";
-	(*m_HeaderFile) << L"    static const int number_of_symbol_sets = " << maxSetId << L";\n";
+	(*m_HeaderFile) << "\npublic:\n";
+	(*m_HeaderFile) << "    static const int number_of_symbol_sets = " << maxSetId << ";\n";
 
 	// Include the hard-coded symbol table in the source file
-	(*m_SourceFile) << L"\n#include \"Dfa/hard_coded_symbol_table.h\"\n";
+	(*m_SourceFile) << "\n#include \"Dfa/hard_coded_symbol_table.h\"\n";
 
 	// Begin building the symbol levels object
 	if (m_SymbolLevels) {
@@ -289,7 +289,7 @@ void output_cplusplus::symbol_map(const dfa::range<int>& symbolRange, int identi
 /// \brief Finishing writing out the symbol map for the lexer
 void output_cplusplus::end_lexer_symbol_map() {
 	// Begin writing out the symbol map table
-	(*m_SourceFile) << L"\nstatic const int s_SymbolMapTable = {";
+	(*m_SourceFile) << "\nstatic const int s_SymbolMapTable = {";
 
 	// Convert to a hard-coded table
 	size_t	size;
@@ -299,13 +299,13 @@ void output_cplusplus::end_lexer_symbol_map() {
 	for (size_t tablePos = 0; tablePos < size; tablePos++) {
 		// Add newlines
 		if ((tablePos % 20) == 0) {
-			(*m_SourceFile) << L"\n    ";
+			(*m_SourceFile) << "\n    ";
 		}
 
 		// Write out this entry
-		(*m_SourceFile) << L"0x" << hex << hcst[tablePos] << dec;
+		(*m_SourceFile) << dec << hcst[tablePos];
 		if (tablePos+1 < size) {
-			(*m_SourceFile) << L", ";
+			(*m_SourceFile) << ", ";
 		}
 	}
 
@@ -313,7 +313,7 @@ void output_cplusplus::end_lexer_symbol_map() {
 	delete[] hcst;
 
 	// Finished the table
-	(*m_SourceFile) << L"\n    };\n";
+	(*m_SourceFile) << "\n    };\n";
 }
 
 /// \brief About to begin writing out the lexer tables

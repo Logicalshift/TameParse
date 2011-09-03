@@ -142,6 +142,7 @@ namespace dfa {
         inline int* to_hard_coded_table(size_t& size) {
             // If no symbols are defined at this level, then generate an empty table
             if (!Symbols) {
+                size = 2;
                 int* result = new int[2];
                 result[0] = DefaultSymbol;
                 result[1] = 0;
@@ -202,6 +203,9 @@ namespace dfa {
 
                 // Copy the table into the result
                 memcpy(newTable + copyPos, subTables[subtableId], sizeof(int) * tableSizes[subtableId]);
+
+                // Move on
+                copyPos += tableSizes[subtableId];
 
                 // No longer need this table
                 delete[] subTables[subtableId];
@@ -291,6 +295,7 @@ namespace dfa {
         inline int* to_hard_coded_table(size_t& size) {
             // If no symbols are defined at this level, then generate an empty table
             if (!Symbols) {
+                size = 2;
                 int* result = new int[2];
                 result[0] = DefaultSymbol;
                 result[1] = 0;
