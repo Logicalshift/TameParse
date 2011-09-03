@@ -96,6 +96,8 @@
 		4B8A0104140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0106140BED2100187196 /* cplusplus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B8A0103140BED2100187196 /* cplusplus.h */; };
+		4B9804041412789D00B5F857 /* tameparse_language.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B9804021412789D00B5F857 /* tameparse_language.cpp */; };
+		4B9804051412789D00B5F857 /* tameparse_language.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B9804031412789D00B5F857 /* tameparse_language.h */; };
 		4BB6615713DB16F500CDED59 /* block.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB6615613DB16F500CDED59 /* block.cpp */; };
 		4BB6615913DB170800CDED59 /* block.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB6615813DB170800CDED59 /* block.h */; };
 		4BB6615C13DB273400CDED59 /* process.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB6615A13DB273400CDED59 /* process.cpp */; };
@@ -362,6 +364,9 @@
 		4B7F0C641393F2680012C085 /* formatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = formatter.h; sourceTree = "<group>"; };
 		4B8A0102140BED2100187196 /* cplusplus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cplusplus.cpp; sourceTree = "<group>"; };
 		4B8A0103140BED2100187196 /* cplusplus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cplusplus.h; sourceTree = "<group>"; };
+		4B9803FF1412778300B5F857 /* bootstrap_language.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = bootstrap_language.sh; sourceTree = "<group>"; };
+		4B9804021412789D00B5F857 /* tameparse_language.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tameparse_language.cpp; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B9804031412789D00B5F857 /* tameparse_language.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tameparse_language.h; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BB6615613DB16F500CDED59 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
 		4BB6615813DB170800CDED59 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = block.h; sourceTree = "<group>"; };
 		4BB6615A13DB273400CDED59 /* process.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = process.cpp; sourceTree = "<group>"; };
@@ -740,8 +745,11 @@
 			isa = PBXGroup;
 			children = (
 				4BF84F9C13B8DA9600B899B6 /* build_defn.sh */,
+				4B9803FF1412778300B5F857 /* bootstrap_language.sh */,
 				4BFD4A741388384A00D6657D /* definition.txt */,
 				4BF84F9D13B8DDB700B899B6 /* definition_txt.h */,
+				4B9804021412789D00B5F857 /* tameparse_language.cpp */,
+				4B9804031412789D00B5F857 /* tameparse_language.h */,
 				4BFD4A7613883A5000D6657D /* bootstrap.cpp */,
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
@@ -856,6 +864,7 @@
 				4BC4796A140BD34100C2F189 /* output_stage.h in Headers */,
 				4B8A0106140BED2100187196 /* cplusplus.h in Headers */,
 				4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */,
+				4B9804051412789D00B5F857 /* tameparse_language.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -885,6 +894,7 @@
 			buildConfigurationList = 4BD7FE07132D05D700025433 /* Build configuration list for PBXNativeTarget "TameParseLib" */;
 			buildPhases = (
 				4BF84F9A13B8DA7500B899B6 /* Run Script */,
+				4B980401141277CC00B5F857 /* ShellScript */,
 				4BD7FDF5132D05D600025433 /* Sources */,
 				4BD7FDF6132D05D600025433 /* Frameworks */,
 				4BD7FDF7132D05D600025433 /* Headers */,
@@ -941,6 +951,19 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		4B980401141277CC00B5F857 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the script that bootstraps the language file\n${SRCROOT}/Language/bootstrap_language.sh";
+		};
 		4BD612CA140112E500AA560E /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -964,10 +987,12 @@
 			);
 			inputPaths = (
 				"$(SRCROOT)/Language/definition.txt",
+				"${BUILT_PRODUCTS_DIR}/bootstrap",
 			);
 			name = "Run Script";
 			outputPaths = (
-				"${BUILT_PRODUCTS_DIR}/definition_txt.h",
+				"${BUILT_PRODUCTS_DIR}/tameparse_language.h",
+				"${BUILT_PRODUCTS_DIR}/tameparse_language.cpp",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1126,6 +1151,7 @@
 				4BC47969140BD34100C2F189 /* output_stage.cpp in Sources */,
 				4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */,
 				4BCFA13714125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */,
+				4B9804041412789D00B5F857 /* tameparse_language.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

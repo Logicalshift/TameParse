@@ -24,9 +24,11 @@ using namespace language;
 using namespace compiler;
 
 int main (int argc, const char * argv[]) {
+    // Write out the current working directory
     char buf[512];
     getcwd(buf, 512);
     cout << buf << endl;
+
     wcout << L"TameParse bootstrapper" << endl;
     wcout << L"======================" << endl << endl;
     

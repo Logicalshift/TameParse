@@ -189,6 +189,8 @@ void output_cplusplus::end_output() {
     if (!m_Namespace.empty()) {
         (*m_HeaderFile) << "}\n";         // End of namespace
     }
+
+    (*m_HeaderFile) << "\n#endif\n";	  // End of the conditional
 }
 
 /// \brief The output stage is about to produce a list of terminal symbols
@@ -289,7 +291,7 @@ void output_cplusplus::symbol_map(const dfa::range<int>& symbolRange, int identi
 /// \brief Finishing writing out the symbol map for the lexer
 void output_cplusplus::end_lexer_symbol_map() {
 	// Begin writing out the symbol map table
-	(*m_SourceFile) << "\nstatic const int s_SymbolMapTable = {";
+	(*m_SourceFile) << "\nstatic const int s_SymbolMapTable[] = {";
 
 	// Convert to a hard-coded table
 	size_t	size;
@@ -316,7 +318,7 @@ void output_cplusplus::end_lexer_symbol_map() {
 	(*m_SourceFile) << "\n    };\n";
     
     // Add the symbol table class
-    (*m_SourceFile) << "\nstatic const dfa::hard_coded_symbol_table<wchar_t> s_SymbolMap(s_SymbolMapTable);\n";
+    (*m_SourceFile) << "\nstatic const dfa::hard_coded_symbol_table<wchar_t, 2> s_SymbolMap(s_SymbolMapTable);\n";
 }
 
 /// \brief About to begin writing out the lexer tables
