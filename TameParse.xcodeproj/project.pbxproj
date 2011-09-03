@@ -114,6 +114,9 @@
 		4BCF835C14090D7A003CB7CB /* lr_parser_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCF835A14090D7A003CB7CB /* lr_parser_stage.cpp */; };
 		4BCF835D14090D7A003CB7CB /* lr_parser_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCF835A14090D7A003CB7CB /* lr_parser_stage.cpp */; };
 		4BCF835E14090D7A003CB7CB /* lr_parser_stage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCF835B14090D7A003CB7CB /* lr_parser_stage.h */; };
+		4BCFA13614125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */; };
+		4BCFA13714125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */; };
+		4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */; };
 		4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD41D3E13ED9AF500C86FD2 /* error.cpp */; };
 		4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD41D4113ED9AFF00C86FD2 /* error.h */; };
 		4BD612C1140112B000AA560E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD612C0140112B000AA560E /* main.cpp */; };
@@ -375,6 +378,8 @@
 		4BCA82C013F7E2AF001043D0 /* std_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = std_console.h; sourceTree = "<group>"; };
 		4BCF835A14090D7A003CB7CB /* lr_parser_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_parser_stage.cpp; sourceTree = "<group>"; };
 		4BCF835B14090D7A003CB7CB /* lr_parser_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_parser_stage.h; sourceTree = "<group>"; };
+		4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hard_coded_symbol_table.cpp; sourceTree = "<group>"; };
+		4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hard_coded_symbol_table.h; sourceTree = "<group>"; };
 		4BD41D3E13ED9AF500C86FD2 /* error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error.cpp; sourceTree = "<group>"; };
 		4BD41D4113ED9AFF00C86FD2 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		4BD612BD140112B000AA560E /* bootstrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bootstrap; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -648,6 +653,8 @@
 				4B1A91CB13688F3A0018E595 /* symbol_translator.h */,
 				4B1A91D1136975AF0018E595 /* symbol_table.cpp */,
 				4B1A91D2136975B00018E595 /* symbol_table.h */,
+				4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */,
+				4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */,
 				4B1A91C2136858710018E595 /* ndfa_regex.cpp */,
 				4B1A91C3136858720018E595 /* ndfa_regex.h */,
 				4B1A91A51366FF1F0018E595 /* ndfa.cpp */,
@@ -848,6 +855,7 @@
 				4BCF835E14090D7A003CB7CB /* lr_parser_stage.h in Headers */,
 				4BC4796A140BD34100C2F189 /* output_stage.h in Headers */,
 				4B8A0106140BED2100187196 /* cplusplus.h in Headers */,
+				4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1041,6 +1049,7 @@
 				4BCF835C14090D7A003CB7CB /* lr_parser_stage.cpp in Sources */,
 				4BC47968140BD34100C2F189 /* output_stage.cpp in Sources */,
 				4B8A0104140BED2100187196 /* cplusplus.cpp in Sources */,
+				4BCFA13614125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1116,6 +1125,7 @@
 				4BCF835D14090D7A003CB7CB /* lr_parser_stage.cpp in Sources */,
 				4BC47969140BD34100C2F189 /* output_stage.cpp in Sources */,
 				4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */,
+				4BCFA13714125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -135,6 +135,13 @@ namespace dfa {
             }
             return mySize;
         }
+
+    public:
+        /// \brief Returns the default symbol for this level
+        int get_default_symbol() const { return DefaultSymbol; }
+
+        /// \brief Gets the next level array
+        next_level** get_next_level() const { return Symbols; }
         
     private:
         /// \brief Disabled assignment
@@ -209,6 +216,13 @@ namespace dfa {
             }
             return mySize;
         }
+
+    public:
+        /// \brief Returns the default symbol for this level
+        int get_default_symbol() const { return DefaultSymbol; }
+
+        /// \brief Gets the symbol sets for this level
+        int* get_next_level() const { return Symbols; }
     };
     
     ///
