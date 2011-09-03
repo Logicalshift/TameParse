@@ -84,7 +84,16 @@ namespace dfa {
     class state_machine_compact_table {
     private:
         /// \brief Symbol set, state pair
-        typedef std::pair<int, int> entry;
+        struct entry {
+            int symbolSet, state; 
+
+            inline entry() {}
+
+            inline entry(int set, int targetState)
+            : symbolSet(set)
+            , state(targetState) {
+            }
+        };
         
         /// \brief Number of entries in this row
         int m_NumEntries;
@@ -95,7 +104,7 @@ namespace dfa {
     private:
         /// \brief Orders two entries
         inline static bool compare_entries(const entry& a, const entry& b) {
-            return a.first < b.first;
+            return a.symbolSet < b.symbolSet;
         }
         
     public:
@@ -113,8 +122,8 @@ namespace dfa {
             // Fill in the transitions
             int pos = 0;
             for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
-                m_Row[pos].first    = transit->symbol_set();
-                m_Row[pos].second   = transit->new_state();
+                m_Row[pos].symbolSet    = transit->symbol_set();
+                m_Row[pos].state        = transit->new_state();
                 
                 pos++;
             }
@@ -137,10 +146,10 @@ namespace dfa {
             if (lowerBound == m_Row + m_NumEntries) return -1;
             
             // Return nothing if we didn't find the right symbol
-            if (lowerBound->first != symbolSet) return -1;
+            if (lowerBound->symbolSet != symbolSet) return -1;
             
             // Return this transition
-            return lowerBound->second;
+            return lowerBound->state;
         }
         
         /// \brief Total size of this row
