@@ -11,7 +11,7 @@
 
 #include <string>
 #include <iostream>
-#include <map>
+#include <vector>
 
 #include "Compiler/output_stage.h"
 #include "Dfa/symbol_table.h"
@@ -52,8 +52,8 @@ namespace compiler {
         /// \brief The state that's being written out by the lexer
         int m_LexerCurrentState;
 
-        /// \brief Maps lexer states to their offset in the 
-        std::map<int, int> m_StateToEntryOffset;
+        /// \brief Maps lexer states to their offset in the state machine table
+        std::vector<int> m_StateToEntryOffset;
 
 	public:
 		/// \brief Creates a new output stage
@@ -135,6 +135,9 @@ namespace compiler {
 
 		/// \brief Finished the lexer acceptance table
 		virtual void end_lexer_accept_table();
+
+		/// \brief Finished all of the lexer definitions
+		virtual void end_lexer_definitions();
 	};
 }
 

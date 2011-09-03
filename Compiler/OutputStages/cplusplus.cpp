@@ -348,7 +348,7 @@ void output_cplusplus::begin_lexer_state(int stateId) {
 	m_LexerCurrentState = stateId;
 
 	// Record its position
-	m_StateToEntryOffset[stateId] = m_LexerEntryPos;
+	m_StateToEntryOffset.push_back(m_LexerEntryPos);
 }
 
 /// \brief Adds a transition for the current state
@@ -407,5 +407,30 @@ void output_cplusplus::accepting_state(int stateId, int acceptSymbolId) {
 
 /// \brief Finished the lexer acceptance table
 void output_cplusplus::end_lexer_accept_table() {
+	// Finish up the acceptance table
+	(*m_SourceFile) << "\n    };\n";
+}
+
+/// \brief Finished all of the lexer definitions
+void output_cplusplus::end_lexer_definitions() {
+	// Add a final state to point to the end of the array
+	m_StateToEntryOffset.push_back(m_LexerEntryPos);
+
+	// Write out the rows table
+	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table::entry* s_LexerStates[" << m_StateToEntryOffset.size() << "] = {\n        ";
+
+	// Write the actual rows
+	bool first = true;
+	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end(); offset++) {
+		// Commas between entries
+		if (!first) (*m_SourceFile) << ", ";
+
+		// Entries point to a position in the state machine table
+		(*m_SourceFile) << "s_LexerStateMachine + " << *offset;
+
+		// No longer the first entry
+		first = false;
+	}
+
 	(*m_SourceFile) << "\n    };\n";
 }

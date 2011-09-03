@@ -86,6 +86,9 @@ namespace compiler {
 		/// \brief Finished writing out the terminal symbols
 		virtual void end_nonterminal_symbols();
 
+		/// \brief Starting to write out the lexer definitions
+		virtual void begin_lexer_definitions();
+
 		/// \brief Starting to write out the symbol map for the lexer
 		virtual void begin_lexer_symbol_map(int maxSetId);
 
@@ -124,6 +127,9 @@ namespace compiler {
 
 		/// \brief Finished the lexer acceptance table
 		virtual void end_lexer_accept_table();
+
+		/// \brief Finished all of the lexer definitions
+		virtual void end_lexer_definitions();
 	};
 }
 

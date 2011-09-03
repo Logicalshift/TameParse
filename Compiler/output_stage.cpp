@@ -77,6 +77,9 @@ void output_stage::define_lexer_tables() {
 	// Get the symbol table
 	const class symbol_map& symbols = dfa->symbols();
 
+	// Starting to write lexer definitions
+	begin_lexer_definitions();
+
 	// Write to the result
 	begin_lexer_symbol_map(symbols.count_sets());
 
@@ -138,6 +141,9 @@ void output_stage::define_lexer_tables() {
 	}
 
 	end_lexer_accept_table();
+
+	// Finished the lexer
+	end_lexer_definitions();
 }
 
 /// \brief About to begin writing out output
@@ -177,6 +183,11 @@ void output_stage::nonterminal_symbol(const std::wstring& name, int identifier) 
 
 /// \brief Finished writing out the terminal symbols
 void output_stage::end_nonterminal_symbols() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write out the lexer definitions
+void output_stage::begin_lexer_definitions() {
 	// Do nothing in the default implementation
 }
 
@@ -237,5 +248,10 @@ void output_stage::accepting_state(int stateId, int acceptSymbolId) {
 
 /// \brief Finished the lexer acceptance table
 void output_stage::end_lexer_accept_table() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write out the lexer definitions
+void output_stage::end_lexer_definitions() {
 	// Do nothing in the default implementation
 }
