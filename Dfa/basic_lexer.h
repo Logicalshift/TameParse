@@ -112,12 +112,12 @@ namespace dfa {
     /// firstState indicates the state that the lexer starts in before it has received any input. newlineState indicates the state the lexer moves into
     /// if the last lexeme ends with a newline character.
     ///
-    template<typename Char = wchar_t, typename StateMachineRow = state_machine_flat_table, int firstState = 0, int newlineState = 0> class dfa_lexer : public basic_lexer {
+    template<typename state_machine, int firstState = 0, int newlineState = 0> class dfa_lexer_base : public basic_lexer {
     private:
         /// \brief The state machine for this lexer
         ///
         /// (More specific characters produce a state machine that runs faster and requires less memory)
-        state_machine<Char, StateMachineRow> m_StateMachine;
+        state_machine m_StateMachine;
         
         /// \brief Number of states in this lexer
         int m_MaxState;
@@ -125,8 +125,8 @@ namespace dfa {
         /// \brief Array containing a list of possible accept actions for accepting states
         int* m_Accept;
         
-        dfa_lexer& operator=(const dfa_lexer& copyFrom);
-        dfa_lexer(const dfa_lexer& copyFrom);
+        dfa_lexer_base& operator=(const dfa_lexer_base& copyFrom);
+        dfa_lexer_base(const dfa_lexer_base& copyFrom);
         
     private:
         /// \brief Fills in an entry in the accept array
@@ -153,7 +153,7 @@ namespace dfa {
         /// \brief Constructs a lexer from a DFA
         ///
         /// A DFA is an NDFA which has been transformed by to_ndfa_with_unique_symbols() and to_dfa(), in that order.
-        dfa_lexer(const ndfa& dfa)
+        dfa_lexer_base(const ndfa& dfa)
         : m_StateMachine(dfa)
         , m_MaxState(dfa.count_states()) {
             // Allocate space for the accepting states
@@ -167,7 +167,7 @@ namespace dfa {
         }
         
         /// \brief Destructor
-        virtual ~dfa_lexer() {
+        virtual ~dfa_lexer_base() {
             // Delete the accepting states
             if (m_Accept) {
                 delete[] m_Accept;
@@ -181,7 +181,7 @@ namespace dfa {
         class dfa_stream : public lexeme_stream {
         private:
             /// \brief The state machine for this lexer
-            const state_machine<Char, StateMachineRow>& m_StateMachine;
+            const state_machine& m_StateMachine;
             
             /// \brief Array of symbols that are accepted in each state
             const int* m_Accept;
@@ -205,7 +205,7 @@ namespace dfa {
             
         public:
             /// \brief Creates a new stream that works with the specified state machine, list of accepting actions and symbol stream
-            dfa_stream(const state_machine<Char, StateMachineRow>& sm, const int* acc, lexer_symbol_stream* str)
+            dfa_stream(const state_machine& sm, const int* acc, lexer_symbol_stream* str)
             : m_StateMachine(sm)
             , m_Accept(acc)
             , m_Stream(str)
@@ -317,6 +317,23 @@ namespace dfa {
         /// \brief Estimated size in bytes of this lexer
         virtual size_t size() const {
             return m_StateMachine.size();
+        }
+    };
+    
+    ///
+    /// \brief A lexer that is built from a DFA
+    ///
+    /// Use this class rather than dfa_lexer_base for dynamically creating lexers. dfa_lexer_base can be used to create lexers
+    /// with custom state machines, which can be useful for running DFAs using custom table types.
+    ///
+    template<typename char_type, typename state_machine_row = state_machine_flat_table, int firstState = 0, int newlineState = 0> class dfa_lexer : public dfa_lexer_base<state_machine<char_type, state_machine_row>, firstState, newlineState> {
+    public:
+        typedef dfa_lexer_base<state_machine<char_type, state_machine_row>, firstState, newlineState> base;
+        
+        /// \brief Constructs a lexer from a DFA
+        ///
+        /// A DFA is an NDFA which has been transformed by to_ndfa_with_unique_symbols() and to_dfa(), in that order.
+        inline dfa_lexer(const ndfa& dfa) : base(dfa) {
         }
     };
 }

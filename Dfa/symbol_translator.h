@@ -16,13 +16,13 @@ namespace dfa {
     ///
     /// \brief Class used in a DFA to map an input symbol to a symbol set ID
     ///
-    template<class T = int> class symbol_translator {
+    template<class symbol_type = int, class symbol_table_type = symbol_table<symbol_type> > class symbol_translator {
     private:
         /// \brief The table for this item
-        symbol_table<T> m_Table;
+        symbol_table_type m_Table;
         
         /// \brief Disabled assignment
-        symbol_translator<T>& operator=(const symbol_translator<T>& assignFrom);
+        symbol_translator<symbol_type, symbol_table_type>& operator=(const symbol_translator<symbol_type, symbol_table_type>& assignFrom);
         
     public:
         /// \brief Copy constructor
@@ -51,7 +51,7 @@ namespace dfa {
         }
         
         /// \brief Returns the ID of the symbol set of the specified symbol
-        inline int set_for_symbol(T symbol) const {
+        inline int set_for_symbol(symbol_type symbol) const {
             return m_Table.Lookup(symbol);
         }
         

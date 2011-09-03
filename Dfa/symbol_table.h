@@ -194,65 +194,33 @@ namespace dfa {
     };
     
     ///
+    /// \brief Template class representing the default symbol_level definition to use for a specific character type
+    ///
+    /// Default is to accept 8-bit characters
+    ///
+    template<class Char> class symbol_level_for : public symbol_level<int, 0xff, 0> {
+    };
+
+    ///
+    /// \brief Default symbol level class for parsers accepting 16-bit unicode languages
+    ///
+    template<> class symbol_level_for<wchar_t> : public symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8> {
+    };
+    
+    ///
+    /// \brief Default symbol level class for parsers accepting 32-bit integer languages
+    ///
+    template<> class symbol_level_for<int> : public symbol_level<symbol_level<symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8>, 0xff0000, 16>, 0x7f000000, 24> {
+    };
+    
+    ///
     /// \brief Default format of a symbol table
     ///
-    /// (Single, level, can handle 255 symbols of a generic type)
-    template<class symbol_type> struct symbol_table {
-        symbol_level<int, 0xff, 0> Table;
+    /// (Single level, can handle 255 symbols of a generic type)
+    template<class symbol_type, class table_type = symbol_level_for<symbol_type> > struct symbol_table {
+        table_type Table;
         
         inline int Lookup(symbol_type val) const {
-            return Table.Lookup(val);
-        }
-        
-        inline void add_range(const range<int>& range, int symbol) {
-            Table.add_range(0, range, symbol);
-        }
-    };
-    
-    /// \brief Character table
-    template<> struct symbol_table<unsigned char> {
-        symbol_level<int, 0xff, 0> Table;
-
-        inline int Lookup(unsigned char val) const {
-            return Table.Lookup((int)val);
-        }
-        
-        inline void add_range(const range<int>& range, int symbol) {
-            Table.add_range(0, range, symbol);
-        }
-    };
-    
-    /// \brief Character table
-    template<> struct symbol_table<char> {
-        symbol_level<int, 0xff, 0> Table;
-        
-        inline int Lookup(char val) const {
-            return Table.Lookup((int)(unsigned char)val);
-        }
-        
-        inline void add_range(const range<int>& range, int symbol) {
-            Table.add_range(0, range, symbol);
-        }
-    };
-    
-    /// \brief Unicode character table
-    template<> struct symbol_table<wchar_t> {
-        symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8> Table;
-        
-        inline int Lookup(wchar_t val) const {
-            return Table.Lookup((int)(unsigned)val);
-        }
-        
-        inline void add_range(const range<int>& range, int symbol) {
-            Table.add_range(0, range, symbol);
-        }
-    };
-    
-    /// \brief Integer character table
-    template<> struct symbol_table<int> {
-        symbol_level<symbol_level<symbol_level<symbol_level<int, 0xff, 0>, 0xff00, 8>, 0xff0000, 16>, 0x7f000000, 24> Table;
-        
-        inline int Lookup(int val) const {
             return Table.Lookup(val);
         }
         
