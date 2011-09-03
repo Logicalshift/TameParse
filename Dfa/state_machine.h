@@ -158,10 +158,10 @@ namespace dfa {
     ///
     /// row_type can be adjusted to change how data for individual states are stored. The default type is 
     ///
-    template<class symbol_type, class row_type = state_machine_flat_table> class state_machine {
+    template<class symbol_type, class row_type = state_machine_flat_table, class symbol_translator = symbol_translator<symbol_type> > class state_machine {
     private:
         /// \brief The translator for the symbols 
-        symbol_translator<symbol_type> m_Translator;
+        symbol_translator m_Translator;
         
         /// \brief The maximum symbol set
         int m_MaxSet;
