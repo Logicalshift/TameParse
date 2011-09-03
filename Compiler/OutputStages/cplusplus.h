@@ -14,6 +14,7 @@
 #include <map>
 
 #include "Compiler/output_stage.h"
+#include "Dfa/symbol_table.h"
 
 namespace compiler {
 	///
@@ -41,6 +42,9 @@ namespace compiler {
         
         /// \brief Number of times a nonterminal symbol with a particular name has been used
         std::map<std::string, int> m_NonterminalSymbolCount;
+
+        /// \brief Built up 
+        dfa::symbol_table<wchar_t>* m_SymbolLevels;
 
 	public:
 		/// \brief Creates a new output stage

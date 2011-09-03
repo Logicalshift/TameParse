@@ -35,7 +35,7 @@ namespace dfa {
         if (nextOffset == -1) return table[offset + 0];
         
         // Look up the next level
-        return hcst_lookup_sym<level-1>(table, nextOffset, symbol);
+        return hcst_lookup_sym<level-1>(table, offset + nextOffset, symbol);
     }
     
     ///
@@ -83,7 +83,7 @@ namespace dfa {
 	/// The format for all layers except the bottom layer is as follows:
 	///		* 1 int  = default set for unknown characters
 	///		* 1 int  = (lowest_used | (highest_used<<8))
-	///	    * n ints = -1 for the default set, or the offset of the table for the next layer
+	///	    * n ints = -1 for the default set, or the offset of the table for the next layer, relative to this layer
 	/// The bottom layer is the same, except that the values are the actual symbol set
 	///
 	template<typename char_type, size_t char_size> class hard_coded_symbol_table {

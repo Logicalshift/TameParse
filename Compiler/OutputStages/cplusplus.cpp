@@ -13,6 +13,7 @@
 #include "Compiler/OutputStages/cplusplus.h"
 
 using namespace std;
+using namespace dfa;
 using namespace compiler;
 
 /// \brief Creates a new output stage
@@ -22,13 +23,15 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_ClassName(className)
 , m_Namespace(namespaceName)
 , m_SourceFile(NULL)
-, m_HeaderFile(NULL) {
+, m_HeaderFile(NULL)
+, m_SymbolLevels(NULL) {
 }
 
 /// \brief Destructor
 output_cplusplus::~output_cplusplus() {
-	if (m_SourceFile) delete m_SourceFile;
-	if (m_HeaderFile) delete m_HeaderFile;
+	if (m_SourceFile) 	delete m_SourceFile;
+	if (m_HeaderFile) 	delete m_HeaderFile;
+	if (m_SymbolLevels) delete m_SymbolLevels;
 }
 
 /// \brief Converts a string to upper case
@@ -263,17 +266,54 @@ void output_cplusplus::end_nonterminal_symbols() {
 
 /// \brief Starting to write out the symbol map for the lexer
 void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
-	// TODO: implement me
+	// Write out the number of symbol sets
+	(*m_HeaderFile) << L"\npublic:\n";
+	(*m_HeaderFile) << L"    static const int number_of_symbol_sets = " << maxSetId << L";\n";
+
+	// Include the hard-coded symbol table in the source file
+	(*m_SourceFile) << L"\n#include \"Dfa/hard_coded_symbol_table.h\"\n";
+
+	// Begin building the symbol levels object
+	if (m_SymbolLevels) {
+		delete m_SymbolLevels;
+	}
+	m_SymbolLevels = new symbol_table<wchar_t>();
 }
 
 /// \brief Specifies that a given range of symbols maps to a particular identifier
 void output_cplusplus::symbol_map(const dfa::range<int>& symbolRange, int identifier) {
-	// TODO: implement me
+	// Just add to the symbol levels
+	m_SymbolLevels->add_range(symbolRange, identifier);
 }
 
 /// \brief Finishing writing out the symbol map for the lexer
 void output_cplusplus::end_lexer_symbol_map() {
-	// TODO: implement me
+	// Begin writing out the symbol map table
+	(*m_SourceFile) << L"\nstatic const int s_SymbolMapTable = {";
+
+	// Convert to a hard-coded table
+	size_t	size;
+	int* 	hcst = m_SymbolLevels->Table.to_hard_coded_table(size);
+
+	// Write it out
+	for (size_t tablePos = 0; tablePos < size; tablePos++) {
+		// Add newlines
+		if ((tablePos % 20) == 0) {
+			(*m_SourceFile) << L"\n    ";
+		}
+
+		// Write out this entry
+		(*m_SourceFile) << L"0x" << hex << hcst[tablePos] << dec;
+		if (tablePos+1 < size) {
+			(*m_SourceFile) << L", ";
+		}
+	}
+
+	// Finished with the table
+	delete[] hcst;
+
+	// Finished the table
+	(*m_SourceFile) << L"\n    };\n";
 }
 
 /// \brief About to begin writing out the lexer tables

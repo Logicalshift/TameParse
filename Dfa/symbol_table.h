@@ -9,6 +9,7 @@
 #ifndef _DFA_SYMBOL_TABLE_H
 #define _DFA_SYMBOL_TABLE_H
 
+#include <cstdlib>
 #include "Dfa/symbol_map.h"
 
 namespace dfa {
@@ -137,11 +138,79 @@ namespace dfa {
         }
 
     public:
-        /// \brief Returns the default symbol for this level
-        int get_default_symbol() const { return DefaultSymbol; }
+        /// \brief Converts this table to a table suitable for use with the hard_coded_symbol_table class
+        inline int* to_hard_coded_table(size_t& size) {
+            // If no symbols are defined at this level, then generate an empty table
+            if (!Symbols) {
+                int* result = new int[2];
+                result[0] = DefaultSymbol;
+                result[1] = 0;
+                return result;
+            }
 
-        /// \brief Gets the next level array
-        next_level** get_next_level() const { return Symbols; }
+            // Create the set of subtables
+            size_t  tableSizes[c_MaxIndex];
+            int*    subTables[c_MaxIndex];
+
+            int lowestUsed  = c_MaxIndex;
+            int highestUsed = 0;
+            int totalSize   = 0;
+
+            for (int subtableId = 0; subtableId < c_MaxIndex; subtableId++) {
+                // Add a null table if no symbols are defined for this set
+                if (!Symbols[subtableId]) {
+                    subTables[subtableId] = NULL;
+                    continue;
+                }
+
+                // Update the lowest and highest used tables
+                if (subtableId < lowestUsed)    lowestUsed  = subtableId;
+                if (subtableId >= highestUsed)  highestUsed = subtableId+1;
+
+                // Add the subtable for this symbol ID
+                subTables[subtableId] = Symbols[subtableId]->to_hard_coded_table(tableSizes[subtableId]);
+
+                // Work out the size of this entry and add it to the total size
+                // (table size is 2 + the number)
+                totalSize += tableSizes[subtableId];
+            }
+
+            // Allocate space for this table
+            size = 2 + (highestUsed - lowestUsed) + totalSize;
+            int*    newTable    = new int[size];
+
+            // Position for the next subtable in the result
+            size_t  copyPos     = 2 + (highestUsed - lowestUsed);
+
+            // Fill in the header
+            newTable[0] = DefaultSymbol;
+            newTable[1] = lowestUsed | (highestUsed << 8);
+
+            // Fill in the table list (and delete the subtables as we go)
+            for (int subtableId = lowestUsed; subtableId < highestUsed; subtableId++) {
+                // Position for this table offset
+                int pos = 2 + (subtableId - lowestUsed);
+
+                if (!subTables[subtableId]) {
+                    // Default value
+                    newTable[pos] = -1;
+                    continue;
+                }
+
+                // Position is the current copyPos
+                newTable[pos] = (int) copyPos;
+
+                // Copy the table into the result
+                memcpy(newTable + copyPos, subTables[subtableId], sizeof(int) * tableSizes[subtableId]);
+
+                // No longer need this table
+                delete[] subTables[subtableId];
+                subTables[subtableId] = NULL;
+            }
+
+            // Return the new table
+            return newTable;
+        }
         
     private:
         /// \brief Disabled assignment
@@ -218,11 +287,51 @@ namespace dfa {
         }
 
     public:
-        /// \brief Returns the default symbol for this level
-        int get_default_symbol() const { return DefaultSymbol; }
+        /// \brief Converts this table to a table suitable for use with the hard_coded_symbol_table class
+        inline int* to_hard_coded_table(size_t& size) {
+            // If no symbols are defined at this level, then generate an empty table
+            if (!Symbols) {
+                int* result = new int[2];
+                result[0] = DefaultSymbol;
+                result[1] = 0;
+                return result;
+            }
 
-        /// \brief Gets the symbol sets for this level
-        int* get_next_level() const { return Symbols; }
+            // Work out the highest and lowest used symbols
+            int lowestUsed  = c_MaxIndex;
+            int highestUsed = 0;
+
+            for (int symbolId = 0; symbolId < c_MaxIndex; symbolId++) {
+                // Counts as not used if the symbol is the same as the default symbol
+                if (Symbols[symbolId] == DefaultSymbol) {
+                    continue;
+                }
+
+                // Update the lowest and highest used tables
+                if (symbolId < lowestUsed)    lowestUsed  = symbolId;
+                if (symbolId >= highestUsed)  highestUsed = symbolId+1;
+            }
+
+            // Allocate space for this table
+            size = 2 + (highestUsed - lowestUsed);
+            int*    newTable    = new int[size];
+
+            // Fill in the header
+            newTable[0] = DefaultSymbol;
+            newTable[1] = lowestUsed | (highestUsed << 8);
+
+            // Fill in the symbols
+            for (int symbolId = lowestUsed; symbolId < highestUsed; symbolId++) {
+                // Position for this table offset
+                int pos = 2 + (symbolId - lowestUsed);
+
+                // Copy in the symbol ID
+                newTable[pos] = Symbols[symbolId];
+            }
+
+            // Return the new table
+            return newTable;
+        }
     };
     
     ///
@@ -249,12 +358,15 @@ namespace dfa {
     /// \brief Default format of a symbol table
     ///
     template<class symbol_type, class table_type = symbol_level_for<symbol_type> > struct symbol_table {
+        /// \brief The internal table
         table_type Table;
         
+        /// \brief Returns the set that the specified symbol is in
         inline int lookup(symbol_type val) const {
             return Table.lookup(val);
         }
         
+        /// \brief Adds a new symbol to this table
         inline void add_range(const range<int>& range, int symbol) {
             Table.add_range(0, range, symbol);
         }
