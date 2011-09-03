@@ -177,7 +177,7 @@ void output_cplusplus::begin_output() {
     }
     (*m_HeaderFile) << "class " << get_identifier(m_ClassName) << " {\n";
     
-    // Write out the boilerplate at hte start of the source file (include the header)
+    // Write out the boilerplate at the start of the source file (include the header)
     (*m_SourceFile) << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
 }
 
@@ -268,6 +268,8 @@ void output_cplusplus::end_nonterminal_symbols() {
 
 /// \brief Starting to write out the symbol map for the lexer
 void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
+	// TODO: support symbol maps for alphabets other than wchar_t
+
 	// Write out the number of symbol sets
 	(*m_HeaderFile) << "\npublic:\n";
 	(*m_HeaderFile) << "    static const int number_of_symbol_sets = " << maxSetId << ";\n";
@@ -323,27 +325,58 @@ void output_cplusplus::end_lexer_symbol_map() {
 
 /// \brief About to begin writing out the lexer tables
 void output_cplusplus::begin_lexer_state_machine(int numStates) {
-	// TODO: implement me
+	// Write out the number of states to the header file
+	(*m_HeaderFile) << "\n        static const int number_of_lexer_states = " << numStates << ";\n";
+
+	// Need to include the state machine class
+	(*m_SourceFile) << "\n#include \"Dfa/state_machine.h\"\n";
+
+	// Begin writing out the state machine table
+	// TODO: support table styles other than 'compact' (the flat table is faster for all character types and more compact for some lexer types)
+	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table::entry s_LexerStateMachine[] = {\n";
+
+	// Reset the 
+	m_LexerEntryPos = 0;
 }
 
 /// \brief Starting to write out the transitions for a given state
 void output_cplusplus::begin_lexer_state(int stateId) {
-	// TODO: implement me
+	// Write out a comment
+	(*m_SourceFile) << "\n\n        // State " << stateId << "\n        ";
+
+	// Remember the current state
+	m_LexerCurrentState = stateId;
+
+	// Record its position
+	m_StateToEntryOffset[stateId] = m_LexerEntryPos;
 }
 
 /// \brief Adds a transition for the current state
 void output_cplusplus::lexer_state_transition(int symbolSet, int newState) {
-	// TODO: implement me
+	// Write out a separator
+	if (m_LexerEntryPos > 0) {
+		(*m_SourceFile) << ", ";
+		if ((m_LexerEntryPos%10) == 0) {
+			(*m_SourceFile) << "\n        ";
+		}
+	}
+
+	// Write out this transition
+	(*m_SourceFile) << "{ " << symbolSet << ", " << newState << " }";
+
+	// Update the lexer state position
+	m_LexerEntryPos++;
 }
 
 /// \brief Finishes writing out a lexer state
 void output_cplusplus::end_lexer_state() {
-	// TODO: implement me
+	// Nothing to do
 }
 
 /// \brief Finished writing out the lexer table
 void output_cplusplus::end_lexer_state_machine() {
-	// TODO: implement me
+	// Finish off the table
+	(*m_SourceFile) << "\n    };\n";
 }
 
 /// \brief About to write out the list of accepting states for a lexer

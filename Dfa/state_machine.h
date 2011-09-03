@@ -82,19 +82,13 @@ namespace dfa {
     /// You can supply this class as the row_type parameter in the state_machine templated class.
     ///
     class state_machine_compact_table {
-    private:
+    public:
         /// \brief Symbol set, state pair
         struct entry {
             int symbolSet, state; 
-
-            inline entry() {}
-
-            inline entry(int set, int targetState)
-            : symbolSet(set)
-            , state(targetState) {
-            }
         };
         
+    private:
         /// \brief Number of entries in this row
         int m_NumEntries;
         
@@ -140,7 +134,8 @@ namespace dfa {
         /// \brief Looks up the state for a given symbol set (which must be greater than 0 and less than the maxSet value passed into the constructor)
         inline int operator[](int symbolSet) const {
             // Perform a binary search for this item
-            entry* lowerBound = std::lower_bound(m_Row + 0, m_Row + m_NumEntries, entry(symbolSet, 0), compare_entries);
+            entry   searchFor   = { symbolSet, 0 };
+            entry*  lowerBound  = std::lower_bound(m_Row + 0, m_Row + m_NumEntries, searchFor, compare_entries);
             
             // Return nothing if the symbol wasn't found
             if (lowerBound == m_Row + m_NumEntries) return -1;

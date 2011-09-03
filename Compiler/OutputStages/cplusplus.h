@@ -43,8 +43,17 @@ namespace compiler {
         /// \brief Number of times a nonterminal symbol with a particular name has been used
         std::map<std::string, int> m_NonterminalSymbolCount;
 
-        /// \brief Built up 
+        /// \brief The symbol table built up from the symbols supplied to this object
         dfa::symbol_table<wchar_t>* m_SymbolLevels;
+
+        /// \brief Current lexer entry position
+        int m_LexerEntryPos;
+
+        /// \brief The state that's being written out by the lexer
+        int m_LexerCurrentState;
+
+        /// \brief Maps lexer states to their offset in the 
+        std::map<int, int> m_StateToEntryOffset;
 
 	public:
 		/// \brief Creates a new output stage

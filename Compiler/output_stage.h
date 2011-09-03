@@ -102,6 +102,9 @@ namespace compiler {
 		virtual void begin_lexer_state(int stateId);
 
 		/// \brief Adds a transition for the current state
+		///
+		/// These are supplied in the order specified by the transition class: that is in
+		/// acsending order of symbol set.
 		virtual void lexer_state_transition(int symbolSet, int newState);
 
 		/// \brief Finishes writing out a lexer state
