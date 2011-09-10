@@ -35,6 +35,7 @@ static bool test_lex(string phrase, const lexer& lex, int expectedSymbol) {
         result = false;
     }
     if (match->matched() != expectedSymbol) {
+        cerr << match->matched() << endl;
         result = false;
     }
     
