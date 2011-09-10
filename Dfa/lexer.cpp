@@ -13,7 +13,8 @@ using namespace dfa;
 /// \brief Creates a default lexer
 lexer::lexer() 
 : m_Ndfa(new ndfa_regex())
-, m_Lexer(NULL) {
+, m_Lexer(NULL)
+, m_OwnsLexer(true) {
 }
 
 /// \brief Creates an instance of this class that will use the specified NDFA for building the lexer
@@ -21,7 +22,8 @@ lexer::lexer()
 /// The supplied NDFA will be destroyed when this class is destroyed (or when it gets compiled).
 lexer::lexer(ndfa_regex* ndfa)
 : m_Ndfa(ndfa)
-, m_Lexer(NULL) {
+, m_Lexer(NULL)
+, m_OwnsLexer(true) {
     if (m_Ndfa == NULL) m_Ndfa = new ndfa_regex();
 }
 
@@ -31,16 +33,18 @@ lexer::lexer(ndfa_regex* ndfa)
 /// call will produce an invalid lexer if the supplied object is not deterministic.
 lexer::lexer(const ndfa& dfa)
 : m_Ndfa(NULL)
-, m_Lexer(NULL) {
+, m_Lexer(NULL)
+, m_OwnsLexer(true) {
     m_Lexer = new dfa_lexer<wchar_t, state_machine_flat_table>(dfa);
 }
 
 /// \brief Creates an instance of this class that will use the specified basic_lexer
 ///
 /// The lexer supplied to this call will be destroyed when this class is destroyed
-lexer::lexer(basic_lexer* lexer)
+lexer::lexer(basic_lexer* lexer, bool ownsLexer)
 : m_Ndfa(NULL)
-, m_Lexer(lexer) {
+, m_Lexer(lexer)
+, m_OwnsLexer(ownsLexer) {
     if (m_Lexer == NULL) {
         m_Ndfa = new ndfa_regex();
     }
@@ -52,7 +56,7 @@ lexer::~lexer() {
         delete m_Ndfa;
     }
     
-    if (m_Lexer) {
+    if (m_Lexer && m_OwnsLexer) {
         delete m_Lexer;
     }
 }
@@ -98,7 +102,7 @@ void lexer::compile(bool compact) {
     
     // Create the lexer
     if (compact) {
-        m_Lexer = new dfa_lexer<wchar_t, state_machine_compact_table>(*dfa);        
+        m_Lexer = new dfa_lexer<wchar_t, state_machine_compact_table<> >(*dfa);        
     } else {
         m_Lexer = new dfa_lexer<wchar_t, state_machine_flat_table>(*dfa);
     }

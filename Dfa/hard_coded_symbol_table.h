@@ -97,7 +97,7 @@ namespace dfa {
 		: m_Table(table) { }
 
 		/// \brief Returns the symbol set for a particular character
-		inline int lookup(char_type symbol) {
+		inline int lookup(char_type symbol) const {
 			return hcst_lookup_sym<char_size>(m_Table, 0, (unsigned int) symbol);
 		}
 	};

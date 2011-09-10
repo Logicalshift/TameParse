@@ -23,9 +23,12 @@ namespace dfa {
         
         /// \brief NULL, or the compiled lexer
         basic_lexer* m_Lexer;
+
+        /// \brief True if this object owns its lexer
+        const bool m_OwnsLexer;
         
         /// \brief No copying for this class
-        inline lexer(const lexer& copyFrom) { }
+        inline lexer(const lexer& copyFrom);
 
         /// \brief Disabled assignment
         lexer& operator=(const lexer& assignFrom);
@@ -48,7 +51,8 @@ namespace dfa {
         /// \brief Creates an instance of this class that will use the specified basic_lexer
         ///
         /// The lexer supplied to this call will be destroyed when this class is destroyed
-        lexer(basic_lexer* lexer);
+        /// if ownsLexer is set to true.
+        lexer(basic_lexer* lexer, bool ownsLexer = true);
         
         /// \brief Destructor
         virtual ~lexer();

@@ -171,6 +171,9 @@ void output_cplusplus::begin_output() {
 	(*m_HeaderFile) << "#ifndef TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
 	(*m_HeaderFile) << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
     (*m_HeaderFile) << "\n";
+
+    (*m_HeaderFile) << "#include \"Dfa/lexer.h\"\n";
+    (*m_HeaderFile) << "\n";
     
     if (!m_Namespace.empty()) {
         (*m_HeaderFile) << "namespace " << get_identifier(m_Namespace) << " {\n";
@@ -179,6 +182,10 @@ void output_cplusplus::begin_output() {
     
     // Write out the boilerplate at the start of the source file (include the header)
     (*m_SourceFile) << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
+
+    if (!m_Namespace.empty()) {
+        (*m_SourceFile) << "using namespace " << get_identifier(m_Namespace) << ";\n";
+    }
 }
 
 /// \brief Finishing writing out output
@@ -333,7 +340,7 @@ void output_cplusplus::begin_lexer_state_machine(int numStates) {
 
 	// Begin writing out the state machine table
 	// TODO: support table styles other than 'compact' (the flat table is faster for all character types and more compact for some lexer types)
-	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table::entry s_LexerStateMachine[] = {\n";
+	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table<false>::entry s_LexerStateMachine[] = {\n";
 
 	// Reset the 
 	m_LexerEntryPos = 0;
@@ -417,11 +424,11 @@ void output_cplusplus::end_lexer_definitions() {
 	m_StateToEntryOffset.push_back(m_LexerEntryPos);
 
 	// Write out the rows table
-	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table::entry* s_LexerStates[" << m_StateToEntryOffset.size() << "] = {\n        ";
+	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table<false>::entry* s_LexerStates[" << m_StateToEntryOffset.size()-1 << "] = {\n        ";
 
 	// Write the actual rows
 	bool first = true;
-	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end(); offset++) {
+	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end()-1; offset++) {
 		// Commas between entries
 		if (!first) (*m_SourceFile) << ", ";
 
@@ -433,4 +440,18 @@ void output_cplusplus::end_lexer_definitions() {
 	}
 
 	(*m_SourceFile) << "\n    };\n";
+
+	// Create a state machine
+	(*m_SourceFile) << "\ntypedef dfa::state_machine_tables<wchar_t, dfa::hard_coded_symbol_table<wchar_t, 2> > lexer_state_machine;\n";
+	(*m_SourceFile) << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << m_StateToEntryOffset.size()-1 << ");\n";
+
+	// Create the lexer itself
+	(*m_SourceFile) << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false> lexer_definition;\n";
+	(*m_SourceFile) << "static lexer_definition s_LexerDefinition(s_StateMachine, " << m_StateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
+
+	// Finally, the lexer class itself
+	(*m_HeaderFile) << "\npublic:\n";
+	(*m_HeaderFile) << "    static const dfa::lexer lexer;\n";
+
+	(*m_SourceFile) << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
 }

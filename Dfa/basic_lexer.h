@@ -112,7 +112,7 @@ namespace dfa {
     /// firstState indicates the state that the lexer starts in before it has received any input. newlineState indicates the state the lexer moves into
     /// if the last lexeme ends with a newline character.
     ///
-    template<typename state_machine, int firstState = 0, int newlineState = 0> class dfa_lexer_base : public basic_lexer {
+    template<typename state_machine, int firstState = 0, int newlineState = 0, bool deleteTables = true> class dfa_lexer_base : public basic_lexer {
     private:
         /// \brief The state machine for this lexer
         ///
@@ -123,7 +123,7 @@ namespace dfa {
         int m_MaxState;
         
         /// \brief Array containing a list of possible accept actions for accepting states
-        int* m_Accept;
+        const int* m_Accept;
         
         dfa_lexer_base& operator=(const dfa_lexer_base& copyFrom);
         dfa_lexer_base(const dfa_lexer_base& copyFrom);
@@ -157,19 +157,26 @@ namespace dfa {
         : m_StateMachine(dfa)
         , m_MaxState(dfa.count_states()) {
             // Allocate space for the accepting states
-            m_Accept = new int[m_MaxState];
+            int* accept = new int[m_MaxState];
+            m_Accept    = accept;
             
             // Create accepting action lists for each accepting state
             for (int stateId=0; stateId<m_MaxState; stateId++) {
-                fill_accept(m_Accept[stateId], dfa.actions_for_state(stateId).begin(), dfa.actions_for_state(stateId).end());
+                fill_accept(accept[stateId], dfa.actions_for_state(stateId).begin(), dfa.actions_for_state(stateId).end());
             }
-            
         }
-        
+
+        /// \brief Constructs a lexer from a state machine
+        dfa_lexer_base(const state_machine& stateMachine, int maxState, const int* accept)
+        : m_StateMachine(stateMachine)
+        , m_MaxState(maxState)
+        , m_Accept(accept) {
+        }
+
         /// \brief Destructor
         virtual ~dfa_lexer_base() {
             // Delete the accepting states
-            if (m_Accept) {
+            if (deleteTables && m_Accept) {
                 delete[] m_Accept;
             }
         }
