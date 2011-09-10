@@ -19,6 +19,7 @@
 #include "lr_weaksymbols.h"
 #include "lr_lalr_general.h"
 #include "language_bootstrap.h"
+#include "language_primary.h"
 #include "dfa_multi_regex.h"
 
 using namespace std;
@@ -51,6 +52,7 @@ int main (int argc, const char * argv[])
     test_lalr_general           lalr1;          run(lalr1);
     
     test_language_bootstrap     bootstrap;      run(bootstrap);
+    test_language_primary       primary;        run(primary);
     
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;

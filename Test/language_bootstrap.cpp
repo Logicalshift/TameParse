@@ -21,7 +21,7 @@ using namespace contextfree;
 using namespace language;
 using namespace lr;
 
-// Checks that a given phrase is lexed as gthe specified symbol
+// Checks that a given phrase is lexed as the specified symbol
 static bool test_lex(string phrase, const lexer& lex, int expectedSymbol, const terminal_dictionary& terms) {
     // Create a lexeme stream
     stringstream source(phrase);

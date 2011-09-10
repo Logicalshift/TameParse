@@ -119,6 +119,7 @@
 		4BCFA13614125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */; };
 		4BCFA13714125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */; };
 		4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */; };
+		4BD179B3141BBF7300DEDC24 /* language_primary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD179B1141BBCCA00DEDC24 /* language_primary.cpp */; };
 		4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD41D3E13ED9AF500C86FD2 /* error.cpp */; };
 		4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD41D4113ED9AFF00C86FD2 /* error.h */; };
 		4BD612C1140112B000AA560E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD612C0140112B000AA560E /* main.cpp */; };
@@ -385,6 +386,8 @@
 		4BCF835B14090D7A003CB7CB /* lr_parser_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_parser_stage.h; sourceTree = "<group>"; };
 		4BCFA13414125A800004FD27 /* hard_coded_symbol_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hard_coded_symbol_table.cpp; sourceTree = "<group>"; };
 		4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hard_coded_symbol_table.h; sourceTree = "<group>"; };
+		4BD179AF141BBCBD00DEDC24 /* language_primary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_primary.h; sourceTree = "<group>"; };
+		4BD179B1141BBCCA00DEDC24 /* language_primary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_primary.cpp; sourceTree = "<group>"; };
 		4BD41D3E13ED9AF500C86FD2 /* error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error.cpp; sourceTree = "<group>"; };
 		4BD41D4113ED9AFF00C86FD2 /* error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error.h; sourceTree = "<group>"; };
 		4BD612BD140112B000AA560E /* bootstrap */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = bootstrap; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -564,6 +567,8 @@
 			children = (
 				4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */,
 				4B7F0C611393E9FE0012C085 /* language_bootstrap.h */,
+				4BD179AF141BBCBD00DEDC24 /* language_primary.h */,
+				4BD179B1141BBCCA00DEDC24 /* language_primary.cpp */,
 			);
 			name = Language;
 			sourceTree = "<group>";
@@ -1173,6 +1178,7 @@
 				4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */,
 				4B1B35AE13AEAD2900D1E488 /* dfa_multi_regex.cpp in Sources */,
 				4BDD091B13B63A1D00BC01EA /* lr_weaksymbols.cpp in Sources */,
+				4BD179B3141BBF7300DEDC24 /* language_primary.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
