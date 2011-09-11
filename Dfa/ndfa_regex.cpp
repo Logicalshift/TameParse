@@ -13,27 +13,31 @@ using namespace std;
 using namespace dfa;
 
 /// \brief Constructs an empty NDFA
-ndfa_regex::ndfa_regex() {
+ndfa_regex::ndfa_regex()
+: m_ConstructSurrogates(true) {
 }
 
 /// \brief Conversion constructor
 ndfa_regex::ndfa_regex(const ndfa& copyFrom)
-: ndfa(copyFrom) { 
+: ndfa(copyFrom)
+, m_ConstructSurrogates(true) { 
 }
 
 /// \brief Copy constructor
 ndfa_regex::ndfa_regex(const ndfa_regex& copyFrom)
-: ndfa(copyFrom) {
+: ndfa(copyFrom)
+, m_ConstructSurrogates(copyFrom.m_ConstructSurrogates)
+, m_ExpressionMap(copyFrom.m_ExpressionMap) {
 }
 
 /// \brief Converts a string to a symbol_string
-symbol_string ndfa_regex::convert(string source) {
+symbol_string ndfa_regex::convert(const string& source) {
     // Create the result
     symbol_string result;
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (string::iterator it=source.begin(); it != source.end(); it++) {
+    for (string::const_iterator it=source.begin(); it != source.end(); it++) {
         result += (int)(unsigned char)*it;
     }
     
@@ -42,13 +46,13 @@ symbol_string ndfa_regex::convert(string source) {
 }
 
 /// \brief Converts a wstring to a symbol_string
-symbol_string ndfa_regex::convert(wstring source) {
+symbol_string ndfa_regex::convert(const wstring& source) {
     // Create the result
     symbol_string result;
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (wstring::iterator it=source.begin(); it != source.end(); it++) {
+    for (wstring::const_iterator it=source.begin(); it != source.end(); it++) {
         result += (int)(unsigned)(wchar_t)*it;
     }
     
@@ -93,6 +97,7 @@ int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     
     // Create a constructor in the initial state
     builder cons = get_cons();
+    cons.set_generate_surrogates(m_ConstructSurrogates);
     cons.goto_state(get_state(initialState));
     
     // Compile as a straight string
@@ -112,6 +117,7 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     
     // Create a constructor in the initial state
     builder cons = get_cons();
+    cons.set_generate_surrogates(m_ConstructSurrogates);
     cons.goto_state(get_state(initialState));
     
     // Create an epsilon transform to an initial state for this regex
@@ -136,6 +142,14 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     
     // Return the final state
     return ((state)cons).identifier();
+}
+
+/// \brief Defines a new expression
+///
+/// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+/// change this behaviour by overriding the compile_expression funciton.
+void ndfa_regex::define_expression(const symbol_string& name, const symbol_string& value) {
+    m_ExpressionMap[name] = value;
 }
 
 ///
@@ -397,4 +411,33 @@ int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const sy
             // Default behaviour is to pass the 'quoted' character through untouched (so you can do things like \.)
             return *pos;
     }
+}
+
+///
+/// \brief Compiles the value of a {} expression
+///
+/// The '{}' operator in a regular expression generally indicates a subexpression macro. The default implementation
+/// of this will first look in the expression map for a regular expression, and compile that at the current position
+/// if it finds one. If it does not find an expression, it will look up the expression as a unicode character range.
+///
+/// Returns true if the expression was successfully compiled.
+///
+bool ndfa_regex::compile_expression(const symbol_string& expression, builder& cons) {
+    // Look up the expression in the expression map
+    map<symbol_string, symbol_string>::const_iterator found = m_ExpressionMap.find(expression);
+
+    // If found, then compile this expression
+    if (found != m_ExpressionMap.end()) {
+        // Add this regular expression, starting at the current state
+        int finalState = add_regex(cons.current_state().identifier(), expression);
+
+        // Set the final state as the new 'current' state
+        cons.goto_state(get_state(finalState));
+        return true;
+    }
+
+    // TODO: look up unicode character sequences
+
+    // Fail
+    return false;
 }

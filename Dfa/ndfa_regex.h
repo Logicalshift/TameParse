@@ -27,6 +27,11 @@ namespace dfa {
     ///
     class ndfa_regex : public ndfa {
     private:
+        /// \brief Set to true if the compiler should construct unicode surrogate sequences for characters >0xffff
+        bool m_ConstructSurrogates;
+
+        /// \brief Maps expressions to regular expressions
+        std::map<symbol_string, symbol_string> m_ExpressionMap;
         
     public:
         /// \brief Constructs an empty NDFA
@@ -40,10 +45,10 @@ namespace dfa {
         
     public:
         /// \brief Converts a string to a symbol_string
-        static symbol_string convert(std::string source);
+        static symbol_string convert(const std::string& source);
         
         /// \brief Converts a wstring to a symbol_string
-        static symbol_string convert(std::wstring source);
+        static symbol_string convert(const std::wstring& source);
 
         /// \brief Converts a null-terminated string to a symbol_string
         static symbol_string convert(char* source);
@@ -63,7 +68,7 @@ namespace dfa {
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, std::string regex) {
+        inline int add_regex(int initialState, const std::string& regex) {
             return add_regex(initialState, convert(regex));
         }
 
@@ -73,12 +78,12 @@ namespace dfa {
         }
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, std::string regex, const accept_action& action) {
+        inline int add_regex(int initialState, const std::string& regex, const accept_action& action) {
             return add_regex(initialState, convert(regex), action);
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, std::wstring regex, const accept_action& action) {
+        inline int add_regex(int initialState, const std::wstring& regex, const accept_action& action) {
             return add_regex(initialState, convert(regex), action);
         }
         
@@ -93,23 +98,55 @@ namespace dfa {
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_literal(int initialState, std::string regex) {
+        inline int add_literal(int initialState, const std::string& regex) {
             return add_literal(initialState, convert(regex));
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_literal(int initialState, std::wstring regex) {
+        inline int add_literal(int initialState, const std::wstring& regex) {
             return add_literal(initialState, convert(regex));
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_literal(int initialState, std::string regex, const accept_action& action) {
+        inline int add_literal(int initialState, const std::string& regex, const accept_action& action) {
             return add_literal(initialState, convert(regex), action);
         }
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_literal(int initialState, std::wstring regex, const accept_action& action) {
+        inline int add_literal(int initialState, const std::wstring& regex, const accept_action& action) {
             return add_literal(initialState, convert(regex), action);
+        }
+
+    public:
+        /// \brief Sets whether or not this regular expression builder should generate unicode surrogate characters
+        ///
+        /// If this is set to true then characters >0xffff will be substituted with their unicode surrogate equivalent.
+        /// This is useful if the parser is expected to deal with UTF-16 characters. For cases where UCS-32 is in use,
+        /// this should be set to false.
+        ///
+        /// By default, this is turned on, as 16-bit unicode characters are far more common.
+        inline void set_use_surrogates(bool useSurrogates) { m_ConstructSurrogates = useSurrogates; }
+
+        /// \brief Defines a new expression
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression funciton.
+        void define_expression(const symbol_string& name, const symbol_string& value);
+
+        /// \brief Defines a new expression
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression funciton.
+        inline void define_expression(const std::wstring& name, const std::wstring& value) {
+            define_expression(convert(name), convert(value));
+        }
+
+        /// \brief Defines a new expression
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression funciton.
+        inline void define_expression(const std::string& name, const std::string& value) {
+            define_expression(convert(name), convert(value));
         }
 
     protected:
@@ -124,6 +161,17 @@ namespace dfa {
         /// of a regular expression.
         ///
         virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, builder& cons);
+
+        ///
+        /// \brief Compiles the value of a {} expression
+        ///
+        /// The '{}' operator in a regular expression generally indicates a subexpression macro. The default implementation
+        /// of this will first look in the expression map for a regular expression, and compile that at the current position
+        /// if it finds one. If it does not find an expression, it will look up the expression as a unicode character range.
+        ///
+        /// Returns true if the expression was successfully compiled.
+        ///
+        virtual bool compile_expression(const symbol_string& expression, builder& cons);
         
         ///
         /// \brief Returns the symbol at the specified position. Updates pos to point to the last character that makes up this symbol

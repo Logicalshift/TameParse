@@ -194,6 +194,9 @@ namespace dfa {
             
             /// \brief The state before the most recent transition, or sequence of transitions
             int m_PreviousState;
+
+            /// \brief True if this builder should generate surrogate characters for values >0xffff
+            bool m_GenerateSurrogates;
             
             /// \brief Entry on the state stack
             ///
@@ -209,7 +212,8 @@ namespace dfa {
             : m_CurrentState(0)
             , m_PreviousState(0)
             , m_NextState(-1)
-            , m_Ndfa(dfa) {
+            , m_Ndfa(dfa)
+            , m_GenerateSurrogates(false) {
             }
             
         public:
@@ -219,24 +223,12 @@ namespace dfa {
             , m_NextState(copyFrom.m_NextState)
             , m_PreviousState(copyFrom.m_PreviousState)
             , m_Ndfa(copyFrom.m_Ndfa)
-            , m_Stack(copyFrom.m_Stack) { 
+            , m_Stack(copyFrom.m_Stack)
+            , m_GenerateSurrogates(copyFrom.m_GenerateSurrogates) { 
             }
             
             /// \brief Moves to a new state when the specified range of symbols are encountered
-            inline builder& operator>>(const symbol_set& symbols) {
-                int nextState = m_NextState;
-                m_NextState = -1;
-                
-                if (nextState == -1) {
-                    nextState = m_Ndfa->add_state();
-                }
-                
-                m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
-                m_PreviousState = m_CurrentState;
-                m_CurrentState  = nextState;
-                
-                return *this;
-            }
+            builder& operator>>(const symbol_set& symbols);
             
             inline builder& operator>>(char c)                  { return operator>>(range<int>((int)c, (int)c+1)); }
             inline builder& operator>>(wchar_t c)               { return operator>>(range<int>((int)c, (int)c+1)); }
@@ -259,6 +251,11 @@ namespace dfa {
             /// \brief Returns the current state object represented by this constructor
             inline const state& current_state() const {
                 return m_Ndfa->get_state(m_CurrentState);
+            }
+
+            /// \brief Sets whether or not this should generate surrogate transitions so that it can deal with UTF-16 input.
+            inline void set_generate_surrogates(bool generateSurrogates) {
+                m_GenerateSurrogates = generateSurrogates;
             }
             
             ///

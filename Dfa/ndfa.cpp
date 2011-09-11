@@ -177,6 +177,79 @@ void ndfa::clear_accept(int state) {
     (*m_Accept)[state].clear();
 }
 
+/// \brief Adds a transition for a range of surrogate symbols for the specified state
+static void add_surrogate_transition(const range<int>& surrogateRange, int targetState, ndfa* nfa) {
+    
+}
+
+/// \brief Moves to a new state when the specified range of symbols are encountered
+ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
+    // Get the state that should be moved to by this transition
+    int nextState = m_NextState;
+    m_NextState = -1;
+    
+    // Use a new state if no state has been explicitly set
+    if (nextState == -1) {
+        nextState = m_Ndfa->add_state();
+    }
+
+    // If generate surrogates is turned on, and the symbol set ends outside the surrogate range
+    if (m_GenerateSurrogates) {
+        // Search to see if there are any surrogate ranges
+        symbol_set surrogates;
+        symbol_set nonSurrogates;
+
+        // Look through the symbol set
+        for (symbol_set::iterator syms = symbols.begin(); syms != symbols.end(); syms++) {
+            // Ignore empty ranges
+            if (syms->lower() >= syms->upper()) continue;
+
+            if (syms->upper() > 0x10000) {
+                // Surrogate range
+                if (syms->lower() <= 0xffff) {
+                    // Split range
+                    nonSurrogates   |= range<int>(syms->lower(), 0x10000);
+                    surrogates      |= range<int>(0x10000, syms->upper());
+                } else {
+                    // Just a surrogate range
+                    surrogates |= *syms;
+                }
+            } else {
+                // Not a surrogate range
+                nonSurrogates |= *syms;
+            }
+        }
+
+        // See if there were any surrogate ranges
+        if (!surrogates.empty()) {
+            if (!nonSurrogates.empty()) {
+                // Just add a transition on the non-surrogate range
+                m_Ndfa->add_transition(m_CurrentState, nonSurrogates, nextState);
+            }
+
+            // Add a surrogate transition for each surrogate range
+            for (symbol_set::iterator syms = surrogates.begin(); syms != surrogates.end(); syms++) {
+                add_surrogate_transition(*syms, nextState, m_Ndfa);
+            }
+
+            // Update the current state
+            m_PreviousState = m_CurrentState;
+            m_CurrentState  = nextState;
+
+            // Done
+            return *this;
+        }
+    }
+    
+    // Add the transition for these symbols
+    m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
+    m_PreviousState = m_CurrentState;
+    m_CurrentState  = nextState;
+    
+    // Return the resulting object
+    return *this;
+}
+
 /// \brief Pops the state on top of the stack and discards it
 ///
 /// Returns false if the stack is empty.
