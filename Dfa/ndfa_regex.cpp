@@ -317,7 +317,9 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             }
 
             // Compile this expression
+            cons.push();
             compile_expression(expr, cons);
+            cons.pop();
             break;
         }
 

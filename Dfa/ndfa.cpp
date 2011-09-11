@@ -281,6 +281,9 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
 
         // See if there were any surrogate ranges
         if (!surrogates.empty()) {
+            // Push before this surrogate
+            push();
+
             if (!nonSurrogates.empty()) {
                 // Just add a transition on the non-surrogate range
                 m_Ndfa->add_transition(m_CurrentState, nonSurrogates, nextState);
@@ -294,6 +297,9 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
             // Update the current state
             m_PreviousState = m_CurrentState;
             m_CurrentState  = nextState;
+
+            // Pop afterwards
+            pop();
 
             // Done
             return *this;

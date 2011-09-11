@@ -11,7 +11,7 @@ language ParserLanguage {
 		letter 			= /[A-Za-z\-]/
 		digit 			= /[0-9]/
 		alphanumeric 	= /({letter}|{digit})/
-		whitespace		= /[ \n\r]/
+		whitespace		= /[ \t\n\r]/
 		anycharacter	= /[^\n\r]/
 		
 		// Identifiers, regular expressions
@@ -31,7 +31,7 @@ language ParserLanguage {
 	/// Ignored symbols
 	ignore {
 		newline			= /[\n\r]/
-		whitespace		= /[ \t]/
+		whitespace		= /{whitespace}+/
 		comment			= /\/\/({anycharacter}*)/
 	}
 	
