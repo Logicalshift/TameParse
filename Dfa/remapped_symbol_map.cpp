@@ -174,9 +174,15 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
         newSet->identifier_for_symbols(epsilon(), epsilonSet);
     }
     
-    // Create a new set for each range we got in the previous step
+    // Combine any ranges that map to the same symbol set
+    map<new_symbol_set, symbol_set> setsForSets;
     for (sets_for_range::iterator it = setsContainingRange.begin(); it != setsContainingRange.end(); it++) {
-        newSet->identifier_for_symbols(it->first, it->second);
+        setsForSets[it->second] |= it->first;
+    }
+    
+    // Create a new set for each range we got in the previous step
+    for (map<new_symbol_set, symbol_set>::iterator it = setsForSets.begin(); it != setsForSets.end(); it++) {
+        newSet->identifier_for_symbols(it->second, it->first);
     }
     
     // This is the result

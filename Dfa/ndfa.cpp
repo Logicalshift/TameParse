@@ -670,6 +670,8 @@ public:
 /// actions): this will generally result in a smaller DFA, at the cost of being able to distinguish states that are
 /// ambiguous.
 ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) const {
+    // TODO: we can further compact the DFA by looking for symbol sets that always produce the same transition and merging them
+    
     // Set of states from the original (this) DFA
     typedef set<int> state_set;
     
