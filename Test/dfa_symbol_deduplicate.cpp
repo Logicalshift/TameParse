@@ -104,11 +104,15 @@ void test_dfa_symbol_deduplicate::run_tests() {
     report("AllRemapped2", check_ranges(has_duplicates2, *no_duplicates));
     report("FirstSet2.Size", newSyms.size() == 1);
     report("FirstSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
+    report("FirstSet2.0to10", !contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
+    report("FirstSet2.20to30", !contains_range(*no_duplicates, newSyms, range<int>(20, 30)));
     
     // Second set should map to one set, containing 30-40
     newSyms = no_duplicates->new_symbols(secondSet);
     report("SecondSet2.Size", newSyms.size() == 1);
     report("SecondSet2.30to40", contains_range(*no_duplicates, newSyms, range<int>(30, 40)));
+    report("SecondSet2.20to30", !contains_range(*no_duplicates, newSyms, range<int>(20, 30)));
+    report("SecondSet2.40to50", !contains_range(*no_duplicates, newSyms, range<int>(40, 50)));
 
     // Third set should map to 0-10, 10-20, 30-40 and 40-50
     newSyms = no_duplicates->new_symbols(thirdSet);
