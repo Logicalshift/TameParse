@@ -52,7 +52,7 @@ int symbol_map::identifier_for_symbols(const symbol_set& symbols) {
 }
 
 /// \brief Returns an identifier for a set of symbols (returns -1 if the symbols aren't present in this map)
-int symbol_map::identifier_for_symbols(const symbol_set& symbols) const {
+int symbol_map::find_identifier_for_symbols(const symbol_set& symbols) const {
     // Try to find this symbol set in this object
     symbol_id_map::const_iterator oldSymbols = m_IdForSymbols.find(symbols);
     

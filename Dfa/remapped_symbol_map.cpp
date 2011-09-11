@@ -167,7 +167,7 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     remapped_symbol_map* newSet = new remapped_symbol_map();
     
     // Remap the epsilon set
-    int epsVal = source.identifier_for_symbols(epsilon());
+    int epsVal = source.find_identifier_for_symbols(epsilon());
     if (epsVal >= 0) {
         new_symbol_set epsilonSet;
         epsilonSet.insert(epsVal);

@@ -384,6 +384,13 @@ namespace dfa {
             
             return to_compact_dfa(initial, firstAction);
         }
+
+        /// \brief Creates a new NDFA (DFA if this is a DFA), merging any symbol sets that always produce the same action.
+        ///
+        /// This will reduce the number of symbol sets in use by the DFA, which will reduce the size of the tables that 
+        /// are generated from it. This is particularly effective after calling to_compact_dfa() to eliminate any redundant
+        /// symbol sets.
+        ndfa* to_ndfa_with_merged_symbols() const;
     };
 }
     

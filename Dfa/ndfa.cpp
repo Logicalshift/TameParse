@@ -885,3 +885,121 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     // Return the minimized DFA
     return result;
 }
+
+/// \brief Creates a new NDFA (DFA if this is a DFA), merging any symbol sets that always produce the same action.
+///
+/// This will reduce the number of symbol sets in use by the DFA, which will reduce the size of the tables that 
+/// are generated from it. This is particularly effective after calling to_compact_dfa() to eliminate any redundant
+/// symbol sets.
+ndfa* ndfa::to_ndfa_with_merged_symbols() const {
+    // A set of all the unique symbols in this (N)DFA
+    vector<set<int> >   uniqueSymbols;
+
+    // Maps symbols in this DFA to symbols in our new DFA
+    map<int, int>       symbolForSymbol;
+
+    // Begin with a set of all symbols, as ID 0
+    uniqueSymbols.push_back(set<int>());
+    for (symbol_map::iterator symbolSet = m_Symbols->begin(); symbolSet != m_Symbols->end(); symbolSet++) {
+        uniqueSymbols[0].insert(symbolSet->second);
+        symbolForSymbol[symbolSet->second] = 0;
+    }
+
+    // Iterate through all of the states to find the symbol sets that are different from one another
+    for (int stateId = 0; stateId < count_states(); stateId++) {
+        // Fetch this state
+        const state& thisState = get_state(stateId);
+
+        // Maps new symbol sets to the state that they transfer to
+        map<int, int> stateForSet;
+
+        // Iterate through the transitions for this state
+        for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+            // Get the new symbol set for this transit
+            int symbolSet = symbolForSymbol[transit->symbol_set()];
+
+            // Look for the state that this symbol produces
+            map<int, int>::iterator foundState = stateForSet.find(symbolSet);
+
+            // Just remember this target state if it hasn't been encountered before
+            if (foundState == stateForSet.end()) {
+                stateForSet[symbolSet] = transit->new_state();
+            } 
+
+            // Otherwise, do nothing if this transition maps to the same state
+            else if (foundState->second == transit->new_state()) {
+                continue;
+            }
+
+            // This symbol set is different: create a new set consisting of all of the symbols that map to the same set and transit to this alternate state
+            else {
+                // Create a new symbol set
+                uniqueSymbols.push_back(set<int>());
+                int         newSetId    = (int)uniqueSymbols.size()-1;
+                set<int>&   newSet      = uniqueSymbols.back();
+
+                // Add any symbol that has the same set and target state
+                for (state::iterator similarTransit = transit; similarTransit != thisState.end(); similarTransit++) {
+                    // Check that this transit goes to the same state
+                    if (similarTransit->new_state() != transit->new_state()) continue;
+
+                    // It must also use the same symbol set as before
+                    int originalSet = similarTransit->symbol_set();
+                    int similarSet  = symbolForSymbol[originalSet];
+                    if (similarSet != symbolSet) continue;
+
+                    // This symbol should be remapped to the set we just created
+                    uniqueSymbols[symbolSet].erase(originalSet);
+                    newSet.insert(originalSet);
+                    symbolForSymbol[originalSet] = newSetId;
+                }
+            }
+        }
+    }
+
+    // Create the new symbol sets
+    symbol_map* newSymbolMap = new symbol_map();
+
+    // Iterate through the different symbol sets that we found
+    for (int newSymbolId = 0; newSymbolId < (int) uniqueSymbols.size(); newSymbolId++) {
+        // Get the old sets that are mapped to this new set
+        set<int>& newSymbols = uniqueSymbols[newSymbolId];
+
+        // Iterate through them to build up the final symbol set
+        symbol_set newSymbolSet;
+        for (set<int>::iterator oldSymbolId = newSymbols.begin(); oldSymbolId != newSymbols.end(); oldSymbolId++) {
+            newSymbolSet |= (*m_Symbols)[*oldSymbolId];
+        }
+
+        // Add to the new map (relies on the symbol map counting from 0)
+        newSymbolMap->identifier_for_symbols(newSymbolSet);
+    }
+
+    // Create the new set of states with the remapped symbol sets
+    accept_action_for_state*    newActions  = new accept_action_for_state();
+    state_list*                 newStates   = new state_list();
+    for (int stateId = 0; stateId < count_states(); stateId++) {
+        // Get the old state
+        const state& oldState = get_state(stateId);
+
+        // Create the new state
+        state* newState = new state(stateId);
+        newStates->push_back(newState);
+
+        // Transform the transitions
+        for (state::iterator transit=oldState.begin(); transit != oldState.end(); transit++) {
+            newState->add(transition(symbolForSymbol[transit->symbol_set()], transit->new_state()));
+        }
+
+        // Copy the actions for this state
+        const accept_action_list& oldActions    = actions_for_state(stateId);
+        accept_action_list& newActionsForState  = (*newActions)[stateId];
+
+        for (accept_action_list::const_iterator oldAct = oldActions.begin(); oldAct != oldActions.end(); oldAct++) {
+            newActionsForState.push_back((*oldAct)->clone());
+        }
+    }
+
+    // Return the new NDFA
+    return new ndfa(newStates, newSymbolMap, newActions);
+}

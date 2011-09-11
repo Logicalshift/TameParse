@@ -44,10 +44,12 @@ namespace dfa {
         virtual ~symbol_map();
         
         /// \brief Returns an identifier for a set of symbols (assigning a new one as needed)
+        ///
+        /// Symbol set identifiers are assigned from 0 upwards
         int identifier_for_symbols(const symbol_set& symbols);
         
         /// \brief Returns an identifier for a set of symbols (returns -1 if the symbols aren't present in this map)
-        int identifier_for_symbols(const symbol_set& symbols) const;
+        int find_identifier_for_symbols(const symbol_set& symbols) const;
         
         /// \brief Number of symbol sets in this map
         inline int count_sets() const { return (int)m_SymbolsForId.size(); }
