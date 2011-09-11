@@ -164,15 +164,23 @@ void lexer_stage::compile() {
     
     // Compact the resulting DFA
     cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
-    dfa::ndfa* dfa = stage2->to_compact_dfa();
+    dfa::ndfa* stage3 = stage2->to_compact_dfa();
     delete stage2;
     
     // Write some information about the DFA we just produced
-    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << dfa->count_states() << endl;
-    m_Dfa = dfa;
+    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << stage3->count_states() << endl;
+    
+    // Eliminate any unnecessary symbol sets
+    dfa::ndfa* stage4 = stage3->to_ndfa_with_merged_symbols();
+    delete stage3;
+    
+    // Write some information about the DFA we just produced
+    cons().verbose_stream() << L"    Number of symbols in the compacted DFA: " << stage4->symbols().count_sets() << endl;
+    
+    m_Dfa = stage4;
     
     // Build the final lexer
-    m_Lexer = new lexer(*dfa);
+    m_Lexer = new lexer(*m_Dfa);
     
     // Write some parting words
     // (Well, this is really kibibytes but I can't take blibblebytes seriously as a unit of measurement)

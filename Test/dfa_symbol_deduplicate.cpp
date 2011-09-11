@@ -69,7 +69,7 @@ void test_dfa_symbol_deduplicate::run_tests() {
     
     remapped_symbol_map* no_duplicates = remapped_symbol_map::deduplicate(has_duplicates1);
     
-    report("NoEpsilon1", ((const symbol_map*)no_duplicates)->identifier_for_symbols(epsilon()) < 0);
+    report("NoEpsilon1", ((const symbol_map*)no_duplicates)->find_identifier_for_symbols(epsilon()) < 0);
     
     remapped_symbol_map::new_symbol_set newSyms;
     

@@ -1001,5 +1001,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
     }
 
     // Return the new NDFA
-    return new ndfa(newStates, newSymbolMap, newActions);
+    ndfa* result = new ndfa(newStates, newSymbolMap, newActions);
+    result->m_IsDeterministic = m_IsDeterministic;
+    return result;
 }
