@@ -55,7 +55,6 @@ namespace lr {
         /// \brief Iterator for actions
         typedef action* action_iterator;
         
-    private:
         /// \brief Structure that counts the number of terminal and nonterminal actions a state
         struct action_count {
             int m_NumTerms;
@@ -78,6 +77,7 @@ namespace lr {
             }
         };
         
+    private:
         /// \brief The number of states in this parser
         int m_NumStates;
         
@@ -113,10 +113,16 @@ namespace lr {
         
         /// \brief Ordered list of weak symbols and their strong equivalent
         symbol_equivalent* m_WeakToStrong;
+
+        /// \brief True if this object owns the tables
+        bool m_DeleteTables;
         
     public:
         /// \brief Creates a parser from the result of the specified builder class
         parser_tables(const lalr_builder& builder, const weak_symbols* weakSyms);
+
+        /// \brief Creates a parser from a set of tables. Tables passed into this constructor will not be deleted by the destructor
+        parser_tables(int numStates, int endOfInputSymbol, int endOfGuardSymbol, action** terminalActions, action** nonterminalActions, action_count* actionCounts, int* endGuardStates, int numEndGuards, int numRules, reduce_rule* reduceRules, int numWeakToStrong, symbol_equivalent* weakToStrong);
 
         /// \brief Copy constructor
         parser_tables(const parser_tables& copyFrom);
@@ -204,6 +210,42 @@ namespace lr {
         inline int count_states() const { 
             return m_NumStates;
         }
+
+    public:
+        /// \brief The terminal actions table.
+        ///
+        /// There is one table per state, and the action_counts table specifies the number of items for any
+        /// given state.
+        inline const action* const* terminal_actions() const { return m_TerminalActions; }
+
+        /// \brief The non-terminal actions table.
+        ///
+        /// There is one table per state, and the action_counts table specifies the number of items for any
+        /// given state.
+        inline const action* const* nonterminal_actions() const { return m_NonterminalActions; }
+
+        /// \brief The action count table
+        ///
+        /// There is one entry per state, each entry supplies the size of the terminal and nonterminal actions for that state.
+        inline const action_count* action_counts() const { return m_Counts; }
+
+        /// \brief A sorted list of the state IDs that have an 'end of guard' symbol action
+        inline const int* end_of_guard_states() const { return m_EndGuardStates; }
+
+        /// \brief The size of the end_of_guard_states table
+        inline int count_end_of_guards() const { return m_NumEndOfGuards; }
+
+        /// \brief The number of reduce rules
+        inline int count_reduce_rules() const { return m_NumRules; }
+
+        /// \brief The reduce rules for this parser (count_reduce_rules items)
+        inline const reduce_rule* reduce_rules() const { return m_Rules; }
+
+        /// \brief Counts the number of weak to strong entries
+        inline int count_weak_to_strong() const { return m_NumWeakToStrong; }
+
+        /// \brief The weak-to-strong equivalence table (ordered, count_weak_to_strong entries)
+        inline const symbol_equivalent* weak_to_strong() const { return m_WeakToStrong; }
     };
 }
 

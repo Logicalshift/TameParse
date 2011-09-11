@@ -61,7 +61,8 @@ static inline bool compare_actions(const parser_tables::action& a, const parser_
 }
 
 /// \brief Creates a parser from the result of the specified builder class
-parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* weakSymbols) {
+parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* weakSymbols) 
+: m_DeleteTables(true) {
     // Allocate the tables
     m_NumStates             = builder.count_states();
     m_NonterminalActions    = new action*[m_NumStates];
@@ -217,12 +218,30 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     }
 }
 
+/// \brief Creates a parser from a set of tables. Tables passed into this constructor will not be deleted by the destructor
+parser_tables::parser_tables(int numStates, int endOfInputSymbol, int endOfGuardSymbol, action** terminalActions, action** nonterminalActions, action_count* actionCounts, int* endGuardStates, int numEndGuards, int numRules, reduce_rule* reduceRules, int numWeakToStrong, symbol_equivalent* weakToStrong)
+: m_NumStates(numStates)
+, m_EndOfInput(endOfInputSymbol)
+, m_EndOfGuard(endOfGuardSymbol)
+, m_TerminalActions(terminalActions)
+, m_NonterminalActions(nonterminalActions)
+, m_Counts(actionCounts)
+, m_EndGuardStates(endGuardStates)
+, m_NumEndOfGuards(numEndGuards)
+, m_NumRules(numRules)
+, m_Rules(reduceRules)
+, m_NumWeakToStrong(numWeakToStrong)
+, m_WeakToStrong(weakToStrong)
+, m_DeleteTables(false) {
+}
+
 /// \brief Copy constructor
 parser_tables::parser_tables(const parser_tables& copyFrom) 
 : m_NumStates(copyFrom.m_NumStates)
 , m_NumRules(copyFrom.m_NumRules)
 , m_EndOfInput(copyFrom.m_EndOfInput)
-, m_EndOfGuard(copyFrom.m_EndOfGuard) {
+, m_EndOfGuard(copyFrom.m_EndOfGuard)
+, m_DeleteTables(copyFrom.m_DeleteTables) {
     // Allocate the action tables
     m_TerminalActions       = new action*[m_NumStates];
     m_NonterminalActions    = new action*[m_NumStates];
@@ -260,6 +279,8 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     for (int x=0; x<m_NumEndOfGuards; x++) {
         m_EndGuardStates[x] = copyFrom.m_EndGuardStates[x];
     }
+
+    // TODO: m_WeakToStrong
 }
 
 /// \brief Assignment
@@ -273,19 +294,21 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
 
 /// \brief Destructor
 parser_tables::~parser_tables() {
-    // Destroy each entry in the parser table
-    for (int x=0; x<m_NumStates; x++) {
-        delete[] m_NonterminalActions[x];
-        delete[] m_TerminalActions[x];
+    if (m_DeleteTables) {
+        // Destroy each entry in the parser table
+        for (int x=0; x<m_NumStates; x++) {
+            delete[] m_NonterminalActions[x];
+            delete[] m_TerminalActions[x];
+        }
+        
+        // Destroy the tables themselves
+        delete[] m_NonterminalActions;
+        delete[] m_TerminalActions;
+        delete[] m_Rules;
+        delete[] m_Counts;
+        delete[] m_EndGuardStates;
+        if (m_WeakToStrong) delete[] m_WeakToStrong;
     }
-    
-    // Destroy the tables themselves
-    delete[] m_NonterminalActions;
-    delete[] m_TerminalActions;
-    delete[] m_Rules;
-    delete[] m_Counts;
-    delete[] m_EndGuardStates;
-    if (m_WeakToStrong) delete[] m_WeakToStrong;
 }
 
 /// \brief Calculates the size in bytes of these parser tables
