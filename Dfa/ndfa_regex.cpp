@@ -459,7 +459,7 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
     // If found, then compile this expression
     if (found != m_ExpressionMap.end()) {
         // Add this regular expression, starting at the current state
-        int finalState = add_regex(cons.current_state().identifier(), expression);
+        int finalState = add_regex(cons.current_state().identifier(), found->second);
 
         // Set the final state as the new 'current' state
         cons.goto_state(get_state(finalState));
@@ -472,7 +472,7 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
     // If found, then compile this expression
     if (found != m_LiteralExpressionMap.end()) {
         // Add this literal string, starting at the current state
-        int finalState = add_literal(cons.current_state().identifier(), expression);
+        int finalState = add_literal(cons.current_state().identifier(), found->second);
 
         // Set the final state as the new 'current' state
         cons.goto_state(get_state(finalState));
