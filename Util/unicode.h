@@ -10,6 +10,9 @@
 #define _UTIL_UNICODE_H
 
 namespace util {
+    ///
+    /// \brief Class used to help out with unicode sequences
+    ///
     class unicode {
     public:
         /// \brief Range in a unicode block

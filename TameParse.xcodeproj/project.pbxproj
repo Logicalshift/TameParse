@@ -121,6 +121,7 @@
 		4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BCFA13514125A800004FD27 /* hard_coded_symbol_table.h */; };
 		4BD179B3141BBF7300DEDC24 /* language_primary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD179B1141BBCCA00DEDC24 /* language_primary.cpp */; };
 		4BD179B9141D0EBB00DEDC24 /* unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD179B8141D0EBB00DEDC24 /* unicode.cpp */; };
+		4BD179BB141D1ADD00DEDC24 /* unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD179B8141D0EBB00DEDC24 /* unicode.cpp */; };
 		4BD41D3F13ED9AF500C86FD2 /* error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD41D3E13ED9AF500C86FD2 /* error.cpp */; };
 		4BD41D4213ED9AFF00C86FD2 /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BD41D4113ED9AFF00C86FD2 /* error.h */; };
 		4BD612C1140112B000AA560E /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD612C0140112B000AA560E /* main.cpp */; };
@@ -1175,6 +1176,7 @@
 				4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */,
 				4BCFA13714125A800004FD27 /* hard_coded_symbol_table.cpp in Sources */,
 				4B9804041412789D00B5F857 /* tameparse_language.cpp in Sources */,
+				4BD179BB141D1ADD00DEDC24 /* unicode.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

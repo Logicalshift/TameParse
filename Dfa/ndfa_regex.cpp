@@ -8,7 +8,9 @@
 
 #include "ndfa_regex.h"
 #include "symbol_set.h"
+#include "Util/unicode.h"
 
+using namespace util;
 using namespace std;
 using namespace dfa;
 
@@ -446,6 +448,276 @@ int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const sy
 }
 
 ///
+/// \brief If str has the specified prefix, returns true and removes the prefix from the string
+///
+static inline bool match_prefix(const string& prefix, string& str) {
+    if (str.size() < prefix.size()) return false;
+    if (str.substr(0, prefix.size()) == prefix) {
+        str.erase(0, prefix.size());
+        return true;
+    }
+    return false;
+}
+
+///
+/// \brief Works out the unicode type of a particular expression
+///
+/// Returns an empty string if the expression matches no unicode expression. Otherwise returns
+/// one or two characters. If one character then the second specifier in the type should be 
+/// ignored. If two characters, then both specifiers should be used.
+///
+/// Eg, this returns "L" = all letters (ie, types Lu, Ll, etc). Or it returns "Lu" to mean all
+/// uppercase letters.
+///
+/// Valid expressions begin 'u-', 'uni-' or 'unicode-', followed by:
+///
+///     letter
+///     mark
+///     number
+///     punctuation
+///     symbol
+///     separator
+///     control
+///
+/// Additionally, this can be followed by modifiers as follows (most modifiers only really apply to a single type)
+///
+///     letter:
+///         uppercase
+///         lowercase
+///         titlecase
+///         modifier
+///         other
+///     mark:
+///         nonspacing
+///         spacing
+///         enclosing
+///     number:
+///         decimal
+///         letter
+///         other
+///     punctuation:
+///         connector
+///         dash
+///         open
+///         close
+///         initial
+///         final
+///         other
+///     symbol:
+///         math
+///         currency
+///         modifier
+///         other
+///     separator:
+///         space
+///         line
+///         paragraph
+///     control:
+///         control
+///         format
+///         surrogate
+///         private
+///
+/// For example, unicode-letter-uppercase means all uppercase letters.
+///
+static string unicode_for_expression(const symbol_string& expression) {
+    // Convert to a standard string
+    string expr;
+    for (symbol_string::const_iterator it = expression.begin(); it != expression.end(); it++) {
+        if (*it > 255) {
+            expr += '.';
+        } else {
+            expr += (char) *it;
+        }
+    }
+
+    // Must begin 'u-', 'uni-' or 'unicode-': strip this ID
+    if (!match_prefix("u-", expr) && !match_prefix("uni-", expr) && !match_prefix("unicode-" ,expr)) {
+        // Not recognised0
+        return "";
+    }
+
+    // Match the following string
+    string result;
+
+    // Gargantuan if statement to deal with all the cases
+    if (match_prefix("letter", expr)) {
+        // Push the value for this item
+        result += 'L';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("uppercase", expr)) {
+                // Push the modifier value
+                result += 'u';
+            }
+            if (match_prefix("lowercase", expr)) {
+                // Push the modifier value
+                result += 'l';
+            }
+            if (match_prefix("titlecase", expr)) {
+                // Push the modifier value
+                result += 't';
+            }
+            if (match_prefix("modifier", expr)) {
+                // Push the modifier value
+                result += 'm';
+            }
+            if (match_prefix("other", expr)) {
+                // Push the modifier value
+                result += 'o';
+            }
+        }
+    } else if (match_prefix("mark", expr)) {
+        // Push the value for this item
+        result += 'M';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("nonspacing", expr)) {
+                // Push the modifier value
+                result += 'n';
+            }
+            if (match_prefix("spacing", expr)) {
+                // Push the modifier value
+                result += 'c';
+            }
+            if (match_prefix("enclosing", expr)) {
+                // Push the modifier value
+                result += 'e';
+            }
+        }
+    } else if (match_prefix("number", expr)) {
+        // Push the value for this item
+        result += 'N';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("decimal", expr)) {
+                // Push the modifier value
+                result += 'd';
+            }
+            if (match_prefix("letter", expr)) {
+                // Push the modifier value
+                result += 'l';
+            }
+            if (match_prefix("other", expr)) {
+                // Push the modifier value
+                result += 'o';
+            }
+        }
+    } else if (match_prefix("punctuation", expr)) {
+        // Push the value for this item
+        result += 'P';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("connector", expr)) {
+                // Push the modifier value
+                result += 'c';
+            }
+            if (match_prefix("dash", expr)) {
+                // Push the modifier value
+                result += 'd';
+            }
+            if (match_prefix("open", expr)) {
+                // Push the modifier value
+                result += 's';
+            }
+            if (match_prefix("close", expr)) {
+                // Push the modifier value
+                result += 'e';
+            }
+            if (match_prefix("initial", expr)) {
+                // Push the modifier value
+                result += 'i';
+            }
+            if (match_prefix("final", expr)) {
+                // Push the modifier value
+                result += 'f';
+            }
+            if (match_prefix("other", expr)) {
+                // Push the modifier value
+                result += 'o';
+            }
+        }
+    } else if (match_prefix("symbol", expr)) {
+        // Push the value for this item
+        result += 'S';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("math", expr)) {
+                // Push the modifier value
+                result += 'm';
+            }
+            if (match_prefix("currency", expr)) {
+                // Push the modifier value
+                result += 'c';
+            }
+            if (match_prefix("modifier", expr)) {
+                // Push the modifier value
+                result += 'k';
+            }
+            if (match_prefix("other", expr)) {
+                // Push the modifier value
+                result += 'o';
+            }
+        }
+    } else if (match_prefix("separator", expr)) {
+        // Push the value for this item
+        result += 'Z';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("space", expr)) {
+                // Push the modifier value
+                result += 's';
+            }
+            if (match_prefix("line", expr)) {
+                // Push the modifier value
+                result += 'l';
+            }
+            if (match_prefix("paragraph", expr)) {
+                // Push the modifier value
+                result += 'p';
+            }
+        }
+    } else if (match_prefix("control", expr)) {
+        // Push the value for this item
+        result += 'C';
+
+        // Check for modifiers
+        if (match_prefix("-", expr)) {
+            if (match_prefix("control", expr)) {
+                // Push the modifier value
+                result += 'c';
+            }
+            if (match_prefix("format", expr)) {
+                // Push the modifier value
+                result += 'f';
+            }
+            if (match_prefix("surrogate", expr)) {
+                // Push the modifier value
+                result += 's';
+            }
+            if (match_prefix("private", expr)) {
+                // Push the modifier value
+                result += 'o';
+            }
+        }
+    }
+    
+    // Some unmatched characters if the expression is not empty at this point
+    if (!expr.empty()) {
+        return "";
+    }
+
+    // Return the result
+    return result;
+}
+
+///
 /// \brief Compiles the value of a {} expression
 ///
 /// The '{}' operator in a regular expression generally indicates a subexpression macro. The default implementation
@@ -481,7 +753,30 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
         return true;
     }
 
-    // TODO: look up unicode character sequences
+    // Get the unicode sequence for this item
+    string unicodeCategory = unicode_for_expression(expression);
+    if (!unicodeCategory.empty()) {
+        // Find all of the symbols that match this category
+        unicode     someUnicode;
+        symbol_set  ourSymbols;
+
+        // Iterate through all of the unicode block
+        for (unicode::iterator block = someUnicode.begin(); block != someUnicode.end(); block++) {
+            // Main category must match
+            if (block->type[0] != unicodeCategory[0]) continue;
+
+            // If the category has two parts, then the rest must match too
+            if (unicodeCategory.size() > 1 && block->type[1] != unicodeCategory[1]) continue;
+
+            // This matches: add the symbols ranges
+            for (const unicode::range* r = block->ranges; r->lower >= 0; r++) {
+                ourSymbols |= range<int>(r->lower, r->upper);
+            }
+        }
+
+        // Add a transition for this symbol set
+        cons >> ourSymbols;
+    }
 
     // Fail
     return false;
