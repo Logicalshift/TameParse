@@ -177,9 +177,68 @@ void ndfa::clear_accept(int state) {
     (*m_Accept)[state].clear();
 }
 
+/// \brief Returns the surrogate pair for a UTF-32 value
+///
+/// See section 3.9 of the Unicode standard.
+static inline pair<int, int> surrogate_pair(int ucs32) {
+    // The 'lower' range (second code point)
+    int lower = 0xdc00 | (ucs32&0x3ff);
+
+    // The 'higher' range (first code point)
+    int higher1 = (ucs32 >> 10) & 0x3f;
+    int higher2 = (ucs32 >> 16) - 1;
+    int higher = 0xd800 | higher1 | (higher2<<6);
+
+    // Return the pair for this character
+    return pair<int, int>(higher, lower);
+}
+
 /// \brief Adds a transition for a range of surrogate symbols for the specified state
-static void add_surrogate_transition(const range<int>& surrogateRange, int targetState, ndfa* nfa) {
-    
+static void add_surrogate_transition(const range<int>& surrogateRange, int currentState, int targetState, ndfa* nfa) {
+    // If the range is out of the range of valid surrogate characters then clip it
+    if (surrogateRange.lower() >= 0x110000) return;
+    if (surrogateRange.upper() > 0x110000) {
+        add_surrogate_transition(range<int>(surrogateRange.lower(), 0x110000), currentState, targetState, nfa);
+        return;
+    }
+
+    // Work out the range as surrogate pairs
+    pair<int, int> surrogateLower   = surrogate_pair(surrogateRange.lower());
+    pair<int, int> surrogateHigher  = surrogate_pair(surrogateRange.upper()-1);
+
+    // Action depends on whether or not there are 1, 2 or more 'upper' characters
+    if (surrogateLower.first == surrogateHigher.first) {
+        // Transit to a state if we match the 'upper' code point
+        int tmpState = nfa->add_state();
+        nfa->add_transition(currentState, range<int>(surrogateLower.first, surrogateLower.first+1), tmpState);
+
+        // Transit to the final state if we match any of the lower symbols
+        nfa->add_transition(tmpState, range<int>(surrogateLower.second, surrogateHigher.second+1), targetState);
+    } else {
+        // Transit to a new state for the lower set of symbols
+        int tmpState1 = nfa->add_state();
+        nfa->add_transition(currentState, range<int>(surrogateLower.first, surrogateLower.first+1), tmpState1);
+
+        // Transit to the final state for all the 'lower' symbols
+        nfa->add_transition(tmpState1, range<int>(surrogateLower.second, 0xdc00), targetState);
+
+        // ... do the same for the 'upper' set of symbols
+        int tmpState2 = nfa->add_state();
+        nfa->add_transition(currentState, range<int>(surrogateHigher.first, surrogateHigher.first+1), tmpState2);
+
+        // Transit to the final state for all the 'lower' symbols
+        nfa->add_transition(tmpState2, range<int>(0xd800, surrogateHigher.second+1), targetState);
+
+        // If there's a middle range, then add transitions for that as well
+        if (surrogateHigher.first-1 > surrogateLower.first) {
+            // Transit for all of the remaining 'higher' symbols
+            int tmpState3 = nfa->add_state();
+            nfa->add_transition(currentState, range<int>(surrogateLower.first+1, surrogateHigher.first), tmpState3);
+
+            // Accept for any 'lower' symbol
+            nfa->add_transition(tmpState3, range<int>(0xdc00, 0xe000), targetState);
+        }
+    }
 }
 
 /// \brief Moves to a new state when the specified range of symbols are encountered
@@ -229,7 +288,7 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
 
             // Add a surrogate transition for each surrogate range
             for (symbol_set::iterator syms = surrogates.begin(); syms != surrogates.end(); syms++) {
-                add_surrogate_transition(*syms, nextState, m_Ndfa);
+                add_surrogate_transition(*syms, m_CurrentState, nextState, m_Ndfa);
             }
 
             // Update the current state
