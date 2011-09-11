@@ -32,6 +32,9 @@ namespace dfa {
 
         /// \brief Maps expressions to regular expressions
         std::map<symbol_string, symbol_string> m_ExpressionMap;
+
+        /// \brief Maps expressions to literal strings
+        std::map<symbol_string, symbol_string> m_LiteralExpressionMap;
         
     public:
         /// \brief Constructs an empty NDFA
@@ -127,11 +130,19 @@ namespace dfa {
         /// By default, this is turned on, as 16-bit unicode characters are far more common.
         inline void set_use_surrogates(bool useSurrogates) { m_ConstructSurrogates = useSurrogates; }
 
-        /// \brief Defines a new expression
+        /// \brief Defines a new expression as a regular expression
         ///
         /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
-        /// change this behaviour by overriding the compile_expression funciton.
+        /// change this behaviour by overriding the compile_expression function.
         void define_expression(const symbol_string& name, const symbol_string& value);
+
+        /// \brief Defines a new expression as a literal string
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression function.
+        ///
+        /// Unlike the define_expression call, the value given here is literal rather than a regular expression.
+        void define_expression_literal(const symbol_string& name, const symbol_string& value);
 
         /// \brief Defines a new expression
         ///
@@ -147,6 +158,26 @@ namespace dfa {
         /// change this behaviour by overriding the compile_expression funciton.
         inline void define_expression(const std::string& name, const std::string& value) {
             define_expression(convert(name), convert(value));
+        }
+
+        /// \brief Defines a new expression as a literal string
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression function.
+        ///
+        /// Unlike the define_expression call, the value given here is literal rather than a regular expression.
+        inline void define_expression_literal(const std::wstring& name, const std::wstring& value) {
+            define_expression_literal(convert(name), convert(value));
+        }
+
+        /// \brief Defines a new expression as a literal string
+        ///
+        /// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+        /// change this behaviour by overriding the compile_expression function.
+        ///
+        /// Unlike the define_expression call, the value given here is literal rather than a regular expression.
+        inline void define_expression_literal(const std::string& name, const std::string& value) {
+            define_expression_literal(convert(name), convert(value));
         }
 
     protected:

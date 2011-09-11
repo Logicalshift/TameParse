@@ -27,7 +27,8 @@ ndfa_regex::ndfa_regex(const ndfa& copyFrom)
 ndfa_regex::ndfa_regex(const ndfa_regex& copyFrom)
 : ndfa(copyFrom)
 , m_ConstructSurrogates(copyFrom.m_ConstructSurrogates)
-, m_ExpressionMap(copyFrom.m_ExpressionMap) {
+, m_ExpressionMap(copyFrom.m_ExpressionMap)
+, m_LiteralExpressionMap(copyFrom.m_LiteralExpressionMap) {
 }
 
 /// \brief Converts a string to a symbol_string
@@ -152,6 +153,18 @@ void ndfa_regex::define_expression(const symbol_string& name, const symbol_strin
     m_ExpressionMap[name] = value;
 }
 
+
+/// \brief Defines a new expression as a literal string
+///
+/// When a regular expression contains {name}, it will be substituted for the supplied value. Subclasses can 
+/// change this behaviour by overriding the compile_expression function.
+///
+/// Unlike the define_expression call, the value given here is literal rather than a regular expression.
+void ndfa_regex::define_expression_literal(const symbol_string& name, const symbol_string& value) {
+    m_LiteralExpressionMap[name] = value;
+}
+
+
 ///
 /// \brief Compiles a single symbol from a regular expression
 ///
@@ -235,7 +248,6 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             // Any symbol
             cons >> symbol_set::symbol_range(0, 0x7fffffff);
             break;
-
             
         case '[':
         {
@@ -288,6 +300,24 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
             
             // Append the transition
             cons >> syms;
+            break;
+        }
+
+        case '{':
+        {
+            // Compiled expression: find the closing '{'
+            pos++;
+            if (pos == end) return;
+
+            // Read up to the closing '}'
+            symbol_string expr;
+            while (pos != end && *pos != '}') {
+                expr += *pos;
+                pos++;
+            }
+
+            // Compile this expression
+            compile_expression(expr, cons);
             break;
         }
 
@@ -430,6 +460,19 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
     if (found != m_ExpressionMap.end()) {
         // Add this regular expression, starting at the current state
         int finalState = add_regex(cons.current_state().identifier(), expression);
+
+        // Set the final state as the new 'current' state
+        cons.goto_state(get_state(finalState));
+        return true;
+    }
+
+    // Look up the expression in the literal expression map
+    found = m_LiteralExpressionMap.find(expression);
+
+    // If found, then compile this expression
+    if (found != m_LiteralExpressionMap.end()) {
+        // Add this literal string, starting at the current state
+        int finalState = add_literal(cons.current_state().identifier(), expression);
 
         // Set the final state as the new 'current' state
         cons.goto_state(get_state(finalState));

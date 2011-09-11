@@ -95,8 +95,51 @@ void language_stage::compile() {
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
         if ((*lexerSymbols)->type() != language_unit::unit_lexer_symbols) continue;
+
+        // Fetch the lexer block
+        lexer_block* lex = (*lexerSymbols)->any_lexer_block();
         
-        // TODO: implement me
+        // Ignore blocks that don't define lexer symbols
+        if (!lex) continue;
+
+        // Define these as expressions
+        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+            // TODO: check if an expression is already defined and report an error if it is
+
+            // Action depends on the type of item
+            switch ((*lexerItem)->get_type()) {
+                case lexeme_definition::regex:
+                {
+                    // Remove the '/' symbols from the regex
+                    wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
+                    
+                    // Add to the NDFA
+                    m_Lexer.define_expression((*lexerItem)->identifier(), withoutSlashes);
+                    break;
+                }
+                    
+                case lexeme_definition::literal:
+                {
+                    // Add as a literal to the NDFA
+                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), (*lexerItem)->identifier());
+                    break;
+                }
+
+                case lexeme_definition::string:
+                case lexeme_definition::character:
+                {
+                    // Add as a literal to the NDFA
+                    // We can do both characters and strings here (dequote_string will work on both kinds of item)
+                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), process::dequote_string((*lexerItem)->definition()));
+                    break;
+                }
+
+                default:
+                    // Unknown type of lexeme definition
+                    cons().report_error(error(error::sev_bug, filename(), L"BUG_UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
+                    break;
+            }
+        }
     }
     
     // Order that lexer blocks should be processed in (the priority of the symbols)
