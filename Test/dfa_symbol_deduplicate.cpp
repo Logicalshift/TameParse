@@ -112,11 +112,12 @@ void test_dfa_symbol_deduplicate::run_tests() {
 
     // Third set should map to 0-10, 10-20, 30-40 and 40-50
     newSyms = no_duplicates->new_symbols(thirdSet);
-    report("ThirdSet2.Size", newSyms.size() == 4);
+    report("ThirdSet2.Size", newSyms.size() == 3);
     report("ThirdSet2.0to10", contains_range(*no_duplicates, newSyms, range<int>(0, 10)));
     report("ThirdSet2.10to20", contains_range(*no_duplicates, newSyms, range<int>(10, 20)));
     report("ThirdSet2.30to40", contains_range(*no_duplicates, newSyms, range<int>(30, 40)));
     report("ThirdSet2.40to50", contains_range(*no_duplicates, newSyms, range<int>(40, 50)));
+    report("ThirdSet2.50to60", !contains_range(*no_duplicates, newSyms, range<int>(50, 60)));
     
     delete no_duplicates;
     
