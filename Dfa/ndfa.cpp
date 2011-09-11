@@ -509,16 +509,3 @@ bool ndfa::verify_is_dfa() const {
     // Looks good
     return true;
 }
-
-/// \brief Class used to compare accepting actions
-class order_actions {
-public:
-    /// Returns true if one accept action is less than another
-    inline bool operator()(accept_action* a, accept_action* b) {
-        if (a == b)     return false;
-        if (a == NULL)  return true;
-        if (b == NULL)  return false;
-        
-        return *a < *b;
-    }
-};
