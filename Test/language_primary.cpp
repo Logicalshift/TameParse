@@ -9,11 +9,14 @@
 #include <string>
 #include <sstream>
 
+#include "Language/bootstrap.h"
+
 #include "language_primary.h"
 #include "tameparse_language.h"
 
 using namespace std;
 using namespace dfa;
+using namespace lr;
 using namespace language;
 
 // Checks that a given phrase is lexed as the specified symbol
@@ -68,4 +71,18 @@ void test_language_primary::run_tests() {
     report("MatchWhitespace", test_lex("  ", tameparse_language::lexer, tameparse_language::t::whitespace));
     report("MatchNewline", test_lex("\n", tameparse_language::lexer, tameparse_language::t::newline));
     report("MatchComment", test_lex("// Comment", tameparse_language::lexer, tameparse_language::t::comment));
+
+    // Create a lexer for the language definition
+    bootstrap bs;
+    stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
+
+    lexeme_stream* defaultStream = bs.get_lexer().create_stream_from(bootstrapDefinition);
+    
+    // Create a parser for it
+    simple_parser::state* defParser = tameparse_language::simple_parser.create_parser(new simple_parser_actions(defaultStream));
+    
+    // Try parsing the language
+    bool acceptedDefault = defParser->parse();
+    
+    report("CanParseLanguageDefinition", acceptedDefault);
 }

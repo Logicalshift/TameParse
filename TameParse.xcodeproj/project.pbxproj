@@ -578,8 +578,8 @@
 			children = (
 				4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */,
 				4B7F0C611393E9FE0012C085 /* language_bootstrap.h */,
-				4BD179AF141BBCBD00DEDC24 /* language_primary.h */,
 				4BD179B1141BBCCA00DEDC24 /* language_primary.cpp */,
+				4BD179AF141BBCBD00DEDC24 /* language_primary.h */,
 			);
 			name = Language;
 			sourceTree = "<group>";
