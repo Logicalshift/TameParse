@@ -8,15 +8,19 @@ language ParserLanguage {
 	/// Symbols used by the lexer
 	lexer-symbols {
 		// Commonly used character sets
-		letter 			= /({unicode-letter}|{unicode-punctuation-dash})/
+		letter 			= /({unicode-letter}|{unicode-punctuation-dash}|{unicode-punctuation-connector})/
 		digit 			= /{unicode-number}/
 		alphanumeric 	= /({letter}|{digit})/
 		whitespace		= /{unicode-separator}|[\t\n\r]/
 		anycharacter	= /[^\n\r]/
+
+		// Characters valid in regular expressions and strings
+		regex-char		= /[^\/]|(\\\/)/
+		string-char     = /[^"]|(\\")/
 		
 		// Identifiers, regular expressions
 		identifier		= /{letter}{alphanumeric}*/
-		regex			= /\/([^\/]|(\\\/))+\//
+		regex			= /\/{regex-char}+\//
 	}
 
 	/// Lexical symbols
@@ -24,7 +28,7 @@ language ParserLanguage {
 		identifier		= /{identifier}/
 		nonterminal		= /\<{identifier}\>/
 		regex			= /{regex}/
-		string			= /"([^"]|(\\"))*"/
+		string			= /"{string-char}*"/
 		character		= /'(.|\\.)'/
 	}
 	
