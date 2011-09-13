@@ -90,6 +90,7 @@ namespace lr {
 
         inline void reject(const lexeme_container& lookahead) {
             std::wcerr << L"REJECT: " << lookahead->content<wchar_t>() << L" (" << lookahead->matched() << L")" << std::endl;
+            std::wcerr << L"At line: " << lookahead->pos().line() << std::endl;
         }
     };
 

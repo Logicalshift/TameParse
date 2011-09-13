@@ -11,12 +11,12 @@ language ParserLanguage {
 		letter 			= /({unicode-letter}|{unicode-punctuation-dash})/
 		digit 			= /{unicode-number}/
 		alphanumeric 	= /({letter}|{digit})/
-		whitespace		= /{unicode-separator}/
+		whitespace		= /{unicode-separator}|[\t\n\r]/
 		anycharacter	= /[^\n\r]/
 		
 		// Identifiers, regular expressions
 		identifier		= /{letter}{alphanumeric}*/
-		regex			= /\/([^\/]|(\\\/))*\//
+		regex			= /\/([^\/]|(\\\/))+\//
 	}
 
 	/// Lexical symbols
