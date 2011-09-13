@@ -57,7 +57,9 @@ void test_language_primary::run_tests() {
     report("MatchIdentifier4", test_lex("identifier", tameparse_language::lexer, tameparse_language::t::identifier));
     report("MatchNonterminal1", test_lex("<nonterminal>", tameparse_language::lexer, tameparse_language::t::nonterminal));
     report("MatchRegex1", test_lex("/regex/", tameparse_language::lexer, tameparse_language::t::regex));
+    report("MatchRegex2", test_lex("/\\//", tameparse_language::lexer, tameparse_language::t::regex));
     report("MatchString1", test_lex("\"string\"", tameparse_language::lexer, tameparse_language::t::string));
+    report("MatchString2", test_lex("\"str\\\"ing\"", tameparse_language::lexer, tameparse_language::t::string));
     report("MatchCharacter1", test_lex("'c'", tameparse_language::lexer, tameparse_language::t::character));
     report("MatchCharacter2", test_lex("'\\n'", tameparse_language::lexer, tameparse_language::t::character));
     
