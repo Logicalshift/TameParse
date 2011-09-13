@@ -72,6 +72,7 @@ void test_language_primary::run_tests() {
     report("MatchNewline", test_lex("\n", tameparse_language::lexer, tameparse_language::t::newline));
     report("MatchComment1", test_lex("// Comment", tameparse_language::lexer, tameparse_language::t::comment));
     report("MatchComment2", test_lex("///", tameparse_language::lexer, tameparse_language::t::comment));
+    report("MatchComment3", test_lex("//", tameparse_language::lexer, tameparse_language::t::comment));
 
     // Create a lexer for the language definition
     bootstrap bs;
