@@ -479,6 +479,9 @@ template<typename get_count> void write_action_table(string tableName, const lr:
 	for (int state = 0; state < tables.count_states(); state++) {
 		// Add the actions for this state
 		int numActions = gc(tables, state);
+        
+        bool showingState = true;
+        output << "\n\n    // State " << state << "\n    ";
 
 		// Write out each action for this state
 		for (int actionId = 0; actionId < numActions; actionId++) {
@@ -488,7 +491,7 @@ template<typename get_count> void write_action_table(string tableName, const lr:
 			}
 
 			// Add newlines for formatting
-			if ((count%5) == 0) {
+			if ((count%5) == 0 && !showingState) {
 				output << "\n    ";
 			}
 
@@ -498,6 +501,7 @@ template<typename get_count> void write_action_table(string tableName, const lr:
 
 			// Move on
 			first = false;
+            showingState = false;
 			count++;
 		}
 	}
