@@ -61,6 +61,9 @@ namespace dfa {
 
     public:
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        int add_regex(builder& cons, const symbol_string& regex);
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(int initialState, const symbol_string& regex);
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state and adding an accepting action

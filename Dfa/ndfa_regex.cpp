@@ -123,6 +123,13 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     cons.set_generate_surrogates(m_ConstructSurrogates);
     cons.goto_state(get_state(initialState));
     
+    // Compile the regular expression
+    return add_regex(cons, regex);
+}
+    
+
+/// \brief Compiles a regular expression starting at the specified state, returning the final state
+int ndfa_regex::add_regex(builder& cons, const symbol_string& regex) {
     // Create an epsilon transform to an initial state for this regex
     cons >> epsilon();
     
@@ -733,10 +740,9 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
     // If found, then compile this expression
     if (found != m_ExpressionMap.end()) {
         // Add this regular expression, starting at the current state
-        int finalState = add_regex(cons.current_state().identifier(), found->second);
+        add_regex(cons, found->second);
 
         // Set the final state as the new 'current' state
-        cons.goto_state(get_state(finalState));
         return true;
     }
 
