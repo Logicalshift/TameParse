@@ -77,7 +77,7 @@ void test_language_primary::run_tests() {
     bootstrap bs;
     stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
 
-    lexeme_stream* defaultStream = bs.get_lexer().create_stream_from(bootstrapDefinition);
+    lexeme_stream* defaultStream = tameparse_language::lexer.create_stream_from(bootstrapDefinition);
     
     // Create a parser for it
     simple_parser::state* defParser = tameparse_language::simple_parser.create_parser(new simple_parser_actions(defaultStream));
