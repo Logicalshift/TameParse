@@ -15,7 +15,7 @@ namespace lr {
     ///
     /// \brief Constructs a new state, used by the parser
     ///
-    template<typename item_type, typename parser_actions> parser<item_type, parser_actions>::state::state(const parser_tables& tables, int initialState, session* session) 
+    template<typename I, typename A, typename T> parser<I, A, T>::state::state(const parser_tables& tables, int initialState, session* session) 
     : m_Tables(&tables)
     , m_Session(session)
     , m_LookaheadPos(0) {
@@ -31,7 +31,7 @@ namespace lr {
     ///
     /// \brief Creates a new parser state by copying an old one. Parser states can be run independently.
     ///
-    template<typename item_type, typename parser_actions> parser<item_type, parser_actions>::state::state(const state& copyFrom)
+    template<typename I, typename A, typename T> parser<I, A, T>::state::state(const state& copyFrom)
     : m_Tables(copyFrom.m_Tables)
     , m_Session(copyFrom.m_Session)
     , m_Stack(copyFrom.m_Stack)
@@ -46,7 +46,7 @@ namespace lr {
     ///
     /// \brief Destructor
     ///
-    template<typename item_type, typename parser_actions> parser<item_type, parser_actions>::state::~state() {
+    template<typename I, typename A, typename T> parser<I, A, T>::state::~state() {
         // Remove this state from the session
         if (m_LastState) {
             m_LastState->m_NextState = m_NextState;
@@ -66,7 +66,7 @@ namespace lr {
     ///
     /// \brief Trims the lookahead in the sessions (removes any symbols that won't be visited again)
     ///
-    template<typename I, typename A> inline void parser<I, A>::state::trim_lookahead() {
+    template<typename I, typename A, typename T> inline void parser<I, A, T>::state::trim_lookahead() {
         // Find the minimum lookahead position in all of the states
         int minPos = m_LookaheadPos;
         for (state* whichState = m_Session->m_FirstState; whichState != NULL; whichState = whichState->m_NextState) {
@@ -90,7 +90,7 @@ namespace lr {
     ///
     /// It is an error to call this without calling lookahead() at least once since the last call.
     ///
-    template<typename I, typename A> inline void parser<I, A>::state::next() {
+    template<typename I, typename A, typename T> inline void parser<I, A, T>::state::next() {
         m_LookaheadPos++;
         trim_lookahead();
     }
@@ -98,7 +98,7 @@ namespace lr {
     ///
     /// \brief Retrieves the current lookahead character
     ///
-    template<typename I, typename A> inline const typename parser<I, A>::lexeme_container& parser<I, A>::state::look(int offset) {
+    template<typename I, typename A, typename T> inline const typename parser<I, A, T>::lexeme_container& parser<I, A, T>::state::look(int offset) {
         // Static lexeme container representing the end of the file
         static lexeme_container endOfFile((lexeme*)NULL);
         
@@ -138,10 +138,11 @@ namespace lr {
     /// generated. This is to support guard actions (where we are only interested in storing the state) as
     /// well as standard actions (where we want to call the actions object to actually perform the action)
     ///
-    template<class I, class A> template<class actions> inline bool parser<I, A>::state::perform_generic(const lexeme_container& lookahead, const action* act, actions& actDelegate) {
+    template<class I, class A, class T> template<class actions> inline bool parser<I, A, T>::state::perform_generic(const lexeme_container& lookahead, const action* act, actions& actDelegate) {
         switch (act->m_Type) {
             case lr_action::act_ignore:
                 // Discard the current lookahead
+                actDelegate.ignore(this, act, lookahead);
                 return true;
                 
             case lr_action::act_shift:
@@ -204,7 +205,7 @@ namespace lr {
     /// can produce an accepting state, then this will return the ID of the guard symbol that was accepted.
     /// If no accepting state is reached, this will return a negative value (generally -1)
     ///
-    template<class I, class A> int parser<I,A>::state::check_guard(int initialState, int initialOffset) {
+    template<typename I, typename A, typename T> int parser<I, A, T>::state::check_guard(int initialState, int initialOffset) {
         // Create the guard actions object
         guard_actions guardActions(initialState, initialOffset);
         
@@ -307,7 +308,7 @@ namespace lr {
     }
     
     /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
-    template<class I, class A> inline void parser<I, A>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed) {
+    template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed) {
         // Get the reduce rule
         const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
         
@@ -342,7 +343,7 @@ namespace lr {
     }
     
     /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
-    template<class I, class A> template<class symbol_fetcher> bool parser<I, A>::state::can_reduce(int symbol, int stackPos, std::stack<int> pushed) {
+    template<typename I, typename A, typename T> template<class symbol_fetcher> bool parser<I, A, T>::state::can_reduce(int symbol, int stackPos, std::stack<int> pushed) {
         // Get the new state
         int state;
         if (!pushed.empty()) {
@@ -425,7 +426,7 @@ namespace lr {
     ///
     /// This version takes several parameters: the current lookahead token, the ID of the symbol and whether or not it's
     /// a terminal symbol, and the range of actions that might apply to this particular symbol.
-    template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(
+    template<typename I, typename A, typename T> template<class actions> inline parser_result::result parser<I,A,T>::state::process_generic(
                                                           actions& actDelegate, 
                                                           const lexeme_container& la, 
                                                           int symbol, bool isTerminal,
@@ -484,12 +485,13 @@ namespace lr {
         }
         
         // We reject if we reach here
+        actDelegate.reject(la);
         return parser_result::reject;
     }
     
     
     /// \brief Performs a single parsing action, and returns the result
-    template<class I, class A> template<class actions> inline parser_result::result parser<I,A>::state::process_generic(actions& actDelegate) {
+    template<typename I, typename A, typename T> template<class actions> inline parser_result::result parser<I,A,T>::state::process_generic(actions& actDelegate) {
         // Fetch the lookahead
         lexeme_container la = actDelegate.look(this);
         
@@ -528,7 +530,7 @@ namespace lr {
     /// Practical experience indicates that guards are often used in situations that are not quite LALR(1); checking
     /// whether or not reductions will be successful makes them easier to use as they will not cause spurious reductions
     /// in situations where it's not appropriate.
-    template<class I, class A> template<class actions> bool parser<I, A>::state::process_guard(actions& actDelegate, 
+    template<typename I, typename A, typename T> template<class actions> bool parser<I, A, T>::state::process_guard(actions& actDelegate, 
                                                                                                const lexeme_container& la, 
                                                                                                int guardSymbol) {
         typedef parser_tables::action_iterator action_iterator;

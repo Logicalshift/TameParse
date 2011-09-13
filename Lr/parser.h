@@ -11,6 +11,7 @@
 
 #include <vector>
 #include <stack>
+#include <iostream>
 
 #include "Dfa/lexeme.h"
 #include "Dfa/basic_lexer.h"
@@ -34,11 +35,68 @@ namespace lr {
             accept
         };
     };
+    
+    ///
+    /// \brief Parser trace class that performs no actions
+    ///
+    /// You can implement a class with the same signature as this one (or derive from it to ensure future compatibility)
+    /// in order to get information about the actions that the parser is performing.
+    ///
+    class no_parser_trace {
+    public:
+        /// \brief Lexeme type
+        typedef dfa::lexeme lexeme;
+        typedef dfa::lexeme_container lexeme_container;
+
+    public:
+        inline void ignore(const lexeme_container& lookahead)               { }
+        inline void shift(const lexeme_container& lookahead, int newState)  { }
+        inline void reduce(int nonterminalId, int ruleId, int length)       { }
+        inline void goto_state(int newState)                                { }
+        inline void checked_guard(int result)                               { }
+        inline void reject(const lexeme_container& lookahead)               { }
+    };
+    
+    ///
+    /// \brief Parser trace class that writes trace data to wcerr
+    ///
+    /// Declare with level set to values greater than 0 to increase the amount of data that's presented
+    ///
+    template<int level> class debug_parser_trace : public no_parser_trace {
+    public:
+        inline void ignore(const lexeme_container& lookahead) {
+            if (level > 1) {
+                std::wcerr << L"IGNORE: " << lookahead->content<wchar_t>() << L" (" << lookahead->matched() << L")" << std::endl;
+            }
+        }
+        
+        inline void shift(const lexeme_container& lookahead, int newState) {
+            std::wcerr << L"SHIFT TO " << newState << L": " << lookahead->content<wchar_t>() << L" (" << lookahead->matched() << L")" << std::endl;
+        }
+        
+        inline void reduce(int nonterminalId, int ruleId, int length) {
+            std::wcerr << L"REDUCE " << nonterminalId << L"(" << length << L" symbols)" << std::endl;
+        }
+        
+        inline void goto_state(int newState) {
+            std::wcerr << L"GOTO " << newState << std::endl;
+        }
+        
+        inline void checked_guard(int result) {
+            if (level > 0) {
+                std::wcerr << L"CHECK GUARD RESULT: " << result << L"\n";
+            }
+        }
+
+        inline void reject(const lexeme_container& lookahead) {
+            std::wcerr << L"REJECT: " << lookahead->content<wchar_t>() << L" (" << lookahead->matched() << L")" << std::endl;
+        }
+    };
 
     ///
     /// \brief Generic parser implementation.
     ///
-    template<typename item_type, typename parser_actions> class parser {
+    template<typename item_type, typename parser_actions, typename parser_trace = no_parser_trace> class parser {
     private:
         /// \brief The parser tables
         parser_tables m_ParserTables;
@@ -143,6 +201,9 @@ namespace lr {
             /// \brief The last state in the state list
             state* m_LastState;
             
+            /// \brief The parser trace class
+            parser_trace m_Trace;
+            
         private:
             /// \brief States can't be assigned
             state& operator=(const state& noAssignment) { }
@@ -184,15 +245,31 @@ namespace lr {
             /// \brief The actions performed when acting as a standard parser
             ///
             class standard_actions {
+            private:
+                /// \brief The trace for these actions
+                parser_trace m_Trace;
+                
             public:
+                /// \brief Ignore action
+                inline void ignore(state* state, const action* act, const lexeme_container& lookahead) {
+                    // Just tell the trace
+                    m_Trace.ignore(lookahead);
+                }
+                
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
                     state->m_Stack.push(act->m_NextState, state->m_Session->m_Actions->shift(lookahead));
+                    
+                    // Tell the trace
+                    m_Trace.shift(lookahead, act->m_NextState);
                 }
                 
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
+                    // Tell the trace that this is happening
+                    m_Trace.reduce(rule.m_Identifier, rule.m_RuleId, rule.m_Length);
+                    
                     // Pop items from the stack, and create an item for them by calling the actions
                     reduce_list items;
                     for (int x=0; x < rule.m_Length; x++) {
@@ -211,6 +288,9 @@ namespace lr {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
                             state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, rule.m_RuleId, items));
+                            
+                            // Tell the trace about this
+                            m_Trace.goto_state(gotoAct->m_NextState);
                             break;
                         }
                     }                    
@@ -219,6 +299,8 @@ namespace lr {
                 /// \brief Sets the current state of the parser
                 inline void set_state(state* state, int newState) {
                     state->m_Stack->state = newState;
+                    
+                    m_Trace.goto_state(newState);
                 }
                 
                 /// \brief Returns the current lookahead symbol
@@ -233,7 +315,16 @@ namespace lr {
                 
                 /// \brief Returns -1 or the guard symbol matched by the lookahead with the specified initial guard state
                 inline int check_guard(state* state, int initialState) {
-                    return state->check_guard(initialState, 0);
+                    int result = state->check_guard(initialState, 0);
+                    
+                    m_Trace.checked_guard(result);
+                    
+                    return result;
+                }
+                
+                /// \brief The specified symbol has been rejected
+                inline void reject(const lexeme_container& rejected) {
+                    m_Trace.reject(rejected);
                 }
             };
             
@@ -268,6 +359,11 @@ namespace lr {
                 inline int current_state() const { return m_Stack.top(); }
                 
             public:
+                /// \brief Ignore action
+                inline void ignore(state* state, const action* act, const lexeme_container& lookahead) {
+                    // Just tell the trace
+                }
+
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
@@ -305,6 +401,10 @@ namespace lr {
                 /// \brief Returns -1 or the guard symbol matched by the lookahead with the specified initial guard state
                 inline int check_guard(state* state, int initialState) {
                     return state->check_guard(initialState, m_Offset);
+                }
+                
+                /// \brief The specified symbol has been rejected
+                inline void reject(const lexeme_container& rejected) {
                 }
             };
 
