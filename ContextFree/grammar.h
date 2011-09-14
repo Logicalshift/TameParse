@@ -77,6 +77,8 @@ namespace contextfree {
         
     public:
         /// \brief Returns the first unused nonterminal ID
+        ///
+        /// Note that nonterminal IDs should always match up with item IDs.
         inline int max_nonterminal() const { return (int)m_ItemIdentifiers.size(); }
         
         /// \brief Returns the rules for the nonterminal with the specified identifier

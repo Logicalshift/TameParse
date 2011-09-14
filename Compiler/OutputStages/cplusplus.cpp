@@ -203,7 +203,7 @@ void output_cplusplus::end_output() {
 }
 
 /// \brief The output stage is about to produce a list of terminal symbols
-void output_cplusplus::begin_terminal_symbols() {
+void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) {
     // Create a public class to contain the list of terminal identifiers
     (*m_HeaderFile) << "\npublic:\n";
     (*m_HeaderFile) << "    class t {\n";
@@ -237,7 +237,7 @@ void output_cplusplus::end_terminal_symbols() {
 }
 
 /// \brief The output stage is about to produce a list of non-terminal symbols
-void output_cplusplus::begin_nonterminal_symbols() {
+void output_cplusplus::begin_nonterminal_symbols(const contextfree::grammar& gram) {
     // Create a public class to contain the list of nonterminal identifiers
     (*m_HeaderFile) << "\npublic:\n";
     (*m_HeaderFile) << "    class nt {\n";
@@ -245,7 +245,7 @@ void output_cplusplus::begin_nonterminal_symbols() {
 }
 
 /// \brief Specifies the identifier for the non-terminal symbol with a given name
-void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifier) {
+void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item) {
     // Get the short name
     string       shortName = get_identifier(name);
     

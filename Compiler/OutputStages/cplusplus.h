@@ -83,7 +83,7 @@ namespace compiler {
 		virtual void end_output();
 
 		/// \brief The output stage is about to produce a list of terminal symbols
-		virtual void begin_terminal_symbols();
+		virtual void begin_terminal_symbols(const contextfree::grammar& gram);
 
 		/// \brief Specifies the identifier for the terminal symbol with a given name
 		virtual void terminal_symbol(const std::wstring& name, int identifier);
@@ -92,10 +92,10 @@ namespace compiler {
 		virtual void end_terminal_symbols();
 
 		/// \brief The output stage is about to produce a list of non-terminal symbols
-		virtual void begin_nonterminal_symbols();
+		virtual void begin_nonterminal_symbols(const contextfree::grammar& gram);
 
 		/// \brief Specifies the identifier for the non-terminal symbol with a given name
-		virtual void nonterminal_symbol(const std::wstring& name, int identifier);
+		virtual void nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item);
 
 		/// \brief Finished writing out the terminal symbols
 		virtual void end_nonterminal_symbols();

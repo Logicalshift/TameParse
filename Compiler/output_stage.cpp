@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace contextfree;
 using namespace compiler;
 
 /// \brief Creates a new output stage
@@ -52,7 +53,7 @@ void output_stage::define_symbols() {
 	// TODO: sanity check
 
 	// Write out the terminal symbols that are defined in this language
-	begin_terminal_symbols();
+	begin_terminal_symbols(*m_LanguageStage->grammar());
 
 	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); symbolId++) {
 		terminal_symbol(m_LanguageStage->terminals()->name_for_symbol(symbolId), symbolId);
@@ -61,10 +62,17 @@ void output_stage::define_symbols() {
 	end_terminal_symbols();
 
 	// Write out the nonterminal symbols that are defined in this language
-	begin_nonterminal_symbols();
+	begin_nonterminal_symbols(*m_LanguageStage->grammar());
 
 	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_nonterminal(); symbolId++) {
-		nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId);
+		// Assume that the nonterminal IDs match up to item IDs (they should do)
+		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
+
+		// Must be an actual named nonterminal
+		if (ntItem->type() != item::nonterminal) continue;
+
+		// Output this item
+		nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId, ntItem);
 	}
 
 	end_nonterminal_symbols();
@@ -173,7 +181,7 @@ void output_stage::end_output() {
 }
 
 /// \brief The output stage is about to produce a list of terminal symbols
-void output_stage::begin_terminal_symbols() {
+void output_stage::begin_terminal_symbols(const contextfree::grammar& gram) {
 	// Do nothing in the default implementation
 }
 
@@ -188,12 +196,12 @@ void output_stage::end_terminal_symbols() {
 }
 
 /// \brief The output stage is about to produce a list of non-terminal symbols
-void output_stage::begin_nonterminal_symbols() {
+void output_stage::begin_nonterminal_symbols(const contextfree::grammar& gram) {
 	// Do nothing in the default implementation
 }
 
 /// \brief Specifies the identifier for the non-terminal symbol with a given name
-void output_stage::nonterminal_symbol(const std::wstring& name, int identifier) {
+void output_stage::nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item) {
 	// Do nothing in the default implementation
 }
 
@@ -284,5 +292,40 @@ void output_stage::parser_tables(const lr::lalr_builder& builder, const lr::pars
 
 /// \brief Finished the parser definitions
 void output_stage::end_parser_definitions() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write out the definitions associated with the AST
+void output_stage::begin_ast_definitions(const contextfree::grammar& grammar) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write the AST definitions for the specified nonterminal
+void output_stage::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write out a rule in the current nonterminal
+void output_stage::begin_ast_rule(int identifier) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Writes out an individual item in the current rule
+void output_stage::rule_item(const contextfree::item_container& item) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Finished writing out 
+void output_stage::end_ast_rule() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Finished writing the definitions for a nonterminal
+void output_stage::end_ast_nonterminal() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Finished writing out the AST information
+void output_stage::end_ast_definitions() {
 	// Do nothing in the default implementation
 }
