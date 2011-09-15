@@ -194,7 +194,13 @@ void output_stage::define_ast_tables() {
             
             // Write out the rule items
             for (rule::iterator ruleItem = (*ruleDefn)->begin(); ruleItem != (*ruleDefn)->end(); ruleItem++) {
-                rule_item(*ruleItem);
+                if ((*ruleItem)->type() == item::terminal) {
+                    // Terminal item
+                    rule_item_terminal(gram.identifier_for_item(*ruleItem), (*ruleItem)->symbol(), *ruleItem);
+                } else {
+                    // Nonterminal item
+                    rule_item_nonterminal(gram.identifier_for_item(*ruleItem), *ruleItem);
+                }
             }
             
             // Finished this rule
@@ -372,8 +378,17 @@ void output_stage::begin_ast_rule(int identifier) {
 	// Do nothing in the default implementation
 }
 
-/// \brief Writes out an individual item in the current rule
-void output_stage::rule_item(const contextfree::item_container& item) {
+/// \brief Writes out an individual item in the current rule (a nonterminal)
+void output_stage::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Writes out an individual item in the current rule (a terminal)
+///
+/// Note the distinction between the item ID, which is part of the grammar, and the
+/// symbol ID (which is part of the lexer and is the same as the value passed to 
+/// terminal_symbol)
+void output_stage::rule_item_terminal(int terminalItemId, int terminalSymbolId, const item_container& item) {
 	// Do nothing in the default implementation
 }
 

@@ -164,8 +164,15 @@ namespace compiler {
 		/// \brief Starting to write out a rule in the current nonterminal
 		virtual void begin_ast_rule(int identifier);
 
-		/// \brief Writes out an individual item in the current rule
-		virtual void rule_item(const contextfree::item_container& item);
+		/// \brief Writes out an individual item in the current rule (a nonterminal)
+		virtual void rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item);
+        
+        /// \brief Writes out an individual item in the current rule (a terminal)
+        ///
+        /// Note the distinction between the item ID, which is part of the grammar, and the
+        /// symbol ID (which is part of the lexer and is the same as the value passed to 
+        /// terminal_symbol)
+        virtual void rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item);
 
 		/// \brief Finished writing out 
 		virtual void end_ast_rule();
