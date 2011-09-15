@@ -193,7 +193,7 @@ wstring formatter::to_string(const grammar& gram, const terminal_dictionary& dic
     bool addedNewline = true;
 
     // Iterate through the nonterminals in this grammar
-    for (int ntId = 0; ntId < gram.max_nonterminal(); ntId++) {
+    for (int ntId = 0; ntId < gram.max_item_identifier(); ntId++) {
         // Add a newline between nonterminals
         if (!addedNewline) {
             res << endl;

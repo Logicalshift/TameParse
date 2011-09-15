@@ -159,7 +159,7 @@ void test_language_bootstrap::run_tests() {
     map<int, rule_container>    usedIdentifiers;
     bool        allUnique = true;
     
-    for (int ntId = 0; ntId < bs.get_grammar().max_nonterminal(); ntId++) {
+    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ntId++) {
         const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
         for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
             int identifier = (*nextRule)->identifier(bs.get_grammar());
@@ -184,7 +184,7 @@ void test_language_bootstrap::run_tests() {
     
     // Hrm, still got an issue, maybe some rules don't compare equal with themselves?
     bool equality = true;
-    for (int ntId = 0; ntId < bs.get_grammar().max_nonterminal(); ntId++) {
+    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ntId++) {
         const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
         for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
             if (!nextRule->operator==(**nextRule)) {
@@ -199,7 +199,7 @@ void test_language_bootstrap::run_tests() {
                 wcerr << L"Less than fail: " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
             }
             
-            for (int ntId2 = 0; ntId2 < bs.get_grammar().max_nonterminal(); ntId2++) {
+            for (int ntId2 = 0; ntId2 < bs.get_grammar().max_item_identifier(); ntId2++) {
                 const rule_list& nt2Rules = bs.get_grammar().rules_for_nonterminal(ntId);
                 for (rule_list::const_iterator nextRule2 = nt2Rules.begin(); nextRule2 != ntRules.end(); nextRule2++) {
                     // Ignore the existing rule

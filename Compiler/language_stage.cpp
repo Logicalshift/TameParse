@@ -340,7 +340,7 @@ void language_stage::compile() {
     }
     
     // Any nonterminal with no rules is one that was referenced but not defined
-    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_nonterminal(); nonterminalId++) {
+    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); nonterminalId++) {
         // This nonterminal ID is unused if it has no rules
         if (m_Grammar.rules_for_nonterminal(nonterminalId).size() == 0) {
             // Find the place where this nonterminal was first used
@@ -363,7 +363,7 @@ void language_stage::compile() {
     summary << L"          ... which are weak:               " << (int)m_WeakSymbols.size() << endl;
     summary << L"          ... which are implicitly defined: " << implicitCount << endl;
     summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
-    summary << L"    Number of nonterminals:                 " << m_Grammar.max_nonterminal() << endl;
+    summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object

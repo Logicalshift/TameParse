@@ -76,10 +76,8 @@ namespace contextfree {
         grammar();
         
     public:
-        /// \brief Returns the first unused nonterminal ID
-        ///
-        /// Note that nonterminal IDs should always match up with item IDs.
-        inline int max_nonterminal() const { return (int)m_ItemIdentifiers.size(); }
+        /// \brief Returns the first unused item ID
+        inline int max_item_identifier() const { return (int)m_ItemIdentifiers.size(); }
         
         /// \brief Returns the rules for the nonterminal with the specified identifier
         rule_list& rules_for_nonterminal(int id);
@@ -110,6 +108,12 @@ namespace contextfree {
         bool nonterminal_is_defined(const std::wstring& name);
         
     public:
+        /// \brief Returns the first unused rule identifier
+        ///
+        /// After building a parser, this can be used to enumerate all of the rules that were generated for the
+        /// grammar (including the implicit ones that were generated from EBNF items)
+        inline int max_rule_identifier() const { return (int) m_RuleIdentifiers.size(); }
+        
         /// \brief Returns an identifier given a rule. Identifiers are numbered from 0.
         int identifier_for_rule(const rule_container& rule) const;
         

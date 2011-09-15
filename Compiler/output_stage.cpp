@@ -44,6 +44,9 @@ void output_stage::compile() {
 	// Writes out the parser tables
 	define_parser_tables();
 
+	// Writes out the AST tables
+	define_ast_tables();
+
 	// Finished writing the output
 	end_output();
 }
@@ -64,7 +67,7 @@ void output_stage::define_symbols() {
 	// Write out the nonterminal symbols that are defined in this language
 	begin_nonterminal_symbols(*m_LanguageStage->grammar());
 
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_nonterminal(); symbolId++) {
+	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); symbolId++) {
 		// Assume that the nonterminal IDs match up to item IDs (they should do)
 		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
 
@@ -157,6 +160,66 @@ void output_stage::define_lexer_tables() {
 	end_lexer_definitions();
 }
 
+/// \brief Writes out the AST tables
+void output_stage::define_ast_tables() {
+	// Start the tables
+	begin_ast_definitions(*m_LanguageStage->grammar());
+    const grammar& gram = *m_LanguageStage->grammar();
+    
+    // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
+    // contain any rules that are implicitly generated)
+    map<int, rule_list> rulesForNonterminal;
+    
+    // Iterate through the rules
+    for (int ruleId = 0; ruleId < gram.max_rule_identifier(); ruleId++) {
+        // Fetch this rule
+        const rule_container& nextRule = gram.rule_with_identifier(ruleId);
+        
+        // Get the nonterminal ID
+        int nonterminalId = gram.identifier_for_item(nextRule->nonterminal());
+        
+        // Append to the list
+        rulesForNonterminal[nonterminalId].push_back(nextRule);
+    }
+    
+    // Iterate through the nonterminals
+    for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); nonterminalDefn++) {
+        // Begin this nonterminal
+        begin_ast_nonterminal(nonterminalDefn->first, gram.item_with_identifier(nonterminalDefn->first));
+        
+        // Iterate through the rules
+        for (rule_list::const_iterator ruleDefn = nonterminalDefn->second.begin(); ruleDefn != nonterminalDefn->second.end(); ruleDefn++) {
+            // Start this rule
+            begin_ast_rule(gram.identifier_for_rule(*ruleDefn));
+            
+            // Write out the rule items
+            for (rule::iterator ruleItem = (*ruleDefn)->begin(); ruleItem != (*ruleDefn)->end(); ruleItem++) {
+                rule_item(*ruleItem);
+            }
+            
+            // Finished this rule
+            end_ast_rule();
+        }
+        
+        // Finished this nonterminal
+        end_ast_nonterminal();
+    }
+
+	// Iterate through the symbols
+	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); symbolId++) {
+		// Fetch this item
+		const item_container& item = m_LanguageStage->grammar()->item_with_identifier(symbolId);
+
+		// Ignore terminal items
+		if (item->type() == item::terminal) continue;
+
+		// TODO: write out the items
+	}
+
+	// Finished
+	end_ast_definitions();
+}
+
 /// \brief Writes out the parser tables
 void output_stage::define_parser_tables() {
 	// Start the parser definitions
@@ -168,7 +231,6 @@ void output_stage::define_parser_tables() {
 	// Finished the parser
 	end_parser_definitions();
 }
-
 
 /// \brief About to begin writing out output
 void output_stage::begin_output() {
