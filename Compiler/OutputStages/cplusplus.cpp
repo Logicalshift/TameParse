@@ -1097,15 +1097,21 @@ void output_cplusplus::end_ast_terminal() {
 
 /// \brief Starting to write the AST definitions for the specified nonterminal
 void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
+	// Set the type of the current nonterminal
+	m_CurrentNonterminalKind = item->type();
+
 	// Get the name for this nonterminal
 	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
 	m_CurrentNonterminal = ntName;
 
-	// Write out a forward declaration for this item
-	*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind != item::guard) {
+		// Write out a forward declaration for this item
+		*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
 
-	// Begin a class declaration for this item
-	*m_NtClassDefinitions << "\n    class " << ntName << " : public syntax_node {\n";
+		// Begin a class declaration for this item
+		*m_NtClassDefinitions << "\n    class " << ntName << " : public syntax_node {\n";
+	}
 
 	// No items are used for this nonterminal yet
 	m_UsedNtItems.clear();
@@ -1113,6 +1119,9 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 
 /// \brief Starting to write out a rule in the current nonterminal
 void output_cplusplus::begin_ast_rule(int identifier) {
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind == item::guard) return;
+
 	// Start appending the private values for this class
 	*m_NtClassDefinitions << "    private:\n";
 	*m_NtClassDefinitions << "        // Rule " << identifier << "\n";
@@ -1128,6 +1137,9 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 
 /// \brief Writes out an individual item in the current rule (a nonterminal)
 void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind == item::guard) return;
+
 	// Generate a name for this item
 	// TODO: would be nice to be able to specify aliases in the grammar
 	string baseName = name_for_nonterminal(nonterminalId, item, *m_Grammar, *m_Terminals);
@@ -1155,13 +1167,20 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 	}
 
 	// Add to the definition if we haven't declared it in this nonterminal yet
-	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
+	// Guards have no corresponding variable
+	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end() && item->type() != item::guard) {
 		*m_NtClassDefinitions << "        util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
 	m_CurrentRuleNames.push_back(itemName);
-	m_CurrentRuleTypes.push_back(baseName);
+
+	if (item->type() != item::guard) {
+		m_CurrentRuleTypes.push_back(baseName);
+	} else {
+		// Guards have no type
+		m_CurrentRuleTypes.push_back("");
+	}
 
 	// Mark as used
 	m_UsedRuleItems.insert(itemName);
@@ -1174,6 +1193,9 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 /// symbol ID (which is part of the lexer and is the same as the value passed to 
 /// terminal_symbol)
 void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item) {
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind == item::guard) return;
+
 	// Generate a name for this item
 	// TODO: would be nice to be able to specify aliases in the grammar
 	string baseName = name_for_nonterminal(terminalItemId, item, *m_Grammar, *m_Terminals);
@@ -1216,6 +1238,9 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 /// \brief Finished writing out 
 void output_cplusplus::end_ast_rule() {
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind == item::guard) return;
+
 	// Generate a constructor for this rule
 	*m_NtClassDefinitions << "\n    public:\n";
 
@@ -1308,6 +1333,9 @@ void output_cplusplus::end_ast_rule() {
 
 /// \brief Finished writing the definitions for a nonterminal
 void output_cplusplus::end_ast_nonterminal() {
+	// Guards have no definitions written for them
+	if (m_CurrentNonterminalKind == item::guard) return;
+
 	// Destructor: nothing to do here, as the syntax_ptr class will handle freeing everything up
 	*m_NtClassDefinitions << "        virtual ~" << m_CurrentNonterminal << "();\n";
 	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::~" << m_CurrentNonterminal << "() { }\n";
