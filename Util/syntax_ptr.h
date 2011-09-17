@@ -33,6 +33,10 @@ namespace util {
         
         /// \brief The value in this reference
         const void* m_Value;
+        
+    private:
+        syntax_ptr_reference(const syntax_ptr_reference& noCopying);
+        syntax_ptr_reference& operator=(const syntax_ptr_reference& noAssign);
     };
 
     /// \brief Shared pointer class similar to container, except without the requirements for cloning and comparisons 
@@ -81,12 +85,12 @@ namespace util {
             
             // Deallocate the reference
             m_Reference->m_UsageCount--;
-            if (m_Reference->m_Value <= 0) {
+            if (m_Reference->m_UsageCount <= 0) {
                 delete (ptr_type*) m_Reference->m_Value;
                 m_Reference->m_Value = NULL;
                 delete m_Reference;
-                m_Reference = NULL;
             }
+            m_Reference = NULL;
             
             // Switch to the reference in the other object
             m_Reference = assignFrom.m_Reference;
@@ -98,7 +102,7 @@ namespace util {
         /// \brief Destructs a syntax_ptr
         ~syntax_ptr() {
             m_Reference->m_UsageCount--;
-            if (m_Reference->m_Value <= 0) {
+            if (m_Reference->m_UsageCount <= 0) {
                 delete (ptr_type*) m_Reference->m_Value;
                 m_Reference->m_Value = NULL;
                 delete m_Reference;
