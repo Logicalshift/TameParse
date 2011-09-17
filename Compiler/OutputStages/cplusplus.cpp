@@ -356,6 +356,7 @@ void output_cplusplus::begin_output() {
 	(*m_HeaderFile) << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
     (*m_HeaderFile) << "\n";
 
+    (*m_HeaderFile) << "#include \"Util/syntax_ptr.h\"\n";
     (*m_HeaderFile) << "#include \"Dfa/lexer.h\"\n";
     (*m_HeaderFile) << "#include \"Lr/parser.h\"\n";
     (*m_HeaderFile) << "#include \"Lr/parser_tables.h\"\n";
@@ -983,6 +984,26 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("terminal");
 }
 
+/// \brief Starting to write the AST definitions for a particular terminal symbol
+void output_cplusplus::begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item) {
+	// Get the name for this nonterminal
+	string name = name_for_nonterminal(itemIdentifier, item, *m_Grammar, *m_Terminals);
+	m_CurrentNonterminal = name;
+
+	// Write out a forward declaration for this item
+	*m_NtForwardDeclarations << "\n    class " << name << ";\n";
+
+	// Begin a class declaration for this item
+	*m_NtClassDefinitions << "\n    class " << name << " : public terminal {\n";
+	*m_NtClassDefinitions << "    public:\n";
+	*m_NtClassDefinitions << "        " << name << "(const dfa::lexeme_container& lex) : terminal(lex) { }\n";
+	*m_NtClassDefinitions << "    };\n";
+}
+
+/// \brief Finished writing the definitions for a terminal
+void output_cplusplus::end_ast_terminal() {
+}
+
 /// \brief Starting to write the AST definitions for the specified nonterminal
 void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
 	// Get the name for this nonterminal
@@ -1003,7 +1024,7 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 void output_cplusplus::begin_ast_rule(int identifier) {
 	// Start appending the private values for this class
 	*m_NtClassDefinitions << "    private:\n";
-	*m_NtClassDefinitions << "        // Rule " << m_CurrentRuleId << "\n";
+	*m_NtClassDefinitions << "        // Rule " << identifier << "\n";
 
 	// Set the rule identifier
 	m_CurrentRuleId = identifier;
@@ -1044,7 +1065,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
-		*m_NtClassDefinitions << "        " << baseName << "* " << itemName << ";\n";
+		*m_NtClassDefinitions << "        util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
@@ -1090,12 +1111,12 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
-		*m_NtClassDefinitions << "        terminal* " << itemName << ";\n";
+		*m_NtClassDefinitions << "        util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
 	m_CurrentRuleNames.push_back(itemName);
-	m_CurrentRuleTypes.push_back("terminal");
+	m_CurrentRuleTypes.push_back(baseName);
 
 	// Mark as used
 	m_UsedRuleItems.insert(itemName);
@@ -1162,6 +1183,10 @@ void output_cplusplus::end_ast_rule() {
 
 /// \brief Finished writing the definitions for a nonterminal
 void output_cplusplus::end_ast_nonterminal() {
+	// Destructor: nothing to do here, as the syntax_ptr class will handle freeing everything up
+	*m_NtClassDefinitions << "        virtual ~" << m_CurrentNonterminal << "();\n";
+	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::~" << m_CurrentNonterminal << "() { }\n";
+
 	// TODO: write out the accessors for the various items
 
 	// End the class definition for this nonterminal

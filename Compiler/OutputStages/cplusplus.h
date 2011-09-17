@@ -202,6 +202,12 @@ namespace compiler {
         
 		/// \brief Starting to write out the definitions associated with the AST
 		virtual void begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals);
+
+		/// \brief Starting to write the AST definitions for a particular terminal symbol
+		virtual void begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item);
+
+		/// \brief Finished writing the definitions for a terminal
+		virtual void end_ast_terminal();
         
 		/// \brief Starting to write the AST definitions for the specified nonterminal
 		virtual void begin_ast_nonterminal(int identifier, const contextfree::item_container& item);

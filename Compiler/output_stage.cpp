@@ -165,6 +165,17 @@ void output_stage::define_ast_tables() {
 	// Start the tables
 	begin_ast_definitions(*m_LanguageStage->grammar(), *m_LanguageStage->terminals());
     const grammar& gram = *m_LanguageStage->grammar();
+
+    // Output the terminals
+    for (int termId = 0; termId < m_LanguageStage->terminals()->count_symbols(); termId++) {
+    	// Get the ID for this terminal
+    	terminal 	term(termId);
+    	int 		symbolId = gram.identifier_for_item(term);
+
+    	// Write it out
+    	begin_ast_terminal(symbolId, term);
+    	end_ast_terminal();
+	}
     
     // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
     // contain any rules that are implicitly generated)
@@ -181,7 +192,8 @@ void output_stage::define_ast_tables() {
         // Append to the list
         rulesForNonterminal[nonterminalId].push_back(nextRule);
     }
-    
+
+
     // Iterate through the nonterminals
     for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); nonterminalDefn++) {
         // Begin this nonterminal
@@ -360,6 +372,16 @@ void output_stage::parser_tables(const lr::lalr_builder& builder, const lr::pars
 
 /// \brief Finished the parser definitions
 void output_stage::end_parser_definitions() {
+	// Do nothing in the default implementation
+}
+
+/// \brief Starting to write the AST definitions for a particular terminal symbol
+void output_stage::begin_ast_terminal(int identifier, const contextfree::item_container& item) {
+	// Do nothing in the default implementation
+}
+
+/// \brief Finished writing the definitions for a terminal
+void output_stage::end_ast_terminal() {
 	// Do nothing in the default implementation
 }
 
