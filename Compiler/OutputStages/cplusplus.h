@@ -67,6 +67,24 @@ namespace compiler {
         /// \brief The used class (and other identifier) names for the class (which should not be re-used)
         std::set<std::string> m_UsedClassNames;
 
+        /// \brief Within a single rule, the used names for the various items
+        std::set<std::string> m_UsedRuleItems;
+
+        /// \brief Within a nonterminal, the used names for the various items
+        std::set<std::string> m_UsedNtItems;
+
+        /// \brief Name of the current nonterminal class that's being defined
+        std::string m_CurrentNonterminal;
+
+        /// \brief Identifier for the rule that's currently being defined
+        int m_CurrentRuleId;
+
+        /// \brief The item names for each of the items in the current rule
+        std::vector<std::string> m_CurrentRuleNames;
+
+        /// \brief The type names for each of the items in the current rule
+        std::vector<std::string> m_CurrentRuleTypes;
+
         /// \brief Stringstream used to build up the forward declarations for the nonterminal classes
         ///
         /// C++ is hopeless and can't clear items, so we have to use tedious pointers

@@ -987,22 +987,73 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
 	// Get the name for this nonterminal
 	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
+	m_CurrentNonterminal = ntName;
 
 	// Write out a forward declaration for this item
 	*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
 
 	// Begin a class declaration for this item
 	*m_NtClassDefinitions << "\n    class " << ntName << " : public syntax_node {\n";
+
+	// No items are used for this nonterminal yet
+	m_UsedNtItems.clear();
 }
 
 /// \brief Starting to write out a rule in the current nonterminal
 void output_cplusplus::begin_ast_rule(int identifier) {
-	
+	// Start appending the private values for this class
+	*m_NtClassDefinitions << "    private:\n";
+	*m_NtClassDefinitions << "        // Rule " << m_CurrentRuleId << "\n";
+
+	// Set the rule identifier
+	m_CurrentRuleId = identifier;
+
+	// No items are used for the rule yet
+	m_UsedRuleItems.clear();
+	m_CurrentRuleNames.clear();
+	m_CurrentRuleTypes.clear();
 }
 
 /// \brief Writes out an individual item in the current rule (a nonterminal)
 void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
-	
+	// Generate a name for this item
+	// TODO: would be nice to be able to specify aliases in the grammar
+	string baseName = name_for_nonterminal(nonterminalId, item, *m_Grammar, *m_Terminals);
+
+	// Uniquify it
+	string 	itemName;
+	int 	variant = 0;
+	for (;;) {
+		// Next variant
+		variant++;
+
+		// Generate the name for this variant
+		stringstream thisName;
+		thisName << "m_" << baseName;
+		if (variant > 1) {
+			thisName << "_" << variant;
+		}
+
+		// Should be unique within the rule
+		if (m_UsedRuleItems.find(thisName.str()) == m_UsedRuleItems.end()) {
+			// This item hasn't been used in this rule before
+			itemName = thisName.str();
+			break;
+		}
+	}
+
+	// Add to the definition if we haven't declared it in this nonterminal yet
+	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
+		*m_NtClassDefinitions << "        " << baseName << "* " << itemName << ";\n";
+	}
+
+	// Add to the items in the current rule
+	m_CurrentRuleNames.push_back(itemName);
+	m_CurrentRuleTypes.push_back(baseName);
+
+	// Mark as used
+	m_UsedRuleItems.insert(itemName);
+	m_UsedNtItems.insert(itemName);
 }
 
 /// \brief Writes out an individual item in the current rule (a terminal)
@@ -1011,16 +1062,108 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 /// symbol ID (which is part of the lexer and is the same as the value passed to 
 /// terminal_symbol)
 void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item) {
-	
+	// Generate a name for this item
+	// TODO: would be nice to be able to specify aliases in the grammar
+	string baseName = name_for_nonterminal(terminalItemId, item, *m_Grammar, *m_Terminals);
+
+	// Uniquify it
+	string 	itemName;
+	int 	variant = 0;
+	for (;;) {
+		// Next variant
+		variant++;
+
+		// Generate the name for this variant
+		stringstream thisName;
+		thisName << "m_" << baseName;
+		if (variant > 1) {
+			thisName << "_" << variant;
+		}
+
+		// Should be unique within the rule
+		if (m_UsedRuleItems.find(thisName.str()) == m_UsedRuleItems.end()) {
+			// This item hasn't been used in this rule before
+			itemName = thisName.str();
+			break;
+		}
+	}
+
+	// Add to the definition if we haven't declared it in this nonterminal yet
+	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
+		*m_NtClassDefinitions << "        terminal* " << itemName << ";\n";
+	}
+
+	// Add to the items in the current rule
+	m_CurrentRuleNames.push_back(itemName);
+	m_CurrentRuleTypes.push_back("terminal");
+
+	// Mark as used
+	m_UsedRuleItems.insert(itemName);
+	m_UsedNtItems.insert(itemName);	
 }
 
 /// \brief Finished writing out 
 void output_cplusplus::end_ast_rule() {
-	
+	// Generate a constructor for this rule
+	*m_NtClassDefinitions << "\n    public:\n";
+
+	// Write out the declaration and parameters
+	bool first = true;
+
+	// Write the header...
+	*m_NtClassDefinitions << "        " << m_CurrentNonterminal << "(";
+
+	// ... and the source file
+	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::" << m_CurrentNonterminal << "(";
+
+	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		// Comma to seperate the items
+		if (!first) {
+			*m_NtClassDefinitions << ", ";
+			*m_SourceFile << ", ";
+		}
+
+		// Write out this parameter (name it after the type name and the index)
+		*m_NtClassDefinitions << m_CurrentRuleTypes[index] << "* " << m_CurrentRuleTypes[index][0] << "_" << index;
+		*m_SourceFile << m_CurrentRuleTypes[index] << "* " << m_CurrentRuleTypes[index][0] << "_" << index;
+
+		// No longer first
+		first = false;
+	}
+	*m_NtClassDefinitions << ");\n";
+
+	// Write out the constructor declaration
+	first = true;
+	*m_SourceFile << ")";
+
+	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		// Comma to seperate the items
+		if (!first) {
+			*m_SourceFile << "\n, ";
+		} else {
+			*m_SourceFile << "\n: ";
+		}
+
+		// Fill in the appropriate field
+		*m_SourceFile << m_CurrentRuleNames[index] << "(" << m_CurrentRuleTypes[index][0] << "_" << index << ")";
+
+		// No longer first
+		first = false;
+	}
+
+	*m_SourceFile << "{\n";
+	*m_SourceFile << "}\n";
+
+	// TODO: blank out the other fields (hrm, use magic pointer type that does the right thing? Suitable place for auto_ptr?)
+
+	// Extra newline to space things out
+	*m_NtClassDefinitions << "\n";
 }
 
 /// \brief Finished writing the definitions for a nonterminal
 void output_cplusplus::end_ast_nonterminal() {
+	// TODO: write out the accessors for the various items
+
 	// End the class definition for this nonterminal
 	*m_NtClassDefinitions << "    };\n";
 }
