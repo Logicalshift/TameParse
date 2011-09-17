@@ -27,7 +27,9 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_HeaderFile(NULL)
 , m_SymbolLevels(NULL)
 , m_NtForwardDeclarations(NULL)
-, m_NtClassDefinitions(NULL) {
+, m_NtClassDefinitions(NULL)
+, m_ShiftDefinitions(NULL)
+, m_ReduceDefinitions(NULL) {
 }
 
 /// \brief Destructor
@@ -37,6 +39,8 @@ output_cplusplus::~output_cplusplus() {
 	if (m_SymbolLevels) 			delete m_SymbolLevels;
 	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
 	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
+	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
+	if (m_ReduceDefinitions)		delete m_ReduceDefinitions;
 }
 
 /// \brief Converts a string to upper case
@@ -956,9 +960,13 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	// Clear the definitions
 	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
 	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
+	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
+	if (m_ReduceDefinitions)		delete m_ReduceDefinitions;
 
 	m_NtForwardDeclarations	= new stringstream();
 	m_NtClassDefinitions	= new stringstream();
+	m_ShiftDefinitions		= new stringstream();
+	m_ReduceDefinitions		= new stringstream();
 
 	// Create a terminal definition item
 	*m_NtForwardDeclarations << "\n    class terminal : public syntax_node {\n";
@@ -986,6 +994,13 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("parser_actions");
 
 	// Some other classes we don't want to create clashes for to avoid confusion.
+	m_UsedClassNames.insert("parser");
+	m_UsedClassNames.insert("lexer");
+	m_UsedClassNames.insert("lexeme");
+	m_UsedClassNames.insert("rule");
+	m_UsedClassNames.insert("nonterminal");
+	m_UsedClassNames.insert("reduce_list");
+
 	// Mainly stuff from the std namespace
 	m_UsedClassNames.insert("string");
 	m_UsedClassNames.insert("wstring");
@@ -1050,9 +1065,9 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
     *m_HeaderFile << "            return result;\n";
     *m_HeaderFile << "        }\n";
 	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        util::syntax_ptr<syntax_node> shift(const dfa::lexeme_container& lexeme);\n";
+	*m_HeaderFile << "        node shift(const dfa::lexeme_container& lexeme);\n";
 	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        util::syntax_ptr<syntax_node> reduce(int nonterminal, int rule, const reduce_list& reduce);\n";
+	*m_HeaderFile << "        node reduce(int nonterminal, int rule, const reduce_list& reduce);\n";
 	*m_HeaderFile << "    };\n";
 }
 
@@ -1070,6 +1085,10 @@ void output_cplusplus::begin_ast_terminal(int itemIdentifier, const contextfree:
 	*m_NtClassDefinitions << "    public:\n";
 	*m_NtClassDefinitions << "        " << name << "(const dfa::lexeme_container& lex) : terminal(lex) { }\n";
 	*m_NtClassDefinitions << "    };\n";
+
+	// Add to the shift definitions switch statement
+	*m_ShiftDefinitions << "\n    case " << item->symbol() << ": // " << get_identifier(m_Terminals->name_for_symbol(item->symbol())) << "\n";
+	*m_ShiftDefinitions << "        return node(new " << name << "(lexeme));\n";
 }
 
 /// \brief Finished writing the definitions for a terminal
@@ -1210,6 +1229,9 @@ void output_cplusplus::end_ast_rule() {
 	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::" << m_CurrentNonterminal << "(";
 
 	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		// Ignore items with an empty type
+		if (m_CurrentRuleTypes[index].empty()) continue;
+
 		// Comma to seperate the items
 		if (!first) {
 			*m_NtClassDefinitions << ", ";
@@ -1217,8 +1239,8 @@ void output_cplusplus::end_ast_rule() {
 		}
 
 		// Write out this parameter (name it after the type name and the index)
-		*m_NtClassDefinitions << m_CurrentRuleTypes[index] << "* " << m_CurrentRuleTypes[index][0] << "_" << index;
-		*m_SourceFile << m_CurrentRuleTypes[index] << "* " << m_CurrentRuleTypes[index][0] << "_" << index;
+		*m_NtClassDefinitions << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
+		*m_SourceFile << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
 
 		// No longer first
 		first = false;
@@ -1230,6 +1252,9 @@ void output_cplusplus::end_ast_rule() {
 	*m_SourceFile << ")";
 
 	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		// Ignore items with an empty type
+		if (m_CurrentRuleTypes[index].empty()) continue;
+
 		// Comma to seperate the items
 		if (!first) {
 			*m_SourceFile << "\n, ";
@@ -1247,10 +1272,38 @@ void output_cplusplus::end_ast_rule() {
 	*m_SourceFile << "{\n";
 	*m_SourceFile << "}\n";
 
-	// TODO: generate the constructor for this item
-
 	// Extra newline to space things out
 	*m_NtClassDefinitions << "\n";
+
+	// Write the reduce rule
+	*m_ReduceDefinitions << "\n    case " << m_CurrentRuleId << ":\n";
+	*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "(";
+
+	// Constructor parameters
+	first = true;
+	for (size_t index=0; index < m_CurrentRuleNames.size(); index++) {
+		// Get the type
+		string type = m_CurrentRuleTypes[index];
+
+		// Ignore items with an empty type
+		if (type.empty()) continue;
+
+		// Comma between items
+		if (!first) {
+			*m_ReduceDefinitions << ", ";
+		}
+
+		// The reduce list is passed in in reverse
+		size_t reduceIndex = m_CurrentRuleNames.size() - index - 1;
+
+		// This item needs to be cast to a pointer of the appropriate type (the reduce_list only contains nodes)
+		*m_ReduceDefinitions << "reduce[" << reduceIndex << "].cast_to<" << type << ">()";
+
+		// No longer first
+		first = false;
+	}
+
+	*m_ReduceDefinitions << "));\n";
 }
 
 /// \brief Finished writing the definitions for a nonterminal
@@ -1272,4 +1325,22 @@ void output_cplusplus::end_ast_definitions() {
 
 	// ... then the class definitions
 	*m_HeaderFile << m_NtClassDefinitions->str();
+
+	// Output the shift function
+	string className = get_identifier(m_ClassName);
+
+	*m_SourceFile << "\n" << className << "::parser_actions::node " << className << "::parser_actions::shift(const dfa::lexeme_container& lexeme) {\n";
+	*m_SourceFile << "    switch (lexeme->matched()) {" << m_ShiftDefinitions->str() << "\n";
+	*m_SourceFile << "    default:\n";
+	*m_SourceFile << "        return node(new terminal(lexeme));\n";
+	*m_SourceFile << "    }\n";
+	*m_SourceFile << "}\n";
+
+	// Output the reduce function
+	*m_SourceFile << "\n" << className << "::parser_actions::node " << className << "::parser_actions::reduce(int nonterminal, int rule, const reduce_list& reduce) {\n";
+	*m_SourceFile << "    switch (rule) {" << m_ReduceDefinitions->str() << "\n";
+	*m_SourceFile << "    default:\n";
+	*m_SourceFile << "        return node();\n";
+	*m_SourceFile << "    }\n";
+	*m_SourceFile << "}\n";
 }

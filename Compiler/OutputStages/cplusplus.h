@@ -93,6 +93,12 @@ namespace compiler {
         /// \brief Stringstream used to build up the declarations of the classes that contain the nonterminal definitions themselves
         std::stringstream* m_NtClassDefinitions;
 
+        /// \brief String stream used to build up the switch statement used to declare the parser shift actions
+        std::stringstream* m_ShiftDefinitions;
+
+        /// \brief String stream used to build up the switch statement used to declare the parser reduce actions
+        std::stringstream* m_ReduceDefinitions;
+
 	public:
 		/// \brief Creates a new output stage
 		output_cplusplus(console_container& console, const std::wstring& filename, lexer_stage* lexer, language_stage* language, lr_parser_stage* parser, const std::wstring& filenamePrefix, const std::wstring& className, const std::wstring& namespaceName);

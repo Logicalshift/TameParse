@@ -44,8 +44,11 @@ namespace util {
         /// \brief The value that is being pointed at
         syntax_ptr_reference* m_Reference;
         
-    private:
-        inline syntax_ptr(syntax_ptr_reference* ref)
+    public:
+        /// \brief Constructs a syntax_ptr from a reference
+        ///
+        /// Generally, you should not use this constructor, it's mainly here to support pointer casting (the cast_to() function)
+        inline explicit syntax_ptr(syntax_ptr_reference* ref)
         : m_Reference(ref) {
             m_Reference->m_UsageCount++;
         }
@@ -110,8 +113,8 @@ namespace util {
         /// Note that the destructor will be called on an object of the type of the last syntax_ptr to be destroyed.
         /// That is, this call should only be made on objects with virtual destructors and between classes which are
         /// part of the same hierarchy.
-        template<typename cast_type> syntax_ptr<cast_type> cast_to() {
-            return new syntax_ptr<cast_type>(m_Reference);
+        template<typename cast_type> syntax_ptr<cast_type> cast_to() const {
+            return syntax_ptr<cast_type>(m_Reference);
         }
 
         // Other operators
