@@ -25,7 +25,7 @@ namespace util {
         /// \brief Creates a reference to a value
         syntax_ptr_reference(const void* newValue)
         : m_UsageCount(1)
-        , m_Value(NULL) {
+        , m_Value(newValue) {
         }
         
         /// \brief Number of syntax_ptr objects that refer to this reference
