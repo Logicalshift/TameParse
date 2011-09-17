@@ -1059,7 +1059,6 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	*m_HeaderFile << "        : m_Stream(stream) { }\n";
 	*m_HeaderFile << "\n";
 	*m_HeaderFile << "        ~parser_actions() {\n";
-	*m_HeaderFile << "            delete m_Stream;\n";
 	*m_HeaderFile << "        }\n";
 	*m_HeaderFile << "\n";
 	*m_HeaderFile << "        inline dfa::lexeme* read() {\n";
@@ -1348,7 +1347,7 @@ void output_cplusplus::end_ast_rule() {
 			first = false;
 		}
 
-		*m_SourceFile << "{\n";
+		*m_SourceFile << " {\n";
 		*m_SourceFile << "}\n";
 
 		// Extra newline to space things out
@@ -1498,4 +1497,12 @@ void output_cplusplus::end_ast_definitions() {
 	*m_SourceFile << "        return node();\n";
 	*m_SourceFile << "    }\n";
 	*m_SourceFile << "}\n";
+
+	// Output the parser definition
+    *m_HeaderFile << "\npublic:\n";
+    *m_HeaderFile << "    typedef util::syntax_ptr<syntax_node> syntax_node_container;\n";
+	*m_HeaderFile << "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n";
+    *m_HeaderFile << "    static const ast_parser_type ast_parser;\n";
+	
+	*m_SourceFile << "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(lr_tables);\n";
 }

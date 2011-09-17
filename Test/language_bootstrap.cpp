@@ -253,7 +253,6 @@ void test_language_bootstrap::run_tests() {
     report("CanGetDefinition", defn.item() != NULL);
     
     delete defParser;
-    delete defaultStream;
     
     // Create a stream o' nonsense, and parse it
     stringstream nonsense("rhubarb rhubarb rhubarb");
@@ -263,5 +262,4 @@ void test_language_bootstrap::run_tests() {
     report("CantParseNonsense", !nonsenseParser->parse());
     
     delete nonsenseParser;
-    delete nonsenseStream;
 }

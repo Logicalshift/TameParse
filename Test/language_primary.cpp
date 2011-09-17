@@ -88,8 +88,13 @@ void test_language_primary::run_tests() {
     
     debug_parser parser(tameparse_language::lr_tables);
     debug_parser::state* defParser = parser.create_parser(new simple_parser_actions(defaultStream));
-#else
+#elif 0
     simple_parser::state* defParser = tameparse_language::simple_parser.create_parser(new simple_parser_actions(defaultStream));
+#else
+    typedef tameparse_language::ast_parser_type parser;
+    typedef tameparse_language::parser_actions parser_actions;
+    
+    parser::state* defParser = tameparse_language::ast_parser.create_parser(new parser_actions(defaultStream));
 #endif
     
     // Try parsing the language
