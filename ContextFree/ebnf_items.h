@@ -79,10 +79,13 @@ namespace contextfree {
         /// \brief Type defining an iterator through the rules contained in this item
         typedef rule_list::const_iterator rule_iterator;
         
+        /// \brief The number of alternative rules within this item (most items have only one)
+        inline size_t count_rules() const { return m_Rules->size(); }
+
         /// \brief The first rule in this item
         inline rule_iterator first_rule() const { return m_Rules->begin(); }
         
-        /// \brief The last rule in this item
+        /// \brief The rule after the last rule in this item
         inline rule_iterator last_rule() const { return m_Rules->end(); }
     };
     

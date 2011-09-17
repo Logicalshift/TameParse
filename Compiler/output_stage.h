@@ -14,6 +14,7 @@
 #include "Dfa/range.h"
 
 #include "Contextfree/grammar.h"
+#include "Contextfree/terminal_dictionary.h"
 
 #include "Lr/lalr_builder.h"
 #include "Lr/parser_tables.h"
@@ -156,7 +157,7 @@ namespace compiler {
 		virtual void end_parser_definitions();
 
 		/// \brief Starting to write out the definitions associated with the AST
-		virtual void begin_ast_definitions(const contextfree::grammar& grammar);
+		virtual void begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals);
 
 		/// \brief Starting to write the AST definitions for the specified nonterminal
 		virtual void begin_ast_nonterminal(int identifier, const contextfree::item_container& item);

@@ -64,7 +64,18 @@ namespace compiler {
 
 	protected:
 		/// \brief Returns a valid C++ identifier for the specified symbol name
-		std::string get_identifier(const std::wstring& name);
+		virtual std::string get_identifier(const std::wstring& name);
+
+		/// \brief Returns a valid C++ name for a grammar rule
+		virtual std::string name_for_rule(const contextfree::rule_container& rule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
+
+		/// \brief Returns a valid C++ name for an EBNF item
+		virtual std::string name_for_ebnf_item(const contextfree::ebnf& ebnfItem, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
+        
+        /// \brief Returns a valid C++ name for the specified item
+        ///
+        /// This can be treated as a base name for getting names for nonterminals with particular identifiers
+        virtual std::string name_for_item(const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
 
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);
@@ -147,6 +158,34 @@ namespace compiler {
 
 		/// \brief Finished the parser definitions
 		virtual void end_parser_definitions();
+        
+		/// \brief Starting to write out the definitions associated with the AST
+		virtual void begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals);
+        
+		/// \brief Starting to write the AST definitions for the specified nonterminal
+		virtual void begin_ast_nonterminal(int identifier, const contextfree::item_container& item);
+        
+		/// \brief Starting to write out a rule in the current nonterminal
+		virtual void begin_ast_rule(int identifier);
+        
+		/// \brief Writes out an individual item in the current rule (a nonterminal)
+		virtual void rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item);
+        
+        /// \brief Writes out an individual item in the current rule (a terminal)
+        ///
+        /// Note the distinction between the item ID, which is part of the grammar, and the
+        /// symbol ID (which is part of the lexer and is the same as the value passed to 
+        /// terminal_symbol)
+        virtual void rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item);
+        
+		/// \brief Finished writing out 
+		virtual void end_ast_rule();
+        
+		/// \brief Finished writing the definitions for a nonterminal
+		virtual void end_ast_nonterminal();
+        
+		/// \brief Finished writing out the AST information
+		virtual void end_ast_definitions();
 	};
 }
 

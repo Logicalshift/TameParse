@@ -163,7 +163,7 @@ void output_stage::define_lexer_tables() {
 /// \brief Writes out the AST tables
 void output_stage::define_ast_tables() {
 	// Start the tables
-	begin_ast_definitions(*m_LanguageStage->grammar());
+	begin_ast_definitions(*m_LanguageStage->grammar(), *m_LanguageStage->terminals());
     const grammar& gram = *m_LanguageStage->grammar();
     
     // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
@@ -364,7 +364,7 @@ void output_stage::end_parser_definitions() {
 }
 
 /// \brief Starting to write out the definitions associated with the AST
-void output_stage::begin_ast_definitions(const contextfree::grammar& grammar) {
+void output_stage::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& dict) {
 	// Do nothing in the default implementation
 }
 

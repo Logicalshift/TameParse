@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace contextfree;
 using namespace compiler;
 
 /// \brief Creates a new output stage
@@ -42,6 +43,11 @@ static string toupper(const string& s) {
     }
 	return res;
 }
+
+
+// 				===================
+//  			 String converters
+// 				===================
 
 /// \brief Returns a valid C++ identifier for the specified symbol name
 std::string output_cplusplus::get_identifier(const std::wstring& name) {
@@ -129,6 +135,135 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
     return res.str();
 }
 
+/// \brief Returns a valid C++ name for a grammar rule
+std::string output_cplusplus::name_for_rule(const contextfree::rule_container& thisRule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
+	// Zero-length rules are called 'empty'
+	if (thisRule->items().size() == 0) {
+		return "empty";
+	}
+
+	// Short rules are just named after the items
+	else if (thisRule->items().size() <= 3) {
+		bool 			first = true;
+		stringstream	res;
+
+		for (int itemId = 0; itemId < thisRule->items().size(); itemId++) {
+			// Append divider
+			if (!first) {
+				res << "_";
+			}
+
+			// Append this item
+			res << name_for_item(thisRule->items()[itemId], gram, terminals);
+
+			// No longer first
+			first = false;
+		}
+
+		return res.str();
+	}
+
+	// Other rules are named after the first item and _etc
+	else {
+		return name_for_item(thisRule->items()[0], gram, terminals) + "_etc";		
+	}
+}
+
+/// \brief Returns a valid C++ name for an EBNF item
+std::string output_cplusplus::name_for_ebnf_item(const contextfree::ebnf& ebnfItem, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
+	// Work out the number of rules in this item
+	size_t numRules = ebnfItem.count_rules();
+
+	// Items with no rules are just called 'empty'
+	if (numRules == 0) {
+		return "empty";
+	}
+
+	// Items with rules are called 'x' or 'y' or 'z' etc
+	else {
+		stringstream	res;
+		bool 			first = true;
+
+		for (ebnf::rule_iterator nextRule = ebnfItem.first_rule(); nextRule != ebnfItem.last_rule(); nextRule++) {
+			// Append _or_
+			if (!first) {
+				res << "_or_";
+			}
+
+			// Append the name for this rule
+			res << name_for_rule(*nextRule, gram, terminals);
+			
+			// Move on
+			first = false;
+		}
+
+		// Convert to a string
+		return res.str();
+	}
+}
+
+/// \brief Returns a valid C++ name for the specified item
+///
+/// This can be treated as a base name for getting names for nonterminals with particular identifiers
+std::string output_cplusplus::name_for_item(const contextfree::item_container& it, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
+	// Start building up the result
+	stringstream res;
+
+	// Action depends on the kind of item
+	switch (it->type()) {
+	case item::empty:
+		res << "epsilon";
+		break;
+
+	case item::eoi:
+		res << "end_of_input";
+		break;
+
+	case item::eog:
+		res << "end_of_guard";
+		break;
+
+	case item::terminal:
+		res << get_identifier(terminals.name_for_symbol(it->symbol()));
+		break;
+
+	case item::nonterminal:
+		res << get_identifier(gram.name_for_nonterminal(it->symbol()));
+		break;
+
+	case item::optional:
+		res << "optional_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
+		break;
+
+	case item::repeat:
+	case item::repeat_zero_or_one:
+		res << "list_of_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
+		break;
+
+	case item::alternative:
+		res << "one_of_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
+		break;
+
+	default:
+		// Unknown type of item
+		res << "unknown_item";
+		break;
+	}
+
+	// Don't allow 0-length item names
+	if (res.tellp() == 0) {
+		res << "item";
+	}
+
+	// Return the result
+	return res.str();
+}
+
+
+// 				================
+//  			 General output
+// 				================
+
 /// \brief Writes out a header to the specified file
 void output_cplusplus::write_header(const std::wstring& filename, std::ostream* target) {
     // Get the current time
@@ -202,6 +337,11 @@ void output_cplusplus::end_output() {
     (*m_HeaderFile) << "\n#endif\n";	  // End of the conditional
 }
 
+
+// 				=========
+//  			 Symbols
+// 				=========
+
 /// \brief The output stage is about to produce a list of terminal symbols
 void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) {
     // Create a public class to contain the list of terminal identifiers
@@ -274,6 +414,11 @@ void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifi
 void output_cplusplus::end_nonterminal_symbols() {
     (*m_HeaderFile) << "    };\n";
 }
+
+
+// 				==================
+//  			 Lexer generation
+// 				==================
 
 /// \brief Starting to write out the symbol map for the lexer
 void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
@@ -457,6 +602,11 @@ void output_cplusplus::end_lexer_definitions() {
 
 	(*m_SourceFile) << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
 }
+
+
+// 				===================
+//  			 Parser generation
+// 				===================
 
 /// \brief Starting to write out the definitions associated with the parser
 void output_cplusplus::begin_parser_definitions() {
@@ -699,4 +849,63 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
 
 /// \brief Finished the parser definitions
 void output_cplusplus::end_parser_definitions() {
+}
+
+
+// 				================
+//  			 AST generation
+// 				================
+
+/// \brief Starting to write out the definitions associated with the AST
+void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals) {
+	// Write out the AST base class
+	(*m_HeaderFile) << "\npublic:\n";
+	(*m_HeaderFile) << "    class syntax_node {\n";
+	(*m_HeaderFile) << "    public:\n";
+	(*m_HeaderFile) << "        virtual ~syntax_node();\n";
+	(*m_HeaderFile) << "        virtual std::wstring to_string();\n";
+	(*m_HeaderFile) << "    };\n";
+
+	(*m_SourceFile) << "\n";
+	(*m_SourceFile) << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
+	(*m_SourceFile) << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
+}
+
+/// \brief Starting to write the AST definitions for the specified nonterminal
+void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
+	
+}
+
+/// \brief Starting to write out a rule in the current nonterminal
+void output_cplusplus::begin_ast_rule(int identifier) {
+	
+}
+
+/// \brief Writes out an individual item in the current rule (a nonterminal)
+void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
+	
+}
+
+/// \brief Writes out an individual item in the current rule (a terminal)
+///
+/// Note the distinction between the item ID, which is part of the grammar, and the
+/// symbol ID (which is part of the lexer and is the same as the value passed to 
+/// terminal_symbol)
+void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item) {
+	
+}
+
+/// \brief Finished writing out 
+void output_cplusplus::end_ast_rule() {
+	
+}
+
+/// \brief Finished writing the definitions for a nonterminal
+void output_cplusplus::end_ast_nonterminal() {
+	
+}
+
+/// \brief Finished writing out the AST information
+void output_cplusplus::end_ast_definitions() {
+	
 }
