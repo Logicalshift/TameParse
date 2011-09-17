@@ -352,42 +352,42 @@ void output_cplusplus::begin_output() {
 	write_header(headerFilename, m_HeaderFile);
 
 	// Write out the boilerplate at the start of the header (declare the class)
-	(*m_HeaderFile) << "#ifndef TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
-	(*m_HeaderFile) << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
-    (*m_HeaderFile) << "\n";
+	*m_HeaderFile << "#ifndef TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
+	*m_HeaderFile << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
+    *m_HeaderFile << "\n";
 
-    (*m_HeaderFile) << "#include \"Util/syntax_ptr.h\"\n";
-    (*m_HeaderFile) << "#include \"Dfa/lexer.h\"\n";
-    (*m_HeaderFile) << "#include \"Lr/parser.h\"\n";
-    (*m_HeaderFile) << "#include \"Lr/parser_tables.h\"\n";
-    (*m_HeaderFile) << "\n";
+    *m_HeaderFile << "#include \"Util/syntax_ptr.h\"\n";
+    *m_HeaderFile << "#include \"Dfa/lexer.h\"\n";
+    *m_HeaderFile << "#include \"Lr/parser.h\"\n";
+    *m_HeaderFile << "#include \"Lr/parser_tables.h\"\n";
+    *m_HeaderFile << "\n";
     
     if (!m_Namespace.empty()) {
-        (*m_HeaderFile) << "namespace " << get_identifier(m_Namespace) << " {\n";
+        *m_HeaderFile << "namespace " << get_identifier(m_Namespace) << " {\n";
     }
-    (*m_HeaderFile) << "class " << get_identifier(m_ClassName) << " {\n";
+    *m_HeaderFile << "class " << get_identifier(m_ClassName) << " {\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert(get_identifier(m_ClassName));
     
     // Write out the boilerplate at the start of the source file (include the header)
-    (*m_SourceFile) << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
+    *m_SourceFile << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
 
     if (!m_Namespace.empty()) {
-        (*m_SourceFile) << "using namespace " << get_identifier(m_Namespace) << ";\n";
+        *m_SourceFile << "using namespace " << get_identifier(m_Namespace) << ";\n";
     }
 }
 
 /// \brief Finishing writing out output
 void output_cplusplus::end_output() {
     // Finish off the header file
-    (*m_HeaderFile) << "\n";
-    (*m_HeaderFile) << "};\n";            // End of class
+    *m_HeaderFile << "\n";
+    *m_HeaderFile << "};\n";            // End of class
     if (!m_Namespace.empty()) {
-        (*m_HeaderFile) << "}\n";         // End of namespace
+        *m_HeaderFile << "}\n";         // End of namespace
     }
 
-    (*m_HeaderFile) << "\n#endif\n";	  // End of the conditional
+    *m_HeaderFile << "\n#endif\n";	  // End of the conditional
 }
 
 
@@ -398,9 +398,9 @@ void output_cplusplus::end_output() {
 /// \brief The output stage is about to produce a list of terminal symbols
 void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) {
     // Create a public class to contain the list of terminal identifiers
-    (*m_HeaderFile) << "\npublic:\n";
-    (*m_HeaderFile) << "    class t {\n";
-    (*m_HeaderFile) << "    public:\n";
+    *m_HeaderFile << "\npublic:\n";
+    *m_HeaderFile << "    class t {\n";
+    *m_HeaderFile << "    public:\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("t");
@@ -424,20 +424,20 @@ void output_cplusplus::terminal_symbol(const std::wstring& name, int identifier)
     m_TerminalSymbolCount[shortName]++;
 
     // Output a constant for this terminal
-    (*m_HeaderFile) << "        static const int " << ourName.str() << " = " << identifier << ";\n";
+    *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
 }
 
 /// \brief Finished writing out the terminal symbols
 void output_cplusplus::end_terminal_symbols() {
-    (*m_HeaderFile) << "    };\n";
+    *m_HeaderFile << "    };\n";
 }
 
 /// \brief The output stage is about to produce a list of non-terminal symbols
 void output_cplusplus::begin_nonterminal_symbols(const contextfree::grammar& gram) {
     // Create a public class to contain the list of nonterminal identifiers
-    (*m_HeaderFile) << "\npublic:\n";
-    (*m_HeaderFile) << "    class nt {\n";
-    (*m_HeaderFile) << "    public:\n";
+    *m_HeaderFile << "\npublic:\n";
+    *m_HeaderFile << "    class nt {\n";
+    *m_HeaderFile << "    public:\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("nt");
@@ -466,12 +466,12 @@ void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifi
     m_NonterminalSymbolCount[shortName]++;
     
     // Output a constant for this terminal
-    (*m_HeaderFile) << "        static const int " << ourName.str() << " = " << identifier << ";\n";
+    *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
 }
 
 /// \brief Finished writing out the terminal symbols
 void output_cplusplus::end_nonterminal_symbols() {
-    (*m_HeaderFile) << "    };\n";
+    *m_HeaderFile << "    };\n";
 }
 
 
@@ -487,11 +487,11 @@ void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
     m_UsedClassNames.insert("number_of_symbol_sets");
 
 	// Write out the number of symbol sets
-	(*m_HeaderFile) << "\npublic:\n";
-	(*m_HeaderFile) << "    static const int number_of_symbol_sets = " << maxSetId << ";\n";
+	*m_HeaderFile << "\npublic:\n";
+	*m_HeaderFile << "    static const int number_of_symbol_sets = " << maxSetId << ";\n";
 
 	// Include the hard-coded symbol table in the source file
-	(*m_SourceFile) << "\n#include \"Dfa/hard_coded_symbol_table.h\"\n";
+	*m_SourceFile << "\n#include \"Dfa/hard_coded_symbol_table.h\"\n";
 
 	// Begin building the symbol levels object
 	if (m_SymbolLevels) {
@@ -509,7 +509,7 @@ void output_cplusplus::symbol_map(const dfa::range<int>& symbolRange, int identi
 /// \brief Finishing writing out the symbol map for the lexer
 void output_cplusplus::end_lexer_symbol_map() {
 	// Begin writing out the symbol map table
-	(*m_SourceFile) << "\nstatic const int s_SymbolMapTable[] = {";
+	*m_SourceFile << "\nstatic const int s_SymbolMapTable[] = {";
 
 	// Convert to a hard-coded table
 	size_t	size;
@@ -519,13 +519,13 @@ void output_cplusplus::end_lexer_symbol_map() {
 	for (size_t tablePos = 0; tablePos < size; tablePos++) {
 		// Add newlines
 		if ((tablePos % 10) == 0) {
-			(*m_SourceFile) << "\n        ";
+			*m_SourceFile << "\n        ";
 		}
 
 		// Write out this entry
-		(*m_SourceFile) << dec << hcst[tablePos];
+		*m_SourceFile << dec << hcst[tablePos];
 		if (tablePos+1 < size) {
-			(*m_SourceFile) << ", ";
+			*m_SourceFile << ", ";
 		}
 	}
 
@@ -533,26 +533,26 @@ void output_cplusplus::end_lexer_symbol_map() {
 	delete[] hcst;
 
 	// Finished the table
-	(*m_SourceFile) << "\n    };\n";
+	*m_SourceFile << "\n    };\n";
     
     // Add the symbol table class
-    (*m_SourceFile) << "\nstatic const dfa::hard_coded_symbol_table<wchar_t, 2> s_SymbolMap(s_SymbolMapTable);\n";
+    *m_SourceFile << "\nstatic const dfa::hard_coded_symbol_table<wchar_t, 2> s_SymbolMap(s_SymbolMapTable);\n";
 }
 
 /// \brief About to begin writing out the lexer tables
 void output_cplusplus::begin_lexer_state_machine(int numStates) {
 	// Write out the number of states to the header file
-	(*m_HeaderFile) << "\n        static const int number_of_lexer_states = " << numStates << ";\n";
+	*m_HeaderFile << "\n        static const int number_of_lexer_states = " << numStates << ";\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("number_of_lexer_states");
 
 	// Need to include the state machine class
-	(*m_SourceFile) << "\n#include \"Dfa/state_machine.h\"\n";
+	*m_SourceFile << "\n#include \"Dfa/state_machine.h\"\n";
 
 	// Begin writing out the state machine table
 	// TODO: support table styles other than 'compact' (the flat table is faster for all character types and more compact for some lexer types)
-	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table<false>::entry s_LexerStateMachine[] = {\n";
+	*m_SourceFile << "\nstatic const dfa::state_machine_compact_table<false>::entry s_LexerStateMachine[] = {\n";
 
 	// Reset the 
 	m_LexerEntryPos = 0;
@@ -561,7 +561,7 @@ void output_cplusplus::begin_lexer_state_machine(int numStates) {
 /// \brief Starting to write out the transitions for a given state
 void output_cplusplus::begin_lexer_state(int stateId) {
 	// Write out a comment
-	(*m_SourceFile) << "\n\n        // State " << stateId << "\n        ";
+	*m_SourceFile << "\n\n        // State " << stateId << "\n        ";
 
 	// Remember the current state
 	m_LexerCurrentState = stateId;
@@ -574,14 +574,14 @@ void output_cplusplus::begin_lexer_state(int stateId) {
 void output_cplusplus::lexer_state_transition(int symbolSet, int newState) {
 	// Write out a separator
 	if (m_LexerEntryPos > 0) {
-		(*m_SourceFile) << ", ";
+		*m_SourceFile << ", ";
 		if ((m_LexerEntryPos%10) == 0) {
-			(*m_SourceFile) << "\n        ";
+			*m_SourceFile << "\n        ";
 		}
 	}
 
 	// Write out this transition
-	(*m_SourceFile) << "{ " << symbolSet << ", " << newState << " }";
+	*m_SourceFile << "{ " << symbolSet << ", " << newState << " }";
 
 	// Update the lexer state position
 	m_LexerEntryPos++;
@@ -595,39 +595,39 @@ void output_cplusplus::end_lexer_state() {
 /// \brief Finished writing out the lexer table
 void output_cplusplus::end_lexer_state_machine() {
 	// Finish off the table
-	(*m_SourceFile) << "\n    };\n";
+	*m_SourceFile << "\n    };\n";
 }
 
 /// \brief About to write out the list of accepting states for a lexer
 void output_cplusplus::begin_lexer_accept_table() {
 	// Start the accepting action tables
-	(*m_SourceFile) << "\nstatic const int s_AcceptingStates[] = {\n        ";
+	*m_SourceFile << "\nstatic const int s_AcceptingStates[] = {\n        ";
 }
 
 /// \brief The specified state is not an accepting state
 void output_cplusplus::nonaccepting_state(int stateId) {
 	if (stateId > 0) {
-		(*m_SourceFile) << ", ";
+		*m_SourceFile << ", ";
 	}
 
 	// Non-accepting states get -1 as the action
-	(*m_SourceFile) << "-1";
+	*m_SourceFile << "-1";
 }
 
 /// \brief The specified state is an accepting state
 void output_cplusplus::accepting_state(int stateId, int acceptSymbolId) {
 	if (stateId > 0) {
-		(*m_SourceFile) << ", ";
+		*m_SourceFile << ", ";
 	}
 
 	// Write out the action for this state
-	(*m_SourceFile) << acceptSymbolId;
+	*m_SourceFile << acceptSymbolId;
 }
 
 /// \brief Finished the lexer acceptance table
 void output_cplusplus::end_lexer_accept_table() {
 	// Finish up the acceptance table
-	(*m_SourceFile) << "\n    };\n";
+	*m_SourceFile << "\n    };\n";
 }
 
 /// \brief Finished all of the lexer definitions
@@ -636,36 +636,36 @@ void output_cplusplus::end_lexer_definitions() {
 	m_StateToEntryOffset.push_back(m_LexerEntryPos);
 
 	// Write out the rows table
-	(*m_SourceFile) << "\nstatic const dfa::state_machine_compact_table<false>::entry* s_LexerStates[" << m_StateToEntryOffset.size()-1 << "] = {\n        ";
+	*m_SourceFile << "\nstatic const dfa::state_machine_compact_table<false>::entry* s_LexerStates[" << m_StateToEntryOffset.size()-1 << "] = {\n        ";
 
 	// Write the actual rows
 	bool first = true;
 	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end()-1; offset++) {
 		// Commas between entries
-		if (!first) (*m_SourceFile) << ", ";
+		if (!first) *m_SourceFile << ", ";
 
 		// Entries point to a position in the state machine table
-		(*m_SourceFile) << "s_LexerStateMachine + " << *offset;
+		*m_SourceFile << "s_LexerStateMachine + " << *offset;
 
 		// No longer the first entry
 		first = false;
 	}
 
-	(*m_SourceFile) << "\n    };\n";
+	*m_SourceFile << "\n    };\n";
 
 	// Create a state machine
-	(*m_SourceFile) << "\ntypedef dfa::state_machine_tables<wchar_t, dfa::hard_coded_symbol_table<wchar_t, 2> > lexer_state_machine;\n";
-	(*m_SourceFile) << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << m_StateToEntryOffset.size()-1 << ");\n";
+	*m_SourceFile << "\ntypedef dfa::state_machine_tables<wchar_t, dfa::hard_coded_symbol_table<wchar_t, 2> > lexer_state_machine;\n";
+	*m_SourceFile << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << m_StateToEntryOffset.size()-1 << ");\n";
 
 	// Create the lexer itself
-	(*m_SourceFile) << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false> lexer_definition;\n";
-	(*m_SourceFile) << "static lexer_definition s_LexerDefinition(s_StateMachine, " << m_StateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
+	*m_SourceFile << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false> lexer_definition;\n";
+	*m_SourceFile << "static lexer_definition s_LexerDefinition(s_StateMachine, " << m_StateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
 
 	// Finally, the lexer class itself
-	(*m_HeaderFile) << "\npublic:\n";
-	(*m_HeaderFile) << "    static const dfa::lexer lexer;\n";
+	*m_HeaderFile << "\npublic:\n";
+	*m_HeaderFile << "    static const dfa::lexer lexer;\n";
 
-	(*m_SourceFile) << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
+	*m_SourceFile << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("lexer");
@@ -783,127 +783,127 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     int     count;
     
     // Need to include the parser tables file
-    (*m_SourceFile) << "\n#include \"Lr/parser_tables.h\"\n";
+    *m_SourceFile << "\n#include \"Lr/parser_tables.h\"\n";
     
 	// Write out the terminal actions
-    (*m_SourceFile) << "\n";
+    *m_SourceFile << "\n";
 	write_action_table<count_terminal_actions>("s_TerminalActions", tables.terminal_actions(), tables, *m_SourceFile);
     
     // ... and the nonterminal actions
-    (*m_SourceFile) << "\n";
+    *m_SourceFile << "\n";
 	write_action_table<count_nonterminal_actions>("s_NonterminalActions", tables.nonterminal_actions(), tables, *m_SourceFile);
     
     // Write out the action counts
-    (*m_SourceFile) << "\nstatic lr::parser_tables::action_count s_ActionCounts[] = {";
+    *m_SourceFile << "\nstatic lr::parser_tables::action_count s_ActionCounts[] = {";
     
     first   = true;
     count   = 0;
     for (int stateId=0; stateId < tables.count_states(); stateId++) {
         // Comma
         if (!first) {
-            (*m_SourceFile) << ", ";
+            *m_SourceFile << ", ";
         }
 
         // Newline
         if ((count%5) == 0) {
-            (*m_SourceFile) << "\n    ";
+            *m_SourceFile << "\n    ";
         }
         
         // Write out the next item
-        (*m_SourceFile) << "{ " << tables.action_counts()[stateId].m_NumTerms << ", " << tables.action_counts()[stateId].m_NumNonterms << " }";
+        *m_SourceFile << "{ " << tables.action_counts()[stateId].m_NumTerms << ", " << tables.action_counts()[stateId].m_NumNonterms << " }";
         
         // Move on
         first = false;
         count++;
     }
     
-    (*m_SourceFile) << "\n};\n";
+    *m_SourceFile << "\n};\n";
     
     // Write out the end guard states
-    (*m_SourceFile) << "\nstatic int s_EndGuardStates[] = {";
+    *m_SourceFile << "\nstatic int s_EndGuardStates[] = {";
     
     first   = true;
     count   = 0;
     for (int stateId=0; stateId < tables.count_end_of_guards(); stateId++) {
         // Comma
         if (!first) {
-            (*m_SourceFile) << ", ";
+            *m_SourceFile << ", ";
         }
         
         // Newline
         if ((count%20) == 0) {
-            (*m_SourceFile) << "\n    ";
+            *m_SourceFile << "\n    ";
         }
         
         // Write out the next item
-        (*m_SourceFile) << tables.end_of_guard_states()[stateId];
+        *m_SourceFile << tables.end_of_guard_states()[stateId];
         
         // Move on
         first = false;
         count++;
     }
     
-    (*m_SourceFile) << "\n};\n";
+    *m_SourceFile << "\n};\n";
 
     // Write out the reduce rules
-    (*m_SourceFile) << "\nstatic lr::parser_tables::reduce_rule s_ReduceRules[] = {";
+    *m_SourceFile << "\nstatic lr::parser_tables::reduce_rule s_ReduceRules[] = {";
     
     first   = true;
     count   = 0;
     for (int ruleId=0; ruleId < tables.count_reduce_rules(); ruleId++) {
         // Comma
         if (!first) {
-            (*m_SourceFile) << ", ";
+            *m_SourceFile << ", ";
         }
         
         // Newline
         if ((count%5) == 0) {
-            (*m_SourceFile) << "\n    ";
+            *m_SourceFile << "\n    ";
         }
         
         // Write out the next item
         const lr::parser_tables::reduce_rule& rule = tables.reduce_rules()[ruleId];
-        (*m_SourceFile) << "{ " << rule.m_Identifier << ", " << rule.m_RuleId << ", " << rule.m_Length << " }";
+        *m_SourceFile << "{ " << rule.m_Identifier << ", " << rule.m_RuleId << ", " << rule.m_Length << " }";
         
         // Move on
         first = false;
         count++;
     }
     
-    (*m_SourceFile) << "\n};\n";
+    *m_SourceFile << "\n};\n";
     
     // Finally, the weak to strong equivalence table
-    (*m_SourceFile) << "\nstatic lr::parser_tables::symbol_equivalent s_WeakToStrong[] = {";
+    *m_SourceFile << "\nstatic lr::parser_tables::symbol_equivalent s_WeakToStrong[] = {";
     
     first   = true;
     count   = 0;
     for (int stateId=0; stateId < tables.count_weak_to_strong(); stateId++) {
         // Comma
         if (!first) {
-            (*m_SourceFile) << ", ";
+            *m_SourceFile << ", ";
         }
         
         // Newline
         if ((count%10) == 0) {
-            (*m_SourceFile) << "\n    ";
+            *m_SourceFile << "\n    ";
         }
         
         // Write out the next item
-        (*m_SourceFile) << "{ " << tables.weak_to_strong()[stateId].m_OriginalSymbol << ", " << tables.weak_to_strong()[stateId].m_MappedTo << " }";
+        *m_SourceFile << "{ " << tables.weak_to_strong()[stateId].m_OriginalSymbol << ", " << tables.weak_to_strong()[stateId].m_MappedTo << " }";
         
         // Move on
         first = false;
         count++;
     }
     
-    (*m_SourceFile) << "\n};\n";
+    *m_SourceFile << "\n};\n";
     
     // Generate the parser tables
-    (*m_HeaderFile) << "\npublic:\n";
-    (*m_HeaderFile) << "    static const lr::parser_tables lr_tables;\n";
-    (*m_HeaderFile) << "    static const lr::simple_parser simple_parser;\n";
+    *m_HeaderFile << "\npublic:\n";
+    *m_HeaderFile << "    static const lr::parser_tables lr_tables;\n";
+    *m_HeaderFile << "    static const lr::simple_parser simple_parser;\n";
     
-	(*m_SourceFile) << "\nconst lr::parser_tables " << get_identifier(m_ClassName) << "::lr_tables(" 
+	*m_SourceFile << "\nconst lr::parser_tables " << get_identifier(m_ClassName) << "::lr_tables(" 
 					<< tables.count_states() << ", " << tables.end_of_input() << ", " 
 					<< tables.end_of_guard() 
 					<< ", s_TerminalActions, s_NonterminalActions, s_ActionCounts, s_EndGuardStates, " 
@@ -912,7 +912,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
 					<< "s_WeakToStrong"
 					<< ");\n";
 	
-	(*m_SourceFile) << "\nconst lr::simple_parser " << get_identifier(m_ClassName) << "::simple_parser(lr_tables);\n";
+	*m_SourceFile << "\nconst lr::simple_parser " << get_identifier(m_ClassName) << "::simple_parser(lr_tables);\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("lr_tables");
@@ -934,21 +934,21 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_Grammar	= &grammar;
 	m_Terminals	= &terminals;
 
-	// Write out the AST base class
-	(*m_HeaderFile) << "\npublic:\n";
-	(*m_HeaderFile) << "    class syntax_node {\n";
-	(*m_HeaderFile) << "    public:\n";
-	(*m_HeaderFile) << "        virtual ~syntax_node();\n";
-	(*m_HeaderFile) << "        virtual std::wstring to_string();\n";
-	(*m_HeaderFile) << "        virtual dfa::position pos();\n";
-	(*m_HeaderFile) << "        virtual dfa::position final_pos();\n";
-	(*m_HeaderFile) << "    };\n";
+	// Write out the AST syntax base class
+	*m_HeaderFile << "\npublic:\n";
+	*m_HeaderFile << "    class syntax_node {\n";
+	*m_HeaderFile << "    public:\n";
+	*m_HeaderFile << "        virtual ~syntax_node();\n";
+	*m_HeaderFile << "        virtual std::wstring to_string();\n";
+	*m_HeaderFile << "        virtual dfa::position pos();\n";
+	*m_HeaderFile << "        virtual dfa::position final_pos();\n";
+	*m_HeaderFile << "    };\n";
 
-	(*m_SourceFile) << "\n";
-	(*m_SourceFile) << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
-	(*m_SourceFile) << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
-	(*m_SourceFile) << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() { return dfa::position(-1, -1, -1); }\n";
-	(*m_SourceFile) << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() { return dfa::position(-1, -1, -1); }\n";
+	*m_SourceFile << "\n";
+	*m_SourceFile << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
+	*m_SourceFile << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
+	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() { return dfa::position(-1, -1, -1); }\n";
+	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() { return dfa::position(-1, -1, -1); }\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("syntax_node");
@@ -977,11 +977,83 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	*m_NtForwardDeclarations << "        virtual dfa::position final_pos();\n";
 	*m_NtForwardDeclarations << "    };\n";
 
-	(*m_SourceFile) << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
-	(*m_SourceFile) << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() { return m_Lexeme->pos(); }\n";
-	(*m_SourceFile) << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() { return m_Lexeme->final_pos(); }\n";
+	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() { return m_Lexeme->pos(); }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() { return m_Lexeme->final_pos(); }\n";
 
+	// Additional classes that will be generated by this routine
 	m_UsedClassNames.insert("terminal");
+	m_UsedClassNames.insert("parser_actions");
+
+	// Some other classes we don't want to create clashes for to avoid confusion.
+	// Mainly stuff from the std namespace
+	m_UsedClassNames.insert("string");
+	m_UsedClassNames.insert("wstring");
+	m_UsedClassNames.insert("vector");
+	m_UsedClassNames.insert("deque");
+	m_UsedClassNames.insert("list");
+	m_UsedClassNames.insert("stack");
+	m_UsedClassNames.insert("queue");
+	m_UsedClassNames.insert("priority_queue");
+	m_UsedClassNames.insert("set");
+	m_UsedClassNames.insert("multiset");
+	m_UsedClassNames.insert("map");
+	m_UsedClassNames.insert("multimap");
+	m_UsedClassNames.insert("bitset");
+	m_UsedClassNames.insert("ios_base");
+	m_UsedClassNames.insert("ios");
+	m_UsedClassNames.insert("istream");
+	m_UsedClassNames.insert("ostream");
+	m_UsedClassNames.insert("ifstream");
+	m_UsedClassNames.insert("ofstream");
+	m_UsedClassNames.insert("fstream");
+	m_UsedClassNames.insert("istringstream");
+	m_UsedClassNames.insert("ostringstream");
+	m_UsedClassNames.insert("stringstream");
+	m_UsedClassNames.insert("streambuf");
+	m_UsedClassNames.insert("filebuf");
+	m_UsedClassNames.insert("stringbuf");
+	m_UsedClassNames.insert("cin");
+	m_UsedClassNames.insert("cout");
+	m_UsedClassNames.insert("cerr");
+	m_UsedClassNames.insert("clog");
+	m_UsedClassNames.insert("wcin");
+	m_UsedClassNames.insert("wcout");
+	m_UsedClassNames.insert("wcerr");
+	m_UsedClassNames.insert("wclog");
+
+	// Begin writing out a parser actions class (this generates the type-specific AST that we define here)
+	*m_HeaderFile << "\n    class parser_actions {\n";
+
+	*m_HeaderFile << "    public:\n";
+	*m_HeaderFile << "        typedef util::syntax_ptr<syntax_node> node;\n";
+	*m_HeaderFile << "        typedef lr::parser<node, parser_actions> parser;\n";
+	*m_HeaderFile << "        typedef parser::reduce_list reduce_list;\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "    private:\n";
+	*m_HeaderFile << "        dfa::lexeme_stream* m_Stream;\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "        parser_actions(parser_actions& noCopying);\n";
+	*m_HeaderFile << "        parser_actions& operator=(const parser_actions& noCopying);\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "    public:\n";
+	*m_HeaderFile << "        parser_actions(dfa::lexeme_stream* stream)\n";
+	*m_HeaderFile << "        : m_Stream(stream) { }\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "        ~parser_actions() {\n";
+	*m_HeaderFile << "            delete m_Stream;\n";
+	*m_HeaderFile << "        }\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "        inline dfa::lexeme* read() {\n";
+    *m_HeaderFile << "            dfa::lexeme* result = NULL;\n";
+    *m_HeaderFile << "            (*m_Stream) >> result;\n";
+    *m_HeaderFile << "            return result;\n";
+    *m_HeaderFile << "        }\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "        util::syntax_ptr<syntax_node> shift(const dfa::lexeme_container& lexeme);\n";
+	*m_HeaderFile << "\n";
+	*m_HeaderFile << "        util::syntax_ptr<syntax_node> reduce(int nonterminal, int rule, const reduce_list& reduce);\n";
+	*m_HeaderFile << "    };\n";
 }
 
 /// \brief Starting to write the AST definitions for a particular terminal symbol
@@ -1175,7 +1247,7 @@ void output_cplusplus::end_ast_rule() {
 	*m_SourceFile << "{\n";
 	*m_SourceFile << "}\n";
 
-	// TODO: blank out the other fields (hrm, use magic pointer type that does the right thing? Suitable place for auto_ptr?)
+	// TODO: generate the constructor for this item
 
 	// Extra newline to space things out
 	*m_NtClassDefinitions << "\n";
@@ -1196,8 +1268,8 @@ void output_cplusplus::end_ast_nonterminal() {
 /// \brief Finished writing out the AST information
 void output_cplusplus::end_ast_definitions() {
 	// Output the forward declarations
-	(*m_HeaderFile) << m_NtForwardDeclarations->str();
+	*m_HeaderFile << m_NtForwardDeclarations->str();
 
 	// ... then the class definitions
-	(*m_HeaderFile) << m_NtClassDefinitions->str();
+	*m_HeaderFile << m_NtClassDefinitions->str();
 }

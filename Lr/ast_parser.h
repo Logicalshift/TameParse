@@ -50,7 +50,7 @@ namespace lr {
         }
         
         /// \brief Destroys an existing actions object
-        ast_parser_actions() { delete m_Stream; }
+        ~ast_parser_actions() { delete m_Stream; }
         
         /// \brief Reads the next symbol from the stream
         inline dfa::lexeme* read() {
