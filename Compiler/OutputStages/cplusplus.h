@@ -55,6 +55,26 @@ namespace compiler {
         /// \brief Maps lexer states to their offset in the state machine table
         std::vector<int> m_StateToEntryOffset;
 
+        /// \brief Maps item IDs to their class identifiers
+        std::map<int, std::string> m_ClassNameForItem;
+
+        /// \brief The last grammar supplied to this object
+        const contextfree::grammar* m_Grammar;
+
+        /// \brief The last terminal dictionary supplied to this object
+        const contextfree::terminal_dictionary* m_Terminals;
+
+        /// \brief The used class (and other identifier) names for the class (which should not be re-used)
+        std::set<std::string> m_UsedClassNames;
+
+        /// \brief Stringstream used to build up the forward declarations for the nonterminal classes
+        ///
+        /// C++ is hopeless and can't clear items, so we have to use tedious pointers
+        std::stringstream* m_NtForwardDeclarations;
+
+        /// \brief Stringstream used to build up the declarations of the classes that contain the nonterminal definitions themselves
+        std::stringstream* m_NtClassDefinitions;
+
 	public:
 		/// \brief Creates a new output stage
 		output_cplusplus(console_container& console, const std::wstring& filename, lexer_stage* lexer, language_stage* language, lr_parser_stage* parser, const std::wstring& filenamePrefix, const std::wstring& className, const std::wstring& namespaceName);
@@ -76,6 +96,9 @@ namespace compiler {
         ///
         /// This can be treated as a base name for getting names for nonterminals with particular identifiers
         virtual std::string name_for_item(const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
+
+        /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
+        virtual std::string name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
 
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);

@@ -373,7 +373,7 @@ namespace lr {
                     pushed.push(act->m_NextState);
                     break;
                     
-                    // TODO: guards (how to deal with these, there's limited lookahead here, and it's possible that they'll allow a reduction to continue). Hrm, maybe we can succeed if either of the possible paths lead to a successful reduction, though we need to know the rule ID to do that...
+                    // TODO: guards (how to deal with these? There's limited lookahead here, and it's possible that they will allow a reduction to continue). Hrm, maybe we can succeed if either of the possible paths lead to a successful reduction, though we need to know the rule ID to do that...
                     
                 case lr_action::act_weakreduce:
                 {

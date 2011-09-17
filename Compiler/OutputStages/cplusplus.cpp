@@ -25,14 +25,18 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_Namespace(namespaceName)
 , m_SourceFile(NULL)
 , m_HeaderFile(NULL)
-, m_SymbolLevels(NULL) {
+, m_SymbolLevels(NULL)
+, m_NtForwardDeclarations(NULL)
+, m_NtClassDefinitions(NULL) {
 }
 
 /// \brief Destructor
 output_cplusplus::~output_cplusplus() {
-	if (m_SourceFile) 	delete m_SourceFile;
-	if (m_HeaderFile) 	delete m_HeaderFile;
-	if (m_SymbolLevels) delete m_SymbolLevels;
+	if (m_SourceFile) 				delete m_SourceFile;
+	if (m_HeaderFile) 				delete m_HeaderFile;
+	if (m_SymbolLevels) 			delete m_SymbolLevels;
+	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
+	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
 }
 
 /// \brief Converts a string to upper case
@@ -259,6 +263,51 @@ std::string output_cplusplus::name_for_item(const contextfree::item_container& i
 	return res.str();
 }
 
+/// \brief Retrieves or assigns a name for a nonterminal with the specified ID
+std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
+	// Try to find an existing name for this nonterminal
+	map<int, string>::const_iterator found = m_ClassNameForItem.find(ntId);
+	if (found != m_ClassNameForItem.end()) {
+		// Use the found definition if it exists
+		return found->second;
+	}
+
+	// Get the base name for this item
+	string baseName = name_for_item(item, gram, terminals);
+	if (baseName.size() == 0) baseName = "unknown";
+
+	// Find a unique name that we can assign to this item
+	int variant = 0;
+
+	for (;;) {
+		// Get the next variant
+		variant++;
+
+		// Generate the variant name
+		stringstream varNameStream;
+		varNameStream << baseName;
+		if (variant > 1) {
+			varNameStream << "_" << variant;
+		}
+
+		string varName = varNameStream.str();
+
+		// See if this name has already been used
+		if (m_UsedClassNames.find(varName) == m_UsedClassNames.end()) {
+			// This is the name we shall use
+
+			// Set as the name for this nonterminal, and mark as used
+			m_ClassNameForItem[ntId] = varName;
+			m_UsedClassNames.insert(varName);
+
+			// Return as the result
+			return varName;
+		}
+
+		// Keep trying until we find a valid name
+	}
+}
+
 
 // 				================
 //  			 General output
@@ -316,6 +365,9 @@ void output_cplusplus::begin_output() {
         (*m_HeaderFile) << "namespace " << get_identifier(m_Namespace) << " {\n";
     }
     (*m_HeaderFile) << "class " << get_identifier(m_ClassName) << " {\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert(get_identifier(m_ClassName));
     
     // Write out the boilerplate at the start of the source file (include the header)
     (*m_SourceFile) << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
@@ -348,6 +400,9 @@ void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) 
     (*m_HeaderFile) << "\npublic:\n";
     (*m_HeaderFile) << "    class t {\n";
     (*m_HeaderFile) << "    public:\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("t");
 }
 
 /// \brief Specifies the identifier for the terminal symbol with a given name
@@ -382,6 +437,9 @@ void output_cplusplus::begin_nonterminal_symbols(const contextfree::grammar& gra
     (*m_HeaderFile) << "\npublic:\n";
     (*m_HeaderFile) << "    class nt {\n";
     (*m_HeaderFile) << "    public:\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("nt");
 }
 
 /// \brief Specifies the identifier for the non-terminal symbol with a given name
@@ -423,6 +481,9 @@ void output_cplusplus::end_nonterminal_symbols() {
 /// \brief Starting to write out the symbol map for the lexer
 void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
 	// TODO: support symbol maps for alphabets other than wchar_t
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("number_of_symbol_sets");
 
 	// Write out the number of symbol sets
 	(*m_HeaderFile) << "\npublic:\n";
@@ -481,6 +542,9 @@ void output_cplusplus::end_lexer_symbol_map() {
 void output_cplusplus::begin_lexer_state_machine(int numStates) {
 	// Write out the number of states to the header file
 	(*m_HeaderFile) << "\n        static const int number_of_lexer_states = " << numStates << ";\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("number_of_lexer_states");
 
 	// Need to include the state machine class
 	(*m_SourceFile) << "\n#include \"Dfa/state_machine.h\"\n";
@@ -601,6 +665,9 @@ void output_cplusplus::end_lexer_definitions() {
 	(*m_HeaderFile) << "    static const dfa::lexer lexer;\n";
 
 	(*m_SourceFile) << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("lexer");
 }
 
 
@@ -845,6 +912,10 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
 					<< ");\n";
 	
 	(*m_SourceFile) << "\nconst lr::simple_parser " << get_identifier(m_ClassName) << "::simple_parser(lr_tables);\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("lr_tables");
+    m_UsedClassNames.insert("simple_parser");
 }
 
 /// \brief Finished the parser definitions
@@ -858,22 +929,70 @@ void output_cplusplus::end_parser_definitions() {
 
 /// \brief Starting to write out the definitions associated with the AST
 void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals) {
+	// Remember the terminals and the grammar
+	m_Grammar	= &grammar;
+	m_Terminals	= &terminals;
+
 	// Write out the AST base class
 	(*m_HeaderFile) << "\npublic:\n";
 	(*m_HeaderFile) << "    class syntax_node {\n";
 	(*m_HeaderFile) << "    public:\n";
 	(*m_HeaderFile) << "        virtual ~syntax_node();\n";
 	(*m_HeaderFile) << "        virtual std::wstring to_string();\n";
+	(*m_HeaderFile) << "        virtual dfa::position pos();\n";
+	(*m_HeaderFile) << "        virtual dfa::position final_pos();\n";
 	(*m_HeaderFile) << "    };\n";
 
 	(*m_SourceFile) << "\n";
 	(*m_SourceFile) << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
 	(*m_SourceFile) << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
+	(*m_SourceFile) << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() { return dfa::position(-1, -1, -1); }\n";
+	(*m_SourceFile) << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() { return dfa::position(-1, -1, -1); }\n";
+
+    // Add to the list of used class names
+    m_UsedClassNames.insert("syntax_node");
+
+	// Clear the definitions
+	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
+	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
+
+	m_NtForwardDeclarations	= new stringstream();
+	m_NtClassDefinitions	= new stringstream();
+
+	// Create a terminal definition item
+	*m_NtForwardDeclarations << "\n    class terminal : public syntax_node {\n";
+	*m_NtForwardDeclarations << "    private:\n";
+	*m_NtForwardDeclarations << "        dfa::lexeme_container m_Lexeme;\n";
+	*m_NtForwardDeclarations << "\n";
+	*m_NtForwardDeclarations << "    public:\n";
+	*m_NtForwardDeclarations << "        terminal(const dfa::lexeme_container& lexeme);\n";
+	*m_NtForwardDeclarations << "\n";
+	*m_NtForwardDeclarations << "        inline const dfa::lexeme_container& get_lexeme() const { return m_Lexeme; }\n";
+	*m_NtForwardDeclarations << "\n";
+	*m_NtForwardDeclarations << "        template<typename symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n";
+	*m_NtForwardDeclarations << "\n";
+	*m_NtForwardDeclarations << "        virtual dfa::position pos();\n";
+	*m_NtForwardDeclarations << "\n";
+	*m_NtForwardDeclarations << "        virtual dfa::position final_pos();\n";
+	*m_NtForwardDeclarations << "    };\n";
+
+	(*m_SourceFile) << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
+	(*m_SourceFile) << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() { return m_Lexeme->pos(); }\n";
+	(*m_SourceFile) << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() { return m_Lexeme->final_pos(); }\n";
+
+	m_UsedClassNames.insert("terminal");
 }
 
 /// \brief Starting to write the AST definitions for the specified nonterminal
 void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
-	
+	// Get the name for this nonterminal
+	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
+
+	// Write out a forward declaration for this item
+	*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
+
+	// Begin a class declaration for this item
+	*m_NtClassDefinitions << "\n    class " << ntName << " : public syntax_node {\n";
 }
 
 /// \brief Starting to write out a rule in the current nonterminal
@@ -902,10 +1021,15 @@ void output_cplusplus::end_ast_rule() {
 
 /// \brief Finished writing the definitions for a nonterminal
 void output_cplusplus::end_ast_nonterminal() {
-	
+	// End the class definition for this nonterminal
+	*m_NtClassDefinitions << "    };\n";
 }
 
 /// \brief Finished writing out the AST information
 void output_cplusplus::end_ast_definitions() {
-	
+	// Output the forward declarations
+	(*m_HeaderFile) << m_NtForwardDeclarations->str();
+
+	// ... then the class definitions
+	(*m_HeaderFile) << m_NtClassDefinitions->str();
 }
