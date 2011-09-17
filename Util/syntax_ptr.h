@@ -77,7 +77,7 @@ namespace util {
         /// \brief Assignment
         syntax_ptr<ptr_type>& operator=(const syntax_ptr<ptr_type>& assignFrom) {
             // Nothing to do if the reference is the same
-            if (m_Reference == assignFrom.m_Reference) return;
+            if (m_Reference == assignFrom.m_Reference) return *this;
             
             // Deallocate the reference
             m_Reference->m_UsageCount--;
@@ -91,6 +91,8 @@ namespace util {
             // Switch to the reference in the other object
             m_Reference = assignFrom.m_Reference;
             m_Reference->m_UsageCount++;
+            
+            return *this;
         }
         
         /// \brief Destructs a syntax_ptr
@@ -121,6 +123,8 @@ namespace util {
         
         const ptr_type* operator->() const { return (ptr_type*) m_Reference->m_Value; }
         const ptr_type& operator*() { return *(ptr_type*) m_Reference->m_Value; }
+        
+        const ptr_type* item() const { return (ptr_type*) m_Reference->m_Value; }
     };
 }
 

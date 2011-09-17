@@ -76,6 +76,9 @@ namespace compiler {
         /// \brief Name of the current nonterminal class that's being defined
         std::string m_CurrentNonterminal;
 
+        /// \brief Identifier of the nonterminal that's currently being defined
+        int m_CurrentNonterminalId;
+
         /// \brief The kind of the current nonterminal
         contextfree::item::kind m_CurrentNonterminalKind;
 

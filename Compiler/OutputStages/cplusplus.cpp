@@ -1000,6 +1000,9 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("rule");
 	m_UsedClassNames.insert("nonterminal");
 	m_UsedClassNames.insert("reduce_list");
+	m_UsedClassNames.insert("syntax_node");
+	m_UsedClassNames.insert("node");
+	m_UsedClassNames.insert("content");
 
 	// Mainly stuff from the std namespace
 	m_UsedClassNames.insert("string");
@@ -1098,14 +1101,24 @@ void output_cplusplus::end_ast_terminal() {
 /// \brief Starting to write the AST definitions for the specified nonterminal
 void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
 	// Set the type of the current nonterminal
-	m_CurrentNonterminalKind = item->type();
+	m_CurrentNonterminalKind    = item->type();
+    m_CurrentNonterminalId      = identifier;
 
 	// Get the name for this nonterminal
 	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
 	m_CurrentNonterminal = ntName;
 
-	// Guards have no definitions written for them
-	if (m_CurrentNonterminalKind != item::guard) {
+	// Repeating items have a content and a vector node
+	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+		// Write out a forward declaration for this item
+		*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
+
+		// Begin a content class declaration for this item
+		*m_NtClassDefinitions << "\n    class " << ntName << "_content : public syntax_node {\n";		
+	}
+
+	// Guards have no definitions written for them, but all other item kinds just have a field for each entry in a rule
+	else if (m_CurrentNonterminalKind != item::guard) {
 		// Write out a forward declaration for this item
 		*m_NtForwardDeclarations << "\n    class " << ntName << ";\n";
 
@@ -1139,6 +1152,18 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
 	// Guards have no definitions written for them
 	if (m_CurrentNonterminalKind == item::guard) return;
+
+	// The EBNF repeat item doesn't get it's own variable within a content item
+	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+		if (item->type() == m_CurrentNonterminalKind && nonterminalId == m_CurrentNonterminalId) {
+			// In these rules, the repeating item has an empty name
+			// These are the only items that can be empty, so this is how we identify the repeating item
+			// when generating reductions
+			m_CurrentRuleNames.push_back("");
+			m_CurrentRuleTypes.push_back("");
+			return;
+		}
+	}
 
 	// Generate a name for this item
 	// TODO: would be nice to be able to specify aliases in the grammar
@@ -1241,94 +1266,165 @@ void output_cplusplus::end_ast_rule() {
 	// Guards have no definitions written for them
 	if (m_CurrentNonterminalKind == item::guard) return;
 
-	// Generate a constructor for this rule
-	*m_NtClassDefinitions << "\n    public:\n";
-
 	// Write out the declaration and parameters
 	bool first = true;
 
-	// Write the header...
-	*m_NtClassDefinitions << "        " << m_CurrentNonterminal << "(";
+	// Work out the NT class name
+	string 	ntClass 			= m_CurrentNonterminal;
+	bool   	declareConstructor 	= true;
+	bool  	repeating			= false;
 
-	// ... and the source file
-	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::" << m_CurrentNonterminal << "(";
+	// Repeating items define their content class first
+	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+		// We're declaring the _content class
+		ntClass += "_content";
+		repeating = true;
 
-	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
-		// Ignore items with an empty type
-		if (m_CurrentRuleTypes[index].empty()) continue;
-
-		// Comma to seperate the items
-		if (!first) {
-			*m_NtClassDefinitions << ", ";
-			*m_SourceFile << ", ";
-		}
-
-		// Write out this parameter (name it after the type name and the index)
-		*m_NtClassDefinitions << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
-		*m_SourceFile << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
-
-		// No longer first
-		first = false;
-	}
-	*m_NtClassDefinitions << ");\n";
-
-	// Write out the constructor declaration
-	first = true;
-	*m_SourceFile << ")";
-
-	for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
-		// Ignore items with an empty type
-		if (m_CurrentRuleTypes[index].empty()) continue;
-
-		// Comma to seperate the items
-		if (!first) {
-			*m_SourceFile << "\n, ";
+		// Don't create a constructor for the item that repeats
+		if (m_CurrentNonterminalKind == item::repeat) {
+			// Items that repeat one or more times have one item with just the content and one with the repeat rule
+			if (m_CurrentRuleNames.size() > 0 && m_CurrentRuleNames[0].empty()) {
+				// The first item was skipped as this is a repeating item
+				declareConstructor = false;
+			}
 		} else {
-			*m_SourceFile << "\n: ";
+			// Zero or more items have one item that's empty and one with the repetition and the content
+			if (m_CurrentRuleNames.size() == 0) {
+				declareConstructor = false;
+			}
 		}
-
-		// Fill in the appropriate field
-		*m_SourceFile << m_CurrentRuleNames[index] << "(" << m_CurrentRuleTypes[index][0] << "_" << index << ")";
-
-		// No longer first
-		first = false;
 	}
 
-	*m_SourceFile << "{\n";
-	*m_SourceFile << "}\n";
+	// Declare the constructor if we should
+	if (declareConstructor) {
+		// Generate a constructor for this rule
+		*m_NtClassDefinitions << "\n    public:\n";
 
-	// Extra newline to space things out
-	*m_NtClassDefinitions << "\n";
+		// Write the header...
+		*m_NtClassDefinitions << "        " << ntClass << "(";
+
+		// ... and the source file
+		*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << ntClass << "::" << ntClass << "(";
+
+		first = true;
+		for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+			// Ignore items with an empty type
+			if (m_CurrentRuleTypes[index].empty()) continue;
+
+			// Comma to seperate the items
+			if (!first) {
+				*m_NtClassDefinitions << ", ";
+				*m_SourceFile << ", ";
+			}
+
+			// Write out this parameter (name it after the type name and the index)
+			*m_NtClassDefinitions << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
+			*m_SourceFile << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
+
+			// No longer first
+			first = false;
+		}
+		*m_NtClassDefinitions << ");\n";
+
+		// Write out the constructor declaration to the source file
+		first = true;
+		*m_SourceFile << ")";
+
+		for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+			// Ignore items with an empty type
+			if (m_CurrentRuleTypes[index].empty()) continue;
+
+			// Comma to seperate the items
+			if (!first) {
+				*m_SourceFile << "\n, ";
+			} else {
+				*m_SourceFile << "\n: ";
+			}
+
+			// Fill in the appropriate field
+			*m_SourceFile << m_CurrentRuleNames[index] << "(" << m_CurrentRuleTypes[index][0] << "_" << index << ")";
+
+			// No longer first
+			first = false;
+		}
+
+		*m_SourceFile << "{\n";
+		*m_SourceFile << "}\n";
+
+		// Extra newline to space things out
+		*m_NtClassDefinitions << "\n";
+	}
 
 	// Write the reduce rule
 	*m_ReduceDefinitions << "\n    case " << m_CurrentRuleId << ":\n";
-	*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "(";
+	*m_ReduceDefinitions << "    {\n";
 
-	// Constructor parameters
-	first = true;
-	for (size_t index=0; index < m_CurrentRuleNames.size(); index++) {
-		// Get the type
-		string type = m_CurrentRuleTypes[index];
-
-		// Ignore items with an empty type
-		if (type.empty()) continue;
-
-		// Comma between items
-		if (!first) {
-			*m_ReduceDefinitions << ", ";
+	// Construct the content item for any item with a constructor
+	if (declareConstructor) {
+		if (repeating) {
+			// Repeating items first create a content node
+			*m_ReduceDefinitions << "        util::syntax_ptr<" << ntClass << "> content(new " << ntClass << "(";
+		} else {
+			// Standard action is just to create a new node of the appropriate type
+			*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "(";
 		}
 
-		// The reduce list is passed in in reverse
-		size_t reduceIndex = m_CurrentRuleNames.size() - index - 1;
+		// Constructor parameters
+		first = true;
+		for (size_t index=0; index < m_CurrentRuleNames.size(); index++) {
+			// Get the type
+			string type = m_CurrentRuleTypes[index];
 
-		// This item needs to be cast to a pointer of the appropriate type (the reduce_list only contains nodes)
-		*m_ReduceDefinitions << "reduce[" << reduceIndex << "].cast_to<" << type << ">()";
+			// Ignore items with an empty type
+			if (type.empty()) continue;
 
-		// No longer first
-		first = false;
+			// Comma between items
+			if (!first) {
+				*m_ReduceDefinitions << ", ";
+			}
+
+			// The reduce list is passed in in reverse
+			size_t reduceIndex = m_CurrentRuleNames.size() - index - 1;
+
+			// This item needs to be cast to a pointer of the appropriate type (the reduce_list only contains nodes)
+			*m_ReduceDefinitions << "reduce[" << reduceIndex << "].cast_to<" << type << ">()";
+
+			// No longer first
+			first = false;
+		}
+
+		*m_ReduceDefinitions << "));\n";
 	}
 
-	*m_ReduceDefinitions << "));\n";
+	// For repeating items either create or retrieve the node
+	if (repeating) {
+		if (!declareConstructor) {
+			// If there is no constructor, then just return an empty item
+			*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "());\n";
+		} else {
+			// Get the node where the definition is being built up
+			*m_ReduceDefinitions << "        util::syntax_ptr<" << m_CurrentNonterminal << "> list(";
+
+			// If the first item is a repetition then use that, otherwise create a new item
+			if (!m_CurrentRuleNames.empty() && m_CurrentRuleNames[0].empty()) {
+				// The first item is the repetition
+				*m_ReduceDefinitions << "reduce[" << m_CurrentRuleNames.size()-1 << "].cast_to<" << m_CurrentNonterminal << ">());\n";
+			} else {
+				// Need to create a new item
+				*m_ReduceDefinitions << "new " << m_CurrentNonterminal << "());\n";
+			}
+
+			// Add the content as a child item
+			// Hideous const cast :-(
+			*m_ReduceDefinitions << "        const_cast<" << m_CurrentNonterminal << "*>(list.item())->add_child(content);\n";
+
+			// Case to a node and return
+			*m_ReduceDefinitions << "        return list.cast_to<syntax_node>();\n";
+		}
+	}
+
+	// Finished this case definition
+	*m_ReduceDefinitions << "    }\n";
 }
 
 /// \brief Finished writing the definitions for a nonterminal
@@ -1336,14 +1432,45 @@ void output_cplusplus::end_ast_nonterminal() {
 	// Guards have no definitions written for them
 	if (m_CurrentNonterminalKind == item::guard) return;
 
+	// Work out the NT class name
+	string ntClass = m_CurrentNonterminal;
+
+	// Repeating items define their content class first
+	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+		ntClass += "_content";
+	}
+
 	// Destructor: nothing to do here, as the syntax_ptr class will handle freeing everything up
-	*m_NtClassDefinitions << "        virtual ~" << m_CurrentNonterminal << "();\n";
-	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::~" << m_CurrentNonterminal << "() { }\n";
+	*m_NtClassDefinitions << "    public:\n";
+	*m_NtClassDefinitions << "        virtual ~" << ntClass << "();\n";
+	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << ntClass << "::~" << ntClass << "() { }\n";
 
 	// TODO: write out the accessors for the various items
 
 	// End the class definition for this nonterminal
 	*m_NtClassDefinitions << "    };\n";
+
+	// For repeating classes, define the collection class
+	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+		*m_NtClassDefinitions << "\n    class " << m_CurrentNonterminal << " : public syntax_node {\n";
+		*m_NtClassDefinitions << "    private:\n";
+		*m_NtClassDefinitions << "        typedef util::syntax_ptr<" << ntClass << "> node_type;\n";
+		*m_NtClassDefinitions << "        typedef std::vector<node_type> data_type;\n";
+		*m_NtClassDefinitions << "        typedef data_type::const_iterator iterator;\n";
+		*m_NtClassDefinitions << "\n";
+		*m_NtClassDefinitions << "    private:\n";
+		*m_NtClassDefinitions << "        data_type m_Data;\n";
+		*m_NtClassDefinitions << "\n";
+		*m_NtClassDefinitions << "    public:\n";
+		*m_NtClassDefinitions << "        inline operator const data_type&() const { return m_Data; }\n";
+		*m_NtClassDefinitions << "        inline const " << ntClass << "* operator[](size_t index) const { return m_Data[index].item(); }\n";
+		*m_NtClassDefinitions << "        inline const size_t size() const { return m_Data.size(); }\n";
+		*m_NtClassDefinitions << "        inline iterator begin() const { return m_Data.begin(); }\n";
+		*m_NtClassDefinitions << "        inline iterator end() const { return m_Data.end(); }\n";
+		*m_NtClassDefinitions << "\n";
+		*m_NtClassDefinitions << "        inline void add_child(const node_type& newChild) { m_Data.push_back(newChild); }\n";
+		*m_NtClassDefinitions << "    };\n";
+	}
 }
 
 /// \brief Finished writing out the AST information
