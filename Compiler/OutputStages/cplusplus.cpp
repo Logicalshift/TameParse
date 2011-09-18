@@ -688,7 +688,7 @@ void output_cplusplus::begin_parser_definitions() {
 typedef lr::parser_tables::action action;
 
 /// \brief Writes out an action table
-template<typename get_count> void write_action_table(string tableName, const lr::parser_tables::action* const* actionTable, const lr::parser_tables& tables, ostream& output) {
+template<class get_count> void write_action_table(string tableName, const lr::parser_tables::action* const* actionTable, const lr::parser_tables& tables, ostream& output) {
 	// Count getter object
 	get_count gc;
 
@@ -978,7 +978,7 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	*m_NtForwardDeclarations << "\n";
 	*m_NtForwardDeclarations << "        inline const dfa::lexeme_container& get_lexeme() const { return m_Lexeme; }\n";
 	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "        template<typename symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n";
+	*m_NtForwardDeclarations << "        template<class symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n";
 	*m_NtForwardDeclarations << "\n";
 	*m_NtForwardDeclarations << "        virtual dfa::position pos();\n";
 	*m_NtForwardDeclarations << "\n";
@@ -1135,7 +1135,7 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	if (m_CurrentNonterminalKind == item::guard) return;
 
 	// Start appending the private values for this class
-	*m_NtClassDefinitions << "    private:\n";
+	*m_NtClassDefinitions << "    public:\n";
 	*m_NtClassDefinitions << "        // Rule " << identifier << "\n";
 
 	// Set the rule identifier
@@ -1145,6 +1145,12 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	m_UsedRuleItems.clear();
 	m_CurrentRuleNames.clear();
 	m_CurrentRuleTypes.clear();
+
+	// ... except for the name of the nonterminal itself, and the names of the various functions that get generated for this item
+	m_UsedRuleItems.insert(m_CurrentNonterminal);
+	m_UsedRuleItems.insert("pos");
+	m_UsedRuleItems.insert("final_pos");
+	m_UsedRuleItems.insert("to_string");
 }
 
 /// \brief Writes out an individual item in the current rule (a nonterminal)
@@ -1177,7 +1183,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 
 		// Generate the name for this variant
 		stringstream thisName;
-		thisName << "m_" << baseName;
+		thisName << baseName;
 		if (variant > 1) {
 			thisName << "_" << variant;
 		}
@@ -1193,7 +1199,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	// Guards have no corresponding variable
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end() && item->type() != item::guard) {
-		*m_NtClassDefinitions << "        util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
+		*m_NtClassDefinitions << "        const util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
@@ -1233,7 +1239,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 		// Generate the name for this variant
 		stringstream thisName;
-		thisName << "m_" << baseName;
+		thisName << baseName;
 		if (variant > 1) {
 			thisName << "_" << variant;
 		}
@@ -1248,7 +1254,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
-		*m_NtClassDefinitions << "        util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
+		*m_NtClassDefinitions << "        const util::syntax_ptr<class " << baseName << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
@@ -1317,8 +1323,8 @@ void output_cplusplus::end_ast_rule() {
 			}
 
 			// Write out this parameter (name it after the type name and the index)
-			*m_NtClassDefinitions << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
-			*m_SourceFile << "const util::syntax_ptr<" << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
+			*m_NtClassDefinitions << "const util::syntax_ptr<class " << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
+			*m_SourceFile << "const util::syntax_ptr<class " << m_CurrentRuleTypes[index] << ">& " << m_CurrentRuleTypes[index][0] << "_" << index;
 
 			// No longer first
 			first = false;
@@ -1362,7 +1368,7 @@ void output_cplusplus::end_ast_rule() {
 	if (declareConstructor) {
 		if (repeating) {
 			// Repeating items first create a content node
-			*m_ReduceDefinitions << "        util::syntax_ptr<" << ntClass << "> content(new " << ntClass << "(";
+			*m_ReduceDefinitions << "        util::syntax_ptr<class " << ntClass << "> content(new " << ntClass << "(";
 		} else {
 			// Standard action is just to create a new node of the appropriate type
 			*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "(";
@@ -1402,7 +1408,7 @@ void output_cplusplus::end_ast_rule() {
 			*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "());\n";
 		} else {
 			// Get the node where the definition is being built up
-			*m_ReduceDefinitions << "        util::syntax_ptr<" << m_CurrentNonterminal << "> list(";
+			*m_ReduceDefinitions << "        util::syntax_ptr<class " << m_CurrentNonterminal << "> list(";
 
 			// If the first item is a repetition then use that, otherwise create a new item
 			if (!m_CurrentRuleNames.empty() && m_CurrentRuleNames[0].empty()) {
@@ -1453,7 +1459,7 @@ void output_cplusplus::end_ast_nonterminal() {
 	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
 		*m_NtClassDefinitions << "\n    class " << m_CurrentNonterminal << " : public syntax_node {\n";
 		*m_NtClassDefinitions << "    private:\n";
-		*m_NtClassDefinitions << "        typedef util::syntax_ptr<" << ntClass << "> node_type;\n";
+		*m_NtClassDefinitions << "        typedef util::syntax_ptr<class " << ntClass << "> node_type;\n";
 		*m_NtClassDefinitions << "        typedef std::vector<node_type> data_type;\n";
 		*m_NtClassDefinitions << "        typedef data_type::const_iterator iterator;\n";
 		*m_NtClassDefinitions << "\n";
