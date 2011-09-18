@@ -112,23 +112,26 @@ namespace util {
         
     public:
         /// \brief Converts this object back to its underlying type
-        operator const ptr_type*() const { return m_Reference->m_Value; }
+        inline operator const ptr_type*() const { return m_Reference->m_Value; }
+
+        /// \brief Evaluating this as a boolean returns whether or not the item is present
+        inline operator bool() const { return m_Reference->m_Value != NULL; }
         
         /// \brief Casts this pointer to a pointer of a different type (but maintains reference counting)
         ///
         /// Note that the destructor will be called on an object of the type of the last syntax_ptr to be destroyed.
         /// That is, this call should only be made on objects with virtual destructors and between classes which are
         /// part of the same hierarchy.
-        template<typename cast_type> syntax_ptr<cast_type> cast_to() const {
+        template<typename cast_type> inline syntax_ptr<cast_type> cast_to() const {
             return syntax_ptr<cast_type>(m_Reference);
         }
 
         // Other operators
         
-        const ptr_type* operator->() const { return (ptr_type*) m_Reference->m_Value; }
-        const ptr_type& operator*() { return *(ptr_type*) m_Reference->m_Value; }
+        inline const ptr_type* operator->() const { return (ptr_type*) m_Reference->m_Value; }
+        inline const ptr_type& operator*() { return *(ptr_type*) m_Reference->m_Value; }
         
-        const ptr_type* item() const { return (ptr_type*) m_Reference->m_Value; }
+        inline const ptr_type* item() const { return (ptr_type*) m_Reference->m_Value; }
     };
 }
 

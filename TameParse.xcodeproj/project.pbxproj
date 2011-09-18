@@ -784,6 +784,8 @@
 				4BF84F9D13B8DDB700B899B6 /* definition_txt.h */,
 				4BFD4A7613883A5000D6657D /* bootstrap.cpp */,
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
+				4B9804021412789D00B5F857 /* tameparse_language.cpp */,
+				4B9804031412789D00B5F857 /* tameparse_language.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
 				4B7F0C641393F2680012C085 /* formatter.h */,
 				4BB6615A13DB273400CDED59 /* process.cpp */,
@@ -814,8 +816,6 @@
 				4B5E44FC13DC9A5C001FF896 /* production_definition.h */,
 				4B5E44F313DC9A27001FF896 /* ebnf_item.cpp */,
 				4B5E44F413DC9A27001FF896 /* ebnf_item.h */,
-				4B9804021412789D00B5F857 /* tameparse_language.cpp */,
-				4B9804031412789D00B5F857 /* tameparse_language.h */,
 			);
 			path = Language;
 			sourceTree = "<group>";
