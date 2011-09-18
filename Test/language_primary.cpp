@@ -89,7 +89,7 @@ void test_language_primary::run_tests() {
 #if 0
     typedef parser<tameparse_language::syntax_node_container, parser_actions, debug_parser_trace<2> > debug_parser;
     
-    debug_parser parser(&tameparse_language::lr_tables, false);
+    debug_parser parser(tameparse_language::lr_tables);
     debug_parser::state* defParser = parser.create_parser(new parser_actions(defaultStream));
 #elif 0
     simple_parser::state* defParser = tameparse_language::simple_parser.create_parser(new simple_parser_actions(defaultStream));
