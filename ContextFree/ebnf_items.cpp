@@ -6,10 +6,14 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <stack>
+#include <set>
+
 #include "ebnf_items.h"
 #include "symbol_set.h"
 #include "Lr/lr_item.h"
 
+using namespace std;
 using namespace dfa;
 using namespace lr;
 using namespace contextfree;
@@ -61,7 +65,9 @@ ebnf::~ebnf() {
 
 /// \brief Adds a new rule to this construction
 void ebnf::add_rule(const rule& newRule) {
-    m_Rules->push_back(new rule(newRule, *this));
+    item_container ourselves(this, false);
+
+    m_Rules->push_back(new rule(newRule, ourselves));
 }
 
 /// \brief Compares this item to another. Returns true if they are the same
@@ -326,6 +332,58 @@ void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
     
     // Any of the items in this rule
     for (rule_list::const_iterator nextRule = rules().begin(); nextRule != rules().end(); nextRule++) {
-        insert_closure_item(lr1_item_container(new lr1_item(&gram, *nextRule, 0, follow)), state, gram);
+        // If this particular rule is just another alternative, then flatten things out instead of referencing it
+        // This simplifies the AST and also reduces the number of reductions that need to be performed
+        if ((*nextRule)->items().size() == 1 && (*nextRule)->items()[0]->type() == item::alternative) {
+            // Reference ourselves
+            item_container ourselves(const_cast<ebnf_alternate*>(this), false);
+
+            // Recursively flatten this rule
+            stack<rule_container>   toFlatten;
+            set<item_container>     flattened;
+            toFlatten.push(*nextRule);
+
+            // We're already flattening ourselves
+            flattened.insert(ourselves);
+
+            // Loop until there are no more rules to add
+            while (!toFlatten.empty()) {
+                // Get the next rule to flatten (will be a rule containing a single alternative)
+                rule_container alternateRule = toFlatten.top();
+
+                // Pop from the stack
+                toFlatten.pop();
+
+                // Get the alternate item for this rule
+                item_container alternate = alternateRule->items()[0];
+
+                // Nothing to do if we've already encountered it
+                if (flattened.find(alternate) != flattened.end()) continue;
+
+                // Remember this as flattened, so we won't process it again
+                flattened.insert(alternate);
+
+                // Iterate through the rules in this item
+                const ebnf* alternateEbnf = (const ebnf*) alternate.item();
+
+                for (rule_list::const_iterator ruleToFlatten = alternateEbnf->first_rule(); ruleToFlatten != alternateEbnf->last_rule(); ruleToFlatten++) {
+                    // Single-item alternates get flattened later on
+                    if ((*ruleToFlatten)->items().size() == 1 && (*ruleToFlatten)->items()[0]->type() == item::alternative) {
+                        toFlatten.push(*ruleToFlatten);
+                    } 
+
+                    // Other rules get rewritten with this item as the target
+                    else {
+                        rule_container rewrittenRule(new rule(**ruleToFlatten, ourselves));
+                        insert_closure_item(lr1_item_container(new lr1_item(&gram, rewrittenRule, 0, follow)), state, gram);
+                    }
+                }
+            }
+        } 
+
+        // All other rules are passed through untouched
+        else {
+            insert_closure_item(lr1_item_container(new lr1_item(&gram, *nextRule, 0, follow)), state, gram);
+        }
     }
 }
