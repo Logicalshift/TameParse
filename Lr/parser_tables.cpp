@@ -241,7 +241,8 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
 , m_NumRules(copyFrom.m_NumRules)
 , m_EndOfInput(copyFrom.m_EndOfInput)
 , m_EndOfGuard(copyFrom.m_EndOfGuard)
-, m_DeleteTables(copyFrom.m_DeleteTables) {
+, m_DeleteTables(copyFrom.m_DeleteTables)
+, m_NumWeakToStrong(copyFrom.m_NumWeakToStrong) {
     // Allocate the action tables
     m_TerminalActions       = new action*[m_NumStates];
     m_NonterminalActions    = new action*[m_NumStates];
@@ -280,7 +281,16 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
         m_EndGuardStates[x] = copyFrom.m_EndGuardStates[x];
     }
 
-    // TODO: m_WeakToStrong
+    // Copy the weak to strong table
+    if (copyFrom.m_WeakToStrong) {
+        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong];
+
+        for (int x=0; x<m_NumWeakToStrong; x++) {
+            m_WeakToStrong[x] = copyFrom.m_WeakToStrong[x];
+        }
+    } else {
+        m_WeakToStrong = NULL;
+    }
 }
 
 /// \brief Assignment

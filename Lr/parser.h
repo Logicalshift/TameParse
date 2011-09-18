@@ -100,7 +100,10 @@ namespace lr {
     template<typename item_type, typename parser_actions, typename parser_trace = no_parser_trace> class parser {
     private:
         /// \brief The parser tables
-        parser_tables m_ParserTables;
+        const parser_tables* m_ParserTables;
+        
+        /// \brief True if this object owns the tables (and should destroy them)
+        bool m_OwnsTables;
         
     public:
         /// \brief Lexeme type
@@ -120,15 +123,42 @@ namespace lr {
         class state;
         
         /// \brief Creates a parser by copying the tables
-        parser(const parser_tables& tables) 
-        : m_ParserTables(tables) { }
+        explicit parser(const parser_tables& tables) 
+        : m_ParserTables(new parser_tables(tables))
+        , m_OwnsTables(true) { }
+        
+        /// \brief Creates a parser with a reference to the tables it should use.
+        ///
+        /// Set destroyTables to true if the parser should delete the tables when it is destructed.
+        parser(const parser_tables* tables, bool destroyTables)
+        : m_ParserTables(tables)
+        , m_OwnsTables(destroyTables) {
+        }
 
         /// \brief Creates a parser from the result of the specified builder class
         parser(const lalr_builder& builder, const weak_symbols* weakSymbols) 
-        : m_ParserTables(builder, weakSymbols) { }
+        : m_ParserTables(new parser_tables(builder, weakSymbols))
+        , m_OwnsTables(true) { }
+        
+        /// \brief Copy constructor
+        parser(const parser& copyFrom) {
+            // Only copy the tables if they are actually owned by the parser we're copying from
+            // (For hard-coded parsers, the tables often aren't, so there's no need to copy)
+            if (copyFrom.m_OwnsTables) {
+                m_OwnsTables    = true;
+                m_ParserTables  = new parser_tables(copyFrom.m_ParserTables);
+            } else {
+                m_OwnsTables    = false;
+                m_ParserTables  = copyFrom.m_ParserTables;
+            }
+        }
 
         /// \brief Destructor
-        virtual ~parser() { }
+        virtual ~parser() { 
+            if (m_OwnsTables) {
+                delete m_ParserTables;
+            }
+        }
         
     private:
         ///
@@ -211,7 +241,7 @@ namespace lr {
             
         private:
             /// \brief Constructs a new state, used by the parser
-            state(const parser_tables& tables, int initialState, session* session);            
+            state(const parser_tables* tables, int initialState, session* session);            
             
         public:
             /// \brief Creates a new parser state by copying an old one. Parser states can be run independently.

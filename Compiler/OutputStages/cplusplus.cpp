@@ -916,7 +916,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
 					<< "s_WeakToStrong"
 					<< ");\n";
 	
-	*m_SourceFile << "\nconst lr::simple_parser " << get_identifier(m_ClassName) << "::simple_parser(lr_tables);\n";
+	*m_SourceFile << "\nconst lr::simple_parser " << get_identifier(m_ClassName) << "::simple_parser(&lr_tables, false);\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("lr_tables");
@@ -1504,5 +1504,5 @@ void output_cplusplus::end_ast_definitions() {
 	*m_HeaderFile << "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n";
     *m_HeaderFile << "    static const ast_parser_type ast_parser;\n";
 	
-	*m_SourceFile << "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(lr_tables);\n";
+	*m_SourceFile << "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(&lr_tables, false);\n";
 }

@@ -83,18 +83,18 @@ void test_language_primary::run_tests() {
     lexeme_stream* defaultStream = tameparse_language::lexer.create_stream_from(bootstrapDefinition);
     
     // Create a parser for it
-#if 0
-    typedef parser<int, simple_parser_actions, debug_parser_trace<2> > debug_parser;
+    typedef tameparse_language::ast_parser_type ast_parser;
+    typedef tameparse_language::parser_actions parser_actions;
     
-    debug_parser parser(tameparse_language::lr_tables);
-    debug_parser::state* defParser = parser.create_parser(new simple_parser_actions(defaultStream));
+#if 0
+    typedef parser<tameparse_language::syntax_node_container, parser_actions, debug_parser_trace<2> > debug_parser;
+    
+    debug_parser parser(&tameparse_language::lr_tables, false);
+    debug_parser::state* defParser = parser.create_parser(new parser_actions(defaultStream));
 #elif 0
     simple_parser::state* defParser = tameparse_language::simple_parser.create_parser(new simple_parser_actions(defaultStream));
 #else
-    typedef tameparse_language::ast_parser_type parser;
-    typedef tameparse_language::parser_actions parser_actions;
-    
-    parser::state* defParser = tameparse_language::ast_parser.create_parser(new parser_actions(defaultStream));
+    ast_parser::state* defParser = tameparse_language::ast_parser.create_parser(new parser_actions(defaultStream));
 #endif
     
     // Try parsing the language

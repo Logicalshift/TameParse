@@ -15,8 +15,8 @@ namespace lr {
     ///
     /// \brief Constructs a new state, used by the parser
     ///
-    template<typename I, typename A, typename T> parser<I, A, T>::state::state(const parser_tables& tables, int initialState, session* session) 
-    : m_Tables(&tables)
+    template<typename I, typename A, typename T> parser<I, A, T>::state::state(const parser_tables* tables, int initialState, session* session) 
+    : m_Tables(tables)
     , m_Session(session)
     , m_LookaheadPos(0) {
         // Push the initial state
