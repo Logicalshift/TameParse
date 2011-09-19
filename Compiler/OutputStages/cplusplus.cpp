@@ -944,15 +944,15 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	*m_HeaderFile << "    public:\n";
 	*m_HeaderFile << "        virtual ~syntax_node();\n";
 	*m_HeaderFile << "        virtual std::wstring to_string();\n";
-	*m_HeaderFile << "        virtual dfa::position pos();\n";
-	*m_HeaderFile << "        virtual dfa::position final_pos();\n";
+	*m_HeaderFile << "        virtual dfa::position pos() const;\n";
+	*m_HeaderFile << "        virtual dfa::position final_pos() const;\n";
 	*m_HeaderFile << "    };\n";
 
 	*m_SourceFile << "\n";
 	*m_SourceFile << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
 	*m_SourceFile << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
-	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() { return dfa::position(-1, -1, -1); }\n";
-	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() { return dfa::position(-1, -1, -1); }\n";
+	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() const { return dfa::position(-1, -1, -1); }\n";
+	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() const { return dfa::position(-1, -1, -1); }\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("syntax_node");
@@ -1458,7 +1458,7 @@ void output_cplusplus::end_ast_nonterminal() {
 	// For repeating classes, define the collection class
 	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
 		*m_NtClassDefinitions << "\n    class " << m_CurrentNonterminal << " : public syntax_node {\n";
-		*m_NtClassDefinitions << "    private:\n";
+		*m_NtClassDefinitions << "    public:\n";
 		*m_NtClassDefinitions << "        typedef util::syntax_ptr<class " << ntClass << "> node_type;\n";
 		*m_NtClassDefinitions << "        typedef std::vector<node_type> data_type;\n";
 		*m_NtClassDefinitions << "        typedef data_type::const_iterator iterator;\n";
