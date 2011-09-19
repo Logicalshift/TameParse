@@ -56,11 +56,8 @@ namespace dfa {
     class basic_lexer {
     protected:
         /// \brief A symbol stream that reads from a basic_istream with the specified traits
-        template<typename Char, typename Traits> class stream_stream : public lexer_symbol_stream {
+        template<typename stream, typename Char> class stream_stream : public lexer_symbol_stream {
         private:
-            /// \brief the Stream type that this refers to
-            typedef std::basic_istream<Char, Traits> stream;
-            
             /// The stream that this refers to
             stream& m_Stream; 
             
@@ -98,8 +95,13 @@ namespace dfa {
         virtual size_t size() const = 0;
         
         /// \brief Creates a new lexer that will read from the specified stream (which must not be destroyed while the lexer is in use)
-        template<typename Char, typename Traits> inline lexeme_stream* create_stream_from(std::basic_istream<Char, Traits>& input) const {
-            return create_stream(new stream_stream<Char, Traits>(input));
+        template<typename char_type, typename traits> inline lexeme_stream* create_stream_from(std::basic_istream<char_type, traits>& input) const {
+            return create_stream(new stream_stream<std::basic_istream<char_type, traits>, char_type>(input));
+        }
+        
+        /// \brief Creates a new lexer from a custom type that supports the get and good operators for a particular character type
+        template<typename char_type, typename custom_stream_alike> inline lexeme_stream* create_stream_from(custom_stream_alike& input) const {
+            return create_stream(new stream_stream<custom_stream_alike, char_type>(input));
         }
     };
     

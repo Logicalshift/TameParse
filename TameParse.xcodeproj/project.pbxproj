@@ -96,6 +96,10 @@
 		4B8A0104140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0106140BED2100187196 /* cplusplus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B8A0103140BED2100187196 /* cplusplus.h */; };
+		4B9460581427DEC000B4BB87 /* bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A7613883A5000D6657D /* bootstrap.cpp */; };
+		4B9460591427E0B000B4BB87 /* language_parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B9460561427D45500B4BB87 /* language_parser.cpp */; };
+		4B94605A1427E0B400B4BB87 /* language_parser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B9460541427D44200B4BB87 /* language_parser.h */; };
+		4B94605D1427E22A00B4BB87 /* stringreader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B94605C1427E22A00B4BB87 /* stringreader.cpp */; };
 		4B9804041412789D00B5F857 /* tameparse_language.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B9804021412789D00B5F857 /* tameparse_language.cpp */; };
 		4B9804051412789D00B5F857 /* tameparse_language.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B9804031412789D00B5F857 /* tameparse_language.h */; };
 		4BB2C9101425010800D501E7 /* syntax_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB2C90F1425010800D501E7 /* syntax_ptr.cpp */; };
@@ -240,8 +244,6 @@
 		4BFD4A61137483DA00D6657D /* weak_symbols.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5F137483DA00D6657D /* weak_symbols.h */; };
 		4BFD4A6813773EE600D6657D /* parser_stack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A6613773EE600D6657D /* parser_stack.cpp */; };
 		4BFD4A6913773EE600D6657D /* parser_stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A6713773EE600D6657D /* parser_stack.h */; };
-		4BFD4A7813883A5000D6657D /* bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A7613883A5000D6657D /* bootstrap.cpp */; };
-		4BFD4A7913883A5000D6657D /* bootstrap.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A7713883A5000D6657D /* bootstrap.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -372,6 +374,10 @@
 		4B7F0C641393F2680012C085 /* formatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = formatter.h; sourceTree = "<group>"; };
 		4B8A0102140BED2100187196 /* cplusplus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cplusplus.cpp; sourceTree = "<group>"; };
 		4B8A0103140BED2100187196 /* cplusplus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cplusplus.h; sourceTree = "<group>"; };
+		4B9460541427D44200B4BB87 /* language_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_parser.h; sourceTree = "<group>"; };
+		4B9460561427D45500B4BB87 /* language_parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_parser.cpp; sourceTree = "<group>"; };
+		4B94605B1427E22000B4BB87 /* stringreader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringreader.h; sourceTree = "<group>"; };
+		4B94605C1427E22A00B4BB87 /* stringreader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringreader.cpp; sourceTree = "<group>"; };
 		4B9803FF1412778300B5F857 /* bootstrap_language.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = bootstrap_language.sh; sourceTree = "<group>"; };
 		4B9804021412789D00B5F857 /* tameparse_language.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tameparse_language.cpp; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B9804031412789D00B5F857 /* tameparse_language.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tameparse_language.h; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -565,6 +571,8 @@
 				4BD179BA141D0EC700DEDC24 /* unicode.h */,
 				4BB2C90F1425010800D501E7 /* syntax_ptr.cpp */,
 				4BB2C9131425010F00D501E7 /* syntax_ptr.h */,
+				4B94605C1427E22A00B4BB87 /* stringreader.cpp */,
+				4B94605B1427E22000B4BB87 /* stringreader.h */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -786,6 +794,8 @@
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B9804021412789D00B5F857 /* tameparse_language.cpp */,
 				4B9804031412789D00B5F857 /* tameparse_language.h */,
+				4B9460561427D45500B4BB87 /* language_parser.cpp */,
+				4B9460541427D44200B4BB87 /* language_parser.h */,
 				4B7F0C631393F2680012C085 /* formatter.cpp */,
 				4B7F0C641393F2680012C085 /* formatter.h */,
 				4BB6615A13DB273400CDED59 /* process.cpp */,
@@ -867,7 +877,6 @@
 				4B7F0C51138025EE0012C085 /* astnode.h in Headers */,
 				4B7F0C551387F4870012C085 /* ast_parser.h in Headers */,
 				4B7F0C591387F8550012C085 /* ignored_symbols.h in Headers */,
-				4BFD4A7913883A5000D6657D /* bootstrap.h in Headers */,
 				4B7F0C661393F2690012C085 /* formatter.h in Headers */,
 				4B556F18139A8B13002C7154 /* conflict.h in Headers */,
 				4BF84F9E13B8DDB700B899B6 /* definition_txt.h in Headers */,
@@ -900,6 +909,7 @@
 				4BCFA13814125A800004FD27 /* hard_coded_symbol_table.h in Headers */,
 				4B9804051412789D00B5F857 /* tameparse_language.h in Headers */,
 				4BB2C9141425010F00D501E7 /* syntax_ptr.h in Headers */,
+				4B94605A1427E0B400B4BB87 /* language_parser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,6 +1123,7 @@
 				4BD179B9141D0EBB00DEDC24 /* unicode.cpp in Sources */,
 				4BD179BD141D461000DEDC24 /* ndfa_transformations.cpp in Sources */,
 				4BB2C9101425010800D501E7 /* syntax_ptr.cpp in Sources */,
+				4B94605D1427E22A00B4BB87 /* stringreader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1160,7 +1171,6 @@
 				4B7F0C50138025EE0012C085 /* astnode.cpp in Sources */,
 				4B7F0C541387F4870012C085 /* ast_parser.cpp in Sources */,
 				4B7F0C581387F8550012C085 /* ignored_symbols.cpp in Sources */,
-				4BFD4A7813883A5000D6657D /* bootstrap.cpp in Sources */,
 				4B7F0C651393F2690012C085 /* formatter.cpp in Sources */,
 				4B556F17139A8B13002C7154 /* conflict.cpp in Sources */,
 				4BEDDA7713BBB91E002FBD79 /* guard.cpp in Sources */,
@@ -1193,6 +1203,7 @@
 				4BD179BB141D1ADD00DEDC24 /* unicode.cpp in Sources */,
 				4BD179BE141D46A300DEDC24 /* ndfa_transformations.cpp in Sources */,
 				4BB2C9111425010800D501E7 /* syntax_ptr.cpp in Sources */,
+				4B9460591427E0B000B4BB87 /* language_parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1215,6 +1226,7 @@
 				4B1B35AE13AEAD2900D1E488 /* dfa_multi_regex.cpp in Sources */,
 				4BDD091B13B63A1D00BC01EA /* lr_weaksymbols.cpp in Sources */,
 				4BD179B3141BBF7300DEDC24 /* language_primary.cpp in Sources */,
+				4B9460581427DEC000B4BB87 /* bootstrap.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

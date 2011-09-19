@@ -112,7 +112,7 @@ namespace util {
         
     public:
         /// \brief Converts this object back to its underlying type
-        inline operator const ptr_type*() const { return m_Reference->m_Value; }
+        inline operator const ptr_type*() const { return (ptr_type*) m_Reference->m_Value; }
 
         /// \brief Evaluating this as a boolean returns whether or not the item is present
         inline operator bool() const { return m_Reference->m_Value != NULL; }
