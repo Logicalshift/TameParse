@@ -21,15 +21,88 @@ language_parser::language_parser()
 : m_FileDefinition(NULL, true) {
 }
 
-typedef tameparse_language::Parser_Language         Parser_Language;
-typedef tameparse_language::list_of_TopLevel_Block  list_of_TopLevel_Block;
-typedef tameparse_language::TopLevel_Block          ast_TopLevel_Block;
-typedef tameparse_language::Language_Block          ast_Language_Block;
-typedef tameparse_language::Language_Definition     ast_Language_Definition;
+typedef tameparse_language::Parser_Language             Parser_Language;
+typedef tameparse_language::list_of_TopLevel_Block      list_of_TopLevel_Block;
+typedef tameparse_language::TopLevel_Block              ast_TopLevel_Block;
+typedef tameparse_language::Language_Block              ast_Language_Block;
+typedef tameparse_language::Language_Definition         ast_Language_Definition;
+typedef tameparse_language::list_of_Language_Definition list_of_Language_Definition;
+typedef tameparse_language::list_of__comma__identifier  list_of__comma__identifier;
+typedef tameparse_language::list_of_Lexeme_Definition   list_of_Lexeme_Definition;
+typedef tameparse_language::list_of_Keyword_Definition  list_of_Keyword_Definition;
+typedef tameparse_language::identifier                  identifier;
+typedef tameparse_language::regex                       ast_regex;
+typedef tameparse_language::string_2                    ast_string;
+typedef tameparse_language::character                   ast_character;
+
+/// \brief Interprets a keyword symbol definition block
+static language_unit* definition_for(const list_of_Keyword_Definition* items, language_unit::unit_type type) {
+    return NULL;
+}
+
+/// \brief Interprets a lexer symbol definition block
+static language_unit* definition_for(const list_of_Lexeme_Definition* items, language_unit::unit_type type) {
+    // Start building up the lexer block
+    lexer_block* lexerBlock = new lexer_block(items->pos(), items->final_pos());
+    
+    // Iterate through the items
+    for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); lexeme++) {
+        // Get the identifier for the new lexeme
+        const identifier* lexemeId = (*lexeme)->Lexeme_Definition->identifier;
+        
+        // Lexeme should either be a string/character/regex or a reference
+        if ((*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character) {
+            // Get the three alternatives
+            const ast_regex*        regex       = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->regex;
+            const ast_string*       string      = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->string_2;
+            const ast_character*    character   = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->character;
+            
+            if (regex) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), (*lexeme)->pos(), (*lexeme)->final_pos()));
+            } else if (string) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), (*lexeme)->pos(), (*lexeme)->final_pos()));
+            } else if (character) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), (*lexeme)->pos(), (*lexeme)->final_pos()));
+            } else {
+                // Doh, bug: fail
+                delete lexerBlock;
+                return NULL;
+            }
+        } else if ((*lexeme)->Lexeme_Definition->identifier_2) {
+            // Reference (IMPLEMENT ME)
+            delete lexerBlock;
+            return NULL;
+        } else {
+            // Doh, bug: fail
+            delete lexerBlock;
+            return NULL;
+        }
+    }
+    
+    return NULL;
+}
 
 /// \brief Interprets a language unit
 static language_unit* definition_for(const ast_Language_Definition* defn) {
-    // TODO
+    // Action depends on the typeof node in this AST node
+    
+    // Most of the lexer type nodes are very similar, except for the node type
+    if (defn->Lexer_Symbols_Definition) {
+        return definition_for(defn->Lexer_Symbols_Definition->list_of_Lexeme_Definition, language_unit::unit_lexer_symbols);
+    } else if (defn->Lexer_Definition) {
+        bool isWeak = defn->Lexer_Definition->optional_weak->weak;
+        
+        return definition_for(defn->Lexer_Definition->list_of_Lexeme_Definition, isWeak?language_unit::unit_weak_lexer_definition:language_unit::unit_lexer_definition);
+    } else if (defn->Ignore_Definition) {
+        return definition_for(defn->Ignore_Definition->list_of_Keyword_Definition, language_unit::unit_ignore_definition);
+    } else if (defn->Keywords_Definition) {
+        bool isWeak = defn->Keywords_Definition->optional_weak->weak;
+        
+        return definition_for(defn->Keywords_Definition->list_of_Keyword_Definition, isWeak?language_unit::unit_weak_keywords_definition:language_unit::unit_keywords_definition);
+    } else if (defn->Grammar_Definition) {
+        
+    }
+    
     return NULL;
 }
 
@@ -44,7 +117,7 @@ static language_block* definition_for(const ast_Language_Block* language) {
         result->add_inherits(language->optional_Language_Inherits->Language_Inherits->identifier->content<wchar_t>());
         
         // Iterate through the identifiers of the languages this inherits from
-        for (tameparse_language::list_of__comma__identifier::iterator inherit = 
+        for (list_of__comma__identifier::iterator inherit = 
              language->optional_Language_Inherits->Language_Inherits->list_of__comma__identifier->begin();
              inherit != language->optional_Language_Inherits->Language_Inherits->list_of__comma__identifier->end();
              inherit++) {
@@ -54,7 +127,7 @@ static language_block* definition_for(const ast_Language_Block* language) {
     }
     
     // Add the language definitions
-    for (tameparse_language::list_of_Language_Definition::iterator langDefinition = language->list_of_Language_Definition->begin();
+    for (list_of_Language_Definition::iterator langDefinition = language->list_of_Language_Definition->begin();
          langDefinition != language->list_of_Language_Definition->end();
          langDefinition++) {
         // Get the next definition
