@@ -39,6 +39,12 @@ namespace language {
         /// will return the result. If there is any existing definition, this will be replaced by this call.
         bool parse(const std::wstring& language);
         
+        /// \brief Parses the language file specified in the given string and stores it in this object.
+        ///
+        /// This will return true if the file parsed correctly. If this is the case, then the file_definition() function
+        /// will return the result. If there is any existing definition, this will be replaced by this call.
+        bool parse(const std::string& language);
+        
         /// \brief The file definition that was last accepted by this object
         inline definition_file_container file_definition() { return m_FileDefinition; }
     };

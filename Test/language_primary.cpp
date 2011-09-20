@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include "Language/bootstrap.h"
+#include "Language/language_parser.h"
 
 #include "language_primary.h"
 #include "tameparse_language.h"
@@ -100,5 +101,9 @@ void test_language_primary::run_tests() {
     // Try parsing the language
     bool acceptedDefault = defParser->parse();
     
-    report("CanParseLanguageDefinition", acceptedDefault);
+    report("CanParseLanguageDefinition1", acceptedDefault);
+    
+    language_parser lp;
+    report("CanParseLanguageDefinition2", lp.parse(bootstrap::get_default_language_definition()));
+    report("CanGetDefinition", lp.file_definition().item() != NULL);
 }
