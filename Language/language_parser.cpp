@@ -12,6 +12,7 @@
 
 #include "tameparse_language.h"
 
+using namespace std;
 using namespace util;
 using namespace dfa;
 using namespace language;
@@ -21,23 +22,333 @@ language_parser::language_parser()
 : m_FileDefinition(NULL, true) {
 }
 
-typedef tameparse_language::Parser_Language             Parser_Language;
-typedef tameparse_language::list_of_TopLevel_Block      list_of_TopLevel_Block;
-typedef tameparse_language::TopLevel_Block              ast_TopLevel_Block;
-typedef tameparse_language::Language_Block              ast_Language_Block;
-typedef tameparse_language::Language_Definition         ast_Language_Definition;
-typedef tameparse_language::list_of_Language_Definition list_of_Language_Definition;
-typedef tameparse_language::list_of__comma__identifier  list_of__comma__identifier;
-typedef tameparse_language::list_of_Lexeme_Definition   list_of_Lexeme_Definition;
-typedef tameparse_language::list_of_Keyword_Definition  list_of_Keyword_Definition;
-typedef tameparse_language::identifier                  identifier;
-typedef tameparse_language::regex                       ast_regex;
-typedef tameparse_language::string_2                    ast_string;
-typedef tameparse_language::character                   ast_character;
+typedef tameparse_language::Parser_Language                 Parser_Language;
+typedef tameparse_language::list_of_TopLevel_Block          list_of_TopLevel_Block;
+typedef tameparse_language::TopLevel_Block                  ast_TopLevel_Block;
+typedef tameparse_language::Language_Block                  ast_Language_Block;
+typedef tameparse_language::Language_Definition             ast_Language_Definition;
+typedef tameparse_language::list_of_Language_Definition     list_of_Language_Definition;
+typedef tameparse_language::list_of__comma__identifier      list_of__comma__identifier;
+typedef tameparse_language::list_of_Lexeme_Definition       list_of_Lexeme_Definition;
+typedef tameparse_language::list_of_Keyword_Definition      list_of_Keyword_Definition;
+typedef tameparse_language::identifier                      identifier;
+typedef tameparse_language::regex                           ast_regex;
+typedef tameparse_language::string_2                        ast_string;
+typedef tameparse_language::character                       ast_character;
+typedef tameparse_language::list_of_Nonterminal_Definition  list_of_Nonterminal_Definition;
+typedef tameparse_language::list_of__pipe__Production       list_of__pipe__Production;
+typedef tameparse_language::list_of_Simple_Ebnf_Item        list_of_Simple_Ebnf_Item;
+typedef tameparse_language::Nonterminal_Definition          ast_Nonterminal_Definition;
+typedef tameparse_language::Production                      ast_Production;
+typedef tameparse_language::Simple_Ebnf_Item                ast_Simple_Ebnf_Item;
+typedef tameparse_language::Ebnf_Item                       ast_Ebnf_Item;
+
+static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
+
+/// \brief Converts a full EBNF item into an ebnf_item object
+static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
+    // Stick the items together
+    bool        parenthesized   = false;            // True when parenthesized
+    ebnf_item*  result          = NULL;
+    
+    for (list_of_Simple_Ebnf_Item::iterator item = ebnfItem->list_of_Simple_Ebnf_Item->begin(); 
+         item != ebnfItem->list_of_Simple_Ebnf_Item->end(); 
+         item++) {
+        // Get the definition for this item
+        ebnf_item* nextItem = definition_for((*item)->Simple_Ebnf_Item);
+        
+        if (!nextItem) {
+            // Bug
+            if (result) delete result;
+            return NULL;
+        }
+        
+        // Set as or add to the result
+        if (!result) {
+            result = nextItem;
+        } else {
+            if (!parenthesized) {
+                // Add parentheses around the result
+                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnfItem->pos(), ebnfItem->final_pos());
+                paren->add_child(result);
+                result          = paren;
+                parenthesized   = true;
+            } else {
+                // Add to the existing result
+                result->add_child(nextItem);
+            }
+        }
+    }
+    
+    // If the result is empty, replace with an empty parenthesized item
+    if (!result) {
+        result = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnfItem->pos(), ebnfItem->final_pos());
+    }
+    
+    // Create an alternate if one is supplied
+    if (ebnfItem->Ebnf_Item_2) {
+        // Get the alternative item
+        ebnf_item* alternative = definition_for(ebnfItem->Ebnf_Item_2);
+        
+        if (alternative == NULL) {
+            // Bug
+            delete result;
+            return NULL;
+        }
+        
+        // Create the new result item
+        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, ebnfItem->pos(), ebnfItem->final_pos());
+        
+        alternate->add_child(result);
+        alternate->add_child(alternative);
+        
+        result = alternate;
+    }
+    
+    // Return the result
+    return result;
+}
+
+/// \brief Converts a simple EBNF item into an ebnf_item object
+static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
+    // Item depends on the content
+    if (simpleItem->Nonterminal) {
+        // Get the basic identifier
+        wstring sourceIdentifier;
+        wstring ntIdentifier = simpleItem->Nonterminal->nonterminal_2->content<wchar_t>();
+        
+        // Get the source identifier if it exists
+        if (simpleItem->Nonterminal->identifier) {
+            sourceIdentifier = simpleItem->Nonterminal->identifier->content<wchar_t>();
+        }
+        
+        // Create the item
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, simpleItem->pos(), simpleItem->final_pos());
+    }
+    
+    else if (simpleItem->Terminal) {
+        // Get the basic identifier
+        ebnf_item::type terminalType = ebnf_item::ebnf_terminal;
+        wstring         sourceIdentifier;
+        wstring         termIdentifier;
+        
+        // Get the terminal data
+        if (simpleItem->Terminal->Basic_Terminal->identifier) {
+            terminalType    = ebnf_item::ebnf_terminal;
+            termIdentifier  = simpleItem->Terminal->Basic_Terminal->identifier->content<wchar_t>();
+        }
+        
+        else if (simpleItem->Terminal->Basic_Terminal->string_2) {
+            terminalType    = ebnf_item::ebnf_terminal_string;
+            termIdentifier  = simpleItem->Terminal->Basic_Terminal->string_2->content<wchar_t>();
+        }
+        
+        else if (simpleItem->Terminal->Basic_Terminal->character) {
+            terminalType    = ebnf_item::ebnf_terminal_character;
+            termIdentifier  = simpleItem->Terminal->Basic_Terminal->character->content<wchar_t>();
+        }
+        
+        else {
+            // Unknown type of terminal
+            return NULL;
+        }
+        
+        // Get the source identifier if it exists
+        if (simpleItem->Terminal->identifier) {
+            sourceIdentifier = simpleItem->Terminal->identifier->content<wchar_t>();
+        }
+        
+        // Create the item
+        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, simpleItem->pos(), simpleItem->final_pos());        
+    }
+    
+    else if (simpleItem->Guard) {
+        
+    }
+    
+    else if (simpleItem->_star_) {
+        // Item of the form X*
+        ebnf_item* starredItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        if (starredItem == NULL) {
+            // Bug
+            return NULL;
+        }
+        
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, simpleItem->pos(), simpleItem->final_pos());
+        result->add_child(starredItem);
+        return result;
+    }
+    
+    else if (simpleItem->_plus_) {
+        // Item of the form X+
+        ebnf_item* plusItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        if (plusItem == NULL) {
+            // Bug
+            return NULL;
+        }
+        
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, simpleItem->pos(), simpleItem->final_pos());
+        result->add_child(plusItem);
+        return result;
+    }
+    
+    else if (simpleItem->_question_) {
+        // Item of the form X?
+        ebnf_item* optionalItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        if (optionalItem == NULL) {
+            // Bug
+            return NULL;
+        }
+        
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, simpleItem->pos(), simpleItem->final_pos());
+        result->add_child(optionalItem);
+        return result;        
+    }
+    
+    else if (simpleItem->_openparen_) {
+        // Item of the form (X)
+        return definition_for(simpleItem->Ebnf_Item);
+    }
+    
+    // Unknown type of item
+    return NULL;
+}
+
+/// \brief Processes a production definition
+static production_definition* definition_for(const ast_Production* production) {
+    // Begin a new production
+    production_definition* defn = new production_definition(production->pos(), production->final_pos());
+    
+    // Iterate through the items in this production
+    for (list_of_Simple_Ebnf_Item::iterator item = production->list_of_Simple_Ebnf_Item->begin();
+         item != production->list_of_Simple_Ebnf_Item->end();
+         item++) {
+        // Get the next EBNF item
+        ebnf_item* ebnf = definition_for((*item)->Simple_Ebnf_Item);
+        
+        if (ebnf == NULL) {
+            // Bug
+            delete defn;
+            return NULL;
+        }
+        
+        // Add to the production
+        defn->add_item(ebnf);
+    }
+    
+    // Return the result
+    return defn;
+}
+
+/// \brief Processes a nonterminal definition
+static nonterminal_definition* definition_for(const ast_Nonterminal_Definition* nonterminal) {
+    // Get the nonterminal identifier (all types have this)
+    wstring identifier = nonterminal->nonterminal_2->content<wchar_t>();
+    
+    // Work out the type
+    nonterminal_definition::type ntType = nonterminal_definition::assignment;
+    
+    if (nonterminal->one_of__equals__or__plus__equals_) {
+        if (nonterminal->one_of__equals__or__plus__equals_->_equals_) {
+            ntType = nonterminal_definition::assignment;
+        } else if (nonterminal->one_of__equals__or__plus__equals_->_plus__equals_) {
+            ntType = nonterminal_definition::addition;
+        }
+    } else if (nonterminal->replace) {
+        ntType = nonterminal_definition::replace;
+    }
+    
+    // Start defining a new nonterminal
+    nonterminal_definition* nonterm = new nonterminal_definition(ntType, identifier, nonterminal->pos(), nonterminal->final_pos());
+    
+    // Add the productions from this nonterminal
+    production_definition* prod = definition_for(nonterminal->Production);
+    
+    if (prod == NULL) {
+        // Doh, bug
+        delete nonterm;
+        return NULL;
+    }
+    
+    nonterm->add_production(prod);
+    
+    for (list_of__pipe__Production::iterator nextProduction = nonterminal->list_of__pipe__Production->begin(); 
+         nextProduction != nonterminal->list_of__pipe__Production->end(); 
+         nextProduction++) {
+        // Get the next production
+        production_definition* prod = definition_for((*nextProduction)->Production);
+        
+        if (prod == NULL) {
+            // Doh, bug
+            delete nonterm;
+            return NULL;
+        }
+        
+        // Add to the nonterminal
+        nonterm->add_production(prod);
+    }
+    
+    // Return the result
+    return nonterm;
+}
+
+/// \brief Turns a list of nonterminal definitions into a grammar
+static language_unit* definition_for(const list_of_Nonterminal_Definition* items) {
+    // Start creating the new grammar block
+    grammar_block* gram = new grammar_block();
+    
+    // Iterate through the items
+    for (list_of_Nonterminal_Definition::iterator nonterminal = items->begin(); nonterminal != items->end(); nonterminal++) {
+        nonterminal_definition* defn = definition_for((*nonterminal)->Nonterminal_Definition);
+        
+        if (defn == NULL) {
+            // Doh, bug!
+            delete gram;
+            return NULL;
+        }
+        
+        gram->add_nonterminal(defn);
+    }
+    
+    return new language_unit(gram);
+}
 
 /// \brief Interprets a keyword symbol definition block
 static language_unit* definition_for(const list_of_Keyword_Definition* items, language_unit::unit_type type) {
-    return NULL;
+    // Start building up the lexer block
+    lexer_block* lexerBlock = new lexer_block(items->pos(), items->final_pos());
+    
+    // Iterate through the items
+    for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); keyword++) {
+        // Get the item for the new keyword
+        const identifier* keywordId = (*keyword)->Keyword_Definition->identifier;
+        
+        // Deal with strings/characters/regexes
+        if ((*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character) {
+            // Get the three alternatives
+            const ast_regex*        regex       = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->regex;
+            const ast_string*       string      = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->string_2;
+            const ast_character*    character   = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->character;
+            
+            if (regex) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, keywordId->content<wchar_t>(), regex->content<wchar_t>(), (*keyword)->pos(), (*keyword)->final_pos()));
+            } else if (string) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, keywordId->content<wchar_t>(), string->content<wchar_t>(), (*keyword)->pos(), (*keyword)->final_pos()));
+            } else if (character) {
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, keywordId->content<wchar_t>(), character->content<wchar_t>(), (*keyword)->pos(), (*keyword)->final_pos()));
+            } else {
+                // Doh, bug: fail
+                delete lexerBlock;
+                return NULL;
+            }
+        } else {
+            // A literal keyword defined only by its identifier
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), (*keyword)->pos(), (*keyword)->final_pos()));
+        }
+    }
+    
+    // Create the language unit
+    return new language_unit(type, lexerBlock);
 }
 
 /// \brief Interprets a lexer symbol definition block
@@ -79,7 +390,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, lan
         }
     }
     
-    return NULL;
+    return new language_unit(type, lexerBlock);
 }
 
 /// \brief Interprets a language unit
@@ -100,7 +411,7 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
         
         return definition_for(defn->Keywords_Definition->list_of_Keyword_Definition, isWeak?language_unit::unit_weak_keywords_definition:language_unit::unit_keywords_definition);
     } else if (defn->Grammar_Definition) {
-        
+        return definition_for(defn->Grammar_Definition->list_of_Nonterminal_Definition);
     }
     
     return NULL;

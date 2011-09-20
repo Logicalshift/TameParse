@@ -104,7 +104,7 @@ language ParserLanguage {
 									| identifier '=' (regex | string | character)
 		
 		<Lexeme-Definition> 		= identifier '=' (regex | string | character)
-									| identifier '=' identifier '.' identifier
+                                    | identifier '=' identifier '.' identifier
 		
 		//
 		// Defining grammars
@@ -113,7 +113,7 @@ language ParserLanguage {
 		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
 		
 		<Nonterminal-Definition>	= [=> nonterminal ('=' | "+=")] nonterminal ('=' | "+=") <Production> ('|' <Production>)*
-									| [=> replace <Nonterminal> ('=' | "+=")] replace <Nonterminal> '=' <Production> ('|' <Production>)*
+									| [=> replace nonterminal '='] replace nonterminal '=' <Production> ('|' <Production>)*
 		
 		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
 		<Production>				= (<Simple-Ebnf-Item>)*
