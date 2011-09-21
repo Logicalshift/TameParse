@@ -88,6 +88,9 @@ namespace contextfree {
         
         /// \brief The rule that should be matched for this guard to be successful
         const rule_container& get_rule() const;
+        
+        /// \brief Casts this item to a guard
+        virtual const guard* cast_guard() const;
     };
 }
 

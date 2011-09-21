@@ -72,7 +72,7 @@ void ebnf::add_rule(const rule& newRule) {
 
 /// \brief Compares this item to another. Returns true if they are the same
 bool ebnf::operator==(const item& compareTo) const {
-    const ebnf* compareEbnf = dynamic_cast<const ebnf*>(&compareTo);
+    const ebnf* compareEbnf = compareTo.cast_ebnf();
     if (!compareEbnf) return false;
     
     if (m_Rules->size() < compareEbnf->m_Rules->size()) return false;
@@ -94,7 +94,7 @@ bool ebnf::operator==(const item& compareTo) const {
 bool ebnf::operator<(const item& compareTo) const {
     if (&compareTo == this) return false;
     
-    const ebnf* compareEbnf = dynamic_cast<const ebnf*>(&compareTo);
+    const ebnf* compareEbnf = compareTo.cast_ebnf();
     if (!compareEbnf) return false;
 
     if (m_Rules->size() < compareEbnf->m_Rules->size()) return true;
@@ -118,6 +118,11 @@ rule_container& ebnf::get_rule() { return (*m_Rules)[0]; }
 
 /// \brief The rule that defines this item
 const rule_container& ebnf::get_rule() const { return (*m_Rules)[0]; }
+
+/// \brief Returns NULL, or this item as an EBNF item
+const ebnf* ebnf::cast_ebnf() const {
+    return this;
+}
 
 /// \brief Creates a clone of this item
 item* ebnf_optional::clone() const {

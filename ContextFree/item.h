@@ -31,6 +31,12 @@ namespace contextfree {
     /// \brief Forward declaration of a context-free item
     class item;
     
+    /// \brief Forward declaration of an EBNF item
+    class ebnf;
+    
+    /// \brief Forward declaration of a guard item
+    class guard;
+    
     ///
     /// \brief Alternative container constructor class that uses empty items by default
     ///
@@ -156,6 +162,12 @@ namespace contextfree {
         
         /// \brief The type of this item
         virtual kind type() const = 0;
+        
+        /// \brief Returns NULL, or this item as an EBNF item
+        virtual const class ebnf* cast_ebnf() const;
+        
+        /// \brief Returns NULL, or this item as a guard item
+        virtual const class guard* cast_guard() const;
         
         /// \brief The symbol identifier of this item (the kind of thing that this symbol represents is specified by the type call)
         ///

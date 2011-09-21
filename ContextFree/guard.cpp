@@ -85,11 +85,12 @@ item_set guard::first(const grammar& gram) const {
 bool guard::operator<(const item& compareTo) const {
     if (&compareTo == this) return false;
     
+    // Compare types
     if (item::guard < compareTo.type()) return true;
     if (item::guard > compareTo.type()) return false;
     
     // Cast the comparison to a guard object
-    const guard* compareGuard = dynamic_cast<const guard*>(&compareTo);
+    const guard* compareGuard = compareTo.cast_guard();
     if (!compareGuard) return false;
     
     // Ordering is initial by priority
@@ -115,4 +116,9 @@ rule_container& guard::get_rule() {
 /// \brief The rule that should be matched for this guard to be successful
 const rule_container& guard::get_rule() const {
     return m_Rule;
+}
+
+/// \brief Returns NULL, or this item as a guard item
+const guard* guard::cast_guard() const {
+    return this;
 }

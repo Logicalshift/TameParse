@@ -154,10 +154,23 @@ void item::insert_closure_item(const lr::lr1_item_container& newItem, lr::lr1_it
 void item::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
     // Nothing to do by default
 }
+
 /// \brief True if a transition (new state) should be generated for this item
 ///
 /// Should return false for any item that acts like the empty item
 bool item::generate_transition() const {
     // True by default
     return true;
+}
+
+/// \brief Returns NULL, or this item as an EBNF item
+const ebnf* item::cast_ebnf() const {
+    // This is not an EBNF item
+    return NULL;
+}
+
+/// \brief Returns NULL, or this item as a guard item
+const guard* item::cast_guard() const {
+    // This is not a guard
+    return NULL;
 }

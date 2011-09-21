@@ -62,31 +62,24 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
     }
     
     // Try to cast the item into the various different types that we know about
-    const terminal* term = dynamic_cast<const terminal*>(&it);
-    if (term) return to_string(*term, dict);
+    if (it.type() == item::terminal)    return dict.name_for_symbol(it.symbol());
+    if (it.type() == item::nonterminal) return gram.name_for_nonterminal(it.symbol());
     
-    const nonterminal* nonterm = dynamic_cast<const nonterminal*>(&it);
-    if (nonterm) return to_string(*nonterm, gram);
-    
-    const guard* guar = dynamic_cast<const guard*>(&it);
+    const guard* guar = it.cast_guard();
     if (guar) return to_string(*guar, gram, dict);
     
     // EBNF items
     wstringstream buf;
     
-    const ebnf*                     eb      = dynamic_cast<const ebnf*>(&it);
-    const ebnf_alternate*           alt     = dynamic_cast<const ebnf_alternate*>(&it);
-    const ebnf_optional*            opt     = dynamic_cast<const ebnf_optional*>(&it);
-    const ebnf_repeating*           rep     = dynamic_cast<const ebnf_repeating*>(&it);
-    const ebnf_repeating_optional*  repOpt  = dynamic_cast<const ebnf_repeating_optional*>(&it);
+    const ebnf*                     eb      = it.cast_ebnf();
     
-    if (alt) {
+    if (eb && eb->type() == item::alternative) {
         // X | Y | Z form of rule
         buf << L"(";
         
         // Convert all of the rules in this item
         bool first = true;
-        for (ebnf::rule_iterator it = alt->first_rule(); it != alt->last_rule(); it++) {
+        for (ebnf::rule_iterator it = eb->first_rule(); it != eb->last_rule(); it++) {
             // Append the '|'
             buf << L" ";
             if (!first) buf << L"| ";
@@ -103,15 +96,15 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
         // This is the result
         return buf.str();
         
-    } else if (eb && (opt || rep || repOpt)) {
+    } else if (eb && (eb->type() == item::optional || eb->type() == item::repeat || eb->type() == item::repeat_zero_or_one)) {
         
         // Repeating style rule: first put the contents of the rule in brackets
         buf << L"( " << to_string(*eb->get_rule(), gram, dict, -1, false) << L" )";
         
         // Now add the appropriate character
-        if (opt)    buf << L"?";
-        if (rep)    buf << L"+";
-        if (repOpt) buf << L"*";
+        if (eb->type() == item::optional)           buf << L"?";
+        if (eb->type() == item::repeat)             buf << L"+";
+        if (eb->type() == item::repeat_zero_or_one) buf << L"*";
         
         // Done
         return buf.str();

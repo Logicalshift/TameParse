@@ -151,7 +151,7 @@ void lalr_builder::complete_parser() {
             // Guard items produce a guard rule initial state, if there isn't one already
             if (dottedItem->type() == item::guard) {
                 // Get the underlying guard object
-                const guard* thisGuard = dynamic_cast<const guard*>(dottedItem.item());
+                const guard* thisGuard = dottedItem->cast_guard();
                 if (thisGuard != NULL) {
                     // Get the rule ID
                     int ruleId = thisGuard->get_rule()->identifier(*m_Grammar);
@@ -397,7 +397,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
 
 /// \brief Adds guard actions appropriate for the specified guard item
 void lalr_builder::add_guard(const item_container& item, lr_action_set& newSet) const {
-    const guard* thisGuard = dynamic_cast<const guard*>(item.item());
+    const guard* thisGuard = item->cast_guard();
     if (thisGuard == NULL) return;
     
     // Must have an associated state ID

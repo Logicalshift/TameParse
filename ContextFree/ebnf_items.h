@@ -69,6 +69,9 @@ namespace contextfree {
         
         /// \brief Orders this item relative to another item
         virtual bool operator<(const item& compareTo) const;
+        
+        /// \brief Returns NULL, or this item as an EBNF item
+        virtual const class ebnf* cast_ebnf() const;
 
         /// \brief The rule that defines this item
         rule_container& get_rule();

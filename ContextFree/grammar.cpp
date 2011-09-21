@@ -285,7 +285,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         }
         
         // If this item is an EBNF rule, then we need to process each of its children
-        const ebnf* ebnfItem = dynamic_cast<const ebnf*>(&*thisItem);
+        const ebnf* ebnfItem = thisItem->cast_ebnf();
         if (ebnfItem) {
             for (ebnf::rule_iterator subRule = ebnfItem->first_rule(); subRule != ebnfItem->last_rule(); subRule++) {
                 fill_follow(**subRule, dependencies);
