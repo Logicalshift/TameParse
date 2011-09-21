@@ -512,8 +512,7 @@ static definition_file* definition_for(const Parser_Language* language) {
         file->add(newBlock);
     }
     
-    // TODO
-    return NULL;
+    return file;
 }
 
 /// \brief Turns a base definition into a definition file object
@@ -553,7 +552,7 @@ bool language_parser::parse(const std::wstring& language) {
     if (result) {
         // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
         // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
-        const tameparse_language::epsilon* root = (const tameparse_language::epsilon*) parser_state->get_item().item();
+        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
         
         // Turn into a definition
         m_FileDefinition = definition_file_container(definition_for(root), true);
@@ -598,7 +597,7 @@ bool language_parser::parse(const std::string& language) {
     if (result) {
         // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
         // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
-        const tameparse_language::epsilon* root = (const tameparse_language::epsilon*) parser_state->get_item().item();
+        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
         
         // Turn into a definition
         m_FileDefinition = definition_file_container(definition_for(root), true);
