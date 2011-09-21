@@ -163,7 +163,19 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
     }
     
     else if (simpleItem->Guard) {
+        // Get the internal item
+        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item);
         
+        if (!internalItem) {
+            // Bug
+            return NULL;
+        }
+        
+        // Turn into a guard item
+        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard);
+        guardItem->add_child(internalItem);
+        
+        return guardItem;
     }
     
     else if (simpleItem->_star_) {
