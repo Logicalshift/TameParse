@@ -57,8 +57,9 @@ namespace compiler {
     public:
         /// \brief Opens a file with the specified name for reading
         ///
-        /// The caller should delete the stream once it has finished with it
-        virtual std::wistream* open_file(const std::wstring& filename);
+        /// The caller should delete the stream once it has finished with it. Streams are generally expected to contain UTF-8
+        /// data, so console classes should usually open streams in binary mode.
+        virtual std::istream* open_file(const std::wstring& filename);
         
         /// \brief Opens an output file with the specified name for writing binary data
         ///

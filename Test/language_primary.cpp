@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/bootstrap.h"
 #include "TameParse/Language/language_parser.h"
 
@@ -16,6 +17,7 @@
 #include "tameparse_language.h"
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace lr;
 using namespace language;
@@ -80,8 +82,9 @@ void test_language_primary::run_tests() {
     // Create a lexer for the language definition
     bootstrap bs;
     stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
+    utf8reader bootstreapReader(&bootstrapDefinition);
 
-    lexeme_stream* defaultStream = tameparse_language::lexer.create_stream_from(bootstrapDefinition);
+    lexeme_stream* defaultStream = tameparse_language::lexer.create_stream_from<wchar_t>(bootstreapReader);
     
     // Create a parser for it
     typedef tameparse_language::ast_parser_type ast_parser;

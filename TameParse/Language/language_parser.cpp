@@ -6,7 +6,10 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <sstream>
+
 #include "TameParse/Util/stringreader.h"
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/language_parser.h"
 #include "TameParse/Language/process.h"
 
@@ -585,6 +588,12 @@ bool language_parser::parse(const std::wstring& language) {
 bool language_parser::parse(const std::string& language) {
     bool result = false;
     
+    // Convert to a string stream
+    stringstream utf8stream(language);
+    
+    // Create a UTF-8 reader
+    utf8reader languageReader(&utf8stream);
+    
     // Clear the definition
     m_FileDefinition = definition_file_container(NULL, true);
     
@@ -593,9 +602,53 @@ bool language_parser::parse(const std::string& language) {
     typedef tameparse_language::parser_actions          parser_actions;
     
     // Create a lexer for this string
-    stringreader reader(language);
+    lexeme_stream* stream = tameparse_language::lexer.create_stream_from<wchar_t>(languageReader);
     
-    lexeme_stream* stream = tameparse_language::lexer.create_stream_from<char>(reader);
+    // Create the parser
+    // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have
+    // a few more interesting/easy ways of creating parsers later on)
+    state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
+    
+    // Parse the language
+    result = parser_state->parse();
+    
+    // Convert to a definition
+    if (result) {
+        // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
+        // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
+        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
+        
+        // Turn into a definition
+        m_FileDefinition = definition_file_container(definition_for(root), true);
+    }
+    
+    // Finished with the parser
+    delete parser_state;
+    delete stream;
+    
+    // Done
+    return result;
+}
+
+/// \brief Parses the language file specified in the given string and stores it in this object.
+///
+/// This will return true if the file parsed correctly. If this is the case, then the file_definition() function
+/// will return the result. If there is any existing definition, this will be replaced by this call.
+bool language_parser::parse(std::istream& language) {
+    bool result = false;
+    
+    // Create a UTF-8 reader
+    utf8reader languageReader(&language);
+    
+    // Clear the definition
+    m_FileDefinition = definition_file_container(NULL, true);
+    
+    // Create the parser for this language
+    typedef tameparse_language::ast_parser_type::state  state;
+    typedef tameparse_language::parser_actions          parser_actions;
+    
+    // Create a lexer for this string
+    lexeme_stream* stream = tameparse_language::lexer.create_stream_from<wchar_t>(languageReader);
     
     // Create the parser
     // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have

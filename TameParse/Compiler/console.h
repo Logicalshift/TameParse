@@ -74,9 +74,9 @@ namespace compiler {
         
         /// \brief Opens a text file with the specified name for reading
         ///
-        /// The caller should delete the stream once it has finished with it. The default encoding used by the console library
-        /// is UTF-8.
-        virtual std::wistream* open_file(const std::wstring& filename) = 0;
+        /// The caller should delete the stream once it has finished with it. Streams are generally expected to contain UTF-8
+        /// data, so console classes should usually open streams in binary mode.
+        virtual std::istream* open_file(const std::wstring& filename) = 0;
         
         /// \brief Opens an output file with the specified name for writing binary data
         ///

@@ -156,40 +156,25 @@ const std::wstring& std_console::input_file() const {
 /// \brief Opens a file with the specified name for reading
 ///
 /// The caller should delete the stream once it has finished with it
-std::wistream* std_console::open_file(const std::wstring& filename) {
+std::istream* std_console::open_file(const std::wstring& filename) {
     // Convert the filename to one we can pass to open
     string latin1Filename = convert_filename(filename);
     
     // Open using a wfstream and the current locale
     // TODO: make this work with UTF-8!
     // This will use whatever the standard is for the C++ library that is in use
-    wfstream    readFile;
+    fstream* readFile = new fstream();
 
-    readFile.open(latin1Filename.c_str(), fstream::in);
+    readFile->open(latin1Filename.c_str(), fstream::in | fstream::binary);
     
     // Return NULL if the file failed to open
-    if (readFile.fail()) {
+    if (readFile->fail()) {
+        delete readFile;
         return NULL;
     }
     
-    // Read the file into a wstringstream
-    const size_t    blockSize   = 4096;
-    wstringstream*  target      = new wstringstream();
-    wchar_t*        data        = new wchar_t[blockSize];
-    
-    while (!readFile.fail() && !readFile.eof()) {
-        // Read the next block from the file
-        readFile.read(data, blockSize);
-        
-        // Copy into the target
-        target->write(data, readFile.gcount());
-    }
-    
-    // Reset the target 
-    target->seekg(ios_base::beg);
-    
-    // Return as the result
-    return target;
+    // Return the stream
+    return readFile;
 }
 
 /// \brief Opens an output file with the specified name for writing binary data

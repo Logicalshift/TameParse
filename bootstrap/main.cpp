@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <sstream>
 
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/bootstrap.h"
 #include "TameParse/Compiler/console.h"
 #include "TameParse/Compiler/std_console.h"
@@ -18,6 +19,7 @@
 #include "TameParse/Compiler/OutputStages/cplusplus.h"
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace lr;
 using namespace language;
@@ -44,7 +46,8 @@ int main (int argc, const char * argv[]) {
     wcout << L"  = Parsing language definition" << endl;
     
     stringstream        parserLanguageDefinition(bootstrap::get_default_language_definition());
-    lexeme_stream*      languageStream  = bs.get_lexer().create_stream_from(parserLanguageDefinition);
+    utf8reader          parserReader(&parserLanguageDefinition);
+    lexeme_stream*      languageStream  = bs.get_lexer().create_stream_from<wchar_t>(parserReader);
     ast_parser::state*  languageParser  = bs.get_parser().create_parser(new ast_parser_actions(languageStream));
     
     bool acceptedLanguage = languageParser->parse();

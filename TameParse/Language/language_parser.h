@@ -45,6 +45,9 @@ namespace language {
         /// will return the result. If there is any existing definition, this will be replaced by this call.
         bool parse(const std::string& language);
         
+        /// \brief Parses the language file specified by the given stream and stores it in this object
+        bool parse(std::istream& language);
+        
         /// \brief The file definition that was last accepted by this object
         inline definition_file_container file_definition() { return m_FileDefinition; }
     };

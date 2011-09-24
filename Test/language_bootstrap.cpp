@@ -11,11 +11,13 @@
 #include <iostream>
 
 #include "language_bootstrap.h"
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/bootstrap.h"
 #include "TameParse/Language/formatter.h"
 #include "TameParse/Lr/conflict.h"
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace contextfree;
 using namespace language;
@@ -233,11 +235,12 @@ void test_language_bootstrap::run_tests() {
     
     // Create a stream for the language definition
     stringstream bootstrapDefinition(bootstrap::get_default_language_definition());
+    utf8reader bootstrapReader(&bootstrapDefinition);
     
     report("LanguageDefinitionHasData", bootstrap::get_default_language_definition().size() > 0);
     
     // Create a lexer for it
-    lexeme_stream* defaultStream = bs.get_lexer().create_stream_from(bootstrapDefinition);
+    lexeme_stream* defaultStream = bs.get_lexer().create_stream_from<wchar_t>(bootstrapReader);
     
     // Create a parser for it
     ast_parser::state* defParser = bs.get_parser().create_parser(new ast_parser_actions(defaultStream));
