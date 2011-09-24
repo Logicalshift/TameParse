@@ -86,6 +86,7 @@
 		4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0D6142E514700D778BC /* utf8reader.cpp */; };
 		4B79D0DF142E6AD400D778BC /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0DD142E67FC00D778BC /* version.cpp */; };
 		4B79D0E0142E6AD400D778BC /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0DD142E67FC00D778BC /* version.cpp */; };
+		4B79D0E3142E6F4100D778BC /* parser_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0E1142E6F3F00D778BC /* parser_stage.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -392,6 +393,8 @@
 		4B79D0D9142E514F00D778BC /* utf8reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf8reader.h; sourceTree = "<group>"; };
 		4B79D0DC142E66EB00D778BC /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		4B79D0DD142E67FC00D778BC /* version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = version.cpp; sourceTree = "<group>"; };
+		4B79D0E1142E6F3F00D778BC /* parser_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_stage.cpp; sourceTree = "<group>"; };
+		4B79D0E4142E6F4A00D778BC /* parser_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_stage.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
 		4B7F0C3C137599AB0012C085 /* parser_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_tables.cpp; sourceTree = "<group>"; };
@@ -705,6 +708,8 @@
 				4BCF835B14090D7A003CB7CB /* lr_parser_stage.h */,
 				4BC47966140BD34100C2F189 /* output_stage.cpp */,
 				4BC47967140BD34100C2F189 /* output_stage.h */,
+				4B79D0E1142E6F3F00D778BC /* parser_stage.cpp */,
+				4B79D0E4142E6F4A00D778BC /* parser_stage.h */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -1312,6 +1317,7 @@
 				4B9460591427E0B000B4BB87 /* language_parser.cpp in Sources */,
 				4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */,
 				4B79D0DF142E6AD400D778BC /* version.cpp in Sources */,
+				4B79D0E3142E6F4100D778BC /* parser_stage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

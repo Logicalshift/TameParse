@@ -90,5 +90,6 @@
 #include "TameParse/Compiler/output_stage.h"
 #include "TameParse/Compiler/OutputStages/cplusplus.h"
 #include "TameParse/Compiler/std_console.h"
+#include "TameParse/Compiler/parser_stage.h"
 
 #endif
