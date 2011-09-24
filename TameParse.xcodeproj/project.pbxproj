@@ -661,8 +661,8 @@
 			isa = PBXGroup;
 			children = (
 				4B79D0C1142E1E2000D778BC /* main.cpp */,
-				4B79D0CD142E1F4300D778BC /* boost_console.h */,
 				4B79D0CE142E1F5000D778BC /* boost_console.cpp */,
+				4B79D0CD142E1F4300D778BC /* boost_console.h */,
 				4B79D0C3142E1E2000D778BC /* tameparse.1 */,
 			);
 			path = parsetool;

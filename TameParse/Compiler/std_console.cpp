@@ -97,7 +97,7 @@ void std_console::report_error(const error& error) {
             break;
             
         case error::sev_fatal:
-            *out << L" serious error:";
+            *out << L" failure:";
             break;
             
         case error::sev_bug:

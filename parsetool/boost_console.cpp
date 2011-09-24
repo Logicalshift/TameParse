@@ -50,12 +50,22 @@ boost_console::boost_console(int argc, const char** argv)
 	// Positional options
 	po::positional_options_description positional;
 
-	positional.add("input-file", 0);
+	positional.add("input-file", 1);
 	positional.add("output-file", 1);
+    
+    // Command line options
+    po::options_description cmdLine;
+    cmdLine.add(mainOptions).add(infoOptions);
 
 	// Store the options
-	po::store(po::command_line_parser(argc, argv).options(mainOptions).options(infoOptions).positional(positional).run(), m_VarMap);
-	po::notify(m_VarMap);
+    try {
+        po::store(po::command_line_parser(argc, argv).options(cmdLine).positional(positional).run(), m_VarMap);
+        po::notify(m_VarMap);
+    } catch (po::error e) {
+        cerr << e.what() << endl << endl;
+		cout << mainOptions << endl << infoOptions << endl;
+        ::exit(1);
+    }
 
 	// Display help if needed
     bool doneSomething = false;
@@ -89,6 +99,9 @@ boost_console::boost_console(int argc, const char** argv)
 		cerr << argv[0] << ": no input files" << endl << endl;
 		cout << mainOptions << endl << infoOptions << endl;
 	}
+    
+    // Set the value of the input file string
+    m_InputFile = get_option(L"input-file");
 }
 
 /// \brief Returns true if the options are valid and the parser can start
@@ -150,5 +163,5 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 
 /// \brief The name of the initial input file
 const std::wstring& boost_console::input_file() const {
-	return get_option(L"input-file");
+	return m_InputFile;
 }

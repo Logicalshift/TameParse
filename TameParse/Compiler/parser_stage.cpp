@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <sstream>
 
 #include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/language_parser.h"
@@ -25,6 +26,9 @@ parser_stage::parser_stage(console_container& console, const std::wstring& filen
 
 /// \brief Performs the actions associated with this compilation stage
 void parser_stage::compile() {
+    // Message to say what we're doing
+    cons().verbose_stream() << " = Reading " << filename() << endl;
+
     // Try to open the file
     istream* fileStream = cons().open_file(filename());
     
@@ -33,9 +37,6 @@ void parser_stage::compile() {
         cons().report_error(error(error::sev_fatal, filename(), L"CANT_OPEN_FILE", L"Cannot read from file", position(-1, -1, -1)));
         return;
     }
-    
-    // Message to say what we're doing
-    cons().message_stream() << " = Reading " << filename() << endl;
     
     // Attempt to parse the file
     bool parsedOk = m_Parser.parse(*fileStream);

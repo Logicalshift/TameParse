@@ -9,6 +9,8 @@
 #ifndef TameParse_boost_console_h
 #define TameParse_boost_console_h
 
+#include <string>
+
 #include "TameParse/Compiler/std_console.h"
 #include "boost/program_options.hpp"
 
@@ -24,6 +26,9 @@ private:
 
     /// \brief The variables map for this object
     variables_map m_VarMap;
+    
+    /// \brief The name of the input file
+    std::wstring m_InputFile;
 
 protected:
     // \brief Copies this console
