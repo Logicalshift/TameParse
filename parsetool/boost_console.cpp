@@ -153,7 +153,7 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 			value += (wchar_t) asciiValue[x];
 		}
         
-        // Value is '1' if the value is empty
+        // Value is '1' if the value is empty but the option is present
         if (value.empty()) {
             value += L'1';
         }

@@ -29,7 +29,8 @@ int main (int argc, const char * argv[])
         }
         
         // Startup message
-        console.message_stream() << L"TameParse " << version::major_version << "." << version::minor_version << "." << version::revision << endl << endl;
+        console.message_stream() << L"TameParse " << version::major_version << "." << version::minor_version << "." << version::revision << endl;
+        console.verbose_stream() << endl;
         
         // Parse the input file
         parser_stage parserStage(cons, console.input_file());
