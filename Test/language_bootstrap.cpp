@@ -11,9 +11,9 @@
 #include <iostream>
 
 #include "language_bootstrap.h"
-#include "Language/bootstrap.h"
-#include "Language/formatter.h"
-#include "Lr/conflict.h"
+#include "TameParse/Language/bootstrap.h"
+#include "TameParse/Language/formatter.h"
+#include "TameParse/Lr/conflict.h"
 
 using namespace std;
 using namespace dfa;

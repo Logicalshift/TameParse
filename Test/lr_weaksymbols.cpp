@@ -8,8 +8,8 @@
 
 #include "lr_weaksymbols.h"
 
-#include "Dfa/ndfa_regex.h"
-#include "Lr/weak_symbols.h"
+#include "TameParse/Dfa/ndfa_regex.h"
+#include "TameParse/Lr/weak_symbols.h"
 
 using namespace dfa;
 using namespace contextfree;

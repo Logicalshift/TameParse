@@ -9,13 +9,13 @@
 #include <unistd.h>
 #include <sstream>
 
-#include "Language/bootstrap.h"
-#include "Compiler/console.h"
-#include "Compiler/std_console.h"
-#include "Compiler/language_stage.h"
-#include "Compiler/lexer_stage.h"
-#include "Compiler/lr_parser_stage.h"
-#include "Compiler/OutputStages/cplusplus.h"
+#include "TameParse/Language/bootstrap.h"
+#include "TameParse/Compiler/console.h"
+#include "TameParse/Compiler/std_console.h"
+#include "TameParse/Compiler/language_stage.h"
+#include "TameParse/Compiler/lexer_stage.h"
+#include "TameParse/Compiler/lr_parser_stage.h"
+#include "TameParse/Compiler/OutputStages/cplusplus.h"
 
 using namespace std;
 using namespace dfa;

@@ -7,7 +7,7 @@
 //
 
 #include "dfa_range.h"
-#include "Dfa/range.h"
+#include "TameParse/Dfa/range.h"
 
 using namespace dfa;
 

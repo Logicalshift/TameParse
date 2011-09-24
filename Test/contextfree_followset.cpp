@@ -8,7 +8,7 @@
 
 #include "contextfree_followset.h"
 
-#include "ContextFree/grammar.h"
+#include "TameParse/ContextFree/grammar.h"
 
 using namespace contextfree;
 

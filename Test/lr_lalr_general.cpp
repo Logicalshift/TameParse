@@ -11,12 +11,12 @@
 
 #include "lr_lalr_general.h"
 
-#include "Dfa/character_lexer.h"
-#include "ContextFree/grammar.h"
-#include "Lr/lalr_builder.h"
-#include "Lr/parser.h"
-#include "Lr/conflict.h"
-#include "Language/formatter.h"
+#include "TameParse/Dfa/character_lexer.h"
+#include "TameParse/ContextFree/grammar.h"
+#include "TameParse/Lr/lalr_builder.h"
+#include "TameParse/Lr/parser.h"
+#include "TameParse/Lr/conflict.h"
+#include "TameParse/Language/formatter.h"
 
 using namespace std;
 using namespace dfa;

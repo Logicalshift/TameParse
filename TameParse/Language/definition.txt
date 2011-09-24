@@ -1,0 +1,152 @@
+///
+/// Parser Language Definition
+///
+/// Created by Andrew Hunter on 21/05/2011
+///
+
+language ParserLanguage {
+	/// Symbols used by the lexer
+	lexer-symbols {
+		// Commonly used character sets
+		letter 			= /({unicode-letter}|{unicode-punctuation-dash}|{unicode-punctuation-connector})/
+		digit 			= /{unicode-number}/
+		alphanumeric 	= /({letter}|{digit})/
+		whitespace		= /{unicode-separator}|[\t\n\r]/
+		anycharacter	= /[^\n\r]/
+
+		// Characters valid in regular expressions and strings
+		regex-char		= /[^\/]|(\\\/)/
+		string-char     = /[^"]|(\\")/
+		
+		// Identifiers, regular expressions
+		identifier		= /{letter}{alphanumeric}*/
+		regex			= /\/{regex-char}+\//
+	}
+
+	/// Lexical symbols
+	lexer {
+		identifier		= /{identifier}/
+		nonterminal		= /\<{identifier}\>/
+		regex			= /{regex}/
+		string			= /"{string-char}*"/
+		character		= /'(.|\\.)'/
+	}
+	
+	/// Ignored symbols
+	ignore {
+		newline			= /[\n\r]/
+		whitespace		= /{whitespace}+/
+		comment			= /\/\/({anycharacter}*)/
+	}
+	
+	/// Keywords
+	/// (We use very few keywords, to extend the range of identifiers available)
+	keywords {
+	}
+	
+	/// Weak keywords
+	/// Declared here to suppress warnings
+	weak keywords {
+		language
+		import
+		lexer-symbols
+		lexer
+		ignore
+		weak
+		keywords
+		grammar
+		replace
+		parser
+	}
+	
+	/// The grammar itself
+	grammar {
+	
+		//
+		// The top-level definitions
+		//
+		
+		<Parser-Language>		= (<TopLevel-Block>)*
+		
+		<TopLevel-Block>		= <Language-Block>
+								| <Import-Block>
+								| <Parser-Block>
+		
+		<Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+		
+		<Import-Block>			= import string
+		
+		<Language-Inherits>		= ':' identifier (',' identifier)*
+		
+		//
+		// The language block
+		//
+		
+		<Language-Definition>	= <Lexer-Symbols-Definition>
+								| <Lexer-Definition>
+								| <Ignore-Definition>
+								| <Keywords-Definition>
+								| <Grammar-Definition>
+								
+		//
+		// Basic language items
+		//
+		
+		<Lexer-Symbols-Definition>	= lexer-symbols '{' (<Lexeme-Definition>)* '}'
+		
+		<Lexer-Definition> 			= weak? lexer '{' (<Lexeme-Definition>)* '}'
+		
+		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
+		
+		<Keywords-Definition>		= weak? keywords '{' (<Keyword-Definition>)* '}'
+		
+		<Keyword-Definition>		= identifier
+									| identifier '=' (regex | string | character)
+		
+		<Lexeme-Definition> 		= identifier '=' (regex | string | character)
+                                    | identifier '=' identifier '.' identifier
+		
+		//
+		// Defining grammars
+		//
+		
+		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
+		
+		<Nonterminal-Definition>	= [=> nonterminal ('=' | "+=")] nonterminal ('=' | "+=") <Production> ('|' <Production>)*
+									| [=> replace nonterminal '='] replace nonterminal '=' <Production> ('|' <Production>)*
+		
+		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
+		<Production>				= (<Simple-Ebnf-Item>)*
+		
+		<Ebnf-Item>					= <Simple-Ebnf-Item>*
+									| <Simple-Ebnf-Item>* '|' <Ebnf-Item>
+		
+		<Simple-Ebnf-Item>			= <Nonterminal>
+									| <Terminal>
+									| <Guard>
+									| <Simple-Ebnf-Item> '*'
+									| <Simple-Ebnf-Item> '+'
+									| <Simple-Ebnf-Item> '?'
+									| '(' <Ebnf-Item> ')'
+		
+		<Guard>						= "[=>" <Ebnf-Item> ']'
+		
+		<Nonterminal>				= nonterminal
+									| identifier '.' nonterminal
+		
+		<Terminal>					= <Basic-Terminal>
+									| identifier '.' <Basic-Terminal>
+		
+		<Basic-Terminal>			= identifier
+									| string
+									| character
+									
+		//
+		// The parser declaration block
+		//
+		
+		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)+ '}'
+		
+		<Parser-StartSymbol>		= <Nonterminal>
+	}
+}

@@ -7,8 +7,8 @@
 //
 
 #include "dfa_symbol_deduplicate.h"
-#include "Dfa/remapped_symbol_map.h"
-#include "Dfa/epsilon.h"
+#include "TameParse/Dfa/remapped_symbol_map.h"
+#include "TameParse/Dfa/epsilon.h"
 
 using namespace dfa;
 

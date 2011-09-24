@@ -9,8 +9,8 @@
 #include <string>
 #include <sstream>
 
-#include "Language/bootstrap.h"
-#include "Language/language_parser.h"
+#include "TameParse/Language/bootstrap.h"
+#include "TameParse/Language/language_parser.h"
 
 #include "language_primary.h"
 #include "tameparse_language.h"

@@ -7,7 +7,7 @@
 //
 
 #include "contextfree_firstset.h"
-#include "ContextFree/grammar.h"
+#include "TameParse/ContextFree/grammar.h"
 
 using namespace contextfree;
 

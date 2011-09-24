@@ -8,8 +8,8 @@
 
 #include "dfa_ndfa.h"
 
-#include "Dfa/ndfa.h"
-#include "Dfa/ndfa_regex.h"
+#include "TameParse/Dfa/ndfa.h"
+#include "TameParse/Dfa/ndfa_regex.h"
 
 using namespace dfa;
 

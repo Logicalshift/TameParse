@@ -7,7 +7,7 @@
 //
 
 #include "dfa_symbol_set.h"
-#include "Dfa/symbol_set.h"
+#include "TameParse/Dfa/symbol_set.h"
 
 using namespace dfa;
 

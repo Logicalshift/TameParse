@@ -11,7 +11,7 @@
 
 #include "dfa_single_regex.h"
 
-#include "Dfa/lexer.h"
+#include "TameParse/Dfa/lexer.h"
 
 using namespace std;
 using namespace dfa;
