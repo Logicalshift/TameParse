@@ -13,5 +13,7 @@
 /* The classes below are exported */
 #pragma GCC visibility push(default)
 
+#include "TameParse/TameParse.h"
+
 #pragma GCC visibility pop
 #endif
