@@ -48,6 +48,12 @@ void std_console::report_error(const error& error) {
     // Errors go to wcerr by default
     wostream* out = &wcerr;
     
+    // Suppress warnings if the options are set
+    if (error.sev() != error::sev_detail && error.sev() <= error::sev_warning && !get_option(L"suppress-warnings").empty()) {
+        // TODO: suppress sev_detail messages if the last non-detail error was a warning
+        return;
+    }
+    
     // Use the verbose stream if this is not a warning or error message
     if (error.sev() < error::sev_detail) {
         out = &verbose_stream();
@@ -107,6 +113,11 @@ void std_console::report_error(const error& error) {
         default:
             *out << L" unknown:";
             break;
+    }
+    
+    // If the options are set to add the error code then do so
+    if (!get_option(L"show-error-codes").empty()) {
+        *out << L" [" << error.identifier() << L"]";
     }
 
     // Write out the error description
