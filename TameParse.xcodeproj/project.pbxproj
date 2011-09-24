@@ -76,6 +76,11 @@
 		4B5E44FD13DC9A5D001FF896 /* production_definition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */; };
 		4B5E44FE13DC9A5D001FF896 /* production_definition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44FC13DC9A5C001FF896 /* production_definition.h */; };
 		4B68195813CA52BE0085CA95 /* parser_state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B68195713CA52BE0085CA95 /* parser_state.h */; };
+		4B79D0C2142E1E2000D778BC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0C1142E1E2000D778BC /* main.cpp */; };
+		4B79D0C4142E1E2000D778BC /* tameparse.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4B79D0C3142E1E2000D778BC /* tameparse.1 */; };
+		4B79D0C8142E1E6800D778BC /* TameParseLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */; };
+		4B79D0CC142E1F2C00D778BC /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */; };
+		4B79D0CF142E1F5000D778BC /* boost_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0CE142E1F5000D778BC /* boost_console.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -247,6 +252,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4B79D0C9142E1E6F00D778BC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4BD7FDF0132D05D600025433 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4BD7FDF8132D05D600025433;
+			remoteInfo = TameParseLib;
+		};
 		4BD612C8140112BF00AA560E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4BD7FDF0132D05D600025433 /* Project object */;
@@ -257,6 +269,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		4B79D0BC142E1E2000D778BC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				4B79D0C4142E1E2000D778BC /* tameparse.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		4BD612BB140112B000AA560E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -355,6 +377,12 @@
 		4B5E44FC13DC9A5C001FF896 /* production_definition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = production_definition.h; sourceTree = "<group>"; };
 		4B68195713CA52BE0085CA95 /* parser_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_state.h; sourceTree = "<group>"; };
 		4B79D0B9142DEFC800D778BC /* TameParse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
+		4B79D0BE142E1E2000D778BC /* tameparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tameparse; sourceTree = BUILT_PRODUCTS_DIR; };
+		4B79D0C1142E1E2000D778BC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4B79D0C3142E1E2000D778BC /* tameparse.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = tameparse.1; sourceTree = "<group>"; };
+		4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = ../../../../usr/local/lib/libboost_program_options.a; sourceTree = "<group>"; };
+		4B79D0CD142E1F4300D778BC /* boost_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = boost_console.h; sourceTree = "<group>"; };
+		4B79D0CE142E1F5000D778BC /* boost_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_console.cpp; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
 		4B7F0C3C137599AB0012C085 /* parser_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_tables.cpp; sourceTree = "<group>"; };
@@ -477,6 +505,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		4B79D0BB142E1E2000D778BC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B79D0C8142E1E6800D778BC /* TameParseLib.dylib in Frameworks */,
+				4B79D0CC142E1F2C00D778BC /* libboost_program_options.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4BD612BA140112B000AA560E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -604,6 +641,17 @@
 			path = TameParse;
 			sourceTree = "<group>";
 		};
+		4B79D0C0142E1E2000D778BC /* parsetool */ = {
+			isa = PBXGroup;
+			children = (
+				4B79D0C1142E1E2000D778BC /* main.cpp */,
+				4B79D0CD142E1F4300D778BC /* boost_console.h */,
+				4B79D0CE142E1F5000D778BC /* boost_console.cpp */,
+				4B79D0C3142E1E2000D778BC /* tameparse.1 */,
+			);
+			path = parsetool;
+			sourceTree = "<group>";
+		};
 		4B7F0C5E1393E85E0012C085 /* Language */ = {
 			isa = PBXGroup;
 			children = (
@@ -669,11 +717,13 @@
 		4BD7FDEE132D05D600025433 = {
 			isa = PBXGroup;
 			children = (
+				4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */,
 				4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */,
 				4B79D0B1142DE42C00D778BC /* TameParse */,
 				4BD7FDFB132D05D600025433 /* TameParseLib */,
 				4BD7FE32132D4F1F00025433 /* Test */,
 				4BD612BF140112B000AA560E /* bootstrap */,
+				4B79D0C0142E1E2000D778BC /* parsetool */,
 				4BD7FDFA132D05D600025433 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -683,6 +733,7 @@
 			children = (
 				4BD7FE30132D4F1E00025433 /* Test */,
 				4BD612BD140112B000AA560E /* bootstrap */,
+				4B79D0BE142E1E2000D778BC /* tameparse */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -925,6 +976,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		4B79D0BD142E1E2000D778BC /* tameparse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4B79D0C5142E1E2000D778BC /* Build configuration list for PBXNativeTarget "tameparse" */;
+			buildPhases = (
+				4B79D0BA142E1E2000D778BC /* Sources */,
+				4B79D0BB142E1E2000D778BC /* Frameworks */,
+				4B79D0BC142E1E2000D778BC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4B79D0CA142E1E6F00D778BC /* PBXTargetDependency */,
+			);
+			name = tameparse;
+			productName = parsetool;
+			productReference = 4B79D0BE142E1E2000D778BC /* tameparse */;
+			productType = "com.apple.product-type.tool";
+		};
 		4BD612BC140112B000AA560E /* bootstrap */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4BD612C6140112B000AA560E /* Build configuration list for PBXNativeTarget "bootstrap" */;
@@ -1000,6 +1069,7 @@
 				4BD612BC140112B000AA560E /* bootstrap */,
 				4BD7FDF8132D05D600025433 /* TameParseLib */,
 				4BD7FE2F132D4F1E00025433 /* Test */,
+				4B79D0BD142E1E2000D778BC /* tameparse */,
 			);
 		};
 /* End PBXProject section */
@@ -1058,6 +1128,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		4B79D0BA142E1E2000D778BC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4B79D0C2142E1E2000D778BC /* main.cpp in Sources */,
+				4B79D0CF142E1F5000D778BC /* boost_console.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4BD612B9140112B000AA560E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1244,6 +1323,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4B79D0CA142E1E6F00D778BC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4BD7FDF8132D05D600025433 /* TameParseLib */;
+			targetProxy = 4B79D0C9142E1E6F00D778BC /* PBXContainerItemProxy */;
+		};
 		4BD612C9140112BF00AA560E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4BD612BC140112B000AA560E /* bootstrap */;
@@ -1252,6 +1336,34 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		4B79D0C6142E1E2000D778BC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4B79D0C7142E1E2000D778BC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4BD612C4140112B000AA560E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1373,6 +1485,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		4B79D0C5142E1E2000D778BC /* Build configuration list for PBXNativeTarget "tameparse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B79D0C6142E1E2000D778BC /* Debug */,
+				4B79D0C7142E1E2000D778BC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		4BD612C6140112B000AA560E /* Build configuration list for PBXNativeTarget "bootstrap" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -30,3 +30,8 @@ std::string console::convert_filename(const std::wstring& filename) {
 
     return latin1Filename;
 }
+
+/// \brief Returns true if the options are valid and the parser can start
+bool console::can_start() const {
+    return true;
+}

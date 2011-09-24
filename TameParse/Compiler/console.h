@@ -60,10 +60,13 @@ namespace compiler {
         /// \brief Retrieves the value of the option with the specified name.
         ///
         /// If the option is not set, then this should return an empty string
-        virtual const std::wstring& get_option(const std::wstring& name) const = 0;
+        virtual std::wstring get_option(const std::wstring& name) const = 0;
         
         /// \brief The name of the initial input file
         virtual const std::wstring& input_file() const = 0;
+
+        /// \brief Returns true if the options are valid and the parser can start
+        virtual bool can_start() const;
         
     public:
         /// \brief Converts a wstring filename to whatever is the preferred format for the current system

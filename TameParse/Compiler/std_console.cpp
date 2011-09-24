@@ -15,6 +15,21 @@
 using namespace std;
 using namespace compiler;
 
+/// \brief Null stream class used to suppress output
+class nullstream : public wostream {
+private:
+    /// \brief Null stream buffer
+    class nullbuf : public wstreambuf {
+        int overflow(int c) { return traits_type::not_eof(c); }
+    } m_NullBuf;
+    
+public:
+    nullstream() : wostream(&m_NullBuf) { }
+};
+
+/// \brief Static null stream object
+static nullstream s_NullStream;
+
 /// \brief Creates a standard console with the specified input filename
 std_console::std_console(const std::wstring& inputFilename)
 : m_InputFilename(inputFilename)
@@ -101,6 +116,11 @@ void std_console::report_error(const error& error) {
 /// \brief Retrieves a stream where log messages can be sent to (these are generally always displayed, but may be
 /// suppressed if the console has a 'silent' mode)
 std::wostream& std_console::message_stream() {
+    // Output to null if silent is set
+    if (!get_option(L"silent").empty()) {
+        return s_NullStream;
+    }
+    
     // Output messages to wcout by default
     return wcout;
 }
@@ -108,6 +128,11 @@ std::wostream& std_console::message_stream() {
 /// \brief Retrieves a stream where verbose messages can be sent to (these are generally not displayed unless the
 /// console is configured to)
 std::wostream& std_console::verbose_stream() {
+    // Output to null if verbose is not set
+    if (get_option(L"verbose").empty()) {
+        return s_NullStream;
+    }
+    
     // Output verbose messages to wcout by default
     return wcout;
 }
@@ -115,7 +140,10 @@ std::wostream& std_console::verbose_stream() {
 /// \brief Retrieves the value of the option with the specified name.
 ///
 /// If the option is not set, then this should return an empty string
-const std::wstring& std_console::get_option(const std::wstring& name) const {
+std::wstring std_console::get_option(const std::wstring& name) const {
+    // When this class is not overridden, we pretend to be in verbose mode
+    if (name == L"verbose") return L"verbose";
+    
     static std::wstring emptyString;
     return emptyString;
 }
