@@ -9,6 +9,8 @@
 #ifndef _TAMEPARSE_H
 #define _TAMEPARSE_H
 
+#include "TameParse/version.h"
+
 #include "TameParse/Util/astnode.h"
 #include "TameParse/Util/container.h"
 #include "TameParse/Util/stringreader.h"

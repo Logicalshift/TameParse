@@ -9,11 +9,14 @@
 #include <string>
 #include <vector>
 
+#include "TameParse/version.h"
+
 #include "boost_console.h"
 #include "boost/program_options.hpp"
 
 using namespace std;
 using namespace compiler;
+using namespace tameparse;
 namespace po = boost::program_options;
 
  // \brief Copies this console
@@ -26,16 +29,23 @@ boost_console::boost_console(const boost_console& bc)
 boost_console::boost_console(int argc, const char** argv) 
 : std_console(L"") {
 	// Declare the options supported by the tameparse utility
-	po::options_description desc("TameParse options");
+	po::options_description mainOptions("Parser generation options");
 
-	desc.add_options()
-		("help,h", 												"display help message")
-		("verbose,v",											"display verbose messages")
-		("silent",												"suppress informational messages")
+	mainOptions.add_options()
 		("input-file,i",		po::value<string>(),			"specifies the name of the input file")
 		("output-file,o",		po::value<string>(),			"specifies the base name for the output file")
 		("include-path,I",		po::value< vector<string> >(),	"sets the path to search for included files")
 		("target-language,t",	po::value<string>(),			"specifies the target language the parser will be generated in");
+
+	po::options_description infoOptions("Information");
+    
+    infoOptions.add_options()
+        ("help,h", 												"display help message")
+        ("verbose,v",											"display verbose messages")
+        ("silent",												"suppress informational messages")
+        ("version",												"display version information")
+        ("warranty",											"display warranty information")
+        ("license",												"display license information");
 
 	// Positional options
 	po::positional_options_description positional;
@@ -44,20 +54,40 @@ boost_console::boost_console(int argc, const char** argv)
 	positional.add("output-file", 1);
 
 	// Store the options
-	po::store(po::command_line_parser(argc, argv).options(desc).positional(positional).run(), m_VarMap);
+	po::store(po::command_line_parser(argc, argv).options(mainOptions).options(infoOptions).positional(positional).run(), m_VarMap);
 	po::notify(m_VarMap);
 
 	// Display help if needed
+    bool doneSomething = false;
+    
+    if (m_VarMap.count("version") || m_VarMap.count("warranty") || m_VarMap.count("license")) {
+        cout << "TameParse version " << version::version_string;
+        if (m_VarMap.count("license") == 0) {
+            cout << endl << version::copyright_string << " " << version::contact_string;
+        }
+        cout << endl << endl;
+        doneSomething = true;
+    }
+    
+    if (m_VarMap.count("warranty")) {
+        cout << version::warranty_string << endl << endl;
+        doneSomething = true;
+    }
+    
+    if (m_VarMap.count("license")) {
+        cout << version::license_string << endl << endl;
+        doneSomething = true;
+    }
+    
 	if (m_VarMap.count("help")) {
-	    cout << desc << endl;
-	    return;
+		cout << mainOptions << endl << infoOptions << endl;
+	    doneSomething = true;
 	}
 
 	// Also display help if no input file is displayed
-	if (m_VarMap.count("input-file")) {
-		cerr << argv[0] << ": no input files" << endl;
-		cout << desc << endl;
-		return;
+	if (!doneSomething && m_VarMap.count("input-file") == 0) {
+		cerr << argv[0] << ": no input files" << endl << endl;
+		cout << mainOptions << endl << infoOptions << endl;
 	}
 }
 

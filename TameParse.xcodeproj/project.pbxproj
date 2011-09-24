@@ -84,6 +84,8 @@
 		4B79D0D7142E514700D778BC /* utf8reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0D6142E514700D778BC /* utf8reader.cpp */; };
 		4B79D0DA142E549900D778BC /* utf8reader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B79D0D9142E514F00D778BC /* utf8reader.h */; };
 		4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0D6142E514700D778BC /* utf8reader.cpp */; };
+		4B79D0DF142E6AD400D778BC /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0DD142E67FC00D778BC /* version.cpp */; };
+		4B79D0E0142E6AD400D778BC /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0DD142E67FC00D778BC /* version.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -388,6 +390,8 @@
 		4B79D0CE142E1F5000D778BC /* boost_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_console.cpp; sourceTree = "<group>"; };
 		4B79D0D6142E514700D778BC /* utf8reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utf8reader.cpp; sourceTree = "<group>"; };
 		4B79D0D9142E514F00D778BC /* utf8reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf8reader.h; sourceTree = "<group>"; };
+		4B79D0DC142E66EB00D778BC /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		4B79D0DD142E67FC00D778BC /* version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = version.cpp; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
 		4B7F0C3C137599AB0012C085 /* parser_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_tables.cpp; sourceTree = "<group>"; };
@@ -644,6 +648,8 @@
 				4BFD4A731388384A00D6657D /* Language */,
 				4BBC319213E4AE6D0059AC14 /* Compiler */,
 				4B79D0B9142DEFC800D778BC /* TameParse.h */,
+				4B79D0DC142E66EB00D778BC /* version.h */,
+				4B79D0DD142E67FC00D778BC /* version.cpp */,
 			);
 			path = TameParse;
 			sourceTree = "<group>";
@@ -1223,6 +1229,7 @@
 				4BB2C9101425010800D501E7 /* syntax_ptr.cpp in Sources */,
 				4B94605D1427E22A00B4BB87 /* stringreader.cpp in Sources */,
 				4B79D0D7142E514700D778BC /* utf8reader.cpp in Sources */,
+				4B79D0E0142E6AD400D778BC /* version.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1304,6 +1311,7 @@
 				4BB2C9111425010800D501E7 /* syntax_ptr.cpp in Sources */,
 				4B9460591427E0B000B4BB87 /* language_parser.cpp in Sources */,
 				4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */,
+				4B79D0DF142E6AD400D778BC /* version.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
