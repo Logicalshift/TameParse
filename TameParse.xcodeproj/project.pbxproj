@@ -414,7 +414,7 @@
 		4BD612C0140112B000AA560E /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4BD612C2140112B000AA560E /* bootstrap.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = bootstrap.1; sourceTree = "<group>"; };
 		4BD7FDF9132D05D600025433 /* TameParseLib.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = TameParseLib.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "Parse/Parse-Prefix.pch"; sourceTree = "<group>"; };
+		4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Parse-Prefix.pch"; path = "TameParseLib/Parse-Prefix.pch"; sourceTree = "<group>"; };
 		4BD7FDFE132D05D600025433 /* TameParseLibProj.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TameParseLibProj.xcconfig; sourceTree = "<group>"; };
 		4BD7FDFF132D05D600025433 /* TameParseLibTarget.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TameParseLibTarget.xcconfig; sourceTree = "<group>"; };
 		4BD7FE00132D05D600025433 /* TameParse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
@@ -694,8 +694,7 @@
 				4BD7FE02132D05D600025433 /* TameParsePriv.h */,
 				4BD7FE03132D05D600025433 /* TameParse.cpp */,
 			);
-			name = TameParseLib;
-			path = Parse;
+			path = TameParseLib;
 			sourceTree = "<group>";
 		};
 		4BD7FE12132D087800025433 /* Dfa */ = {
