@@ -14,6 +14,8 @@
 #include "TameParse/Util/stringreader.h"
 #include "TameParse/Util/syntax_ptr.h"
 #include "TameParse/Util/unicode.h"
+#include "TameParse/Util/utf8reader.h"
+
 #include "TameParse/Dfa/accept_action.h"
 #include "TameParse/Dfa/basic_lexer.h"
 #include "TameParse/Dfa/character_lexer.h"

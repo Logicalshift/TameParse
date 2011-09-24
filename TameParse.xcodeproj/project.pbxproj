@@ -81,6 +81,9 @@
 		4B79D0C8142E1E6800D778BC /* TameParseLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */; };
 		4B79D0CC142E1F2C00D778BC /* libboost_program_options.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */; };
 		4B79D0CF142E1F5000D778BC /* boost_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0CE142E1F5000D778BC /* boost_console.cpp */; };
+		4B79D0D7142E514700D778BC /* utf8reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0D6142E514700D778BC /* utf8reader.cpp */; };
+		4B79D0DA142E549900D778BC /* utf8reader.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B79D0D9142E514F00D778BC /* utf8reader.h */; };
+		4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0D6142E514700D778BC /* utf8reader.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -383,6 +386,8 @@
 		4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = ../../../../usr/local/lib/libboost_program_options.a; sourceTree = "<group>"; };
 		4B79D0CD142E1F4300D778BC /* boost_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = boost_console.h; sourceTree = "<group>"; };
 		4B79D0CE142E1F5000D778BC /* boost_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_console.cpp; sourceTree = "<group>"; };
+		4B79D0D6142E514700D778BC /* utf8reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utf8reader.cpp; sourceTree = "<group>"; };
+		4B79D0D9142E514F00D778BC /* utf8reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utf8reader.h; sourceTree = "<group>"; };
 		4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = terminal_dictionary.cpp; sourceTree = "<group>"; };
 		4B7F0C3413755E540012C085 /* terminal_dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = terminal_dictionary.h; sourceTree = "<group>"; };
 		4B7F0C3C137599AB0012C085 /* parser_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_tables.cpp; sourceTree = "<group>"; };
@@ -611,6 +616,8 @@
 				4BB2C9131425010F00D501E7 /* syntax_ptr.h */,
 				4B94605C1427E22A00B4BB87 /* stringreader.cpp */,
 				4B94605B1427E22000B4BB87 /* stringreader.h */,
+				4B79D0D6142E514700D778BC /* utf8reader.cpp */,
+				4B79D0D9142E514F00D778BC /* utf8reader.h */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -970,6 +977,7 @@
 				4B9804051412789D00B5F857 /* tameparse_language.h in Headers */,
 				4BB2C9141425010F00D501E7 /* syntax_ptr.h in Headers */,
 				4B94605A1427E0B400B4BB87 /* language_parser.h in Headers */,
+				4B79D0DA142E549900D778BC /* utf8reader.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1214,6 +1222,7 @@
 				4BD179BD141D461000DEDC24 /* ndfa_transformations.cpp in Sources */,
 				4BB2C9101425010800D501E7 /* syntax_ptr.cpp in Sources */,
 				4B94605D1427E22A00B4BB87 /* stringreader.cpp in Sources */,
+				4B79D0D7142E514700D778BC /* utf8reader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1294,6 +1303,7 @@
 				4BD179BE141D46A300DEDC24 /* ndfa_transformations.cpp in Sources */,
 				4BB2C9111425010800D501E7 /* syntax_ptr.cpp in Sources */,
 				4B9460591427E0B000B4BB87 /* language_parser.cpp in Sources */,
+				4B79D0DB142E549C00D778BC /* utf8reader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1492,6 +1502,7 @@
 				4B79D0C7142E1E2000D778BC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		4BD612C6140112B000AA560E /* Build configuration list for PBXNativeTarget "bootstrap" */ = {
 			isa = XCConfigurationList;
