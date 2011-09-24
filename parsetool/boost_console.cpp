@@ -152,6 +152,11 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 		for (size_t x = 0; x < asciiValue.size(); x++) {
 			value += (wchar_t) asciiValue[x];
 		}
+        
+        // Value is '1' if the value is empty
+        if (value.empty()) {
+            value += L'1';
+        }
 
 		return value;
 	} catch (boost::bad_any_cast) {
