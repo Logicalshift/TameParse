@@ -39,12 +39,24 @@ void parser_stage::compile() {
     }
     
     // Attempt to parse the file
+    m_Parser.set_filename(filename());
     bool parsedOk = m_Parser.parse(*fileStream);
     
     // Report an error if we failed to parse OK
     if (!parsedOk) {
-        // TODO: report this properly
-        cons().report_error(error(error::sev_bug, filename(), L"BUG_CANT_REPORT_SYNTAX", L"Unknown syntax error", position(-1, -1, -1)));
+        // Fetch the errors
+        typedef language_parser::error_list error_list;
+        const error_list& errors = m_Parser.errors();
+        
+        if (!errors.empty()) {
+            // Report the errors
+            for (error_list::const_iterator nextError = errors.begin(); nextError != errors.end(); nextError++) {
+                cons().report_error(*nextError);
+            }
+        } else {
+            // Whoops, couldn't report the syntax error
+            cons().report_error(error(error::sev_bug, filename(), L"BUG_CANT_REPORT_SYNTAX", L"Unknown syntax error", position(-1, -1, -1)));
+        }
         return;
     }
     

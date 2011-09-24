@@ -18,6 +18,7 @@
 using namespace std;
 using namespace util;
 using namespace dfa;
+using namespace compiler;
 using namespace language;
 
 /// \brief Creates a new language object
@@ -536,6 +537,34 @@ static definition_file* definition_for(const tameparse_language::epsilon* root) 
     return definition_for(root->Parser_Language);
 }
 
+/// \brief Type of a parser state
+typedef tameparse_language::ast_parser_type::state parser_state;
+
+/// \brief Parser actions type
+typedef tameparse_language::parser_actions parser_actions;
+
+/// \brief A list of errors
+typedef language_parser::error_list error_list;
+
+/// \brief Creates an error list when the parser fails
+static error_list get_errors(parser_state* state, const wstring& filename, bool result) {
+    error_list res;
+    
+    // No errors if the result was successful
+    if (result) return res;
+    
+    // Add a single error and attempt no recovery
+    // TODO: work out the 'expecting' list
+    if (state->look().item()) {
+        res.push_back(error(error::sev_error, filename, L"SYNTAX_ERROR", L"Syntax error", state->look()->pos()));
+    } else {
+        res.push_back(error(error::sev_error, filename, L"SYNTAX_END_OF_FILE", L"Unexpected end of file", position(-1, -1, -1)));        
+    }
+    
+    // Return the result
+    return res;
+}
+
 /// \brief Parses the language file specified in the given string and stores it in this object.
 ///
 /// This will return true if the file parsed correctly. If this is the case, then the file_definition() function
@@ -545,11 +574,8 @@ bool language_parser::parse(const std::wstring& language) {
     
     // Clear the definition
     m_FileDefinition = definition_file_container(NULL, true);
-    
-    // Create the parser for this language
-    typedef tameparse_language::ast_parser_type::state  state;
-    typedef tameparse_language::parser_actions          parser_actions;
-    
+    m_RecentErrors.clear();
+
     // Create a lexer for this string
     wstringreader reader(language);
     
@@ -558,10 +584,11 @@ bool language_parser::parse(const std::wstring& language) {
     // Create the parser
     // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have
     // a few more interesting/easy ways of creating parsers later on)
-    state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
+    parser_state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
     
     // Parse the language
-    result = parser_state->parse();
+    result          = parser_state->parse();
+    m_RecentErrors  = get_errors(parser_state, m_Filename, result);
     
     // Convert to a definition
     if (result) {
@@ -596,10 +623,7 @@ bool language_parser::parse(const std::string& language) {
     
     // Clear the definition
     m_FileDefinition = definition_file_container(NULL, true);
-    
-    // Create the parser for this language
-    typedef tameparse_language::ast_parser_type::state  state;
-    typedef tameparse_language::parser_actions          parser_actions;
+    m_RecentErrors.clear();
     
     // Create a lexer for this string
     lexeme_stream* stream = tameparse_language::lexer.create_stream_from<wchar_t>(languageReader);
@@ -607,10 +631,11 @@ bool language_parser::parse(const std::string& language) {
     // Create the parser
     // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have
     // a few more interesting/easy ways of creating parsers later on)
-    state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
+    parser_state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
     
     // Parse the language
-    result = parser_state->parse();
+    result          = parser_state->parse();
+    m_RecentErrors  = get_errors(parser_state, m_Filename, result);
     
     // Convert to a definition
     if (result) {
@@ -642,10 +667,7 @@ bool language_parser::parse(std::istream& language) {
     
     // Clear the definition
     m_FileDefinition = definition_file_container(NULL, true);
-    
-    // Create the parser for this language
-    typedef tameparse_language::ast_parser_type::state  state;
-    typedef tameparse_language::parser_actions          parser_actions;
+    m_RecentErrors.clear();
     
     // Create a lexer for this string
     lexeme_stream* stream = tameparse_language::lexer.create_stream_from<wchar_t>(languageReader);
@@ -653,10 +675,11 @@ bool language_parser::parse(std::istream& language) {
     // Create the parser
     // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have
     // a few more interesting/easy ways of creating parsers later on)
-    state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
+    parser_state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
     
     // Parse the language
-    result = parser_state->parse();
+    result          = parser_state->parse();
+    m_RecentErrors  = get_errors(parser_state, m_Filename, result);
     
     // Convert to a definition
     if (result) {
