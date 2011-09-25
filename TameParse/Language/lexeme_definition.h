@@ -41,6 +41,9 @@ namespace language {
         /// \brief The identifier assigned to this lexeme
         std::wstring m_Identifier;
         
+        /// \brief True if this is an alternate definition of an existing symbol
+        bool m_AddToDefinition;
+        
         /// \brief The definition assigned to this lexeme (how it is interpreted depends on type)
         ///
         /// Note that for strings, characters and regular expressions quoting is left intact for this field
@@ -48,13 +51,16 @@ namespace language {
         
     public:
         /// \brief Creates a new lexeme definition
-        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, position start = position(), position end = position());
+        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, position start = position(), position end = position());
         
         /// \brief The type of this lexeme definition (determines how the definition field is interpreted)
         inline type get_type() const { return m_Type; }
         
         /// \brief The identifier assigned to this lexeme definition
         inline const std::wstring& identifier() const { return m_Identifier; }
+        
+        /// \brief True if this is an alternative to an existing lexer symbol definition
+        inline bool add_to_definition() const { return m_AddToDefinition; }
         
         /// \brief How the lexeme is defined
         ///

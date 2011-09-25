@@ -101,9 +101,9 @@ language ParserLanguage {
 		<Keywords-Definition>		= weak? keywords '{' (<Keyword-Definition>)* '}'
 		
 		<Keyword-Definition>		= identifier
-									| identifier '=' (regex | string | character)
+									| identifier ('=' | "|=") (regex | string | character)
 		
-		<Lexeme-Definition> 		= identifier '=' (regex | string | character)
+		<Lexeme-Definition> 		= identifier ('=' | "|=") (regex | string | character)
                                     | identifier '=' identifier '.' identifier
 		
 		//

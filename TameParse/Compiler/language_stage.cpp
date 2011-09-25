@@ -176,15 +176,37 @@ void language_stage::compile() {
             
             // Add the symbols to the lexer
             for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-                // It's an error to define the same symbol twice
-                if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                    wstringstream msg;
-                    msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                    cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
-                }
+                // Get the ID that we'll define for this symbol
+                int symId;
                 
-                // Add the symbol ID
-                int symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                if (!(*lexerItem)->add_to_definition()) {
+                    // It's an error to define the same symbol twice
+                    if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                        wstringstream msg;
+                        msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                        cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                    }
+                    
+                    // Add the symbol ID
+                    symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                } else {
+                    // Get the existing symbol ID
+                    symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
+                    
+                    // It's an error to try use the |= operator with a symbol that does not have a primary definition
+                    if (symId < 0) {
+                        wstringstream msg;
+                        msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
+                        cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
+                    }
+                    
+                    // It's an error to try to add items to a symbol of a different type
+                    else if (m_TypeForTerminal[symId] != blockType) {
+                        wstringstream msg;
+                        msg << L"Cannot add definitions to a symbol defined in a different lexer block: " << (*lexerItem)->identifier();
+                        cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
+                    }
+                }
                 
                 // Set the type of this symbol
                 m_TypeForTerminal[symId] = blockType;

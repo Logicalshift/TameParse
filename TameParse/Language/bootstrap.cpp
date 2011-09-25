@@ -655,6 +655,7 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
             lexeme_definition* newLexeme = new lexeme_definition(lexeme_definition::regex, 
                                                                  lexemeIdentifier->lexeme()->content<wchar_t>(), 
                                                                  regex->lexeme()->content<wchar_t>(), 
+                                                                 false, // Not supported in the bootstrap language
                                                                  lexemeIdentifier->lexeme()->pos(), 
                                                                  regex->lexeme()->final_pos());
 
@@ -678,6 +679,7 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
             lexeme_definition* newKeyword = new lexeme_definition(lexeme_definition::literal,
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
+                                                                  false, // Not supported in the bootstrap language
                                                                   keywordIdentifier->lexeme()->pos(),
                                                                   keywordIdentifier->lexeme()->final_pos());
 
@@ -701,6 +703,7 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
             lexeme_definition* newKeyword = new lexeme_definition(type,
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
                                                                   defn->lexeme()->content<wchar_t>(),
+                                                                  false, // Not supported in the bootstrap language
                                                                   keywordIdentifier->lexeme()->pos(),
                                                                   defn->lexeme()->final_pos());
             
@@ -717,6 +720,7 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
         lexeme_definition* newKeyword = new lexeme_definition(lexeme_definition::literal,
                                                               dataItem->lexeme()->content<wchar_t>(),
                                                               dataItem->lexeme()->content<wchar_t>(),
+                                                              false, // Not supported in the bootstrap language
                                                               dataItem->lexeme()->pos(),
                                                               dataItem->lexeme()->final_pos());
         
