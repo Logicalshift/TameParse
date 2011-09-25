@@ -23,7 +23,7 @@ import_stage::import_stage(console_container& console, const std::wstring& filen
 	// Add the root file to the stage for file list
     wstring realPath = console->real_path(filename);
     
-	m_StageForFile[realPath]        = rootFile;
+	m_DefinitionForFile[realPath]        = rootFile;
     m_ShortNameForFile[realPath]    = filename;
 }
 
@@ -42,7 +42,7 @@ void import_stage::compile() {
 	set<wstring>		imported;
 
 	// Iterate through the definitions
-	for (map<wstring, definition_file_container>::iterator defn = m_StageForFile.begin(); defn != m_StageForFile.end(); defn++) {
+	for (map<wstring, definition_file_container>::iterator defn = m_DefinitionForFile.begin(); defn != m_DefinitionForFile.end(); defn++) {
 		// Add to the list to be processed
 		toImport.push(*defn);
 		imported.insert(cons().real_path(defn->first));
@@ -75,7 +75,7 @@ void import_stage::compile() {
                 importStage.compile();
 
                 // Add to the result
-                m_StageForFile[realPath]        = importStage.definition_file();
+                m_DefinitionForFile[realPath]	= importStage.definition_file();
                 m_ShortNameForFile[realPath]    = importFile;
 
                 // Process any imports that the new file might contain

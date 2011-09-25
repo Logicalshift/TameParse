@@ -92,5 +92,6 @@
 #include "TameParse/Compiler/std_console.h"
 #include "TameParse/Compiler/parser_stage.h"
 #include "TameParse/Compiler/import_stage.h"
+#include "TameParse/Compiler/language_builder_stage.h"
 
 #endif

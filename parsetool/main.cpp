@@ -55,6 +55,15 @@ int main (int argc, const char * argv[])
         if (console.exit_code()) {
             return console.exit_code();
         }
+        
+        // Convert to grammars & NDFAs
+        language_builder_stage builderStage(cons, console.input_file(), &importStage);
+        builderStage.compile();
+        
+        // Stop if we have an error
+        if (console.exit_code()) {
+            return console.exit_code();
+        }
 
         // Done
         return console.exit_code();

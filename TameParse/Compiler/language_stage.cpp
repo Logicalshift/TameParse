@@ -90,7 +90,7 @@ language_stage::~language_stage() {
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_stage::compile() {
     // Write out a verbose message
-    cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar" << endl;
+    cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar for " << m_Language->identifier() << endl;
     
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
