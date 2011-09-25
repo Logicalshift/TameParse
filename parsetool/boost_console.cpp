@@ -33,29 +33,36 @@ boost_console::boost_console(const boost_console& bc)
 boost_console::boost_console(int argc, const char** argv) 
 : std_console(L"") {
 	// Declare the options supported by the tameparse utility
-	po::options_description mainOptions("Parser generation options");
+	po::options_description inputOptions("Input options");
 
-	mainOptions.add_options()
-		("input-file,i",		po::value<string>(),			"specifies the name of the input file")
-		("output-file,o",		po::value<string>(),			"specifies the base name for the output file")
-		("include-path,I",		po::value< vector<string> >(),	"sets the path to search for included files")
-		("target-language,t",	po::value<string>(),			"specifies the target language the parser will be generated in");
+	inputOptions.add_options()
+		("input-file,i",		po::value<string>(),			"specifies the name of the input file.")
+		("include-path,I",		po::value< vector<string> >(),	"sets the path to search for included files.");
+
+	po::options_description outputOptions("Output options");
+	
+	outputOptions.add_options()
+		("output-file,o",		po::value<string>(),			"specifies the base name for the output file. For languages that need to generate multiple files (for example, C++), the appropriate extensions will be added to this filename. If this is not specified, the output filenames will be derived from the input file.")
+		("target-language,t",	po::value<string>(),			"specifies the target language the parser will be generated in.")
+		("start-symbol",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
+		("language",			po::value<string>(),			"specifies the name of the language to compile (overriding anything defined in the parser block of the input file)")
+		("class-name",			po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)");
 
 	po::options_description infoOptions("Information");
     
     infoOptions.add_options()
-        ("help,h", 												"display help message")
-        ("verbose,v",											"display verbose messages")
-        ("silent",												"suppress informational messages")
-        ("version",												"display version information")
-        ("warranty",											"display warranty information")
-        ("license",												"display license information");
+        ("help,h", 												"display help message.")
+        ("verbose,v",											"display verbose messages.")
+        ("silent",												"suppress informational messages.")
+        ("version",												"display version information.")
+        ("warranty",											"display warranty information.")
+        ("license",												"display license information.");
     
     po::options_description errorOptions("Error reporting");
     
     errorOptions.add_options()
-        ("suppress-warnings",                                   "do not display any warning messages")
-        ("show-error-codes",                                    "display error codes alongside the error messages");
+        ("suppress-warnings",                                   "do not display any warning messages.")
+        ("show-error-codes",                                    "display error codes alongside the error messages.");
 
 	// Positional options
 	po::positional_options_description positional;
@@ -65,7 +72,7 @@ boost_console::boost_console(int argc, const char** argv)
     
     // Command line options
     po::options_description cmdLine;
-    cmdLine.add(mainOptions).add(infoOptions).add(errorOptions);
+    cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions);
 
 	// Store the options
     try {
@@ -73,14 +80,14 @@ boost_console::boost_console(int argc, const char** argv)
         po::notify(m_VarMap);
     } catch (po::error e) {
         cerr << e.what() << endl << endl;
-		cout << mainOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
         ::exit(1);
     }
 
 	// Display help if needed
     bool doneSomething = false;
     
-    if (m_VarMap.count("version") || m_VarMap.count("warranty") || m_VarMap.count("license")) {
+    if (m_VarMap.count("version") || m_VarMap.count("warranty") || m_VarMap.count("license") || m_VarMap.count("help")) {
         cout << "TameParse version " << version::version_string;
         if (m_VarMap.count("license") == 0) {
             cout << endl << version::copyright_string << " " << version::contact_string;
@@ -100,14 +107,14 @@ boost_console::boost_console(int argc, const char** argv)
     }
     
 	if (m_VarMap.count("help")) {
-		cout << mainOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
 	    doneSomething = true;
 	}
 
 	// Also display help if no input file is displayed
 	if (!doneSomething && m_VarMap.count("input-file") == 0) {
 		cerr << argv[0] << ": no input files" << endl << endl;
-		cout << mainOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
 	}
     
     // Set the value of the input file string

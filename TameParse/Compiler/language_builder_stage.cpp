@@ -60,4 +60,9 @@ void language_builder_stage::compile() {
 		// Compile it
 		stage->compile();
 	}
+    
+    // It's an error for no languages to be defined (as we won't be able to define anything)
+    if (m_Languages.size() == 0) {
+        cons().report_error(error(error::sev_error, filename(), L"NO_LANGUAGES_DEFINED", L"No languages are defined", position(-1, -1, -1)));
+    }
 }
