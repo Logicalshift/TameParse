@@ -46,6 +46,34 @@ public:
 
     /// \brief Returns true if the options are valid and the parser can start
     virtual bool can_start() const;
+
+public:
+    /// \brief Converts a wstring filename to whatever is the preferred format for the current system
+    virtual std::string convert_filename(const std::wstring& filename);
+
+    /// \brief Given a pathname, returns the 'real', absolute pathname
+    ///
+    /// The default implementation just returns the current path
+    virtual std::wstring real_path(const std::wstring& pathname);
+
+    /// \brief Splits a path into its components
+    ///
+    /// The default implementation assumes UNIX-style paths.
+    virtual std::vector<std::wstring> split_path(const std::wstring& pathname);
+    
+    /// \brief Opens a text file with the specified name for reading
+    ///
+    /// The caller should delete the stream once it has finished with it. Streams are generally expected to contain UTF-8
+    /// data, so console classes should usually open streams in binary mode.
+    virtual std::istream* open_file(const std::wstring& filename);
+    
+    /// \brief Opens an output file with the specified name for writing binary data
+    ///
+    /// The caller should delete the stream once it has finished writing to it. The parser primarily writes binary files
+    /// to ensure that the output is consistent between locales.
+    ///
+    /// (This is an annoying compromise added to deal with C++'s completely useless support for locales and unicode)
+    virtual std::ostream* open_binary_file_for_writing(const std::wstring& filename);
     
 public:
     /// \brief Retrieves the value of the option with the specified name.

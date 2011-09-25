@@ -27,6 +27,9 @@ namespace compiler {
         
         /// \brief Performs the actions associated with this compilation stage
         virtual void compile();
+        
+        /// \brief The definition produced by this stage
+        inline language::definition_file_container definition_file() { return m_Parser.file_definition(); }
     };
 }
 

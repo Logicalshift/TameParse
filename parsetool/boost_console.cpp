@@ -13,11 +13,15 @@
 
 #include "boost_console.h"
 #include "boost/program_options.hpp"
+#include "boost/filesystem.hpp"
+#include "boost/filesystem/fstream.hpp"
 
 using namespace std;
 using namespace compiler;
 using namespace tameparse;
+
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
  // \brief Copies this console
 boost_console::boost_console(const boost_console& bc)
@@ -175,4 +179,86 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 /// \brief The name of the initial input file
 const std::wstring& boost_console::input_file() const {
 	return m_InputFile;
+}
+
+/// \brief Converts a wstring filename to whatever is the preferred format for the current system
+std::string boost_console::convert_filename(const std::wstring& filename) {
+	fs::wpath path(filename);
+	return path.generic_string();
+}
+
+/// \brief Given a pathname, returns the 'real', absolute pathname
+///
+/// The default implementation just returns the current path
+std::wstring boost_console::real_path(const std::wstring& pathname) {
+	fs::wpath path(pathname);
+	fs::wpath absolute;
+    
+    try {
+        // Try to get the absolute path for this file
+        absolute = fs::absolute(path);
+        return absolute.generic_wstring();
+    } catch (fs::filesystem_error e) {
+        // Report as an error
+        report_error(error(error::sev_error, pathname, L"CANT_GET_ABSOLUTE_PATH", L"Unable to get absolute path for file", dfa::position(-1, -1, -1)));
+        
+        // Return the path unchanged
+        return pathname;
+    }
+}
+
+/// \brief Splits a path into its components
+///
+/// The default implementation assumes UNIX-style paths.
+std::vector<std::wstring> boost_console::split_path(const std::wstring& pathname) {
+	fs::wpath path(pathname);
+	vector<wstring> res;
+
+	for (fs::wpath::iterator component = path.begin(); component != path.end(); component++) {
+		res.push_back(component->generic_wstring());
+	}
+
+	return res;
+}
+
+/// \brief Opens a text file with the specified name for reading
+///
+/// The caller should delete the stream once it has finished with it. Streams are generally expected to contain UTF-8
+/// data, so console classes should usually open streams in binary mode.
+std::istream* boost_console::open_file(const std::wstring& filename) {
+	// Get the path
+	fs::wpath path(filename);
+
+	// Create the stream
+    fs::fstream* readFile = new fs::fstream();
+
+    readFile->open(path, fstream::in | fstream::binary);
+    
+    // Return NULL if the file failed to open
+    if (readFile->fail()) {
+        delete readFile;
+        return NULL;
+    }
+    
+    // Return the stream
+    return readFile;
+}
+
+/// \brief Opens an output file with the specified name for writing binary data
+///
+/// The caller should delete the stream once it has finished writing to it. The parser primarily writes binary files
+/// to ensure that the output is consistent between locales.
+///
+/// (This is an annoying compromise added to deal with C++'s completely useless support for locales and unicode)
+std::ostream* boost_console::open_binary_file_for_writing(const std::wstring& filename) {
+    // Get the path
+	fs::wpath path(filename);
+
+    // Create the resulting stream
+    fs::fstream* result = new fs::fstream();
+    
+    result->open(path, fstream::out | fstream::binary | fstream::trunc);
+    
+    // Return as the result
+    return result;
 }

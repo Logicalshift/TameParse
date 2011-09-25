@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "TameParse/Compiler/error.h"
 #include "TameParse/Util/container.h"
@@ -71,6 +72,16 @@ namespace compiler {
     public:
         /// \brief Converts a wstring filename to whatever is the preferred format for the current system
         virtual std::string convert_filename(const std::wstring& filename);
+
+        /// \brief Given a pathname, returns the 'real', absolute pathname
+        ///
+        /// The default implementation just returns the current path
+        virtual std::wstring real_path(const std::wstring& pathname);
+
+        /// \brief Splits a path into its components
+        ///
+        /// The default implementation assumes UNIX-style paths.
+        virtual std::vector<std::wstring> split_path(const std::wstring& pathname);
         
         /// \brief Opens a text file with the specified name for reading
         ///

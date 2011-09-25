@@ -35,3 +35,46 @@ std::string console::convert_filename(const std::wstring& filename) {
 bool console::can_start() const {
     return true;
 }
+
+/// \brief Given a pathname, returns the 'real', absolute pathname
+///
+/// The default implementation just returns the current path
+std::wstring console::real_path(const std::wstring& pathname) {
+    // By default, we don't know how to do this
+    return pathname;
+}
+
+/// \brief Splits a path into its components
+///
+/// The default implementation assumes UNIX-style paths.
+std::vector<std::wstring> console::split_path(const std::wstring& pathname) {
+    // Separator character
+    const wchar_t separator = L'/';
+
+    // Split up this string
+    vector<wstring> res;
+    wstring current;
+    for (size_t x=0; x<pathname.size(); x++) {
+        // Get the current character
+        wchar_t c = pathname[x];
+
+        if (c == separator) {
+            // Add this to the result
+            if (!current.empty()) {
+                res.push_back(current);
+                current.clear();
+            }
+        } else {
+            // Keep building the currentpath
+            current += c;
+        }
+    }
+
+    // Push the final component
+    if (!current.empty()) {
+        res.push_back(current);
+    }
+
+    // This is the result
+    return res;
+}

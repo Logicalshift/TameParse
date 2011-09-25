@@ -27,7 +27,7 @@ parser_stage::parser_stage(console_container& console, const std::wstring& filen
 /// \brief Performs the actions associated with this compilation stage
 void parser_stage::compile() {
     // Message to say what we're doing
-    cons().verbose_stream() << " = Reading " << filename() << endl;
+    cons().verbose_stream() << "  = Reading " << filename() << endl;
 
     // Try to open the file
     istream* fileStream = cons().open_file(filename());

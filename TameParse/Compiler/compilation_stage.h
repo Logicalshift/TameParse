@@ -44,6 +44,9 @@ namespace compiler {
     protected:
         /// \brief The console which this compilation stage will use to send its results
         inline console& cons() const { return *m_Console; }
+        
+        /// \brief A console container for this stage
+        inline console_container cons_container() const { return m_Console; }
     };
 }
 
