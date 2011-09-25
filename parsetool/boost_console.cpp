@@ -46,7 +46,8 @@ boost_console::boost_console(int argc, const char** argv)
 		("target-language,t",	po::value<string>(),			"specifies the target language the parser will be generated in.")
 		("start-symbol",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
 		("language",			po::value<string>(),			"specifies the name of the language to compile (overriding anything defined in the parser block of the input file)")
-		("class-name",			po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)");
+		("class-name",			po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
+		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
 
 	po::options_description infoOptions("Information");
     
