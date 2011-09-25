@@ -75,6 +75,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
                 // Add parentheses around the result
                 ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnfItem->pos(), ebnfItem->final_pos());
                 paren->add_child(result);
+                paren->add_child(nextItem);
                 result          = paren;
                 parenthesized   = true;
             } else {
