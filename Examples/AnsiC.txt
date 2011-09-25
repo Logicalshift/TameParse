@@ -8,6 +8,9 @@
 ///
 
 language Ansi-C {
+	///
+	/// Character types
+	///
 	lexer-symbols {
 		comment-start 		= "/*"
 		comment-end			= "*/"
@@ -25,6 +28,9 @@ language Ansi-C {
 		int-specifier		= /[uUlL]+/
 	}
 
+	///
+	/// ANSI C keywords
+	///
 	keywords {
 		auto		break		case		char 		const		continue
 		default		do 			double 		else 		enum 		extern 
@@ -34,12 +40,24 @@ language Ansi-C {
 		volatile 	while
 	}
 
+	///
+	/// Ignored sections: comments and whitespace
+	///
 	ignore {
-		comment 		= /{comment-start}([^*]|*[^\/]){comment-end}/
-		cpp-comment		= /{cpp-comment-start}[^\n\r]*/
-		whitespace		= /{whitespace}+/
+		comment 			= 	/{comment-start}([^*]|*[^\/]){comment-end}/
+		cpp-comment			= 	/{cpp-comment-start}[^\n\r]*/
+		whitespace			= 	/{whitespace}+/
+		doc-comment			= 	/{comment-start}\*([^*]|*[^\/]){comment-end}/
+		doc-comment			|=	/{cpp-comment-start}\/[^\n\r]*/
 	}
 
+	///
+	/// Lexical symbols
+	///
+	/// We define some extra lexical symbols for the various types of C constant over
+	/// Jutta Deneger's version to make it easier to decide how to interpret these
+	/// values later on.
+	///
 	lexer {
 		identifier			= 	/{letter}{alphanumeric}*/
 		constant-hex		= 	/0[xX]{hex-digit}+{int-specifier}?/
@@ -50,5 +68,201 @@ language Ansi-C {
 		constant-float		|= 	/{digit}*\.{digit}+{exponent}?{float-specifier}?/
 		constant-float		|=	/{digit}+\.{digit}*{exponent}?{float-specifier}?/
 		string-literal		=	/L?\"(\\.|[^\\\"])*\"/
+	}
+
+	grammar {
+		<Constant>						= constant-hex
+										| constant-octal
+										| constant-decimal
+										| constant-float
+										| constant-character
+	
+		<Primary-Expression>			= identifier
+										| <Constant>
+										| string-literal
+										| '(' <Expression> ')'
+	
+		<Postfix-Expression>			= <Primary-Expression>
+										| <Postfix-Expression> '[' <Expression> ']'
+										| <Postfix-Expression> '(' ')'
+										| <Postfix-Expression> '(' <Argument-Expression-List>? ')'
+										| <Postfix-Expression> '.' identifier
+										| <Postfix-Expression> "->" identifier
+										| <Postfix-Expression> "++"
+										| <Postfix-Expression> "--"
+	
+		<Argument-Expression-List>		= <Assignment-Expression> (',' <Assignment-Expression>)*	
+	
+		<Unary-Expression>				= <Postfix-Expression>
+										| "++" <Unary-Expression>
+										| "--" <Unary-Expression>
+										| ('&' | '*' | '+' | '-' | '~' | '!') <Cast-Expression>
+										| sizeof <Unary-Expression>
+										| sizeof '(' <Type-Name> ')'
+	
+		<Cast-Expression>				= <Unary-Expression>
+										| '(' <Type-Name> ')' <Cast-Expression>
+			
+		<Multiplicative-Expression>		= <Cast-Expression>
+										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
+			
+		<Additive-Expression>			= <Multiplicative-Expression>
+										| <Additive-Expression> ('+' | '-') <Multiplicative-Expression>
+			
+		<Shift-Expression>				= <Additive-Expression>
+										| <Shift-Expression> ("<<" | ">>") <Additive-Expression>
+			
+		<Relational-Expression>			= <Shift-Expression>
+										| <Relational-Expression> ('<' | '>' | "<=" | ">=") <Shift-Expression>
+			
+		<Equality-Expression>			= <Relational-Expression>
+										| <Equality-Expression> ("==" | "!=") <Relational-Expression>
+			
+		<And-Expression>				= <Equality-Expression>
+										| <And-Expression> '&' <Equality-Expression>
+			
+		<Exclusive-Or-Expression>		= <And-Expression>
+										| <Exclusive-Or-Expression> '^' <And-Expression>
+			
+		<Inclusive-Or-Expression>		= <Exclusive-Or-Expression>
+										| <Inclusive-Or-Expression> '|' <Exclusive-Or-Expression>
+			
+		<Logical-And-Expression>		= <Inclusive-Or-Expression>
+										| <Logical-And-Expression> "&&" <Inclusive-Or-Expression>
+			
+		<Logical-Or-Expression>			= <Logical-And-Expression>
+										| <Logical-Or-Expression> "||" <Logical-And-Expression>
+			
+		<Conditional-Expression>		= <Logical-Or-Expression>
+										| <Logical-Or-Expression> '?' <Expression> ':' <Conditional-Expression>
+			
+		<Assignment-Expression>			= <Conditional-Expression>
+										| <Unary-Expression> ('=' | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | "&=" | "^=" | "|=") <Assignment-Expression>
+			
+		<Expression>					= <Assignment-Expression>
+										| <Expression> ',' <Assignment-Expression>
+			
+		<Constant-Expression>			= <Conditional-Expression>
+	
+		<Declaration>					= <Declaration-Specifiers> <Init-Declarator-List>? ';'
+	
+		<Declaration-Specifiers>		= <Storage-Class-Specifier> <Declaration-Specifiers>?
+										| <Type-Specifier> <Declaration-Specifiers>?
+										| <Type-Qualifier> <Declaration-Specifiers>?
+			
+		<Init-Declarator-List>			= <Init-Declarator> (',' <Init-Declarator>)*
+			
+		<Init-Declarator>				= <Declarator> ('=' <Initializer>)?
+	
+		<Storage-Class-Specifier>		= typedef
+										| extern
+										| static
+										| auto
+										| register
+			
+		<Type-Specifier>				= void
+										| char
+										| short
+										| int
+										| long
+										| float
+										| double
+										| signed
+										| unsigned
+										| <Struct-Or-Union-Specifier>
+										| <Enum-Specifier>
+										| identifier
+			
+		<Struct-Or-Union-Specifier>		= (struct | union) identifier? ('{' <Struct-Declaration>* '}')?	
+	
+		<Struct-Declaration>			= <Specifier-Qualifier-List> <Struct-Declarator-List> ';'	
+	
+		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)*
+	
+		<Struct-Declarator-List>		= <Declarator> (':' <Constant-Expression>)?
+										| ':' <Constant-Expression>
+			
+		<Enum-Specifier>				= enum identifier? '{' <Enumerator-List> '}'
+										| enum identifier
+			
+		<Enumerator-List>				= <Enumerator> (',' <Enumerator>)*
+	
+		<Enumerator>					= identifier ('=' <Constant-Expression>)?
+	
+		<Type-Qualifier>				= const | volatile
+	
+		<Declarator>					= <Pointer> <Direct-Declarator>
+										| <Direct-Declarator>
+			
+		<Direct-Declarator>				= identifier
+										| '(' <Declarator> ')'
+										| <Direct-Declarator> '[' <Constant-Expression>? ']'
+										| <Direct-Declarator> '(' (<Parameter-Type-List> | <Identifier-List>) ')'
+										| <Direct-Declarator> '(' ')'
+	
+		<Pointer>						= ('*' <Type-Qualifier>*)+
+	
+		<Parameter-Type-List>			= <Parameter-List> (',' "...")?
+	
+		<Parameter-List>				= <Parameter-Declarator> (',' <Parameter-Declarator>)*
+	
+		<Parameter-Declarator>			= <Declaration-Specifiers> (<Declarator> | <Abstract-Declarator>)?	
+	
+		<Identifier-List>				= identifier (',' identifier)*
+			
+		<Type-Name>						= <Specifier-Qualifier-List> <Abstract-Declarator>?
+	
+		<Abstract-Declarator>			= <Pointer> <Direct-Abstract-Declarator>?
+										| <Direct-Abstract-Declarator>
+		
+		<Direct-Abstract-Declarator>	= '(' (<Abstract-Declarator> | <Parameter-Type-List>)? ')'
+										| '[' <Constant-Expression>? ']'
+										| <Direct-Abstract-Declarator> '[' <Constant-Expression>? ']'
+										| <Direct-Abstract-Declarator> '(' <Parameter-Type-List>? ')'
+		
+		<Initializer>					= <Assignment-Expression>
+										| '{' <Initializer-List> ','? '}'
+		
+		<Initializer-List>				= <Initializer> (',' <Initializer>)*
+
+		<Statement>						= <Labeled-Statement>
+										| <Compound-Statement>
+										| <Expression-Statement>
+										| <Selection-Statement>
+										| <Iteration-Statement>
+										| <Jump-Statement>
+		
+		<Labeled-Statement>				= identifier ':' <Statement>
+										| case <Constant-Expression> ':' <Statement>
+										| default ':' <Statement>
+		
+		<Compound-Statement>			= '{' <Declaration-List>? <Statement-List>? '}'
+
+		<Declaration-List>				= <Declaration>*
+
+		<Statement-List>				= <Statement>*
+
+		<Expression-Statement>			= <Expression>? ';'
+
+		<Selection-Statement>			= if '(' <Expression> ')' <Statement>
+										| if '(' <Expression> ')' <Statement> else <Statement>
+										| switch '(' <Expression> ')' <Statement>
+		
+		<Iteration-Statement>			= while '(' <Expression> ')' <Statement>
+										| do <Statement> while '(' <Expression> ')'
+										| for '(' <Expression-Statement> <Expression-Statement> <Expression>? ')' <Statement>
+
+		<Jump-Statement>				= goto identifier ';'
+										| continue ';'
+										| break ';'
+										| return ';'
+										| return <Expression> ';'
+		
+		<Translation-Unit>				= <External-Declaration>+
+
+		<External-Declaration>			= <Function-Definition>
+										| <Declaration>
+		
+		<Function-Definition>			= <Declaration-Specifiers>? <Declarator> <Declaration-List>? <Compound-Statement>
 	}
 }
