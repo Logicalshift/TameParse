@@ -1,0 +1,54 @@
+///
+/// ANSI C grammar
+///
+/// Based on Jutta Degener's YACC grammar
+/// <http://www.lysator.liu.se/c/ANSI-C-grammar-y.html>
+///
+/// Converted to TameParse format by Andrew Hunter
+///
+
+language Ansi-C {
+	lexer-symbols {
+		comment-start 		= "/*"
+		comment-end			= "*/"
+		cpp-comment-start	= "//"
+
+		line-separator		= /[\n\r]/
+		whitespace			= /({line-separator}|[ \t])/
+
+		digit				= /[0-9]/
+		letter				= /[a-zA-Z_]/
+		alphanumeric		= /({digit}|{letter})/
+		hex-digit			= /[0-9A-Fa-f]/
+		exponent			= /[Ee][+\-]?{digit}+/
+		float-specifier		= /[fFlL]/
+		int-specifier		= /[uUlL]+/
+	}
+
+	keywords {
+		auto		break		case		char 		const		continue
+		default		do 			double 		else 		enum 		extern 
+		float 		for 		goto 		if 			int 		long 
+		register 	return 		short 		signed 		sizeof 		static 
+		struct 		switch 		typedef 	union 		unsigned 	void 
+		volatile 	while
+	}
+
+	ignore {
+		comment 		= /{comment-start}([^*]|*[^\/]){comment-end}/
+		cpp-comment		= /{cpp-comment-start}[^\n\r]*/
+		whitespace		= /{whitespace}+/
+	}
+
+	lexer {
+		identifier			= 	/{letter}{alphanumeric}*/
+		constant-hex		= 	/0[xX]{hex-digit}+{int-specifier}?/
+		constant-octal		= 	/0{digit}+{int-specifier}?/
+		constant-decimal	= 	/{digit}+{int-specifier}?/
+		constant-character	= 	/L?'(\\.|[^\\'])+'/
+		constant-float		= 	/{digit}+{exponent}{float-specifier}?/
+		constant-float		|= 	/{digit}*\.{digit}+{exponent}?{float-specifier}?/
+		constant-float		|=	/{digit}+\.{digit}*{exponent}?{float-specifier}?/
+		string-literal		=	/L?\"(\\.|[^\\\"])*\"/
+	}
+}
