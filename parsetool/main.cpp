@@ -77,12 +77,6 @@ int main (int argc, const char * argv[])
         
         // Use the options by default
         if (console.get_option(L"compile-language").empty()) {
-            // Warn about options that have no effect
-            if (!console.get_option_list(L"start-symbol").empty()) {
-                // TODO: don't warn if there are no parser blocks (in which case we can infer)
-                console.report_error(error(error::sev_warning, console.input_file(), L"START_SYMBOL_NO_EFFECT", L"The start-symbol option has no effect if the compile-language option is not supplied", parseBlockPosition));
-            }
-            
             // TODO: get information from the parser block
             // TODO: the class-name option overrides the name specified in the parser block (but gives a warning)
             // TODO: use the position of the parser block to report 
