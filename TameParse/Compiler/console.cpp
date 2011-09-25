@@ -36,6 +36,31 @@ bool console::can_start() const {
     return true;
 }
 
+/// \brief Returns a list of values for a particular option
+///
+/// For some options it is possible to specify more than one value: in this
+/// case, this will return all of the possible values. This can also be used
+/// to retrieve the values of options that can have an empty value.
+///
+/// The default implementation just calls get_option() and creates a list of
+/// size one if it contains a non-empty string. Subclasses should generally
+/// override this behaviour if they truly support empty options or options
+/// with multiple values
+std::vector<std::wstring> console::get_option_list(const std::wstring& name) {
+    // Retrieve the option
+    wstring value = get_option(name);
+
+    // Build the result
+    vector<wstring> res;
+
+    // Add the option if it's present
+    if (!value.empty()) {
+        res.push_back(value);
+    }
+
+    return res;
+}
+
 /// \brief Given a pathname, returns the 'real', absolute pathname
 ///
 /// The default implementation just returns the current path

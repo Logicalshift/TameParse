@@ -80,6 +80,13 @@ public:
     ///
     /// If the option is not set, then this should return an empty string
     virtual std::wstring get_option(const std::wstring& name) const;
+
+    /// \brief Returns a list of values for a particular option
+    ///
+    /// For some options it is possible to specify more than one value: in this
+    /// case, this will return all of the possible values. This can also be used
+    /// to retrieve the values of options that can have an empty value.
+    virtual std::vector<std::wstring> get_option_list(const std::wstring& name);
     
     /// \brief The name of the initial input file
     virtual const std::wstring& input_file() const;

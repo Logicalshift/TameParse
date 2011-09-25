@@ -144,6 +144,18 @@ void boost_console::report_error(const compiler::error& error) {
 	std_console::report_error(error);
 }
 
+/// \brief Simple conversion from a string to wstring
+static wstring convert(string asciiValue) {
+	// Convert to a wstring by assuming that the string is latin-1
+	// TODO: could take account of the locale here, somehow
+	wstring value;
+	for (size_t x = 0; x < asciiValue.size(); x++) {
+		value += (wchar_t) asciiValue[x];
+	}
+
+	return value;
+}
+
 /// \brief Retrieves the value of the option with the specified name.
 ///
 /// If the option is not set, then this should return an empty string
@@ -162,14 +174,8 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 
 	// Try to get the value as a string
 	try {
-		// Get as an ascii string
-		string asciiValue = m_VarMap[asciiName].as<string>();
-
 		// Convert to a wstring
-		wstring value;
-		for (size_t x = 0; x < asciiValue.size(); x++) {
-			value += (wchar_t) asciiValue[x];
-		}
+		wstring value = convert(m_VarMap[asciiName].as<string>());
         
         // Value is '1' if the value is empty but the option is present
         if (value.empty()) {
@@ -182,6 +188,49 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 		// Assume it's a boolean on/off option and return the name
 		return name;
 	}
+}
+
+/// \brief Returns a list of values for a particular option
+///
+/// For some options it is possible to specify more than one value: in this
+/// case, this will return all of the possible values. This can also be used
+/// to retrieve the values of options that can have an empty value.
+std::vector<std::wstring> boost_console::get_option_list(const std::wstring& name) {
+	// Convert to a standard string
+	string asciiName;
+
+	for (size_t x=0; x<name.size(); x++) {
+		asciiName += (char) name[x];
+	}
+
+	// Return the empty string if the option is not present
+	if (m_VarMap.count(asciiName) == 0) {
+		return vector<wstring>();
+	}
+
+	// Try to get the value as a string
+	try {
+		// Get as an ascii string
+		vector<string> asciiValue = m_VarMap[asciiName].as< vector<string> >();
+
+		// Convert to a wstring
+		vector<wstring> value;
+		for (size_t x = 0; x < asciiValue.size(); x++) {
+			value.push_back(convert(asciiValue[x]));
+		}
+
+		return value;
+	} catch (boost::bad_any_cast) {
+		// Option is not a vector of string: try getting as a simple value
+		wstring simpleValue = get_option(name);
+
+		// Place in the result if it's non-empty
+		vector<wstring> res;
+		if (!simpleValue.empty()) {
+			res.push_back(simpleValue);
+		}
+		return res;
+	}	
 }
 
 /// \brief The name of the initial input file

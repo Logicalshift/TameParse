@@ -62,6 +62,18 @@ namespace compiler {
         ///
         /// If the option is not set, then this should return an empty string
         virtual std::wstring get_option(const std::wstring& name) const = 0;
+
+        /// \brief Returns a list of values for a particular option
+        ///
+        /// For some options it is possible to specify more than one value: in this
+        /// case, this will return all of the possible values. This can also be used
+        /// to retrieve the values of options that can have an empty value.
+        ///
+        /// The default implementation just calls get_option() and creates a list of
+        /// size one if it contains a non-empty string. Subclasses should generally
+        /// override this behaviour if they truly support empty options or options
+        /// with multiple values
+        virtual std::vector<std::wstring> get_option_list(const std::wstring& name);
         
         /// \brief The name of the initial input file
         virtual const std::wstring& input_file() const = 0;
