@@ -23,7 +23,7 @@ namespace compiler {
 	///
 	class language_builder_stage : public compilation_stage {
 	public:
-		/// \brief Maps language names to 
+		/// \brief Maps language names to the stages that compiled them
 		typedef std::map<std::wstring, language_stage*> language_map;
 
 	private:
@@ -47,6 +47,15 @@ namespace compiler {
 
         /// \brief Performs the actions associated with this compilation stage
 		virtual void compile();
+        
+        /// \brief Returns the language stage for the language with the specified name, or NULL if it was not compiled by this object
+        inline language_stage* language_with_name(const std::wstring& languageName) const { 
+            language_map::const_iterator found = m_Languages.find(languageName);
+            if (found != m_Languages.end()) {
+                return found->second;
+            }
+            return NULL;
+        }
 	};
 }
 

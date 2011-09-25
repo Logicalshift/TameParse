@@ -43,10 +43,11 @@ boost_console::boost_console(int argc, const char** argv)
 	
 	outputOptions.add_options()
 		("output-file,o",		po::value<string>(),			"specifies the base name for the output file. For languages that need to generate multiple files (for example, C++), the appropriate extensions will be added to this filename. If this is not specified, the output filenames will be derived from the input file.")
-		("target-language,t",	po::value<string>(),			"specifies the target language the parser will be generated in.")
-		("start-symbol",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
-		("language",			po::value<string>(),			"specifies the name of the language to compile (overriding anything defined in the parser block of the input file)")
-		("class-name",			po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
+		("output-language,T",	po::value<string>(),			"specifies the output language the parser will be generated in.")
+		("start-symbol,S",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
+		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
+		("class-name,C",		po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
+		("namespace-name,N",	po::value<string>(),			"specifies the namespace to put the target class into.")
 		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
 
 	po::options_description infoOptions("Information");

@@ -85,7 +85,8 @@ namespace compiler {
         /// \brief Converts a wstring filename to whatever is the preferred format for the current system
         virtual std::string convert_filename(const std::wstring& filename);
 
-        /// \brief Given a pathname, returns the 'real', absolute pathname
+        /// \brief Given a pathname, returns the 'real' pathname, that is, the unique
+        /// absolute path for the supplied relative path.
         ///
         /// The default implementation just returns the current path
         virtual std::wstring real_path(const std::wstring& pathname);
