@@ -12,8 +12,21 @@
 #include <map>
 #include <string>
 
+#include "TameParse/Util/container.h"
+
 #include "TameParse/ContextFree/item.h"
 #include "TameParse/ContextFree/rule.h"
+
+namespace lr {
+    /// \brief Forward declaration of an LR(1) item
+    class lr1_item;
+    
+    /// \brief Container for an LR(1) item
+    typedef util::container<lr1_item> lr1_item_container;
+
+    /// \brief Forward declaration of a LR(1) item set
+    class lr1_item_set;
+}
 
 namespace contextfree {
     /// \brief Forward declaration of an item type
@@ -47,6 +60,9 @@ namespace contextfree {
         
         /// \brief Map of identifiers to items
         typedef std::map<int, item_container> identifier_item_map;
+
+        /// \brief Map of item identifiers to LR(1) item sets
+        typedef std::map<int, lr::lr1_item_set> lr1_item_set_cache;
         
     private:
         /// \brief The nonterminals in this class
@@ -70,6 +86,9 @@ namespace contextfree {
         
         /// \brief Cached map of FOLLOW sets for this grammar
         mutable item_set_map m_CachedFollowSets;
+
+        /// \brief Cached item sets
+        mutable lr1_item_set_cache m_CachedItemSets;
 
     public:
         /// \brief Creates an empty grammar
@@ -133,6 +152,11 @@ namespace contextfree {
         /// like the cache of FIRST sets to become invalid. It is the responsibility of the object making modifications
         /// to make this call at the appropriate time.
         void clear_caches() const;
+
+        /// \brief Returns the cached LR(1) item set for the item with the specified ID
+        ///
+        /// This will be empty after the cache has been cleared.
+        lr::lr1_item_set& cached_set_for_item(int id) const;
         
         /// \brief Retrieves the cached value, or calculates the set FIRST(item)
         ///
@@ -195,5 +219,7 @@ namespace contextfree {
         builder operator+=(const nonterminal& newNonterminal);
     };
 }
+
+#include "TameParse/Lr/lr_item.h"
 
 #endif

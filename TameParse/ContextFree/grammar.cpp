@@ -7,6 +7,7 @@
 //
 
 #include "TameParse/ContextFree/grammar.h"
+#include "TameParse/Lr/lr_item.h"
 
 using namespace std;
 using namespace contextfree;
@@ -154,6 +155,14 @@ const item_container& grammar::item_with_identifier(int id) const {
 void grammar::clear_caches() const {
     m_CachedFirstSets.clear();
     m_CachedFollowSets.clear();
+    m_CachedItemSets.clear();
+}
+
+/// \brief Returns the cached LR(1) item set for the item with the specified ID
+///
+/// This will be empty after the cache has been cleared.
+lr::lr1_item_set& grammar::cached_set_for_item(int id) const {
+    return m_CachedItemSets[id];
 }
 
 /// \brief Retrieves the cached value, or calculates the set FIRST(item)
