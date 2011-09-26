@@ -152,7 +152,7 @@ static void dump_machine(const lalr_builder& builder) {
             
             if (item.offset() < item.rule()->items().size()) {
                 lr1_item lr1(item, empty_set);
-                item.rule()->items()[item.offset()]->closure(lr1, closure, machine.gram());
+                item.rule()->items()[item.offset()]->cache_closure(lr1, closure, machine.gram());
             }
         }
 

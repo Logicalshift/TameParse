@@ -88,7 +88,7 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
         lr1_item_set newItems;
-        rule.items()[offset]->closure(*nextItem, newItems, *gram);
+        rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
         for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
@@ -253,7 +253,7 @@ void lalr_builder::complete_lookaheads() {
             lr1_item_set closure;
             
             closure.insert(lr1);
-            symbol->closure(lr1, closure, *m_Grammar);
+            symbol->cache_closure(lr1, closure, *m_Grammar);
             
             // Create the set of spontaneous lookahead items
             set<lr_item_id>& spontaneousTargets = m_Spontaneous[lr_item_id(stateId, itemId)];
@@ -383,7 +383,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
         lr1_item_set newItems;
-        rule.items()[offset]->closure(*nextItem, newItems, *gram);
+        rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
         for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {

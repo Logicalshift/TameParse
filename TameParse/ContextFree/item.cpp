@@ -125,7 +125,6 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
 /// If the item is the same as an existing item except for the lookahead, the lookaheads are merged and the
 /// set is the same size.
 bool item::add(lr1_item_set& state, const grammar& gram, const lr1_item_container& newItem) {
-    // TODO: the stuff that follows fails to work :-/
     return state.insert(newItem).second;
 }
 
@@ -138,7 +137,7 @@ void item::insert_closure_item(const lr::lr1_item_container& newItem, lr::lr1_it
     if (add(state, gram, newItem) && !rule.items().empty()) {
         const class item& initial = *rule.items()[0];
         if (initial.type() != item::terminal) {
-            initial.closure(*newItem, state, gram);
+            initial.cache_closure(*newItem, state, gram);
         }
     }
 }
@@ -153,6 +152,74 @@ void item::insert_closure_item(const lr::lr1_item_container& newItem, lr::lr1_it
 /// nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
 void item::closure(const lr1_item& item, lr1_item_set& state, const grammar& gram) const {
     // Nothing to do by default
+}
+
+static const end_of_input an_eoi_item;
+static item_container an_eoi_item_c((item*)&an_eoi_item, false);
+
+/// \brief Like closure, except this will use the grammar closure cache to improve performance
+void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const grammar& gram) const {
+    // If we're already trying to cache this item, then use the standard closure algorithm
+    if (m_CachingClosure) {
+        closure(it, state, gram);
+        return;
+    }
+    
+    // Mark this item as caching
+    m_CachingClosure = true;
+    
+    // Fetch some information about this item
+    int             itemId      = gram.identifier_for_item(item_container(const_cast<item*>(this), false));
+    lr1_item_set&   cachedSet   = gram.cached_set_for_item(itemId);    
+    
+    // Build the cache if it isn't full yet
+    if (cachedSet.empty()) {
+        // Create a follow set containing the end-of-input character (which we use as a placeholder)
+        item_set emptyFollow;
+        emptyFollow.insert(an_eoi_item_c);
+        
+        // Generate a fake rule for this item
+        rule fakeRule(an_eoi_item_c);
+        fakeRule << item_container(item_container(const_cast<item*>(this), false));
+        
+        // Put it into an item ($ -> ^ item [$])
+        lr1_item fakeItem(&gram, rule_container(fakeRule), 0, emptyFollow);
+        
+        // Generate the closure for the fake item as the cached set
+        closure(fakeItem, cachedSet, gram);
+    }
+    
+    // Fill in the follow set for this item
+    item_set follow;
+    fill_follow(follow, it, gram);
+    
+    // Generate the closure for this item via the cache ('$' gets substituted for the follow set)
+    for (lr1_item_set::const_iterator cachedItem = cachedSet.begin(); cachedItem != cachedSet.end(); cachedItem++) {
+        // Get the lookahead for this item
+        const item_set& itemLookahead = (*cachedItem)->lookahead();
+        
+        // If it contains the empty item, generate new lookahead
+        if (itemLookahead.find(an_eoi_item_c) != itemLookahead.end()) {
+            // Copy the lookahead
+            item_set newItemLookahead = itemLookahead;
+            
+            // Remove the empty item
+            newItemLookahead.erase(an_eoi_item_c);
+            
+            // Add the follow set
+            newItemLookahead.insert(follow.begin(), follow.end());
+            
+            // Add the final item to the state
+            lr1_item_container newItem(new lr1_item((*cachedItem)->get_lr0_item(), newItemLookahead));
+            state.insert(newItem);
+        } else {
+            // Can just copy this item into the final state
+            state.insert(*cachedItem);
+        }
+    }
+    
+    // Caching is finished for this object
+    m_CachingClosure = false;
 }
 
 /// \brief True if a transition (new state) should be generated for this item

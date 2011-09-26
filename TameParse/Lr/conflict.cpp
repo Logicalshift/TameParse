@@ -167,7 +167,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                 lr1_item        nextItem(thisItem, la);
                 lr1_item_set    itemClosure;
 
-                rule.items()[offset]->closure(nextItem, itemClosure, *gram);
+                rule.items()[offset]->cache_closure(nextItem, itemClosure, *gram);
 
                 // For any items in the closure that are at the end and have a reduce action, generate some reduce information
                 for (lr1_item_set::iterator closureItem = itemClosure.begin(); closureItem != itemClosure.end(); closureItem++) {

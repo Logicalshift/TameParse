@@ -70,6 +70,9 @@ namespace contextfree {
         /// \brief The symbol for this item
         int m_Symbol;
         
+        /// \brief Set to true while this object is caching its closure
+        mutable bool m_CachingClosure;
+        
         /// \brief Copying isn't allowed
         item(const item& copyFrom);
         
@@ -193,6 +196,11 @@ namespace contextfree {
         /// A spontaneously generated rule is one that is implied by this item. For example, if parser is trying to
         /// match the nonterminal 'X', then the rules for that nonterminal are spontaneously generated.
         virtual void closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
+        
+        /// \brief Like closure, except this will use the grammar closure cache to improve performance
+        ///
+        /// Subclasses generally don't need to override this unless they need some custom cachine behaviour.
+        virtual void cache_closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const;
         
         /// \brief True if a transition (new state) should be generated for this item
         ///
