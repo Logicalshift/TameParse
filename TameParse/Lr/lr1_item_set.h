@@ -114,6 +114,9 @@ namespace lr {
         
         /// \brief The total number of items in the set
         inline size_t size() const { return m_Data.size(); }
+        
+        /// \brief Clears this set
+        inline void clear() { m_Data.clear(); }
     };
 }
 
