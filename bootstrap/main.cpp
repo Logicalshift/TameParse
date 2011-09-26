@@ -11,6 +11,7 @@
 
 #include "TameParse/Util/utf8reader.h"
 #include "TameParse/Language/bootstrap.h"
+#include "TameParse/Language/formatter.h"
 #include "TameParse/Compiler/console.h"
 #include "TameParse/Compiler/std_console.h"
 #include "TameParse/Compiler/language_stage.h"
@@ -53,6 +54,7 @@ int main (int argc, const char * argv[]) {
     bool acceptedLanguage = languageParser->parse();
     if (!acceptedLanguage) {
         // Doh, fail
+        wcerr << formatter::to_string(bs.get_builder(), bs.get_grammar(), bs.get_terminals()) << endl;
         wcerr << L"Parser error!" << endl;
         return 1;
     }
