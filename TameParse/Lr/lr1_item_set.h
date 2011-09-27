@@ -12,6 +12,7 @@
 #include <set>
 
 #include "TameParse/Lr/lr_item.h"
+#include "TameParse/ContextFree/item_set.h"
 
 namespace lr {
     ///
@@ -76,7 +77,7 @@ namespace lr {
                 lookahead_set   mergedLookahead((*existing)->lookahead());
                 size_t          initialSize = mergedLookahead.size();
                 
-                mergedLookahead.insert(newItem->lookahead().begin(), newItem->lookahead().end());
+                mergedLookahead.merge(newItem->lookahead());
                 
                 // If the merged set is the same size as before then there have been no changes (these lookahead items already existed)
                 if (mergedLookahead.size() == initialSize) {

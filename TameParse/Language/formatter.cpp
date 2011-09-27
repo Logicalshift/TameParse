@@ -124,7 +124,7 @@ std::wstring formatter::to_string(const contextfree::item_set& it, const context
     // All but the first item are preceeded by commas
     bool isFirst = true;
     
-    for (item_set::const_iterator nextItem = it.begin(); nextItem != it.end(); nextItem++) {
+    for (item_set::const_iterator nextItem = it.begin(); nextItem != it.end(); ++nextItem) {
         // Add commas
         if (!isFirst) {
             res << L", ";
@@ -225,7 +225,7 @@ std::wstring formatter::to_string(const lr::lr1_item& item, const contextfree::g
     const lookahead_set& la = item.lookahead();
     bool first = true;
     
-    for (lookahead_set::const_iterator nextLookahead = la.begin(); nextLookahead != la.end(); nextLookahead++) {
+    for (lookahead_set::const_iterator nextLookahead = la.begin(); nextLookahead != la.end(); ++nextLookahead) {
         if (first) {
             res << L" [";
         } else {
@@ -272,7 +272,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
             
             // Append each LA item in turn
             bool firstLookahead = true;
-            for (lookahead_set::const_iterator nextLa = la->begin(); nextLa != la->end(); nextLa++) {
+            for (lookahead_set::const_iterator nextLa = la->begin(); nextLa != la->end(); ++nextLa) {
                 if (!firstLookahead) {
                     res << L", ";
                 }

@@ -89,10 +89,16 @@ namespace contextfree {
 
         /// \brief Cached item sets
         mutable lr1_item_set_cache m_CachedItemSets;
+        
+        /// \brief Item set containing 'epsilon', representing an empty first or follow set
+        item_set* m_EpsilonSet;
 
     public:
         /// \brief Creates an empty grammar
         grammar();
+        
+        /// \brief Destructor
+        ~grammar();
         
     public:
         /// \brief Returns the first unused item ID

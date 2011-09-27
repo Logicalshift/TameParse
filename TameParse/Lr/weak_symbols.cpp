@@ -14,18 +14,23 @@ using namespace contextfree;
 using namespace lr;
 
 /// \brief Constructs a translator with no weak symbols
-weak_symbols::weak_symbols() {
+weak_symbols::weak_symbols(const grammar* gram)
+: m_WeakSymbols(gram)
+, m_Grammar(gram) {
 }
 
 /// \brief Constructs a rewriter with the specified map of strong to weak symbols
-weak_symbols::weak_symbols(const item_map& map) 
-: m_StrongToWeak(map) {
+weak_symbols::weak_symbols(const item_map& map, const grammar* gram) 
+: m_StrongToWeak(map)
+, m_WeakSymbols(gram)
+, m_Grammar(gram) {
 }
 
 /// \brief Copy constructor
 weak_symbols::weak_symbols(const weak_symbols& copyFrom)
 : m_StrongToWeak(copyFrom.m_StrongToWeak)
-, m_WeakSymbols(copyFrom.m_WeakSymbols) {
+, m_WeakSymbols(copyFrom.m_WeakSymbols)
+, m_Grammar(copyFrom.m_Grammar) {
 }
 
 /// \brief Destructor
@@ -35,10 +40,15 @@ weak_symbols::~weak_symbols() {
 /// \brief Maps the specified strong symbol to the specified set of weak symbols
 void weak_symbols::add_symbols(const contextfree::item_container& strong, const contextfree::item_set& weak) {
     // Merge the set of symbols for this strong symbol
-    m_StrongToWeak[strong].insert(weak.begin(), weak.end());
+    item_map::iterator weakForStrong = m_StrongToWeak.find(strong);
+    if (weakForStrong == m_StrongToWeak.end()) {
+        weakForStrong = m_StrongToWeak.insert(item_map::value_type(strong, item_set(m_Grammar))).first;
+    }
+    
+    weakForStrong->second.merge(weak);
     
     // Store these as weak symbols
-    m_WeakSymbols.insert(weak.begin(), weak.end());
+    m_WeakSymbols.merge(weak);
 }
 
 /// \brief Given a set of weak symbols and a DFA (note: NOT an NDFA), determines the appropriate strong symbols and adds them
@@ -51,7 +61,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
     // Create a set of the identifiers of the weak terminals in the set
     set<int> weakIdentifiers;
     
-    for (item_set::const_iterator it = weak.begin(); it != weak.end(); it++) {
+    for (item_set::const_iterator it = weak.begin(); it != weak.end(); ++it) {
         // Only terminal symbols are returned by a NDFA
         if ((*it)->type() != item::terminal) continue;
         
@@ -127,12 +137,17 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
         // Use the first strong symbol for this weak symbol
         item_container strongTerm(new terminal(it->second), true);
         item_container weakTerm(new terminal(it->first), true);
-        
-        m_StrongToWeak[strongTerm].insert(weakTerm);
+
+        item_map::iterator weakForStrong = m_StrongToWeak.find(strongTerm);
+        if (weakForStrong == m_StrongToWeak.end()) {
+            weakForStrong = m_StrongToWeak.insert(item_map::value_type(strongTerm, item_set(m_Grammar))).first;
+        }
+
+        weakForStrong->second.insert(weakTerm);
     }
     
     // Add to the list of weak symbols
-    m_WeakSymbols.insert(weak.begin(), weak.end());
+    m_WeakSymbols.merge(weak);
 }
 
 /// \brief Modifies the specified set of actions according to the rules in this rewriter
@@ -190,7 +205,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         }
         
         // Work out if this action is on a strong symbol
-        bool isStrong = m_WeakSymbols.find((*act)->item()) == m_WeakSymbols.end();
+        bool isStrong = m_WeakSymbols.contains((*act)->item());
         
         // Actions on strong symbols should be preserved without alteration
         if (isStrong) {
@@ -273,7 +288,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         if (equivalent == m_StrongToWeak.end()) continue;
         
         // Iterate through the weak symbols and generate equivalent actions
-        for (item_set::const_iterator weakEquiv = equivalent->second.begin(); weakEquiv != equivalent->second.end(); weakEquiv++) {
+        for (item_set::const_iterator weakEquiv = equivalent->second.begin(); weakEquiv != equivalent->second.end(); ++weakEquiv) {
             // Can't deal with non-terminal symbols (should be none, but you can technically add them)
             if ((*weakEquiv)->type() != item::terminal) continue;
             

@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "TameParse/Util/container.h"
+#include "TameParse/ContextFree/grammar.h"
 #include "TameParse/Lr/lr_state.h"
 #include "TameParse/Lr/lr_item.h"
 
@@ -81,7 +82,7 @@ namespace lr {
         
     public:
         /// \brief Adds a new LR(0) item to this object. Returns true if the operation modified this container
-        int add(const container& newItem);
+        int add(const container& newItem, const contextfree::grammar* gram);
         
         /// \brief Finds the identifier for the specified LR(0) item
         int find_identifier(const container& item) const;

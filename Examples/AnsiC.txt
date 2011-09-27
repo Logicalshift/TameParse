@@ -238,9 +238,9 @@ language Ansi-C {
 		
 		<Compound-Statement>			= '{' <Declaration-List>? <Statement-List>? '}'
 
-		<Declaration-List>				= <Declaration>*
+		<Declaration-List>				= <Declaration>+
 
-		<Statement-List>				= <Statement>*
+		<Statement-List>				= <Statement>+
 
 		<Expression-Statement>			= <Expression>? ';'
 

@@ -11,6 +11,7 @@
 
 #include "TameParse/Util/container.h"
 #include "TameParse/ContextFree/grammar.h"
+#include "TameParse/ContextFree/item_set.h"
 
 namespace lr {
     /// \brief Forward declaration of an LR(0) item
@@ -164,7 +165,7 @@ namespace lr {
     public:
         /// \brief Adds a new lookahead item (and returns true if it was successfully added)
         inline bool add_lookahead(const contextfree::item_container& lookahead) {
-            return m_LookAhead.insert(lookahead).second;
+            return m_LookAhead.insert(lookahead);
         }
 
     public:

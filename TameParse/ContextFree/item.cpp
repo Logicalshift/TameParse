@@ -99,13 +99,13 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
         
         // Add further following items if the follow set can be empty, until we reach the end
         followOffset++;
-        while (followOffset < numItems && follow.find(an_empty_item_c) != follow.end()) {
+        while (followOffset < numItems && follow.contains(an_empty_item_c)) {
             // Remove the empty item
             follow.erase(an_empty_item_c);
             
             // Add the items from the next item in the rule
             const item_set& newItems = gram.first(rule.items()[followOffset]);
-            follow.insert(newItems.begin(), newItems.end());
+            follow.merge(newItems);
             
             // Move on to the next item
             followOffset++;
@@ -113,9 +113,9 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
         
         // If the empty set is still included, remove it and add the item lookahead
         // (Note that if the loop above terminated early, then the empty set can't be in the follow set at this point)
-        if (followOffset >= numItems && follow.find(an_empty_item_c) != follow.end()) {
+        if (followOffset >= numItems && follow.contains(an_empty_item_c)) {
             follow.erase(an_empty_item_c);
-            follow.insert(item.lookahead().begin(), item.lookahead().end());
+            follow.merge(item.lookahead());
         }
     }    
 }
@@ -175,7 +175,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
     // Build the cache if it isn't full yet
     if (cachedSet.empty()) {
         // Create a follow set containing the end-of-input character (which we use as a placeholder)
-        item_set emptyFollow;
+        item_set emptyFollow(gram);
         emptyFollow.insert(an_eoi_item_c);
         
         // Generate a fake rule for this item
@@ -190,7 +190,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
     }
     
     // Fill in the follow set for this item
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, it, gram);
     
     // Generate the closure for this item via the cache ('$' gets substituted for the follow set)
@@ -199,7 +199,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
         const item_set& itemLookahead = (*cachedItem)->lookahead();
         
         // If it contains the empty item, generate new lookahead
-        if (itemLookahead.find(an_eoi_item_c) != itemLookahead.end()) {
+        if (itemLookahead.contains(an_eoi_item_c)) {
             // Copy the lookahead
             item_set newItemLookahead = itemLookahead;
             
@@ -207,7 +207,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
             newItemLookahead.erase(an_eoi_item_c);
             
             // Add the follow set
-            newItemLookahead.insert(follow.begin(), follow.end());
+            newItemLookahead.merge(follow);
             
             // Add the final item to the state
             lr1_item_container newItem(new lr1_item((*cachedItem)->get_lr0_item(), newItemLookahead));

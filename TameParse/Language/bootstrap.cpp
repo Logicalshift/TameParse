@@ -303,10 +303,10 @@ bootstrap::bootstrap() {
     m_Grammar = create_grammar();
     
     // Set up the list of 'weak symbols'
-    weak_symbols weak;
+    weak_symbols weak(m_Grammar);
     
     // All of the keywords are weak
-    item_set weaklings;
+    item_set weaklings(m_Grammar);
 
     weaklings.insert(t.language);
     weaklings.insert(t.grammar);

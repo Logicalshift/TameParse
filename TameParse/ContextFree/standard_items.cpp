@@ -39,7 +39,7 @@ item::kind terminal::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set terminal::first(const grammar& gram) const {
     // Just this item
-    item_set result;
+    item_set result(gram);
     result.insert(this);
     return result;
 }
@@ -69,7 +69,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     const rule_list& ntRules = gram.rules_for_nonterminal(symbol());
     
     // Work out what follows in the item
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, item, gram);
 
     // Generate new rules for each of these, and add to the state
@@ -90,7 +90,7 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
 /// The 'empty' and 'follow' items can be used to create special meaning (empty indicates the first set should be extended to include
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set nonterminal::first(const grammar& gram) const {
-    item_set result;
+    item_set result(gram);
     
     // Add this item
     result.insert(this);
@@ -113,9 +113,9 @@ item_set nonterminal::first(const grammar& gram) const {
         const item_set& ruleFirst = gram.first(ruleItems[0]);
 
         // Insert into the result
-        result.insert(ruleFirst.begin(), ruleFirst.end());
+        result.merge(ruleFirst);
 
-        if (ruleFirst.find(an_empty_item_c) != ruleFirst.end()) {
+        if (ruleFirst.contains(an_empty_item_c)) {
             // If there's an empty item, then merge the first sets from the later parts of the rule
             int pos;
             for (pos = 1; pos < ruleItems.size(); pos++) {
@@ -126,10 +126,10 @@ item_set nonterminal::first(const grammar& gram) const {
                 const item_set& nextFirst = gram.first(*(ruleItems[pos]));
                 
                 // Merge it with the current set
-                result.insert(nextFirst.begin(), nextFirst.end());
+                result.merge(nextFirst);
                 
                 // Stop if there's no longer an empty item
-                if (nextFirst.find(an_empty_item) == nextFirst.end()) break;
+                if (nextFirst.contains(an_empty_item_c)) break;
             }
         }
     }
@@ -171,7 +171,7 @@ item::kind empty_item::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set empty_item::first(const grammar& gram) const {
     // Just this item
-    item_set result;
+    item_set result(gram);
     result.insert(this);
     return result;
 }
@@ -226,7 +226,7 @@ item::kind end_of_input::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set end_of_input::first(const grammar& gram) const {
     // Just this item
-    item_set result;
+    item_set result(gram);
     result.insert(this);
     return result;
 }
@@ -265,7 +265,7 @@ item::kind end_of_guard::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set end_of_guard::first(const grammar& gram) const {
     // Just this item
-    item_set result;
+    item_set result(gram);
     result.insert(this);
     return result;
 }

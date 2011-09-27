@@ -143,7 +143,7 @@ item::kind ebnf_optional::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_optional::first(const grammar& gram) const {
     // Result is the empty item, plus the first item in the rule
-    item_set result;
+    item_set result(gram);
     result.insert(the_empty_item);
     
     // Get the rule
@@ -152,7 +152,7 @@ item_set ebnf_optional::first(const grammar& gram) const {
     // Add items if the rule has a first item
     if (r.items().size() > 0) {
         const item_set& ruleItems = gram.first(*(r.items()[0]));
-        result.insert(ruleItems.begin(), ruleItems.end());
+        result.merge(ruleItems);
     } else {
         result.insert(the_empty_item);
     }
@@ -169,7 +169,7 @@ void ebnf_optional::closure(const lr::lr1_item& item, lr::lr1_item_set& state, c
     rule_container empty_rule(new rule(ourItem), true);
     
     // Work out the follow set
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, item, gram);
     
     // Add new items
@@ -196,7 +196,7 @@ item::kind ebnf_repeating::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_repeating::first(const grammar& gram) const {
     // Result is the first item in the rule
-    item_set result;
+    item_set result(gram);
     
     // Get the rule
     const rule& r = *get_rule();
@@ -204,7 +204,7 @@ item_set ebnf_repeating::first(const grammar& gram) const {
     // Add items if the rule has a first item
     if (r.items().size() > 0) {
         const item_set& ruleItems = gram.first(*(r.items()[0]));
-        result.insert(ruleItems.begin(), ruleItems.end());
+        result.merge(ruleItems);
     }
     
     return result;
@@ -220,7 +220,7 @@ void ebnf_repeating::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
     (*many_rule) << ourItem << get_rule();
     
     // Work out the follow set
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, item, gram);
     
     // Add new items
@@ -247,7 +247,7 @@ item::kind ebnf_repeating_optional::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_repeating_optional::first(const grammar& gram) const {
     // Result is the empty item, plus the first item in the rule
-    item_set result;
+    item_set result(gram);
     result.insert(the_empty_item);
     
     // Get the rule
@@ -256,7 +256,7 @@ item_set ebnf_repeating_optional::first(const grammar& gram) const {
     // Add items if the rule has a first item
     if (r.items().size() > 0) {
         const item_set& ruleItems = gram.first(*(r.items()[0]));
-        result.insert(ruleItems.begin(), ruleItems.end());
+        result.merge(ruleItems);
     } else {
         result.insert(the_empty_item);
     }
@@ -275,7 +275,7 @@ void ebnf_repeating_optional::closure(const lr::lr1_item& item, lr::lr1_item_set
     (*many_rule) << ourItem << get_rule();
     
     // Work out the follow set
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, item, gram);
     
     // Add new items
@@ -310,7 +310,7 @@ item::kind ebnf_alternate::type() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set ebnf_alternate::first(const grammar& gram) const {
     // Result is combination of the first items in the rules
-    item_set result;
+    item_set result(gram);
     
     // Iterate through all of the rules
     for (rule_iterator it = first_rule(); it != last_rule(); it++) {
@@ -320,7 +320,7 @@ item_set ebnf_alternate::first(const grammar& gram) const {
         // Add items if the rule has a first item
         if (r.items().size() > 0) {
             const item_set& ruleItems = gram.first(*(r.items()[0]));
-            result.insert(ruleItems.begin(), ruleItems.end());
+            result.merge(ruleItems);
         } else {
             result.insert(the_empty_item);
         }
@@ -332,7 +332,7 @@ item_set ebnf_alternate::first(const grammar& gram) const {
 /// \brief Computes the closure of this rule in the specified grammar
 void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, const grammar& gram) const {
     // Work out the follow set
-    item_set follow;
+    item_set follow(gram);
     fill_follow(follow, item, gram);
     
     // Any of the items in this rule

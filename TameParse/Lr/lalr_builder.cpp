@@ -48,7 +48,7 @@ int lalr_builder::add_initial_state(const contextfree::item_container& language)
     lalr_state* initialState = new lalr_state();
     lr0_item    item(m_Grammar, languageRule, 0);
     
-    int newItemId = initialState->add(item);
+    int newItemId = initialState->add(item, m_Grammar);
     
     // Set the lookahead for this state to be '$'
     initialState->lookahead_for(newItemId).insert(eoi);
@@ -162,7 +162,7 @@ void lalr_builder::complete_parser() {
                         lalr_state*         guardState = new lalr_state();
                         lr0_item_container  guardItem(new lr0_item(m_Grammar, thisGuard->get_rule(), 0), true);
                         
-                        int guardItemId = guardState->add(guardItem);
+                        int guardItemId = guardState->add(guardItem, m_Grammar);
                         
                         // Set the lookahead to be '$'
                         end_of_guard eog;
@@ -183,7 +183,7 @@ void lalr_builder::complete_parser() {
             
             // Add this transition for the appropriate item
             lalr_state_container& lalrState = newStates[dottedItem];
-            lalrState->add(transitItemContainer);
+            lalrState->add(transitItemContainer, m_Grammar);
         }
         
         // Add the new states (and transitions) to the machine
@@ -222,7 +222,7 @@ void lalr_builder::complete_lookaheads() {
     // We start with only the initial states, with a lookahead of '$'
     
     // Create an empty lookahead set (we'll use this a lot)
-    item_set emptyLookahead;
+    item_set emptyLookahead(m_Grammar);
     emptyLookahead.insert(empty);
     
     // Create the propagation map
@@ -285,7 +285,7 @@ void lalr_builder::complete_lookaheads() {
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
                 
                 // If the lookahead is not empty, or isn't just the empty item, then add to the spontaneous set
-                if (!lookahead.empty() || lookahead.size() > 1 || lookahead.find(empty_c) == lookahead.end()) {
+                if (!lookahead.empty() || lookahead.size() > 1 || lookahead.contains(empty_c)) {
                     spontaneousTargets.insert(lr_item_id(targetState->second, targetItemId));
                 }
                 
@@ -296,7 +296,7 @@ void lalr_builder::complete_lookaheads() {
                 //   -- We copy the lookahead from e = f ^ g h to the item a = b C ^ d in the transition for C
                 //   -- e = f ^ g might also have lookahead propagated from elsewhere: we need to copy the lookahead
                 //      from these items as well
-                if (lookahead.find(empty_c) != lookahead.end()) {
+                if (lookahead.contains(empty_c)) {
                     // Add a propagation for this item
                     m_Propagate[lr_item_id(stateId, itemId)].insert(lr_item_id(targetState->second, targetItemId));
                 }
@@ -410,7 +410,7 @@ void lalr_builder::add_guard(const item_container& item, lr_action_set& newSet) 
     item_set initial = thisGuard->initial(*m_Grammar);
     
     // Add guard actions for each of the terminal items in initial
-    for (item_set::iterator initialSym = initial.begin(); initialSym != initial.end(); initialSym++) {
+    for (item_set::iterator initialSym = initial.begin(); initialSym != initial.end(); ++initialSym) {
         // Only terminals
         if ((*initialSym)->type() != item::terminal) continue;
         
@@ -487,7 +487,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
             actionType = lr_action::act_accept;
         }
         
-        for (lookahead_set::const_iterator reduceSymbol = la.begin(); reduceSymbol != la.end(); reduceSymbol++) {
+        for (lookahead_set::const_iterator reduceSymbol = la.begin(); reduceSymbol != la.end(); ++reduceSymbol) {
             // We don't produce actions for nonterminal items (the default closures do add these to the follow set, though)
             // Guards also produce reduce actions
             int reduceSymbolType = (*reduceSymbol)->type();
@@ -562,7 +562,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.first)->lookahead_for(spontaneous->first.second);
             
             // Ignore items that would not have generated the lookahead symbol
-            if (la.find(lookaheadItem) == la.end()) continue;
+            if (la.contains(lookaheadItem)) continue;
 
             // Search for items that target this one
             for (set<lr_item_id>::const_iterator target = spontaneous->second.begin(); target != spontaneous->second.end(); target++) {
@@ -581,7 +581,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.first)->lookahead_for(propagate->first.second);
             
             // Ignore items that would not have generated the lookahead symbol
-            if (la.find(lookaheadItem) == la.end()) continue;
+            if (la.contains(lookaheadItem)) continue;
             
             // Search for items that target this one
             for (set<lr_item_id>::const_iterator target = propagate->second.begin(); target != propagate->second.end(); target++) {

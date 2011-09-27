@@ -27,6 +27,7 @@ using namespace compiler;
 lexer_stage::lexer_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler)
 : compilation_stage(console, filename)
 , m_Language(languageCompiler)
+, m_WeakSymbols(languageCompiler->grammar())
 , m_Dfa(NULL)
 , m_Lexer(NULL) {
 }
@@ -49,6 +50,9 @@ void lexer_stage::compile() {
     const ndfa*             ndfa            = m_Language->ndfa();
     terminal_dictionary*    terminals       = m_Language->terminals();
     const set<int>*         weakSymbolIds   = m_Language->weak_symbols();
+    
+    // Reset the weak symbols
+    m_WeakSymbols = lr::weak_symbols(m_Language->grammar());
     
     // Sanity check
     if (!ndfa || !terminals || !weakSymbolIds) {
@@ -143,7 +147,7 @@ void lexer_stage::compile() {
     // Build up the weak symbols set if there are any
     if (weakSymbolIds->size() > 0) {
         // Build up the weak symbol set as a series of items
-        item_set weakSymSet;
+        item_set weakSymSet(m_Language->grammar());
         
         // Count how many symbols there were initially
         int initialSymCount = terminals->count_symbols();

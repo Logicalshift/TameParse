@@ -15,6 +15,7 @@
 #include "TameParse/Dfa/ndfa.h"
 #include "TameParse/ContextFree/item.h"
 #include "TameParse/ContextFree/terminal_dictionary.h"
+#include "TameParse/ContextFree/grammar.h"
 #include "TameParse/Lr/action_rewriter.h"
 
 namespace lr {
@@ -51,13 +52,16 @@ namespace lr {
         /// Note that m_StrongToWeak only contains a symbol if it has weak equivalents. Symbols are strong by default,
         /// so it's necessary to maintain a separate list of the weak symbols.
         contextfree::item_set m_WeakSymbols;
+
+        /// \brief The grammar that the symbols are from
+        const contextfree::grammar* m_Grammar;
         
     public:
         /// \brief Constructs a translator with no weak symbols
-        weak_symbols();
+        weak_symbols(const contextfree::grammar* gram);
         
         /// \brief Constructs a rewriter with the specified map of strong to weak symbols
-        explicit weak_symbols(const item_map& map);
+        weak_symbols(const item_map& map, const contextfree::grammar* gram);
         
         /// \brief Copy constructor
         weak_symbols(const weak_symbols& copyFrom);
@@ -86,9 +90,6 @@ namespace lr {
         /// This is primarily useful for testing this object: it can reveal if the form of add_symbols referring to a DFA
         /// has operated correctly.
         inline const contextfree::item_set& weak_for_strong(const contextfree::item_container& strongSymbol) const {
-            // Need a set of empty items
-            static contextfree::item_set emptySet;
-            
             // Try to find the set of weak symbols for the specified strong symbol
             item_map::const_iterator found = m_StrongToWeak.find(strongSymbol);
             
@@ -96,7 +97,7 @@ namespace lr {
             if (found != m_StrongToWeak.end()) return found->second;
             
             // Return an empty set if there wasn't
-            return emptySet;
+            return contextfree::item_set::empty_set;
         }
         
         /// \brief An iterator referencing the first symbol in the strong-to-weak map

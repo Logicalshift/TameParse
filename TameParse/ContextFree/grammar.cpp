@@ -12,15 +12,6 @@
 using namespace std;
 using namespace contextfree;
 
-/// \brief Creates an empty grammar
-grammar::grammar() {
-}
-
-/// \brief Returns the rules for the nonterminal with the specified identifier
-rule_list& grammar::rules_for_nonterminal(int id) {
-    return m_Nonterminals[id];
-}
-
 // The set of 'no rules'
 static const rule_list empty_rule_set;
 
@@ -30,8 +21,21 @@ static empty_item an_empty_item;
 // An item container with an empty item in it
 static item_container an_empty_item_c(&an_empty_item, false);
 
-// An empty item set
-static const item_set empty_item_set;
+/// \brief Creates an empty grammar
+grammar::grammar()
+: m_EpsilonSet(new item_set(this)) {
+    m_EpsilonSet->insert(an_empty_item_c);
+}
+
+/// \brief Destroys a grammar
+grammar::~grammar() {
+    delete m_EpsilonSet;
+}
+
+/// \brief Returns the rules for the nonterminal with the specified identifier
+rule_list& grammar::rules_for_nonterminal(int id) {
+    return m_Nonterminals[id];
+}
 
 /// \brief Returns the rules for the nonterminal with the specified identifier (or an empty rule set if the nonterminal is not defined)
 const rule_list& grammar::rules_for_nonterminal(int id) const {
@@ -180,23 +184,20 @@ const item_set& grammar::first(const item_container& item) const {
     if (found != m_CachedFirstSets.end()) return found->second;
     
     // Not found: create an empty item set so recursive calls to this method terminate
-    m_CachedFirstSets[item] = item_set();
+    found = m_CachedFirstSets.insert(pair<item_container, item_set>(item, item_set(this))).first;
     
     // Ask the item for its first set, and update the cache
-    m_CachedFirstSets[item] = item->first(*this);
+    m_CachedFirstSets.insert(pair<item_container, item_set>(item, item->first(*this)));
     
     // Return the newly added item (have to do another lookup as map doesn't have a replace operator)
-    return m_CachedFirstSets[item];
+    return found->second;
 }
 
 /// \brief Computes the first set for the specified rule (or retrieves the cached version)
 const item_set& grammar::first_for_rule(const rule& rule) const {
-    static item_set     empty_set;
-    
     // Return a set containing only the empty item if the rule is 0 items long
     if (rule.items().size() == 0) {
-        empty_set.insert(an_empty_item);
-        return empty_set;
+        return *m_EpsilonSet;
     }
     
     // Return the first set of the first item in the rule
@@ -232,16 +233,20 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
                 const item_container& nonterminal = depend->first;
                 
                 // Iterate through each nonterminal for this item
-                for (item_set::iterator dependency = depend->second.begin(); dependency != depend->second.end(); dependency++) {
+                for (item_set::iterator dependency = depend->second.begin(); dependency != depend->second.end(); ++dependency) {
                     if (*dependency == nonterminal) continue;
                     
                     // Get the follow set for this dependency
-                    item_set    follow      = m_CachedFollowSets[*dependency];
-                    item_set&   ntFollow    = m_CachedFollowSets[nonterminal];
-                    
-                    // Add the items contained within this set to this dependency, and set changed if any of them cause a change
-                    for (item_set::iterator newFollow = follow.begin(); newFollow != follow.end(); newFollow++) {
-                        if (ntFollow.insert(*newFollow).second) changed = true;
+                    item_set_map::iterator follow = m_CachedFollowSets.find(*dependency);
+                    if (follow != m_CachedFollowSets.end()) {
+                        // Add the items contained within this set to this dependency, and set changed if any of them cause a change
+                        item_set_map::iterator ntFollow    = m_CachedFollowSets.find(nonterminal);
+                        
+                        if (ntFollow == m_CachedFollowSets.end()) {
+                            ntFollow = m_CachedFollowSets.insert(item_set_map::value_type(nonterminal, item_set(this))).first;
+                        }
+                        
+                        if (ntFollow->second.merge(follow->second)) changed = true;
                     }
                 }
             }
@@ -250,7 +255,7 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
     
     // Find the set for this item
     item_set_map::const_iterator found = m_CachedFollowSets.find(nonterminal);
-    if (found == m_CachedFollowSets.end()) return empty_item_set;
+    if (found == m_CachedFollowSets.end()) return item_set::empty_set;
     
     return found->second;
 }
@@ -269,7 +274,10 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         if (thisItem->type() == item::terminal) continue;
         
         // Retrieve the follow set for this item
-        item_set& followSet = m_CachedFollowSets[thisItem];
+        item_set_map::iterator followSet = m_CachedFollowSets.find(thisItem);
+        if (followSet == m_CachedFollowSets.end()) {
+            followSet = m_CachedFollowSets.insert(item_set_map::value_type(thisItem, item_set(this))).first;
+        }
         
         // The follow set of this item is the combination of the first sets for all of the following items
         // If it's at the end, it also includes the follow set for the nonterminal for this rule
@@ -282,15 +290,20 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
             const item_set& firstSet = first(followingItem);
             
             // Add to the follow set
-            followSet.insert(firstSet.begin(), firstSet.end());
+            followSet->second.merge(firstSet);
             
             // Finished if the first set doesn't include the empty set
-            if (firstSet.find(an_empty_item_c) == firstSet.end()) break;
+            if (firstSet.contains(an_empty_item_c)) break;
         }
         
         // If we reach the end, then we need to include FOLLOW(rule.nonterminal) in the set for FOLLOW(thisItem)
         if (nextPos >= rule.items().size()) {
-            dependencies[thisItem].insert(rule.nonterminal());
+            item_set_map::iterator depend = dependencies.find(rule.nonterminal());
+            if (depend == dependencies.end()) {
+                depend = dependencies.insert(item_map<item_set>::type::value_type(rule.nonterminal(), item_set(this))).first;
+            }
+            
+            depend->second.insert(rule.nonterminal());
         }
         
         // If this item is an EBNF rule, then we need to process each of its children

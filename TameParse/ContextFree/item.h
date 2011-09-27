@@ -54,7 +54,7 @@ namespace contextfree {
     class grammar;
     
     /// \brief Set of items
-    typedef std::set<item_container> item_set;
+    class item_set;
     
     /// \brief Ordered list of items
     typedef std::vector<item_container> item_list;

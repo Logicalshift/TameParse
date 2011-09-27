@@ -197,7 +197,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
             if (strong->type() != item::terminal) continue;
             
             // Iterate through the weak symbols that this symbol is matched to
-            for (item_set::const_iterator weakItem = weakForStrong->second.begin(); weakItem != weakForStrong->second.end(); weakItem++) {
+            for (item_set::const_iterator weakItem = weakForStrong->second.begin(); weakItem != weakForStrong->second.end(); ++weakItem) {
                 // Fetch the weak symbol that this item is mapped to
                 const item_container& weak = *weakItem;
                 

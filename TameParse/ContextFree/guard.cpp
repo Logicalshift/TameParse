@@ -76,7 +76,7 @@ int guard::priority() const {
 /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
 item_set guard::first(const grammar& gram) const {
     // Just this item
-    item_set result;
+    item_set result(gram);
     result.insert(this);
     return result;
 }

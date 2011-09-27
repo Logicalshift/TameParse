@@ -8,6 +8,7 @@
 
 #include "TameParse/Lr/lalr_state.h"
 
+using namespace contextfree;
 using namespace lr;
 
 /// \brief Constructs an empty state
@@ -40,14 +41,14 @@ bool lalr_state::operator==(const lalr_state& compareTo) const {
 }
 
 /// \brief Adds a new item to this object. Returns true if the operation modified this container
-int lalr_state::add(const container& newItem) {
+int lalr_state::add(const container& newItem, const grammar* gram) {
     // Add the LR(0) state to this object
     // Identifiers are the same as in the state, we assume they increase monotonically from 0
     int newId = m_State.add(newItem);
     
     // Create a lookahead set for this item
     while (newId >= m_Lookahead.size()) {
-        m_Lookahead.push_back(new lr1_item::lookahead_set());
+        m_Lookahead.push_back(new lr1_item::lookahead_set(gram));
     }
     
     // Return the identifier
