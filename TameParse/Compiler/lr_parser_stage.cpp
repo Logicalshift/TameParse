@@ -182,6 +182,7 @@ void lr_parser_stage::compile() {
 
 	// Get any conflicts that might exist
 	conflict_list conflictList;
+	cons().verbose_stream() << L"  = Checking for conflicts" << endl;
 	conflict::find_conflicts(*m_Parser, conflictList);
 
 	// Report the conflicts
