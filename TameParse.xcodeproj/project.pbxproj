@@ -107,6 +107,8 @@
 		4B79D1031433CC2100D778BC /* lr_weaksymbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BDD091913B63A1D00BC01EA /* lr_weaksymbols.cpp */; };
 		4B79D1041433CC2100D778BC /* lr_lalr_general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31991136F444400C68ACB /* lr_lalr_general.cpp */; };
 		4B79D1051433DED700D778BC /* language_bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */; };
+		4B79D1061433EAD900D778BC /* item_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0F7143266C700D778BC /* item_set.cpp */; };
+		4B79D1071433EADB00D778BC /* item_set.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B79D0F6143266C000D778BC /* item_set.h */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -1029,6 +1031,7 @@
 				4B79D0DA142E549900D778BC /* utf8reader.h in Headers */,
 				4B79D0EE142F435300D778BC /* parser_stage.h in Headers */,
 				4B79D0F4142F687F00D778BC /* language_builder_stage.h in Headers */,
+				4B79D1071433EADB00D778BC /* item_set.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1374,6 +1377,7 @@
 				4B79D0E3142E6F4100D778BC /* parser_stage.cpp in Sources */,
 				4B79D0EC142F429400D778BC /* import_stage.cpp in Sources */,
 				4B79D0F5142F688100D778BC /* language_builder_stage.cpp in Sources */,
+				4B79D1061433EAD900D778BC /* item_set.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

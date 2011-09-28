@@ -10,6 +10,7 @@
 
 #include "TameParse/Compiler/language_stage.h"
 #include "TameParse/Language/process.h"
+#include "TameParse/Language/formatter.h"
 
 using namespace std;
 using namespace dfa;
@@ -371,7 +372,7 @@ void language_stage::compile() {
             
             // Generate the message
             wstringstream   msg;
-            msg << L"Undefined nonterminal: " << m_Grammar.name_for_nonterminal(nonterminalId);
+            msg << L"Undefined nonterminal: " << formatter::to_string(*m_Grammar.item_with_identifier(nonterminalId), m_Grammar, m_Terminals); // m_Grammar.name_for_nonterminal(nonterminalId);
             
             cons().report_error(error(error::sev_error, filename(), L"UNDEFINED_NONTERMINAL", msg.str(), usagePos));
         }
