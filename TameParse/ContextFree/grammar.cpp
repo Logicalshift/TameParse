@@ -178,7 +178,7 @@ lr::lr1_item_set& grammar::cached_set_for_item(int id) const {
 /// progress, the first set for the requested item will be set to be 
 const item_set& grammar::first(const item_container& item) const {
     // Try to look up the first set for this item
-    item_set_map::const_iterator found = m_CachedFirstSets.find(item);
+    item_set_map::iterator found = m_CachedFirstSets.find(item);
     
     // Return the value we found if it's already in the cache
     if (found != m_CachedFirstSets.end()) return found->second;
@@ -187,7 +187,7 @@ const item_set& grammar::first(const item_container& item) const {
     found = m_CachedFirstSets.insert(pair<item_container, item_set>(item, item_set(this))).first;
     
     // Ask the item for its first set, and update the cache
-    m_CachedFirstSets.insert(pair<item_container, item_set>(item, item->first(*this)));
+    found->second = item->first(*this);
     
     // Return the newly added item (have to do another lookup as map doesn't have a replace operator)
     return found->second;
