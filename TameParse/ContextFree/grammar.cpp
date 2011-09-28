@@ -238,6 +238,7 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
                     
                     // Get the follow set for this dependency
                     item_set_map::iterator follow = m_CachedFollowSets.find(*dependency);
+
                     if (follow != m_CachedFollowSets.end()) {
                         // Add the items contained within this set to this dependency, and set changed if any of them cause a change
                         item_set_map::iterator ntFollow    = m_CachedFollowSets.find(nonterminal);
@@ -246,7 +247,9 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
                             ntFollow = m_CachedFollowSets.insert(item_set_map::value_type(nonterminal, item_set(this))).first;
                         }
                         
-                        if (ntFollow->second.merge(follow->second)) changed = true;
+                        if (ntFollow->second.merge(follow->second)) {
+                            changed = true;
+                        }
                     }
                 }
             }
@@ -298,9 +301,9 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         
         // If we reach the end, then we need to include FOLLOW(rule.nonterminal) in the set for FOLLOW(thisItem)
         if (nextPos >= rule.items().size()) {
-            item_set_map::iterator depend = dependencies.find(rule.nonterminal());
+            item_set_map::iterator depend = dependencies.find(thisItem);
             if (depend == dependencies.end()) {
-                depend = dependencies.insert(item_map<item_set>::type::value_type(rule.nonterminal(), item_set(this))).first;
+                depend = dependencies.insert(item_map<item_set>::type::value_type(thisItem, item_set(this))).first;
             }
             
             depend->second.insert(rule.nonterminal());
