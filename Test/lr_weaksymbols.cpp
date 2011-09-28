@@ -118,7 +118,7 @@ void test_lr_weaksymbols::run_tests() {
     report("IntegerHasNoWeak", dfaWeak.weak_for_strong(icInteger).empty());
     report("RealIsWeakForId", identifierWeak.contains(icReal));
     report("IntegerIsWeakForId", identifierWeak.contains(icInteger));
-    report("IdentifierIsNotWeak", identifierWeak.contains(icIdentifier));
+    report("IdentifierIsNotWeak", !identifierWeak.contains(icIdentifier));
     
     // Tidy up the lexers
     delete simpleLexerDeduped;
