@@ -129,7 +129,7 @@ item_set nonterminal::first(const grammar& gram) const {
                 result.merge(nextFirst);
                 
                 // Stop if there's no longer an empty item
-                if (nextFirst.contains(an_empty_item_c)) break;
+                if (!nextFirst.contains(an_empty_item_c)) break;
             }
         }
     }

@@ -205,7 +205,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         }
         
         // Work out if this action is on a strong symbol
-        bool isStrong = m_WeakSymbols.contains((*act)->item());
+        bool isStrong = !m_WeakSymbols.contains((*act)->item());
         
         // Actions on strong symbols should be preserved without alteration
         if (isStrong) {

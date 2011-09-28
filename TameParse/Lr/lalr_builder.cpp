@@ -285,7 +285,7 @@ void lalr_builder::complete_lookaheads() {
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
                 
                 // If the lookahead is not empty, or isn't just the empty item, then add to the spontaneous set
-                if (!lookahead.empty() || lookahead.size() > 1 || lookahead.contains(empty_c)) {
+                if (!lookahead.empty() || lookahead.size() > 1 || !lookahead.contains(empty_c)) {
                     spontaneousTargets.insert(lr_item_id(targetState->second, targetItemId));
                 }
                 
@@ -562,7 +562,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.first)->lookahead_for(spontaneous->first.second);
             
             // Ignore items that would not have generated the lookahead symbol
-            if (la.contains(lookaheadItem)) continue;
+            if (!la.contains(lookaheadItem)) continue;
 
             // Search for items that target this one
             for (set<lr_item_id>::const_iterator target = spontaneous->second.begin(); target != spontaneous->second.end(); target++) {
@@ -581,7 +581,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.first)->lookahead_for(propagate->first.second);
             
             // Ignore items that would not have generated the lookahead symbol
-            if (la.contains(lookaheadItem)) continue;
+            if (!la.contains(lookaheadItem)) continue;
             
             // Search for items that target this one
             for (set<lr_item_id>::const_iterator target = propagate->second.begin(); target != propagate->second.end(); target++) {

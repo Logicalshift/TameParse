@@ -175,7 +175,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                     if (!(*closureItem)->at_end()) continue;
 
                     // Ignore items that do not contain the closure item in their lookahead
-                    if ((*closureItem)->lookahead().contains(conflictToken)) continue;
+                    if (!(*closureItem)->lookahead().contains(conflictToken)) continue;
 
                     // This item is part of the conflict: add a new reduce item
                     conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(**closureItem);
@@ -191,7 +191,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
             // This is a reducing state
 
             // This isn't part of the conflict if it isn't being reduced based on the 
-            if (la.contains(conflictToken)) continue;
+            if (!la.contains(conflictToken)) continue;
 
             // Add a conflict for this item
             conflict::possible_reduce_states& reduceTo = newConf->add_reduce_item(thisItem);
