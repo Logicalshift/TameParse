@@ -39,6 +39,7 @@ using namespace compiler;
 #include "lr_weaksymbols.h"
 #include "lr_lalr_general.h"
 #include "dfa_multi_regex.h"
+#include "language_bootstrap.h"
 
 static void run(test_fixture& fixture) {
     fixture.run();
@@ -62,6 +63,7 @@ static void run_tests() {
     test_lr_weaksymbols         weakSymbols;    run(weakSymbols);
     test_lalr_general           lalr1;          run(lalr1);
 
+    test_language_bootstrap     boostrap;       run(boostrap);
 }
 
 #endif
