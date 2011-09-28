@@ -296,7 +296,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
             followSet->second.merge(firstSet);
             
             // Finished if the first set doesn't include the empty set
-            if (firstSet.contains(an_empty_item_c)) break;
+            if (!firstSet.contains(an_empty_item_c)) break;
         }
         
         // If we reach the end, then we need to include FOLLOW(rule.nonterminal) in the set for FOLLOW(thisItem)
