@@ -94,6 +94,18 @@
 		4B79D0F4142F687F00D778BC /* language_builder_stage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B79D0F3142F687C00D778BC /* language_builder_stage.h */; };
 		4B79D0F5142F688100D778BC /* language_builder_stage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0F1142F686E00D778BC /* language_builder_stage.cpp */; };
 		4B79D0F8143266C700D778BC /* item_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0F7143266C700D778BC /* item_set.cpp */; };
+		4B79D0F91433CC1400D778BC /* test_fixture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3A132D526C00025433 /* test_fixture.cpp */; };
+		4B79D0FA1433CC1400D778BC /* dfa_range.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE3D132D53AF00025433 /* dfa_range.cpp */; };
+		4B79D0FB1433CC1400D778BC /* dfa_symbol_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BD7FE41132D5ABE00025433 /* dfa_symbol_set.cpp */; };
+		4B79D0FC1433CC1400D778BC /* dfa_symbol_deduplicate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91B6136720DE0018E595 /* dfa_symbol_deduplicate.cpp */; };
+		4B79D0FD1433CC1400D778BC /* dfa_ndfa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91BD13682AAF0018E595 /* dfa_ndfa.cpp */; };
+		4B79D0FE1433CC1400D778BC /* dfa_symbol_translator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91CE1368B8D60018E595 /* dfa_symbol_translator.cpp */; };
+		4B79D0FF1433CC1400D778BC /* dfa_single_regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A91EE136A21F50018E595 /* dfa_single_regex.cpp */; };
+		4B79D1001433CC1400D778BC /* dfa_multi_regex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1B35A913AEAB6500D1E488 /* dfa_multi_regex.cpp */; };
+		4B79D1011433CC1B00D778BC /* contextfree_firstset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B1A920F136C97220018E595 /* contextfree_firstset.cpp */; };
+		4B79D1021433CC1B00D778BC /* contextfree_followset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31983136DBA1100C68ACB /* contextfree_followset.cpp */; };
+		4B79D1031433CC2100D778BC /* lr_weaksymbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BDD091913B63A1D00BC01EA /* lr_weaksymbols.cpp */; };
+		4B79D1041433CC2100D778BC /* lr_lalr_general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31991136F444400C68ACB /* lr_lalr_general.cpp */; };
 		4B7F0C3513755E540012C085 /* terminal_dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3313755E540012C085 /* terminal_dictionary.cpp */; };
 		4B7F0C3613755E540012C085 /* terminal_dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C3413755E540012C085 /* terminal_dictionary.h */; };
 		4B7F0C3E137599AB0012C085 /* parser_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C3C137599AB0012C085 /* parser_tables.cpp */; };
@@ -1263,6 +1275,18 @@
 				4B79D0D7142E514700D778BC /* utf8reader.cpp in Sources */,
 				4B79D0E0142E6AD400D778BC /* version.cpp in Sources */,
 				4B79D0F8143266C700D778BC /* item_set.cpp in Sources */,
+				4B79D0F91433CC1400D778BC /* test_fixture.cpp in Sources */,
+				4B79D0FA1433CC1400D778BC /* dfa_range.cpp in Sources */,
+				4B79D0FB1433CC1400D778BC /* dfa_symbol_set.cpp in Sources */,
+				4B79D0FC1433CC1400D778BC /* dfa_symbol_deduplicate.cpp in Sources */,
+				4B79D0FD1433CC1400D778BC /* dfa_ndfa.cpp in Sources */,
+				4B79D0FE1433CC1400D778BC /* dfa_symbol_translator.cpp in Sources */,
+				4B79D0FF1433CC1400D778BC /* dfa_single_regex.cpp in Sources */,
+				4B79D1001433CC1400D778BC /* dfa_multi_regex.cpp in Sources */,
+				4B79D1011433CC1B00D778BC /* contextfree_firstset.cpp in Sources */,
+				4B79D1021433CC1B00D778BC /* contextfree_followset.cpp in Sources */,
+				4B79D1031433CC2100D778BC /* lr_weaksymbols.cpp in Sources */,
+				4B79D1041433CC2100D778BC /* lr_lalr_general.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

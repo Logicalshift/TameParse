@@ -30,13 +30,15 @@ void test_lr_weaksymbols::run_tests() {
     terminal tReal(real);
     terminal tIdentifier(identifier);
     
+    grammar gram;
+    
     item_container icInteger(&tInteger, false);
     item_container icReal(&tReal, false);
     item_container icIdentifier(&tIdentifier, false);
     
     // First check that if we add a symbol that it does actually get added
-    weak_symbols    manuallyAdded;
-    item_set        realAndInt;
+    weak_symbols    manuallyAdded(&gram);
+    item_set        realAndInt(&gram);
     
     realAndInt.insert(icInteger);
     realAndInt.insert(icReal);
@@ -103,7 +105,7 @@ void test_lr_weaksymbols::run_tests() {
     report("MatchesReal", matchesReal);
     
     // Try creating the same conflict we created manually above, this time using the DFA
-    weak_symbols dfaWeak;
+    weak_symbols dfaWeak(&gram);
     
     // Add the symbols as before
     dfaWeak.add_symbols(*simpleLexer, realAndInt, terminals);
@@ -114,9 +116,9 @@ void test_lr_weaksymbols::run_tests() {
     report("IdentifierHasTwoWeak", dfaWeak.weak_for_strong(icIdentifier).size() == 2);
     report("RealHasNoWeak", dfaWeak.weak_for_strong(icReal).empty());
     report("IntegerHasNoWeak", dfaWeak.weak_for_strong(icInteger).empty());
-    report("RealIsWeakForId", identifierWeak.find(icReal) != identifierWeak.end());
-    report("IntegerIsWeakForId", identifierWeak.find(icInteger) != identifierWeak.end());
-    report("IdentifierIsNotWeak", identifierWeak.find(icIdentifier) == identifierWeak.end());
+    report("RealIsWeakForId", identifierWeak.contains(icReal));
+    report("IntegerIsWeakForId", identifierWeak.contains(icInteger));
+    report("IdentifierIsNotWeak", identifierWeak.contains(icIdentifier));
     
     // Tidy up the lexers
     delete simpleLexerDeduped;

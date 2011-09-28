@@ -26,11 +26,56 @@ using namespace lr;
 using namespace language;
 using namespace compiler;
 
+#ifdef DEBUG
+
+#include "dfa_range.h"
+#include "dfa_symbol_set.h"
+#include "dfa_symbol_deduplicate.h"
+#include "dfa_symbol_translator.h"
+#include "dfa_ndfa.h"
+#include "dfa_single_regex.h"
+#include "contextfree_firstset.h"
+#include "contextfree_followset.h"
+#include "lr_weaksymbols.h"
+#include "lr_lalr_general.h"
+#include "dfa_multi_regex.h"
+
+static void run(test_fixture& fixture) {
+    fixture.run();
+    
+    //s_Run += fixture.count_run();
+    //s_Failed += fixture.count_failed();
+}
+
+static void run_tests() {
+    test_dfa_range              dfa_range;      run(dfa_range);
+    test_dfa_symbol_set         symbol_set;     run(symbol_set);
+    test_dfa_symbol_deduplicate dedupe;         run(dedupe);
+    test_dfa_ndfa               ndfa;           run(ndfa);
+    test_dfa_symbol_translator  trans;          run(trans);
+    test_dfa_single_regex       singleregex;    run(singleregex);
+    test_dfa_multi_regex        multiregex;     run(multiregex);
+    
+    test_contextfree_firstset   firstset;       run(firstset);
+    test_contextfree_followset  followset;      run(followset);
+    
+    test_lr_weaksymbols         weakSymbols;    run(weakSymbols);
+    test_lalr_general           lalr1;          run(lalr1);
+
+}
+
+#endif
+
 int main (int argc, const char * argv[]) {
     // Write out the current working directory
     char buf[512];
     getcwd(buf, 512);
     cout << buf << endl;
+    
+    // Run some tests in debug builds
+#ifdef DEBUG
+    run_tests();
+#endif
 
     wcout << L"TameParse bootstrapper" << endl;
     wcout << L"======================" << endl << endl;

@@ -12,7 +12,7 @@
 using namespace contextfree;
 
 static inline bool contains(const item_set& set, const item& target) {
-    return set.find(item_container((item*)&target, false)) != set.end();
+    return set.contains(item_container((item*)&target, false));
 }
 
 void test_contextfree_firstset::run_tests() {

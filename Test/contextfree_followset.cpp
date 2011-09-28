@@ -13,7 +13,7 @@
 using namespace contextfree;
 
 static inline bool contains(const item_set& set, const item& target) {
-    return set.find(target) != set.end();
+    return set.contains(target);
 }
 
 void test_contextfree_followset::run_tests() {
@@ -49,7 +49,7 @@ void test_contextfree_followset::run_tests() {
     empty_item an_empty_item;
     nonterminal ntEmpty(testGram.id_for_nonterminal(L"empty"));
     
-    item_set followSet;
+    item_set followSet(&testGram);
     
     followSet = testGram.follow(simpleFollow);
     report("simplefollow.size", followSet.size() == 1);

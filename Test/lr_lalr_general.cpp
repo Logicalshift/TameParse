@@ -43,7 +43,7 @@ static void dump(const item& it, const grammar& gram, const terminal_dictionary&
 }
 
 static void dump(const item_set& la, const grammar& gram, const terminal_dictionary& dict) {
-    for (item_set::const_iterator it = la.begin(); it != la.end(); it++) {
+    for (item_set::const_iterator it = la.begin(); it != la.end(); ++it) {
         wcerr << L" ";
         dump(**it, gram, dict);
     }
@@ -132,7 +132,7 @@ static void dump(const lr_action_set& actions, const grammar& gram, const termin
 
 /// \brief Dumps out a state machine to wcerr
 static void dump_machine(const lalr_builder& builder) {
-    item_set empty_set;
+    item_set empty_set(builder.gram());
     empty_item empty;
     empty_set.insert(empty);
     const lalr_machine& machine = builder.machine();
@@ -226,7 +226,7 @@ static bool no_duplicate_states(lalr_machine& m) {
 typedef basic_string<int> symbol_string;
 typedef basic_stringstream<int> symbol_stringstream;
 
-bool can_parse(symbol_string& symbols, simple_parser& p, character_lexer& lex) {
+static bool can_parse(symbol_string& symbols, simple_parser& p, character_lexer& lex) {
     symbol_stringstream stream(symbols);
     simple_parser::state* state = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream)));
     
@@ -278,9 +278,9 @@ void test_lalr_general::run_tests() {
     dump_machine(builder);
     
     // Some tests with LR(1) items (putting them here to save a lot of work with the setup)
-    item_set set1;
+    item_set set1(builder.gram());
     set1.insert(new terminal(1));
-    item_set set2;
+    item_set set2(builder.gram());
     set2.insert(new terminal(0));
     
     lr1_item item1(&dragon446, dragon446.rule_with_identifier(0), 0, set1);
