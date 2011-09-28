@@ -88,7 +88,7 @@ namespace contextfree {
         inline size_t size() const { return m_Size; }
 
         /// \brief True if this set is empty
-        inline bool empty() const { return m_MaxItem == 0; }
+        inline bool empty() const { return m_Size == 0; }
 
         /// \brief True if this set contains the specified item
         bool contains(int itemId) const;

@@ -137,11 +137,7 @@ bool item_set::erase(int itemId) {
 
     // Allocate space if necessary
     if (setId >= m_MaxItem) {
-    	int oldMax 	= m_MaxItem;
-    	m_MaxItem 	= setId + 1;
-    	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(int)*m_MaxItem);
-
-    	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
+        return false;
     }
 
     // Create the mask
