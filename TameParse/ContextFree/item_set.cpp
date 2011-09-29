@@ -265,6 +265,10 @@ int item_set::next_item_id(int itemId) const {
                 mask 	= 1;
                 bit 	= 0;
                 set++;
+                
+                if (set >= m_MaxItem) {
+                    return set<<5;
+                }
             }
 
             // Test this bit
