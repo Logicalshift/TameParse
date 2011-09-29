@@ -164,7 +164,7 @@ void lalr_builder::complete_parser() {
                         
                         int guardItemId = guardState->add(guardItem, m_Grammar);
                         
-                        // Set the lookahead to be '$'
+                        // Set the lookahead to be '%' (the end of guard symbol)
                         end_of_guard eog;
                         guardState->lookahead_for(guardItemId).insert(eog);
                         

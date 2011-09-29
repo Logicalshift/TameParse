@@ -144,13 +144,6 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
             }
         }
         
-        // Store the end of guard state table (we evaluate states in order, so this is already sorted)
-        m_NumEndOfGuards    = (int) eogStates.size();
-        m_EndGuardStates    = new int[m_NumEndOfGuards];
-        for (int x=0; x<m_NumEndOfGuards; x++) {
-            m_EndGuardStates[x] = eogStates[x];
-        }
-        
         // Sort the actions for this state
         std::sort(termActions, termActions + termCount, compare_actions);
         std::sort(nontermActions, nontermActions + nontermCount, compare_actions);
@@ -160,6 +153,13 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         m_NonterminalActions[stateId]   = nontermActions;
         m_Counts[stateId].m_NumTerms    = termCount;
         m_Counts[stateId].m_NumNonterms = nontermCount;
+    }
+    
+    // Store the end of guard state table (we evaluate states in order, so this is already sorted)
+    m_NumEndOfGuards    = (int) eogStates.size();
+    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    for (int x=0; x<m_NumEndOfGuards; x++) {
+        m_EndGuardStates[x] = eogStates[x];
     }
     
     // Fill in the rule table
