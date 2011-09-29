@@ -29,7 +29,13 @@ grammar::grammar()
 
 /// \brief Destroys a grammar
 grammar::~grammar() {
+    // Finished with the epsilon set
     delete m_EpsilonSet;
+    
+    // Finished with the list of cached item sets
+    for (lr1_item_set_cache::iterator oldItemSets = m_CachedItemSets.begin(); oldItemSets != m_CachedItemSets.end(); oldItemSets++) {
+        delete oldItemSets->second;
+    }
 }
 
 /// \brief Returns the rules for the nonterminal with the specified identifier
@@ -166,7 +172,16 @@ void grammar::clear_caches() const {
 ///
 /// This will be empty after the cache has been cleared.
 lr::lr1_item_set& grammar::cached_set_for_item(int id) const {
-    return m_CachedItemSets[id];
+    // Try to find the cached item set
+    lr1_item_set_cache::iterator found = m_CachedItemSets.find(id);
+    
+    // Create a new item set if not found
+    if (found == m_CachedItemSets.end()) {
+        found = m_CachedItemSets.insert(pair<int, lr::lr1_item_set*>(id, new lr::lr1_item_set())).first;
+    }
+    
+    // Return the result
+    return *(found->second);
 }
 
 /// \brief Retrieves the cached value, or calculates the set FIRST(item)

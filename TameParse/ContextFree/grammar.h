@@ -62,7 +62,7 @@ namespace contextfree {
         typedef std::map<int, item_container> identifier_item_map;
 
         /// \brief Map of item identifiers to LR(1) item sets
-        typedef std::map<int, lr::lr1_item_set> lr1_item_set_cache;
+        typedef std::map<int, lr::lr1_item_set*> lr1_item_set_cache;
         
     private:
         /// \brief The nonterminals in this class
