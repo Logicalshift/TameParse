@@ -248,6 +248,11 @@ int item_set::next_item_id(int itemId) const {
 		// Move on rapidly if this set is empty
 		if (bit == 0 && m_Items[set] == 0) {
 			set++;
+            
+            // Check the first bit of the new set
+            if (set < m_MaxItem && (m_Items[set]&1) != 0) {
+                return (set<<5);
+            }
 		}
 
 		// Test this bit
