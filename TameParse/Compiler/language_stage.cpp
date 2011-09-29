@@ -364,6 +364,10 @@ void language_stage::compile() {
     
     // Any nonterminal with no rules is one that was referenced but not defined
     for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); nonterminalId++) {
+        // Get the item corresponding to this ID
+        item_container ntItem = m_Grammar.item_with_identifier(nonterminalId);
+        if (ntItem->type() != item::nonterminal) continue;
+        
         // This nonterminal ID is unused if it has no rules
         if (m_Grammar.rules_for_nonterminal(nonterminalId).size() == 0) {
             // Find the place where this nonterminal was first used
@@ -372,7 +376,7 @@ void language_stage::compile() {
             
             // Generate the message
             wstringstream   msg;
-            msg << L"Undefined nonterminal: " << formatter::to_string(*m_Grammar.item_with_identifier(nonterminalId), m_Grammar, m_Terminals); // m_Grammar.name_for_nonterminal(nonterminalId);
+            msg << L"Undefined nonterminal: " << formatter::to_string(*ntItem, m_Grammar, m_Terminals);
             
             cons().report_error(error(error::sev_error, filename(), L"UNDEFINED_NONTERMINAL", msg.str(), usagePos));
         }
