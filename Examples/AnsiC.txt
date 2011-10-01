@@ -213,14 +213,29 @@ language Ansi-C {
 										| <Enum-Specifier>
 										| identifier
 			
+		<Simple-Type-Specifier>			= void
+										| char
+										| short
+										| int
+										| long
+										| float
+										| double
+										| signed
+										| unsigned
+										| <Struct-Or-Union-Specifier>
+										| <Enum-Specifier>
+			
 		<Struct-Or-Union-Specifier>		= (struct | union) identifier ('{' <Struct-Declaration>* '}')?	
 										| (struct | union) ('{' <Struct-Declaration>* '}')
 	
-		<Struct-Declaration>			= /* <Specifier-Qualifier-List> <Struct-Declarator-List> ';' */ fred ';'
+		<Struct-Declaration>			= <Specifier-Qualifier-List> [=> <Struct-Declarator-List> ';'] <Struct-Declarator-List> ';'
 	
-		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)+
+		<Specifier-Qualifier-List>		= (<Simple-Type-Specifier> | <Type-Qualifier>)+
+										| (<Simple-Type-Specifier> | <Type-Qualifier>)+ identifier (<Simple-Type-Specifier> | <Type-Qualifier>)*
 	
-		<Struct-Declarator-List>		= <Declarator> (':' <Constant-Expression>)?
+		<Struct-Declarator-List>		= <Struct-Declarator> (',' <Struct-Declarator>)*
+
+		<Struct-Declarator>				= <Declarator> (':' <Constant-Expression>)?
 										| ':' <Constant-Expression>
 			
 		<Enum-Specifier>				= enum identifier? '{' <Enumerator-List> '}'
@@ -238,7 +253,7 @@ language Ansi-C {
 		<Direct-Declarator>				= identifier
 										| '(' <Declarator> ')'
 										| <Direct-Declarator> '[' <Constant-Expression>? ']'
-										| <Direct-Declarator> '(' (<Parameter-Type-List> | <Identifier-List>) ')'
+										| <Direct-Declarator> '(' ([=> <Parameter-Type-List> ')'] <Parameter-Type-List> | <Identifier-List>) ')'
 										| <Direct-Declarator> '(' ')'
 	
 		<Pointer>						= '*'
@@ -246,7 +261,24 @@ language Ansi-C {
 	
 		<Parameter-Type-List>			= <Parameter-Declarator> (',' <Parameter-Declarator>)* (',' "...")?
 	
-		<Parameter-Declarator>			= <Declaration-Specifiers> fred (<Declarator> | <Abstract-Declarator>)?	
+		///
+		/// Parameter declarators
+		///
+		/// Given a function definition like foo(fred), it is ambiguous as to whether or not
+		/// fred is the name of a type or the name of a variable which is implicitly assumed
+		/// to be an int.
+		///
+		/// The former interpretation is generally the correct one.
+		///
+		/// However, here we will interpret anything that can be interpreted as a declaration
+		/// in such a manner, so this will take the latter approach. Compilers need to be
+		/// aware of this and rewrite the tree as necessary.
+		///
+		/// (A more complicated and potentially more correct approach might be to always treat
+		/// the first identifier as a declaration specifier and future ones as a declarator.
+		/// This would require a more complicated grammar, however)
+		///
+		<Parameter-Declarator>			= <Declaration-Specifiers> ([=> <Declarator> (',' | ')')] <Declarator> | <Abstract-Declarator>)?	
 	
 		<Identifier-List>				= identifier (',' identifier)*
 			
@@ -301,7 +333,14 @@ language Ansi-C {
 		<External-Declaration>			= <Function-Definition>
 										| <Declaration>
 		
-		<Function-Definition>			= <Declaration-Specifiers> fred <Declarator> /* <Declaration-List>? */ <Compound-Statement>
-										| <Declarator> /* <Declaration-List>? */ <Compound-Statement>
+		///
+		/// Function declarations
+		///
+		/// These are also pretty ambiguous when you don't know if an identifier is a type
+		/// or not. We treat things as declarators if their context is such that they can
+		/// be treated this way, which can require a potentially large amount of lookahead.
+		///
+		<Function-Definition>			= <Declaration-Specifiers> [=> <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
+										| [=> <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
 	}
 }
