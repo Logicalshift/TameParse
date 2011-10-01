@@ -81,6 +81,28 @@ item_set guard::first(const grammar& gram) const {
     return result;
 }
 
+/// \brief Compares two rules
+///
+/// Returns -1, 0, or 1 depending on if first is less than, the same as or greater than second.
+/// The nonterminal that defines the rule is not compared: we're assuming that it's a guard already
+/// (as this is how guard rules are defined) and will be the same if the guard itself is the same.
+static int compare_rules(const rule_container& first, const rule_container& second) {
+    // Check the sizes of the two rules
+    if (first->items().size() < second->items().size()) return -1;
+    if (first->items().size() > second->items().size()) return 1;
+    
+    // Compare the items themselves
+    item_list::const_iterator ourItem   = first->begin();
+    item_list::const_iterator theirItem = second->begin();
+    
+    for (;ourItem != first->end() && theirItem != second->end(); ourItem++, theirItem++) {
+        if (*ourItem < *theirItem) return -1;
+        if (*theirItem < *ourItem) return 1;
+    }
+    
+    return 0;
+}
+
 /// \brief Compares this guard to another item
 bool guard::operator==(const item& compareTo) const {
     if (&compareTo == this) return true;
@@ -100,7 +122,10 @@ bool guard::operator==(const item& compareTo) const {
     if (m_Priority != theirPriority) return false;
     
     // If the priorities are the same, then use the rule to do ordering
-    return *get_rule() == *compareGuard->get_rule();
+    const rule_container& ourRule   = get_rule();
+    const rule_container& theirRule = compareGuard->get_rule();
+    
+    return compare_rules(ourRule, theirRule) == 0;
 }
 
 /// \brief Orders this item relative to another item
@@ -124,7 +149,11 @@ bool guard::operator<(const item& compareTo) const {
     if (m_Priority > theirPriority) return false;
     
     // If the priorities are the same, then use the rule to do ordering
-    return get_rule() < compareGuard->get_rule();
+    const rule_container&   ourRule         = get_rule();
+    const rule_container&   theirRule       = compareGuard->get_rule();
+    int                     ruleComparison  = compare_rules(ourRule, theirRule);
+    
+    return ruleComparison < 0;
 }
 
 /// \brief Computes the set of symbols that can form the initial symbol of a lookahead that matches this guard
