@@ -48,7 +48,8 @@ boost_console::boost_console(int argc, const char** argv)
 		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
 		("class-name,C",		po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
 		("namespace-name,N",	po::value<string>(),			"specifies the namespace to put the target class into.")
-		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
+		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.")
+        ("show-parser",                                         "writes the generated parser to standard out");
 
 	po::options_description infoOptions("Information");
     

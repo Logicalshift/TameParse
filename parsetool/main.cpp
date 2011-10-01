@@ -158,6 +158,11 @@ int main (int argc, const char * argv[])
         lr_parser_stage lrParserStage(cons, importStage.file_with_language(buildLanguageName), compileLanguageStage, &lexerStage, startSymbols);
         lrParserStage.compile();
         
+        // Write the parser out if requested
+        if (!console.get_option(L"show-parser").empty()) {
+            wcout << formatter::to_string(*lrParserStage.get_parser(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+        }
+        
         // Stop if we have an error
         if (console.exit_code()) {
             return console.exit_code();
