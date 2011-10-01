@@ -453,7 +453,6 @@ namespace lr {
             // Guard actions are not performed by the 'perform' method, but are handled separately
             else if (act->m_Type == lr_action::act_guard) {
                 // Check if this guard generates a guard symbol
-                // TODO: move this into actions so we can check guards recursively if we need to
                 int guardSym = actDelegate.check_guard(this, act->m_NextState);
                 
                 // If the guard was not matched, continue to the next action for this symbol
