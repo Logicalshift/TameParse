@@ -434,8 +434,6 @@ void test_lalr_general::run_tests() {
     csBuilder.add_initial_state(csLan);
     csBuilder.complete_parser();
     
-    wcout << formatter::to_string(csBuilder, csBuilder.gram(), terms) << endl;
-    
     // Create a parser for this grammar
     simple_parser simpleCsParser(csBuilder, NULL);
     
