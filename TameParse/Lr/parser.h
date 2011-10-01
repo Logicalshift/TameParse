@@ -344,6 +344,9 @@ namespace lr {
                     state->next();
                 }
                 
+                /// \brief The current state of the guard lookahead parser
+                inline int current_state(state* state) const { return state->m_Stack->state; }
+                
                 /// \brief Returns -1 or the guard symbol matched by the lookahead with the specified initial guard state
                 inline int check_guard(state* state, int initialState) {
                     int result = state->check_guard(initialState, 0);
@@ -387,7 +390,7 @@ namespace lr {
                 inline void next() { m_Offset++; }
                 
                 /// \brief The current state of the guard lookahead parser
-                inline int current_state() const { return m_Stack.top(); }
+                inline int current_state(state* state) const { return m_Stack.top(); }
                 
             public:
                 /// \brief Ignore action

@@ -218,7 +218,7 @@ namespace lr {
             const lexeme_container& la = look(guardActions.offset());
             
             // Get the current state
-            int state = guardActions.current_state();
+            int state = guardActions.current_state(this);
             
             // Get the action for this lookahead
             int sym;
@@ -278,7 +278,7 @@ namespace lr {
                     }
                 }
                 
-                // Perform this action
+                // The guard is matched if this is an accepting action
                 if (act->m_Type == lr_action::act_accept) {
                     // Get the accepting rule
                     const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
@@ -288,7 +288,29 @@ namespace lr {
                     return rule.m_Identifier;
                 }
                 
-                if (perform_generic(la, act, guardActions)) {
+                // Recursively check guard actions
+                else if (act->m_Type == lr_action::act_guard) {
+                    // Check if this guard generates a guard symbol
+                    int guardSym = guardActions.check_guard(this, act->m_NextState);
+                    
+                    // If the guard was not matched, continue to the next action for this symbol
+                    if (guardSym < 0) {
+                        continue;
+                    }
+                    
+                    // If the guard symbol was matched, then we need to try processing it
+                    if (process_guard(guardActions, la, guardSym)) {
+                        // More data if the guard is processed successfully
+                        ok = true;
+                        break;
+                    } else {
+                        // Try the next action if it was not
+                        continue;
+                    }
+                }
+                
+                // Actually perform the action
+                else if (perform_generic(la, act, guardActions)) {
                     // Move on to the next lookahead value if needed
                     guardActions.next();
                 }
@@ -299,7 +321,7 @@ namespace lr {
             }
             
             if (!ok) {
-                // We reject if we reach here
+                // We reject if we reach here (no actions matched the lookahead)
                 return -1;
             }
         }
@@ -535,7 +557,7 @@ namespace lr {
         typedef parser_tables::action_iterator action_iterator;
         
         // Fetch the actions for this symbol
-        int              state = m_Stack->state;
+        int              state = actDelegate.current_state(this);
         action_iterator  act;
         action_iterator  end;
         
@@ -608,7 +630,7 @@ namespace lr {
             }
             
             // Get the new action for the guard in the new state, then keep going
-            state   = m_Stack->state;
+            state   = actDelegate.current_state(this);
             act     = m_Tables->find_nonterminal(state, guardSymbol);
             end     = m_Tables->last_nonterminal_action(state);
         }
