@@ -72,6 +72,9 @@ int rule::compare_items(const rule& compareTo) const {
 
 /// \brief Orders this rule relative to another
 bool rule::operator<(const rule& compareTo) const {
+    // Never less than ourselves
+    if (this == &compareTo) return false;
+    
     // Number of items is the fastest thing to compare, so check that first
     if (m_Items.size() < compareTo.m_Items.size())  return true;
     if (m_Items.size() > compareTo.m_Items.size())  return false;
@@ -86,6 +89,9 @@ bool rule::operator<(const rule& compareTo) const {
 
 /// \brief Determines if this rule is the same as another
 bool rule::operator==(const rule& compareTo) const {
+    // We always equal ourselves
+    if (this == &compareTo) return true;
+    
     // Number of items is the fastest thing to compare, so check that first
     if (m_Items.size() != compareTo.m_Items.size()) return false;
     
