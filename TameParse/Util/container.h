@@ -150,6 +150,9 @@ namespace util {
             return (*m_Ref->m_Item) == *compareTo;
         }
         
+        /// \brief Comparison operator
+        inline bool operator!=(const container& compareTo) const { return !operator==(compareTo); }
+        
         /// \brief Comparison functor adapter
         ///
         /// Adapts a function designed to compare two items to one to compare a container of those items
