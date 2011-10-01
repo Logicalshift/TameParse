@@ -15,12 +15,13 @@ language ParserLanguage {
 		anycharacter	= /[^\n\r]/
 
 		// Characters valid in regular expressions and strings
+		first-re-char 	= /[^\/\*]|(\\\/)/
 		regex-char		= /[^\/]|(\\\/)/
 		string-char     = /[^"]|(\\")/
 		
 		// Identifiers, regular expressions
 		identifier		= /{letter}{alphanumeric}*/
-		regex			= /\/{regex-char}+\//
+		regex			= /\/{first-re-char}{regex-char}*\//
 	}
 
 	/// Lexical symbols
@@ -37,6 +38,7 @@ language ParserLanguage {
 		newline			= /[\n\r]/
 		whitespace		= /{whitespace}+/
 		comment			= /\/\/({anycharacter}*)/
+		c-comment		= /\/\*([^*]|\*[^\/])*\*\//
 	}
 	
 	/// Keywords
