@@ -214,6 +214,11 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
             continue;
         }
         
+        // Guard actions do not mark a weak symbol as 'used'
+        if ((*act)->type() == lr_action::act_guard) {
+            continue;
+        }
+        
         // Fetch the symbol for this action
         int sym = (*act)->item()->symbol();
         
@@ -235,6 +240,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
             case lr_action::act_shiftstrong:
             case lr_action::act_ignore:
             case lr_action::act_accept:
+            case lr_action::act_guard:
                 // Preserve the action
                 newActions.insert(act);
                 break;
