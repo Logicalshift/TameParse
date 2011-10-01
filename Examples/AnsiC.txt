@@ -306,9 +306,21 @@ language Ansi-C {
 										| case <Constant-Expression> ':' <Statement>
 										| default ':' <Statement>
 		
-		<Compound-Statement>			= '{' /* <Declaration-List>? */ <Statement-List>? '}'
+		<Compound-Statement>			= '{' <Declaration-List>? <Statement-List>? '}'
 
-		<Declaration-List>				= <Declaration>+
+		///
+		/// Declaration list
+		///
+		/// C has yet another ambiguity here (this is one you'll find cited as a classic)
+		/// The 'declaration' x * y; has two interpretations. This could be the statement
+		/// with no effect 'x multiplied by y' or the declaration 'y is a pointer to x'.
+		///
+		/// When this ambiguity arises, we take the latter interpretation; the no effect
+		/// statement is going to be a rare case.
+		///
+		/// TODO: we end up recursively evaluating guards here, which is inefficient.
+		///
+		<Declaration-List>				= ([=> <Declaration>] <Declaration>)+
 
 		<Statement-List>				= <Statement>+
 
