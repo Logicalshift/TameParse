@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace lr;
 using namespace tameparse;
 using namespace language;
 using namespace compiler;
@@ -186,6 +187,25 @@ int main (int argc, const char * argv[])
         if (targetLanguage == L"cplusplus") {
             // Use the C++ language generator
             outputStage = auto_ptr<output_stage>(new output_cplusplus(cons, importStage.file_with_language(buildLanguageName), &lexerStage, compileLanguageStage, &lrParserStage, prefixFilename, buildClassName, buildNamespaceName));
+        } else if (targetLanguage == L"test") {
+            // Special case: read from stdin, and try to parse the source language
+            ast_parser parser(*lrParserStage.get_tables());
+            
+            // Create the parser
+            lexeme_stream* stdinStream      = lexerStage.get_lexer()->create_stream_from(wcin);
+            ast_parser::state* stdInParser  = parser.create_parser(new ast_parser_actions(stdinStream));
+            
+            // Parse stdin
+            if (stdInParser->parse()) {
+                console.verbose_stream() << formatter::to_string(*stdInParser->get_item(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+            } else {
+                position failPos(-1, -1, -1);
+                if (stdInParser->look().item()) {
+                    failPos = stdInParser->look()->pos();
+                }
+                
+                console.report_error(error(error::sev_error, L"stdin", L"TEST_PARSER_ERROR", L"Syntax error", failPos));
+            }
         } else {
             // Unknown target language
             wstringstream msg;
