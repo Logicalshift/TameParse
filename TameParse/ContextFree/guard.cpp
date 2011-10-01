@@ -81,26 +81,13 @@ item_set guard::first(const grammar& gram) const {
     return result;
 }
 
-/// \brief Compares two rules
+/// \brief Compares two rules without checking the nonterminal they define
 ///
 /// Returns -1, 0, or 1 depending on if first is less than, the same as or greater than second.
 /// The nonterminal that defines the rule is not compared: we're assuming that it's a guard already
 /// (as this is how guard rules are defined) and will be the same if the guard itself is the same.
-static int compare_rules(const rule_container& first, const rule_container& second) {
-    // Check the sizes of the two rules
-    if (first->items().size() < second->items().size()) return -1;
-    if (first->items().size() > second->items().size()) return 1;
-    
-    // Compare the items themselves
-    item_list::const_iterator ourItem   = first->begin();
-    item_list::const_iterator theirItem = second->begin();
-    
-    for (;ourItem != first->end() && theirItem != second->end(); ourItem++, theirItem++) {
-        if (*ourItem < *theirItem) return -1;
-        if (*theirItem < *ourItem) return 1;
-    }
-    
-    return 0;
+static inline int compare_rules(const rule_container& first, const rule_container& second) {
+    return first->compare_items(*second);
 }
 
 /// \brief Compares this guard to another item
