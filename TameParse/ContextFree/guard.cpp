@@ -6,9 +6,12 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <stack>
+
 #include "TameParse/ContextFree/guard.h"
 #include "TameParse/Dfa/symbol_set.h"
 
+using namespace std;
 using namespace dfa;
 using namespace contextfree;
 
@@ -145,7 +148,37 @@ bool guard::operator<(const item& compareTo) const {
 
 /// \brief Computes the set of symbols that can form the initial symbol of a lookahead that matches this guard
 item_set guard::initial(const grammar& gram) const {
-    return gram.first_for_rule(*get_rule());
+    // Get the result
+    item_set res = gram.first_for_rule(*get_rule());
+    
+    // Iterate through the items, and merge in any recursively defined guards
+    stack<const guard*> guardItems;
+    
+    for (item_set::const_iterator maybeGuard = res.begin(); maybeGuard != res.end(); ++maybeGuard) {
+        // Cast to a guard
+        const guard* asGuard = maybeGuard->cast_guard();
+        
+        // Check to see if Thor lives here
+        if (!asGuard) continue;
+        
+        // Push onto the stack of guard items
+        guardItems.push(asGuard);
+    }
+    
+    // Merge in any guard items (will overflow the stack if this is recursive, but that doesn't define a valid grammar in any case)
+    while (!guardItems.empty()) {
+        // Get the initial set for this guard
+        item_set recursiveInitial = guardItems.top()->initial(gram);
+        
+        // Add to this item
+        res.merge(recursiveInitial);
+        
+        // Carry on
+        guardItems.pop();
+    }
+    
+    // Return the result
+    return res;
 }
 
 /// \brief The rule that should be matched for this guard to be successful
