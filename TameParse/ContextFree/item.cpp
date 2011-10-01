@@ -67,16 +67,21 @@ bool item::compare(const item& a, const item& b) {
         return a < b;
     }
     
-    // For EBNF items, use the comparison operator built into the item
-    if (aKind >= ebnf) {
-        return a < b;
+    // For well-known kinds we can just compare the symbols
+    switch (aKind) {
+        case terminal:
+        case nonterminal:
+        {
+            int aSym = a.symbol();
+            int bSym = b.symbol();
+            
+            return aSym < bSym;
+        }
+            
+        default:
+            // For other types, we call through to the comparison operator
+            return a < b;
     }
-    
-    // For well-known kinds, we can just compare the symbols
-    int aSym = a.symbol();
-    int bSym = b.symbol();
-    
-    return aSym < bSym;
 }
 
 static const empty_item the_empty_item;
