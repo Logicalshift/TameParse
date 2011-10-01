@@ -81,6 +81,26 @@ item_set guard::first(const grammar& gram) const {
     return result;
 }
 
+/// \brief Compares this guard to another item
+bool guard::operator==(const item& compareTo) const {
+    if (&compareTo == this) return true;
+    
+    // Compare types
+    if (item::guard != compareTo.type()) return false;
+    
+    // Cast the comparison to a guard object
+    const guard* compareGuard = compareTo.cast_guard();
+    if (!compareGuard) return false;
+    
+    // Ordering is initial by priority
+    int theirPriority = compareGuard->priority();
+    
+    if (m_Priority != theirPriority) return false;
+    
+    // If the priorities are the same, then use the rule to do ordering
+    return *get_rule() == *compareGuard->get_rule();
+}
+
 /// \brief Orders this item relative to another item
 bool guard::operator<(const item& compareTo) const {
     if (&compareTo == this) return false;

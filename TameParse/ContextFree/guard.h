@@ -74,6 +74,9 @@ namespace contextfree {
         /// anything after in the rule, follow indicates that the first set should also contain any lookahead for the rule)
         virtual item_set first(const grammar& gram) const;
         
+        /// \brief Compares this guard to another item
+        virtual bool operator==(const item& compareTo) const;
+        
         /// \brief Orders this item relative to another item
         virtual bool operator<(const item& compareTo) const;
         

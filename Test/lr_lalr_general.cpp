@@ -385,10 +385,12 @@ void test_lalr_general::run_tests() {
     int aId = terms.add_symbol(L"'a'");
     int bId = terms.add_symbol(L"'b'");
     int cId = terms.add_symbol(L"'c'");
+    int dId = terms.add_symbol(L"'d'");
 
     terminal a(aId);
     terminal b(bId);
     terminal c(cId);
+    terminal d(dId);
     
     nonterminal matchingBs(contextSensitive.id_for_nonterminal(L"<Matching-Bs>"));
     nonterminal matchingCs(contextSensitive.id_for_nonterminal(L"<Matching-Cs>"));
@@ -407,10 +409,32 @@ void test_lalr_general::run_tests() {
     
     (contextSensitive += L"<Context-Sensitive>") << matchBguard << matchingCs;
     
+    // Add another test, a recursive guard [=> [=> 'd' ] ]
+    nonterminal matchOneD(contextSensitive.id_for_nonterminal(L"<Match-D-Recursive>"));
+    guard matchDRecursiveLevel1;
+    guard matchDRecursiveLevel2;
+    
+    (*matchDRecursiveLevel2.get_rule()) << d;
+    (*matchDRecursiveLevel1.get_rule()) << matchDRecursiveLevel2 << d;
+    
+    (contextSensitive += L"<Match-D-Recursive>") << matchDRecursiveLevel1 << d;
+    (contextSensitive += L"<Context-Sensitive>") << matchOneD;
+    
+    report("GuardsDontMatch1", matchDRecursiveLevel2 != matchDRecursiveLevel1);
+    report("GuardsDontMatch2", matchDRecursiveLevel2 < matchDRecursiveLevel1 || matchDRecursiveLevel1 < matchDRecursiveLevel2);
+    report("GuardsDontMatch3", matchDRecursiveLevel2 < matchBguard || matchBguard < matchDRecursiveLevel2);
+    report("GuardsDontMatch4", contextSensitive.identifier_for_item(matchBguard) != contextSensitive.identifier_for_item(matchDRecursiveLevel1));
+    report("GuardsDontMatch5", contextSensitive.identifier_for_item(matchBguard) != contextSensitive.identifier_for_item(matchDRecursiveLevel2));
+    report("GuardsDontMatch6", contextSensitive.item_with_identifier(contextSensitive.identifier_for_item(matchBguard)) == matchBguard);
+    report("GuardsDontMatch7", contextSensitive.item_with_identifier(contextSensitive.identifier_for_item(matchDRecursiveLevel2)) == matchDRecursiveLevel2);
+    report("GuardsDontMatch8", contextSensitive.item_with_identifier(contextSensitive.identifier_for_item(matchDRecursiveLevel1)) == matchDRecursiveLevel1);
+    
     // Build our context-sensitve parser
     lalr_builder csBuilder(contextSensitive, terms);
     csBuilder.add_initial_state(csLan);
     csBuilder.complete_parser();
+    
+    wcout << formatter::to_string(csBuilder, csBuilder.gram(), terms) << endl;
     
     // Create a parser for this grammar
     simple_parser simpleCsParser(csBuilder, NULL);
@@ -420,6 +444,7 @@ void test_lalr_general::run_tests() {
     symbol_string csDoesntMatch1;
     symbol_string csDoesntMatch2;
     symbol_string csDoesntMatch3;
+    symbol_string oneD;
     
     for (int x=0; x<3; x++) threeOfEach += aId;
     for (int x=0; x<3; x++) threeOfEach += bId;
@@ -436,10 +461,16 @@ void test_lalr_general::run_tests() {
     for (int x=0; x<3; x++) csDoesntMatch3 += aId;
     for (int x=0; x<4; x++) csDoesntMatch3 += bId;
     for (int x=0; x<3; x++) csDoesntMatch3 += cId;
+    
+    oneD += dId;
 
     // Now test it out
     report("ContextSensitive1", can_parse(threeOfEach, simpleCsParser, lex));
     report("ContextSensitive2", !can_parse(csDoesntMatch1, simpleCsParser, lex));
     report("ContextSensitive3", !can_parse(csDoesntMatch2, simpleCsParser, lex));
     report("ContextSensitive4", !can_parse(csDoesntMatch3, simpleCsParser, lex));
+
+    // Also test [=> [=> 'd' ] ] 'd'
+    // This actually tests two things: do multiple guards in one state work, and do recursive guards work?
+    report("ContextSensitiveRecursiveGuards1", can_parse(oneD, simpleCsParser, lex));
 }
