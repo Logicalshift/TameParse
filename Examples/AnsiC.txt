@@ -44,7 +44,7 @@ language Ansi-C {
 	/// Ignored sections: comments and whitespace
 	///
 	ignore {
-		comment 			= 	/{comment-start}([^*]|*[^\/]){comment-end}/
+		comment 			= 	/{comment-start}([^*]|\*[^\/]){comment-end}/
 		cpp-comment			= 	/{cpp-comment-start}[^\n\r]*/
 		whitespace			= 	/{whitespace}+/
 		doc-comment			= 	/{comment-start}\*([^*]|*[^\/]){comment-end}/
@@ -113,7 +113,7 @@ language Ansi-C {
 		// Function call: '(' identifier ')' '(' <x> ',' <y> ')'
 		//
 		<Cast-Expression>				= <Unary-Expression>
-										| '(' <Type-Name> ')' <Cast-Expression>
+										//| '(' <Type-Name> ')' <Cast-Expression>
 		
 		<Ambiguous-Cast-Or-Function>	= '(' identifier [=> <Ambiguous-Cast-Lookahead>] ')' <Cast-Expression>
 
@@ -192,7 +192,7 @@ language Ansi-C {
 		<Struct-Or-Union-Specifier>		= (struct | union) identifier ('{' <Struct-Declaration>* '}')?	
 										| (struct | union) ('{' <Struct-Declaration>* '}')
 	
-		<Struct-Declaration>			= <Specifier-Qualifier-List> <Struct-Declarator-List> ';'	
+		<Struct-Declaration>			= /* <Specifier-Qualifier-List> <Struct-Declarator-List> ';' */ fred ';'
 	
 		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)+
 	
@@ -250,7 +250,7 @@ language Ansi-C {
 										| case <Constant-Expression> ':' <Statement>
 										| default ':' <Statement>
 		
-		<Compound-Statement>			= '{' <Declaration-List>? <Statement-List>? '}'
+		<Compound-Statement>			= '{' /* <Declaration-List>? */ <Statement-List>? '}'
 
 		<Declaration-List>				= <Declaration>+
 
@@ -277,7 +277,7 @@ language Ansi-C {
 		<External-Declaration>			= <Function-Definition>
 										| <Declaration>
 		
-		<Function-Definition>			= <Declaration-Specifiers> <Declarator> <Declaration-List>? <Compound-Statement>
-										| <Declarator> <Declaration-List>? <Compound-Statement>
+		<Function-Definition>			= <Declaration-Specifiers> <Declarator> /* <Declaration-List>? */ <Compound-Statement>
+										| <Declarator> /* <Declaration-List>? */ <Compound-Statement>
 	}
 }
