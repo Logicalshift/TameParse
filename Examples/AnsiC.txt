@@ -162,7 +162,31 @@ language Ansi-C {
 			
 		<Constant-Expression>			= <Conditional-Expression>
 	
-		<Declaration>					= <Declaration-Specifiers> <Init-Declarator-List>? ';'
+		///
+		/// Declarations
+		///
+		/// C's syntax is ambiguous if you don't know if an identifier is a type name or not.
+		/// This definition will accept identifiers as variable names wherever they can be,
+		/// which is the usual interpretation.
+		///
+		///    Example:
+		///		   extern fred;
+		///
+		/// 'fred' could be a type (and this would be a useless declaration) or a variable 
+		/// name (and an implicit int). The former is almost certainly a bug, and the latter
+		/// is bad practice. We interpret things as if they were in the latter format.
+		///
+		/// A compiler that cares about this might want to check for empty type specifiers
+		/// or init declarators that specify the name of an existing type.
+		///
+		/// The guard ensures that this:
+		///
+		/// 	extern fred fred;
+		///
+		/// is interpreted correctly (the first fred can only be a type and the second can
+		/// only be sensibly interpreted as a variable name)
+		///
+		<Declaration>					= <Declaration-Specifiers> [=> <Init-Declarator> (';' | ',')] <Init-Declarator-List>? ';'
 	
 		<Declaration-Specifiers>		= (<Storage-Class-Specifier> | <Type-Specifier> | <Type-Qualifier>)+
 			
@@ -222,7 +246,7 @@ language Ansi-C {
 	
 		<Parameter-Type-List>			= <Parameter-Declarator> (',' <Parameter-Declarator>)* (',' "...")?
 	
-		<Parameter-Declarator>			= <Declaration-Specifiers> (<Declarator> | <Abstract-Declarator>)?	
+		<Parameter-Declarator>			= <Declaration-Specifiers> fred (<Declarator> | <Abstract-Declarator>)?	
 	
 		<Identifier-List>				= identifier (',' identifier)*
 			
@@ -277,7 +301,7 @@ language Ansi-C {
 		<External-Declaration>			= <Function-Definition>
 										| <Declaration>
 		
-		<Function-Definition>			= <Declaration-Specifiers> <Declarator> /* <Declaration-List>? */ <Compound-Statement>
+		<Function-Definition>			= <Declaration-Specifiers> fred <Declarator> /* <Declaration-List>? */ <Compound-Statement>
 										| <Declarator> /* <Declaration-List>? */ <Compound-Statement>
 	}
 }
