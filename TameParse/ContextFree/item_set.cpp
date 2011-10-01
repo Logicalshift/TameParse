@@ -39,7 +39,7 @@ item_set::item_set(const item_set& copyFrom)
 , m_Items(NULL) {
 	// Fill in the items
 	if (m_MaxItem > 0) {
-		m_Items = (unsigned int*) malloc(sizeof(int)*m_MaxItem);
+		m_Items = (unsigned int*) malloc(sizeof(unsigned int)*m_MaxItem);
 
 		for (int item = 0; item < m_MaxItem; item++) {
 			m_Items[item] = copyFrom.m_Items[item];
@@ -58,7 +58,7 @@ item_set& item_set::operator=(const item_set& assignFrom) {
 	// Update the number of items
 	m_MaxItem 	= assignFrom.m_MaxItem;
 	m_Size		= assignFrom.m_Size;
-	m_Items		= (unsigned int*) realloc(m_Items, m_MaxItem);
+	m_Items		= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
 	for (int item=0; item < m_MaxItem; item++) {
 		m_Items[item] = assignFrom.m_Items[item];
@@ -109,7 +109,7 @@ bool item_set::insert(int itemId) {
     if (setId >= m_MaxItem) {
     	int oldMax 	= m_MaxItem;
     	m_MaxItem 	= setId + 1;
-    	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(int)*m_MaxItem);
+    	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
     	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
     }
@@ -167,7 +167,7 @@ bool item_set::merge(const item_set& mergeWith) {
 	if (mergeWith.m_MaxItem > m_MaxItem) {
 		int oldMax 	= m_MaxItem;
     	m_MaxItem 	= mergeWith.m_MaxItem;
-    	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(int)*m_MaxItem);
+    	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
     	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
 	}
