@@ -76,15 +76,14 @@ language Ansi-C {
 										| constant-decimal
 										| constant-float
 										| constant-character
+										| string-literal
 	
 		<Primary-Expression>			= identifier
 										| <Constant>
-										| string-literal
 										| '(' <Expression> ')'
 	
 		<Postfix-Expression>			= <Primary-Expression>
 										| <Postfix-Expression> '[' <Expression> ']'
-										| <Postfix-Expression> '(' ')'
 										| <Postfix-Expression> '(' <Argument-Expression-List>? ')'
 										| <Postfix-Expression> '.' identifier
 										| <Postfix-Expression> "->" identifier
@@ -100,8 +99,27 @@ language Ansi-C {
 										| sizeof <Unary-Expression>
 										| sizeof '(' <Type-Name> ')'
 	
+		//
+		// Casts are interesting as they are ambiguous with function calls in a few situations
+		//
+		// Specifically: (x)(y) can be a cast of y to x or a call to function variable x
+		// depending on if x was previously declared as a type or a variable.
+		//
+		// We would like to produce several cases for this, so that the parser does not need
+		// to know how things are declared to proceed.
+		//
+		// Unambiguous cast: '( <Type-Name> ')' <Not-A-Parameter-List>
+		// Ambiguous cast: '(' identifier ')' <Maybe-A-Parameter-List>
+		// Function call: '(' identifier ')' '(' <x> ',' <y> ')'
+		//
 		<Cast-Expression>				= <Unary-Expression>
 										| '(' <Type-Name> ')' <Cast-Expression>
+		
+		<Ambiguous-Cast-Or-Function>	= '(' identifier [=> <Ambiguous-Cast-Lookahead>] ')' <Cast-Expression>
+
+		<Unambiguous-Cast-Lookahead>	= ')' <Unary-Expression>
+
+		<Ambiguous-Cast-Lookahead>		= ')' '(' <Unary-Expression> ')'
 			
 		<Multiplicative-Expression>		= <Cast-Expression>
 										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
@@ -146,9 +164,7 @@ language Ansi-C {
 	
 		<Declaration>					= <Declaration-Specifiers> <Init-Declarator-List>? ';'
 	
-		<Declaration-Specifiers>		= <Storage-Class-Specifier> <Declaration-Specifiers>?
-										| <Type-Specifier> <Declaration-Specifiers>?
-										| <Type-Qualifier> <Declaration-Specifiers>?
+		<Declaration-Specifiers>		= (<Storage-Class-Specifier> | <Type-Specifier> | <Type-Qualifier>)+
 			
 		<Init-Declarator-List>			= <Init-Declarator> (',' <Init-Declarator>)*
 			
@@ -173,11 +189,12 @@ language Ansi-C {
 										| <Enum-Specifier>
 										| identifier
 			
-		<Struct-Or-Union-Specifier>		= (struct | union) identifier? ('{' <Struct-Declaration>* '}')?	
+		<Struct-Or-Union-Specifier>		= (struct | union) identifier ('{' <Struct-Declaration>* '}')?	
+										| (struct | union) ('{' <Struct-Declaration>* '}')
 	
 		<Struct-Declaration>			= <Specifier-Qualifier-List> <Struct-Declarator-List> ';'	
 	
-		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)*
+		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)+
 	
 		<Struct-Declarator-List>		= <Declarator> (':' <Constant-Expression>)?
 										| ':' <Constant-Expression>
@@ -200,11 +217,10 @@ language Ansi-C {
 										| <Direct-Declarator> '(' (<Parameter-Type-List> | <Identifier-List>) ')'
 										| <Direct-Declarator> '(' ')'
 	
-		<Pointer>						= ('*' <Type-Qualifier>*)+
+		<Pointer>						= '*'
+										| '*' <Type-Qualifier>* <Pointer>
 	
-		<Parameter-Type-List>			= <Parameter-List> (',' "...")?
-	
-		<Parameter-List>				= <Parameter-Declarator> (',' <Parameter-Declarator>)*
+		<Parameter-Type-List>			= <Parameter-Declarator> (',' <Parameter-Declarator>)* (',' "...")?
 	
 		<Parameter-Declarator>			= <Declaration-Specifiers> (<Declarator> | <Abstract-Declarator>)?	
 	
@@ -221,9 +237,7 @@ language Ansi-C {
 										| <Direct-Abstract-Declarator> '(' <Parameter-Type-List>? ')'
 		
 		<Initializer>					= <Assignment-Expression>
-										| '{' <Initializer-List> ','? '}'
-		
-		<Initializer-List>				= <Initializer> (',' <Initializer>)*
+										| '{' <Initializer> (',' <Initializer>)* ','? '}'
 
 		<Statement>						= <Labeled-Statement>
 										| <Compound-Statement>
@@ -263,6 +277,7 @@ language Ansi-C {
 		<External-Declaration>			= <Function-Definition>
 										| <Declaration>
 		
-		<Function-Definition>			= <Declaration-Specifiers>? <Declarator> <Declaration-List>? <Compound-Statement>
+		<Function-Definition>			= <Declaration-Specifiers> <Declarator> <Declaration-List>? <Compound-Statement>
+										| <Declarator> <Declaration-List>? <Compound-Statement>
 	}
 }
