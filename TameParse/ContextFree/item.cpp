@@ -186,7 +186,11 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
         lr1_item fakeItem(&gram, rule_container(fakeRule), 0, emptyFollow);
         
         // Generate the closure for the fake item as the cached set
-        closure(fakeItem, cachedSet, gram);
+        lr1_item_set closed;
+        closure(fakeItem, closed, gram);
+        
+        // Store as the cached set
+        cachedSet = closed;
     }
     
     // Fill in the follow set for this item
