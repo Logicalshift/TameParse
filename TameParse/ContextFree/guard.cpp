@@ -90,7 +90,9 @@ bool guard::operator==(const item& compareTo) const {
     
     // Cast the comparison to a guard object
     const guard* compareGuard = compareTo.cast_guard();
-    if (!compareGuard) return false;
+    if (!compareGuard) {
+        return false;
+    }
     
     // Ordering is initial by priority
     int theirPriority = compareGuard->priority();
@@ -111,7 +113,9 @@ bool guard::operator<(const item& compareTo) const {
     
     // Cast the comparison to a guard object
     const guard* compareGuard = compareTo.cast_guard();
-    if (!compareGuard) return false;
+    if (!compareGuard) {
+        return false;
+    }
     
     // Ordering is initial by priority
     int theirPriority = compareGuard->priority();
