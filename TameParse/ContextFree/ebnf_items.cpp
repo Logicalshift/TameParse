@@ -72,9 +72,18 @@ void ebnf::add_rule(const rule& newRule) {
 
 /// \brief Compares this item to another. Returns true if they are the same
 bool ebnf::operator==(const item& compareTo) const {
+    if (&compareTo == this) return true;
+    
+    // Compare types
+    int ourType     = type();
+    int theirType   = compareTo.type();
+    if (ourType != theirType) return false;
+    
+    // Turn into an EBNF item
     const ebnf* compareEbnf = compareTo.cast_ebnf();
     if (!compareEbnf) return false;
     
+    // Compare rules in the two items
     if (m_Rules->size() < compareEbnf->m_Rules->size()) return false;
     if (m_Rules->size() > compareEbnf->m_Rules->size()) return false;
     
@@ -82,7 +91,7 @@ bool ebnf::operator==(const item& compareTo) const {
     rule_iterator theirIt   = compareEbnf->first_rule();
     
     for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ourIt++, theirIt++) {
-        if (*ourIt == *theirIt) continue;
+        if ((*ourIt)->compare_items(**theirIt) == 0) continue;
         return false;
     }
     
@@ -94,9 +103,17 @@ bool ebnf::operator==(const item& compareTo) const {
 bool ebnf::operator<(const item& compareTo) const {
     if (&compareTo == this) return false;
     
+    // Compare types
+    int ourType     = type();
+    int theirType   = compareTo.type();
+    if (ourType < theirType) return true;
+    if (ourType > theirType) return false;
+    
+    // Turn into an EBNF item
     const ebnf* compareEbnf = compareTo.cast_ebnf();
     if (!compareEbnf) return false;
 
+    // Compare the rules in this item
     if (m_Rules->size() < compareEbnf->m_Rules->size()) return true;
     if (m_Rules->size() > compareEbnf->m_Rules->size()) return false;
 
