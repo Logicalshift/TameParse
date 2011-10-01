@@ -110,16 +110,13 @@ language Ansi-C {
 		//
 		// Unambiguous cast: '( <Type-Name> ')' <Not-A-Parameter-List>
 		// Ambiguous cast: '(' identifier ')' <Maybe-A-Parameter-List>
+		// Multi-level ambiguous cast: '(' identifier ')' '(' identifier ')' '(' ... ')'
 		// Function call: '(' identifier ')' '(' <x> ',' <y> ')'
 		//
+		// We resolve the ambiguous cases as casts for now.
+		//
 		<Cast-Expression>				= <Unary-Expression>
-										//| '(' <Type-Name> ')' <Cast-Expression>
-		
-		<Ambiguous-Cast-Or-Function>	= '(' identifier [=> <Ambiguous-Cast-Lookahead>] ')' <Cast-Expression>
-
-		<Unambiguous-Cast-Lookahead>	= ')' <Unary-Expression>
-
-		<Ambiguous-Cast-Lookahead>		= ')' '(' <Unary-Expression> ')'
+										| '(' <Type-Name> [=> ')' <Cast-Expression>] ')' <Cast-Expression>
 			
 		<Multiplicative-Expression>		= <Cast-Expression>
 										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
