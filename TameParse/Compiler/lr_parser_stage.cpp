@@ -191,12 +191,6 @@ void lr_parser_stage::compile() {
 	error::severity reduceReduceSev	= error::sev_error;
 
 	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); conflict++) {
-		// We don't understand the conflict type if there are no reduce items
-		if ((*conflict)->first_reduce_item() == (*conflict)->last_reduce_item()) {
-			cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
-			continue;
-		}
-
 		// Test the type of this conflict
 		if ((*conflict)->first_shift_item() != (*conflict)->last_shift_item()) {
 			// Shift/reduce conflict: we report the 'shift' part of the conflict as the first line
@@ -256,6 +250,12 @@ void lr_parser_stage::compile() {
 			// For reduce/reduce conflicts, display the context in which the reduction can occur
             set<item_container> displayedNonterminals;
             report_reduce_conflict(reduceItem, reduceItem->first->rule()->nonterminal(), displayedNonterminals, 0);
+		}
+
+		// We don't understand the conflict type if there are no reduce items
+		if ((*conflict)->first_reduce_item() == (*conflict)->last_reduce_item()) {
+			cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
+			continue;
 		}
 	}
     
