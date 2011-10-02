@@ -65,7 +65,10 @@ boost_console::boost_console(int argc, const char** argv)
     
     errorOptions.add_options()
         ("suppress-warnings",                                   "do not display any warning messages.")
-        ("show-error-codes",                                    "display error codes alongside the error messages.");
+        ("show-error-codes",                                    "display error codes alongside the error messages.")
+        ("show-conflict-details",                               "show details about the context that conflicts occur in.")
+        ("allow-reduce-conflicts",                              "reduce/reduce conflicts will produce a warning instead of an error.")
+        ("no-conflicts",                                        "all parser conflicts count as an error and not a warning.");
 
 	// Positional options
 	po::positional_options_description positional;

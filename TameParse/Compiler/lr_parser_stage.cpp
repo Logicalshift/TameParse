@@ -186,11 +186,23 @@ void lr_parser_stage::compile() {
 	conflict::find_conflicts(*m_Parser, conflictList);
 
 	// Report the conflicts
-	// TODO: make the way that conflicts are reported (warnings or errors) configurable
 	error::severity shiftReduceSev 	= error::sev_warning;
 	error::severity reduceReduceSev	= error::sev_error;
 
+    // The allow-reduce-conflicts option can be used to allow reduce/reduce conflicts
+    if (!cons().get_option(L"allow-reduce-conflicts").empty()) {
+        reduceReduceSev = error::sev_warning;
+    }
+
+    // The no-conflicts option can be used to report an error on all conflicts
+    if (!cons().get_option(L"no-conflicts").empty()) {
+        shiftReduceSev = reduceReduceSev = error::sev_error;
+    }
+
 	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); conflict++) {
+        // We only show detail if the show-conflict-details option is set
+        bool showDetail = !cons().get_option(L"show-conflict-details").empty();
+        
 		// Test the type of this conflict
 		if ((*conflict)->first_shift_item() != (*conflict)->last_shift_item()) {
 			// Shift/reduce conflict: we report the 'shift' part of the conflict as the first line
@@ -216,7 +228,10 @@ void lr_parser_stage::compile() {
 				// Display the warning/error
 				int 		ruleId 	= (*shiftItem)->rule()->identifier(*m_Language->grammar());
 				position 	rulePos	= m_Language->rule_definition_pos(ruleId);
-				cons().report_error(error(sev, m_Language->filename(), L"CONFLICT_SHIFT_REDUCE", shiftMessage.str(), rulePos));
+                
+                if (sev != error::sev_detail || showDetail) {
+                    cons().report_error(error(sev, m_Language->filename(), L"CONFLICT_SHIFT_REDUCE", shiftMessage.str(), rulePos));
+                }
 			}
 		}
 
@@ -248,8 +263,10 @@ void lr_parser_stage::compile() {
 			cons().report_error(error(reductionSev, m_Language->filename(), reduceCode, reduceMessage.str(), rulePos));
 
 			// For reduce/reduce conflicts, display the context in which the reduction can occur
-            set<item_container> displayedNonterminals;
-            report_reduce_conflict(reduceItem, reduceItem->first->rule()->nonterminal(), displayedNonterminals, 0);
+            if (showDetail) {
+                set<item_container> displayedNonterminals;
+                report_reduce_conflict(reduceItem, reduceItem->first->rule()->nonterminal(), displayedNonterminals, 0);
+            }
 		}
 
 		// We don't understand the conflict type if there are no reduce items
