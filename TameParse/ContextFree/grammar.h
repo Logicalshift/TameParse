@@ -170,7 +170,7 @@ namespace contextfree {
         /// so if the item is a nonterminal, then the set will contain all of the terminals that can begin that item.
         ///
         /// This will call first() on the specified item to retrieve the appropriate first set. While the call is in
-        /// progress, the first set for the requested item will be set to be 
+        /// progress, the first set for the requested item will be set to be empty.
         const item_set& first(const item_container& item) const;
         
         /// \brief Computes the follow set for the item with the specified identifier
@@ -180,6 +180,8 @@ namespace contextfree {
         const item_set& follow(const item_container& item) const;
         
         /// \brief Computes the first set for the specified rule (or retrieves the cached version)
+        ///
+        /// The returned set will contain an empty (epsilon) item if the rule can have no symbols in it.
         const item_set& first_for_rule(const rule& rule) const;
         
     private:

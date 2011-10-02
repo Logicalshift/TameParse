@@ -381,7 +381,40 @@ void language_stage::compile() {
             cons().report_error(error(error::sev_error, filename(), L"UNDEFINED_NONTERMINAL", msg.str(), usagePos));
         }
     }
-    
+
+    // Any guard that has epsilon in the first set for its rule invalidates the grammar
+    // These guards are always accepted, so their alternatives are never evaluated, so
+    // they are almost certainly not what the user meant to do. As an exception, guards that 
+    // have completely empty rules (ie are defined as [=>]) are allowed. These can specify
+    // the resolution of a shift/reduce or reduce/reduce conflict (though we warn about 
+    // these if an option isn't set)
+    item_container emptyItem(new empty_item());
+    int emptyId = m_Grammar.identifier_for_item(emptyItem);
+
+    for (map<item_container, dfa::position>::const_iterator checkGuard = m_Guards.begin(); checkGuard != m_Guards.end(); ++checkGuard) {
+        // Get the guard item
+        const guard* theGuard = checkGuard->first->cast_guard();
+        if (!theGuard) continue;
+
+        // Get the first set for the rule
+        item_set firstSet = m_Grammar.first_for_rule(*theGuard->get_rule());
+
+        // Could be a problem if it contains epsilon
+        if (firstSet.contains(emptyId)) {
+            if (theGuard->get_rule()->items().empty()) {
+                // The empty guard is just a warning
+                if (cons().get_option(L"allow-empty-guards").empty()) {
+                    cons().report_error(error(error::sev_warning, filename(), L"EMPTY_GUARD", L"Empty guards will always be accepted and will supress alternative meanings of an expression", checkGuard->second));
+                }
+            } else {
+                // Guards with content that evaluate to empty have no effect and are an error
+                wstringstream msg;
+                msg << L"Guard '" << formatter::to_string(*theGuard, m_Grammar, m_Terminals) << "' can evaluate to the empty string and will supress other meanings of any rule it is encountered in.";
+                cons().report_error(error(error::sev_error, filename(), L"INEFFECTIVE_GUARD", msg.str(), checkGuard->second));
+            }
+        }
+    }
+
     // Display a summary of what the grammar and NDFA contains if we're in verbose mode
     wostream& summary = cons().verbose_stream();
     
@@ -562,7 +595,11 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
             compile_item(*newItem->get_rule(), (*item)[0]);
             
             // Append to the rule
-            rule << item_container(newItem, true);
+            item_container container(newItem, true);
+            rule << container;
+
+            // Remember this as a language guard: we'll need to check if it can be empty later
+            m_Guards[container] = (*item)[0]->start_pos();
             break;
         }
             

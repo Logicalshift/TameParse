@@ -38,6 +38,9 @@ namespace compiler {
         
         /// \brief The grammar defined by the language
         contextfree::grammar m_Grammar;
+
+        /// \brief The guards defined by the language (and where they're defined)
+        std::map<contextfree::item_container, dfa::position> m_Guards;
         
         /// \brief The IDs of symbols defined as being 'weak'
         std::set<int> m_WeakSymbols;
