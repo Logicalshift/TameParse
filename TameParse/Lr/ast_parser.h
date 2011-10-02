@@ -69,7 +69,7 @@ namespace lr {
         }
         
         /// \brief Returns the item resulting from a reduce action
-        inline astnode_container reduce(int nonterminal, int rule, const reduce_list& reduce) {
+        inline astnode_container reduce(int nonterminal, int rule, const reduce_list& reduce, const dfa::position& lookaheadPosition) {
             // Create a new nonterminal node
             astnode* newNode = new astnode(nonterminal, rule);
             

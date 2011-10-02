@@ -903,11 +903,12 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     *m_SourceFile << "\n};\n";
     
     // Generate the parser tables
-    *m_HeaderFile << "\npublic:\n";
-    *m_HeaderFile << "    static const lr::parser_tables lr_tables;\n";
-    *m_HeaderFile << "    static const lr::simple_parser simple_parser;\n";
+    *m_HeaderFile 	<< "\n"
+    				<< "public:\n"
+    				<< "    static const lr::parser_tables lr_tables;\n"
+    				<< "    static const lr::simple_parser simple_parser;\n";
     
-	*m_SourceFile << "\nconst lr::parser_tables " << get_identifier(m_ClassName) << "::lr_tables(" 
+	*m_SourceFile 	<< "\nconst lr::parser_tables " << get_identifier(m_ClassName) << "::lr_tables(" 
 					<< tables.count_states() << ", " << tables.end_of_input() << ", " 
 					<< tables.end_of_guard() 
 					<< ", s_TerminalActions, s_NonterminalActions, s_ActionCounts, s_EndGuardStates, " 
@@ -939,20 +940,21 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_Terminals	= &terminals;
 
 	// Write out the AST syntax base class
-	*m_HeaderFile << "\npublic:\n";
-	*m_HeaderFile << "    class syntax_node {\n";
-	*m_HeaderFile << "    public:\n";
-	*m_HeaderFile << "        virtual ~syntax_node();\n";
-	*m_HeaderFile << "        virtual std::wstring to_string();\n";
-	*m_HeaderFile << "        virtual dfa::position pos() const;\n";
-	*m_HeaderFile << "        virtual dfa::position final_pos() const;\n";
-	*m_HeaderFile << "    };\n";
+	*m_HeaderFile 	<< "\n"
+					<< "public:\n"
+					<< "    class syntax_node {\n"
+					<< "    public:\n"
+					<< "        virtual ~syntax_node();\n"
+					<< "        virtual std::wstring to_string();\n"
+					<< "        virtual dfa::position pos() const;\n"
+					<< "        virtual dfa::position final_pos() const;\n"
+					<< "    };\n";
 
-	*m_SourceFile << "\n";
-	*m_SourceFile << get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n";
-	*m_SourceFile << "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n";
-	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() const { return dfa::position(-1, -1, -1); }\n";
-	*m_SourceFile << "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() const { return dfa::position(-1, -1, -1); }\n";
+	*m_SourceFile 	<< "\n"
+					<< get_identifier(m_ClassName) << "::syntax_node::~syntax_node() { }\n"
+					<< "std::wstring " << get_identifier(m_ClassName) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n"
+					<< "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::pos() const { return dfa::position(-1, -1, -1); }\n"
+					<< "dfa::position " << get_identifier(m_ClassName) << "::syntax_node::final_pos() const { return dfa::position(-1, -1, -1); }\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("syntax_node");
@@ -969,21 +971,22 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_ReduceDefinitions		= new stringstream();
 
 	// Create a terminal definition item
-	*m_NtForwardDeclarations << "\n    class terminal : public syntax_node {\n";
-	*m_NtForwardDeclarations << "    private:\n";
-	*m_NtForwardDeclarations << "        dfa::lexeme_container m_Lexeme;\n";
-	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "    public:\n";
-	*m_NtForwardDeclarations << "        terminal(const dfa::lexeme_container& lexeme);\n";
-	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "        inline const dfa::lexeme_container& get_lexeme() const { return m_Lexeme; }\n";
-	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "        template<class symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n";
-	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "        virtual dfa::position pos();\n";
-	*m_NtForwardDeclarations << "\n";
-	*m_NtForwardDeclarations << "        virtual dfa::position final_pos();\n";
-	*m_NtForwardDeclarations << "    };\n";
+	*m_NtForwardDeclarations	<< "\n"
+								<< "    class terminal : public syntax_node {\n"
+								<< "    private:\n"
+								<< "        dfa::lexeme_container m_Lexeme;\n"
+								<< "\n"
+								<< "    public:\n"
+								<< "        terminal(const dfa::lexeme_container& lexeme);\n"
+								<< "\n"
+								<< "        inline const dfa::lexeme_container& get_lexeme() const { return m_Lexeme; }\n"
+								<< "\n"
+								<< "        template<class symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n"
+								<< "\n"
+								<< "        virtual dfa::position pos();\n"
+								<< "\n"
+								<< "        virtual dfa::position final_pos();\n"
+								<< "    };\n";
 
 	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() { return m_Lexeme->pos(); }\n";
@@ -1041,36 +1044,36 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("wclog");
 
 	// Begin writing out a parser actions class (this generates the type-specific AST that we define here)
-	*m_HeaderFile << "\n    class parser_actions {\n";
-
-	*m_HeaderFile << "    public:\n";
-	*m_HeaderFile << "        typedef util::syntax_ptr<syntax_node> node;\n";
-	*m_HeaderFile << "        typedef lr::parser<node, parser_actions> parser;\n";
-	*m_HeaderFile << "        typedef parser::reduce_list reduce_list;\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "    private:\n";
-	*m_HeaderFile << "        dfa::lexeme_stream* m_Stream;\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        parser_actions(parser_actions& noCopying);\n";
-	*m_HeaderFile << "        parser_actions& operator=(const parser_actions& noCopying);\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "    public:\n";
-	*m_HeaderFile << "        parser_actions(dfa::lexeme_stream* stream)\n";
-	*m_HeaderFile << "        : m_Stream(stream) { }\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        ~parser_actions() {\n";
-	*m_HeaderFile << "        }\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        inline dfa::lexeme* read() {\n";
-    *m_HeaderFile << "            dfa::lexeme* result = NULL;\n";
-    *m_HeaderFile << "            (*m_Stream) >> result;\n";
-    *m_HeaderFile << "            return result;\n";
-    *m_HeaderFile << "        }\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        node shift(const dfa::lexeme_container& lexeme);\n";
-	*m_HeaderFile << "\n";
-	*m_HeaderFile << "        node reduce(int nonterminal, int rule, const reduce_list& reduce);\n";
-	*m_HeaderFile << "    };\n";
+	*m_HeaderFile 	<< "\n"
+					<< "    class parser_actions {\n"
+					<< "    public:\n"
+					<< "        typedef util::syntax_ptr<syntax_node> node;\n"
+					<< "        typedef lr::parser<node, parser_actions> parser;\n"
+					<< "        typedef parser::reduce_list reduce_list;\n"
+					<< "\n"
+					<< "    private:\n"
+					<< "        dfa::lexeme_stream* m_Stream;\n"
+					<< "\n"
+					<< "        parser_actions(parser_actions& noCopying);\n"
+					<< "        parser_actions& operator=(const parser_actions& noCopying);\n"
+					<< "\n"
+					<< "    public:\n"
+					<< "        parser_actions(dfa::lexeme_stream* stream)\n"
+					<< "        : m_Stream(stream) { }\n"
+					<< "\n"
+					<< "        ~parser_actions() {\n"
+					<< "        }\n"
+					<< "\n"
+					<< "        inline dfa::lexeme* read() {\n"
+    				<< "            dfa::lexeme* result = NULL;\n"
+    				<< "            (*m_Stream) >> result;\n"
+    				<< "            return result;\n"
+    				<< "        }\n"
+					<< "\n"
+					<< "        node shift(const dfa::lexeme_container& lexeme);\n"
+					<< "\n"
+					<< "        node reduce(int nonterminal, int rule, const reduce_list& reduce, const dfa::position& lookaheadPosition);\n"
+					<< "    };\n";
 }
 
 /// \brief Starting to write the AST definitions for a particular terminal symbol
@@ -1125,6 +1128,16 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 		*m_NtClassDefinitions << "\n    class " << ntName << " : public syntax_node {\n";
 	}
 
+	// Write out the pos/final_pos definitions
+	if (m_CurrentNonterminalKind != item::guard) {
+		*m_NtClassDefinitions 	<< "    private:\n"
+							 	<< "        int m_Rule;\n"
+							 	<< "\n"
+							 	<< "    public:\n"
+							 	<< "        virtual dfa::position pos() const;\n"
+							 	<< "        virtual dfa::position final_pos() const;\n";
+	}
+
 	// No items are used for this nonterminal yet
 	m_UsedNtItems.clear();
 }
@@ -1150,6 +1163,7 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	m_UsedRuleItems.insert(m_CurrentNonterminal);
 	m_UsedRuleItems.insert("pos");
 	m_UsedRuleItems.insert("final_pos");
+	m_UsedRuleItems.insert("m_Rule");
 	m_UsedRuleItems.insert("to_string");
 }
 
@@ -1263,7 +1277,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 	// Mark as used
 	m_UsedRuleItems.insert(itemName);
-	m_UsedNtItems.insert(itemName);	
+	m_UsedNtItems.insert(itemName);
 }
 
 /// \brief Finished writing out 
@@ -1332,19 +1346,15 @@ void output_cplusplus::end_ast_rule() {
 		*m_NtClassDefinitions << ");\n";
 
 		// Write out the constructor declaration to the source file
-		first = true;
-		*m_SourceFile << ")";
+		*m_SourceFile 	<< ")\n"
+						<< ": m_Rule(" << m_CurrentRuleId << ")";
 
 		for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
 			// Ignore items with an empty type
 			if (m_CurrentRuleTypes[index].empty()) continue;
 
 			// Comma to seperate the items
-			if (!first) {
-				*m_SourceFile << "\n, ";
-			} else {
-				*m_SourceFile << "\n: ";
-			}
+			*m_SourceFile << "\n, ";
 
 			// Fill in the appropriate field
 			*m_SourceFile << m_CurrentRuleNames[index] << "(" << m_CurrentRuleTypes[index][0] << "_" << index << ")";
@@ -1457,24 +1467,25 @@ void output_cplusplus::end_ast_nonterminal() {
 
 	// For repeating classes, define the collection class
 	if (m_CurrentNonterminalKind == item::repeat || m_CurrentNonterminalKind == item::repeat_zero_or_one) {
-		*m_NtClassDefinitions << "\n    class " << m_CurrentNonterminal << " : public syntax_node {\n";
-		*m_NtClassDefinitions << "    public:\n";
-		*m_NtClassDefinitions << "        typedef util::syntax_ptr<class " << ntClass << "> node_type;\n";
-		*m_NtClassDefinitions << "        typedef std::vector<node_type> data_type;\n";
-		*m_NtClassDefinitions << "        typedef data_type::const_iterator iterator;\n";
-		*m_NtClassDefinitions << "\n";
-		*m_NtClassDefinitions << "    private:\n";
-		*m_NtClassDefinitions << "        data_type m_Data;\n";
-		*m_NtClassDefinitions << "\n";
-		*m_NtClassDefinitions << "    public:\n";
-		*m_NtClassDefinitions << "        inline operator const data_type&() const { return m_Data; }\n";
-		*m_NtClassDefinitions << "        inline const " << ntClass << "* operator[](size_t index) const { return m_Data[index].item(); }\n";
-		*m_NtClassDefinitions << "        inline const size_t size() const { return m_Data.size(); }\n";
-		*m_NtClassDefinitions << "        inline iterator begin() const { return m_Data.begin(); }\n";
-		*m_NtClassDefinitions << "        inline iterator end() const { return m_Data.end(); }\n";
-		*m_NtClassDefinitions << "\n";
-		*m_NtClassDefinitions << "        inline void add_child(const node_type& newChild) { m_Data.push_back(newChild); }\n";
-		*m_NtClassDefinitions << "    };\n";
+		*m_NtClassDefinitions 	<< "\n"
+								<< "    class " << m_CurrentNonterminal << " : public syntax_node {\n"
+								<< "    public:\n"
+								<< "        typedef util::syntax_ptr<class " << ntClass << "> node_type;\n"
+								<< "        typedef std::vector<node_type> data_type;\n"
+								<< "        typedef data_type::const_iterator iterator;\n"
+								<< "\n"
+								<< "    private:\n"
+								<< "        data_type m_Data;\n"
+								<< "\n"
+								<< "    public:\n"
+								<< "        inline operator const data_type&() const { return m_Data; }\n"
+								<< "        inline const " << ntClass << "* operator[](size_t index) const { return m_Data[index].item(); }\n"
+								<< "        inline const size_t size() const { return m_Data.size(); }\n"
+								<< "        inline iterator begin() const { return m_Data.begin(); }\n"
+								<< "        inline iterator end() const { return m_Data.end(); }\n"
+								<< "\n"
+								<< "        inline void add_child(const node_type& newChild) { m_Data.push_back(newChild); }\n"
+								<< "    };\n";
 	}
 }
 
@@ -1489,26 +1500,28 @@ void output_cplusplus::end_ast_definitions() {
 	// Output the shift function
 	string className = get_identifier(m_ClassName);
 
-	*m_SourceFile << "\n" << className << "::parser_actions::node " << className << "::parser_actions::shift(const dfa::lexeme_container& lexeme) {\n";
-	*m_SourceFile << "    switch (lexeme->matched()) {" << m_ShiftDefinitions->str() << "\n";
-	*m_SourceFile << "    default:\n";
-	*m_SourceFile << "        return node(new terminal(lexeme));\n";
-	*m_SourceFile << "    }\n";
-	*m_SourceFile << "}\n";
+	*m_SourceFile 	<< "\n" 
+					<< className << "::parser_actions::node " << className << "::parser_actions::shift(const dfa::lexeme_container& lexeme) {\n"
+					<< "    switch (lexeme->matched()) {" << m_ShiftDefinitions->str() << "\n"
+					<< "    default:\n"
+					<< "        return node(new terminal(lexeme));\n"
+					<< "    }\n"
+					<< "}\n"
 
-	// Output the reduce function
-	*m_SourceFile << "\n" << className << "::parser_actions::node " << className << "::parser_actions::reduce(int nonterminal, int rule, const reduce_list& reduce) {\n";
-	*m_SourceFile << "    switch (rule) {" << m_ReduceDefinitions->str() << "\n";
-	*m_SourceFile << "    default:\n";
-	*m_SourceFile << "        return node();\n";
-	*m_SourceFile << "    }\n";
-	*m_SourceFile << "}\n";
+					// Output the reduce function
+					<< "\n" 
+					<< className << "::parser_actions::node " << className << "::parser_actions::reduce(int nonterminal, int rule, const reduce_list& reduce, const dfa::position& lookaheadPosition) {\n"
+					<< "    switch (rule) {" << m_ReduceDefinitions->str() << "\n"
+					<< "    default:\n"
+					<< "        return node();\n"
+					<< "    }\n"
+					<< "}\n";
 
 	// Output the parser definition
-    *m_HeaderFile << "\npublic:\n";
-    *m_HeaderFile << "    typedef util::syntax_ptr<syntax_node> syntax_node_container;\n";
-	*m_HeaderFile << "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n";
-    *m_HeaderFile << "    static const ast_parser_type ast_parser;\n";
+    *m_HeaderFile 	<< "\npublic:\n"
+    				<< "    typedef util::syntax_ptr<syntax_node> syntax_node_container;\n"
+					<< "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n"
+    				<< "    static const ast_parser_type ast_parser;\n";
 	
-	*m_SourceFile << "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(&lr_tables, false);\n";
+	*m_SourceFile 	<< "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(&lr_tables, false);\n";
 }

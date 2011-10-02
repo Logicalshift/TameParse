@@ -311,6 +311,20 @@ namespace lr {
                     // Fetch the state that's now on top of the stack
                     int gotoState = state->m_Stack->state;
                     
+                    // Work out the lookahead position
+                    const lexeme_container& la              = state->look();
+                    const dfa::position*    lookaheadPos    = NULL;
+                    
+                    if (state->look().item()) {
+                        // Still following symbols
+                        lookaheadPos = &la->pos();
+                    } else {
+                        // At end: use an invalid position
+                        // (Alternatively: modify the actions so it's possible to retrieve the current position)
+                        static const dfa::position eofPos(-1, -1, -1);
+                        lookaheadPos = &eofPos;
+                    }
+                    
                     // Get the goto action for this nonterminal
                     for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
@@ -318,7 +332,7 @@ namespace lr {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, rule.m_RuleId, items));
+                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, rule.m_RuleId, items, *lookaheadPos));
                             
                             // Tell the trace about this
                             m_Trace.goto_state(gotoAct->m_NextState);
@@ -668,7 +682,7 @@ namespace lr {
         }
         
         /// \brief Returns the item resulting from a reduce action
-        inline int reduce(int nonterminal, int rule, const parser<int, simple_parser_actions>::reduce_list& reduce) {
+        inline int reduce(int nonterminal, int rule, const parser<int, simple_parser_actions>::reduce_list& reduce, const dfa::position& lookaheadPosition) {
             return 0;
         }
     };
