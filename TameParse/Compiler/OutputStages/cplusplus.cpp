@@ -1114,6 +1114,13 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 	m_CurrentNonterminalKind    = item->type();
     m_CurrentNonterminalId      = identifier;
 
+    // Clear out the position and final pos switch statements
+	if (m_PosDefinitions)			delete m_PosDefinitions;
+	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
+
+	m_PosDefinitions		= new stringstream();
+	m_FinalPosDefinitions 	= new stringstream();
+
 	// Get the name for this nonterminal
 	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
 	m_CurrentNonterminal = ntName;
@@ -1166,12 +1173,6 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	m_UsedRuleItems.clear();
 	m_CurrentRuleNames.clear();
 	m_CurrentRuleTypes.clear();
-
-	if (m_PosDefinitions)			delete m_PosDefinitions;
-	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
-
-	m_PosDefinitions		= new stringstream();
-	m_FinalPosDefinitions 	= new stringstream();
 
 	// ... except for the name of the nonterminal itself, and the names of the various functions that get generated for this item
 	m_UsedRuleItems.insert(m_CurrentNonterminal);
