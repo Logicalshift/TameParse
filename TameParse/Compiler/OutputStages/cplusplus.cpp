@@ -29,7 +29,9 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_NtForwardDeclarations(NULL)
 , m_NtClassDefinitions(NULL)
 , m_ShiftDefinitions(NULL)
-, m_ReduceDefinitions(NULL) {
+, m_ReduceDefinitions(NULL)
+, m_PosDefinitions(NULL)
+, m_FinalPosDefinitions(NULL) {
 }
 
 /// \brief Destructor
@@ -41,6 +43,8 @@ output_cplusplus::~output_cplusplus() {
 	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
 	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
 	if (m_ReduceDefinitions)		delete m_ReduceDefinitions;
+	if (m_PosDefinitions)			delete m_PosDefinitions;
+	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
 }
 
 /// \brief Converts a string to upper case
@@ -964,11 +968,15 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
 	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
 	if (m_ReduceDefinitions)		delete m_ReduceDefinitions;
+	if (m_PosDefinitions)			delete m_PosDefinitions;
+	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
 
 	m_NtForwardDeclarations	= new stringstream();
 	m_NtClassDefinitions	= new stringstream();
 	m_ShiftDefinitions		= new stringstream();
 	m_ReduceDefinitions		= new stringstream();
+	m_PosDefinitions		= new stringstream();
+	m_FinalPosDefinitions 	= new stringstream();
 
 	// Create a terminal definition item
 	*m_NtForwardDeclarations	<< "\n"
@@ -1134,8 +1142,8 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 							 	<< "        int m_Rule;\n"
 							 	<< "\n"
 							 	<< "    public:\n"
-							 	<< "        //virtual dfa::position pos() const;\n"
-							 	<< "        //virtual dfa::position final_pos() const;\n";
+							 	<< "        virtual dfa::position pos() const;\n"
+							 	<< "        virtual dfa::position final_pos() const;\n";
 	}
 
 	// No items are used for this nonterminal yet
@@ -1148,7 +1156,7 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	if (m_CurrentNonterminalKind == item::guard) return;
 
 	// Start appending the private values for this class
-	*m_NtClassDefinitions << "    public:\n";
+	*m_NtClassDefinitions << "\n    public:\n";
 	*m_NtClassDefinitions << "        // Rule " << identifier << "\n";
 
 	// Set the rule identifier
@@ -1158,6 +1166,12 @@ void output_cplusplus::begin_ast_rule(int identifier) {
 	m_UsedRuleItems.clear();
 	m_CurrentRuleNames.clear();
 	m_CurrentRuleTypes.clear();
+
+	if (m_PosDefinitions)			delete m_PosDefinitions;
+	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
+
+	m_PosDefinitions		= new stringstream();
+	m_FinalPosDefinitions 	= new stringstream();
 
 	// ... except for the name of the nonterminal itself, and the names of the various functions that get generated for this item
 	m_UsedRuleItems.insert(m_CurrentNonterminal);
@@ -1314,6 +1328,11 @@ void output_cplusplus::end_ast_rule() {
 		}
 	}
 
+	// Number of items with a valid type
+	size_t numValidItems 	= 0;
+	size_t firstItem		= 0xffffffff;
+	size_t lastItem			= 0;
+
 	// Declare the constructor if we should
 	if (declareConstructor) {
 		// Generate a constructor for this rule
@@ -1330,6 +1349,11 @@ void output_cplusplus::end_ast_rule() {
 			// Ignore items with an empty type
 			if (m_CurrentRuleTypes[index].empty()) continue;
 
+			// This is a valid item
+			numValidItems++;
+			if (firstItem == 0xffffffff) firstItem = index;
+			lastItem = index;
+
 			// Comma to seperate the items
 			if (!first) {
 				*m_NtClassDefinitions << ", ";
@@ -1345,7 +1369,7 @@ void output_cplusplus::end_ast_rule() {
 		}
 
 		// Empty rules need to supply a position
-		if (m_CurrentRuleNames.empty()) {
+		if (numValidItems == 0) {
 			*m_NtClassDefinitions 	<< "const dfa::position& pos";
 			*m_SourceFile 			<< "const dfa::position& pos";
 		}
@@ -1358,7 +1382,7 @@ void output_cplusplus::end_ast_rule() {
 						<< ": m_Rule(" << m_CurrentRuleId << ")";
 
 		// Fill in the position field for empty rules
-		if (m_CurrentRuleNames.empty()) {
+		if (numValidItems == 0) {
 			*m_SourceFile 	<< "\n"
 							<< ", m_Position(pos)";
 
@@ -1426,7 +1450,7 @@ void output_cplusplus::end_ast_rule() {
 			first = false;
 		}
 
-		if (m_CurrentRuleNames.empty()) {
+		if (numValidItems == 0) {
 			*m_ReduceDefinitions << "lookaheadPosition";
 		}
 
@@ -1455,13 +1479,30 @@ void output_cplusplus::end_ast_rule() {
 			// Hideous const cast :-(
 			*m_ReduceDefinitions << "        const_cast<" << m_CurrentNonterminal << "*>(list.item())->add_child(content);\n";
 
-			// Case to a node and return
+			// Cast to a node and return
 			*m_ReduceDefinitions << "        return list.cast_to<syntax_node>();\n";
 		}
 	}
 
 	// Finished this case definition
 	*m_ReduceDefinitions << "    }\n";
+
+	// Write the pos() and final_pos() switch cases
+	if (declareConstructor) {
+		// Add the case statements
+		*m_PosDefinitions 		<< "\n    case " << m_CurrentRuleId << ":\n";
+		*m_FinalPosDefinitions 	<< "\n    case " << m_CurrentRuleId << ":\n";
+
+		if (numValidItems == 0) {
+			// If the rule is empty, then both positions are defined by m_Position
+			*m_PosDefinitions 		<< "        return m_Position;\n";
+			*m_FinalPosDefinitions	<< "        return m_Position;\n";
+		} else {
+			// Otherwise, return the first and last items
+			*m_PosDefinitions 		<< "        return " << m_CurrentRuleNames[firstItem] << "->pos();\n";
+			*m_FinalPosDefinitions	<< "        return " << m_CurrentRuleNames[lastItem] << "->final_pos();\n";
+		}
+	}
 }
 
 /// \brief Finished writing the definitions for a nonterminal
@@ -1482,7 +1523,26 @@ void output_cplusplus::end_ast_nonterminal() {
 	*m_NtClassDefinitions << "        virtual ~" << ntClass << "();\n";
 	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << ntClass << "::~" << ntClass << "() { }\n";
 
-	// TODO: write out the accessors for the various items
+	// Pos, final_pos items
+	*m_SourceFile 	<< "\n"
+					<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntClass << "::pos() const {\n"
+					<< "    switch (m_Rule) {"
+					<< m_PosDefinitions->str()
+					<< "\n"
+					<< "    default:\n"
+					<< "        return dfa::position(-1, -1, -1);\n"
+					<< "    }\n"
+					<< "}\n"
+
+					<< "\n"
+					<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntClass << "::final_pos() const {\n"
+					<< "    switch (m_Rule) {"
+					<< m_FinalPosDefinitions->str()
+					<< "\n"
+					<< "    default:\n"
+					<< "        return dfa::position(-1, -1, -1);\n"
+					<< "    }\n"
+					<< "}\n";
 
 	// End the class definition for this nonterminal
 	*m_NtClassDefinitions << "    };\n";
