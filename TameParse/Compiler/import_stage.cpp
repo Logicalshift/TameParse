@@ -23,7 +23,7 @@ import_stage::import_stage(console_container& console, const std::wstring& filen
 	// Add the root file to the stage for file list
     wstring realPath = console->real_path(filename);
     
-	m_DefinitionForFile[realPath]        = rootFile;
+	m_DefinitionForFile[realPath]   = rootFile;
     m_ShortNameForFile[realPath]    = filename;
 }
 

@@ -68,7 +68,7 @@ namespace compiler {
 		inline std::wstring file_with_language(const std::wstring& languageName) const {
             // Find the language file
 			string_map::const_iterator found = m_LanguageFile.find(languageName);
-			if (found != m_LanguageFile.end()) return L"";
+			if (found == m_LanguageFile.end()) return L"unknown";
             
             // Use the short name (if present, which it certainly will be)
             string_map::const_iterator shortName = m_ShortNameForFile.find(found->second);
