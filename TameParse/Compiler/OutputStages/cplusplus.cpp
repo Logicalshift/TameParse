@@ -1473,6 +1473,9 @@ void output_cplusplus::end_ast_rule() {
 			} else {
 				// Need to create a new item
 				*m_ReduceDefinitions << "new " << m_CurrentNonterminal << "());\n";
+
+				// Set the position (hideous const cast, sigh)
+				*m_ReduceDefinitions << "        const_cast<" << m_CurrentNonterminal << "*>(list.item())->set_position(lookaheadPosition);\n";
 			}
 
 			// Add the content as a child item
@@ -1558,6 +1561,7 @@ void output_cplusplus::end_ast_nonterminal() {
 								<< "\n"
 								<< "    private:\n"
 								<< "        data_type m_Data;\n"
+								<< "        dfa::position m_Position;\n"
 								<< "\n"
 								<< "    public:\n"
 								<< "        inline operator const data_type&() const { return m_Data; }\n"
@@ -1567,7 +1571,22 @@ void output_cplusplus::end_ast_nonterminal() {
 								<< "        inline iterator end() const { return m_Data.end(); }\n"
 								<< "\n"
 								<< "        inline void add_child(const node_type& newChild) { m_Data.push_back(newChild); }\n"
+								<< "        inline void set_position(const dfa::position& newPos) { m_Position = newPos; }\n"
+								<< "\n"
+								<< "        virtual dfa::position pos() const;\n"
+								<< "        virtual dfa::position final_pos() const;\n"
 								<< "    };\n";
+		
+		*m_SourceFile			<< "\n"
+								<< "dfa::position " << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::pos() const {\n"
+								<< "    if (m_Data.empty()) return m_Position;\n"
+								<< "    return m_Data.front()->pos();\n"
+								<< "}\n"
+								<< "\n"
+								<< "dfa::position " << get_identifier(m_ClassName) << "::" << m_CurrentNonterminal << "::final_pos() const {\n"
+								<< "    if (m_Data.empty()) return m_Position;\n"
+								<< "    return m_Data.back()->final_pos();\n"
+								<< "}\n";
 	}
 }
 
