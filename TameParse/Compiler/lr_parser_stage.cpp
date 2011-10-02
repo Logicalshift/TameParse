@@ -65,6 +65,104 @@ lr_parser_stage::~lr_parser_stage() {
     }
 }
 
+
+/// \brief Search for clashing guards
+///
+/// A clashing guard occurs when two different guards are specified for the same symbol
+/// for a state. These need to be warned on as they can be an indication that the
+/// parser is invalid (ie, the parser will not distinguish something that it is
+/// supposed to distinguish)
+static void warn_clashing_guards(console& cons, const language_stage* language, lalr_builder* builder) {
+	// TODO: have a way to mark guards that are permitted to be in the same state
+	
+	// Iterate through the states
+	for (int stateId = 0; stateId < builder->count_states(); stateId++) {
+		// Map of terminal symbol IDs to guard actions
+		typedef map<item_container, set<item_container> > guard_to_symbol;
+		guard_to_symbol guardForSymbol;
+
+		// Search for guard actions 
+		const lr_action_set& actions = builder->actions_for_state(stateId);
+
+		for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+			// Ignore actions that are not guard actions
+			if ((*nextAction)->type() != lr_action::act_guard) continue;
+
+			// Ignore the action if it's not on a terminal symbol
+			if ((*nextAction)->item()->type() != item::terminal) continue;
+
+			// The guard item is the nonterminal of the action rule
+			guardForSymbol[(*nextAction)->item()].insert((*nextAction)->rule()->nonterminal());
+		}
+
+		// Warn of any guards that have conflicting actions
+		set<item_container> warnedGuards;
+
+		for (guard_to_symbol::iterator guarded = guardForSymbol.begin(); guarded != guardForSymbol.end(); guarded++) {
+			// No clash if there's only one guard for this symbol
+			if (guarded->second.size() <= 1) continue;
+
+			// Ignore guards that we've already warned about
+			bool warned = true;
+			for (set<item_container>::iterator it = guarded->second.begin(); it != guarded->second.end(); it++) {
+				if (warnedGuards.find(*it) == warnedGuards.end()) {
+					// Haven't warned about this guard yet, so this is a new kind of clash
+					warned = false;
+					break;
+				}
+			}
+
+			if (warned) continue;
+
+			// Default severity is 'warning' for the first item, and 'detail' for the remainder
+			bool shownWarning = false;
+
+			// Get the state ID
+			const lalr_state_container& state = builder->machine().state_with_id(stateId);
+
+			// Iterate through the guards
+			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); clashingGuard++) {
+				// Warned about this guard
+				warnedGuards.insert(*clashingGuard);
+
+				// Find all of the LR items that have a reference to this guard
+				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); lrItem++) {
+					// Ignore at end items
+					if ((*lrItem)->at_end()) continue;
+
+					// Ignore items that do not refer to this guard
+					// (Assumption is that all usages of the guard have the same initial set, so any symbol refers to any reference to this guard)
+					if ((*lrItem)->rule()->items()[(*lrItem)->offset()] != *clashingGuard) continue;
+
+					// Get the position of this rule
+					int 		ruleId 	= (*lrItem)->rule()->identifier(*language->grammar());
+					position	rulePos	= language->rule_definition_pos(ruleId);
+
+					// We know the item, the guard and the position: generate the error message
+					if (!shownWarning) {
+						wstringstream warning;
+						warning	<< L"Found clashing guards on symbol '" 
+								<< formatter::to_string(*guarded->first, builder->gram(), builder->terminals())
+								<< L"'";
+						
+						cons.report_error(error(error::sev_warning, language->filename(), L"CLASHING_GUARDS", warning.str(), rulePos));
+					}
+
+					// Provide detail messages on where the clash is
+					wstringstream msg;
+					msg << (!shownWarning?L"when used here: ":L"or here: ")
+						<< formatter::to_string(**lrItem, builder->gram(), builder->terminals());
+					
+					cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
+
+					shownWarning = true;
+				}
+			}
+		}
+	}
+}
+
+
 /// \brief Compiles the parser specified by the parameters to this stage
 void lr_parser_stage::compile() {
     // Verbose message to say which stage we're at
@@ -275,6 +373,9 @@ void lr_parser_stage::compile() {
 			continue;
 		}
 	}
+
+	// Warn on any clashing guards
+	warn_clashing_guards(cons(), m_Language, m_Parser);
     
     // Build an actual AST parser so we can display some stats
     m_Tables = new parser_tables(*m_Parser, m_LexerCompiler->weak_symbols());

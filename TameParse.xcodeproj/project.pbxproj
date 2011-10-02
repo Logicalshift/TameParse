@@ -300,7 +300,7 @@
 		4B79D0BC142E1E2000D778BC /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			dstPath = /usr/local/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
 				4B79D0C4142E1E2000D778BC /* tameparse.1 in CopyFiles */,
