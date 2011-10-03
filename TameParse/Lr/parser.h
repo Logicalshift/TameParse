@@ -467,12 +467,12 @@ namespace lr {
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 inline bool can_reduce(int terminal, state* state) {
-                    return state->can_reduce(terminal);
+                    return state->can_reduce<terminal_fetcher>(terminal, 0, m_Stack, state->m_Stack);
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int terminal, state* state) {
-                    return state->can_reduce_nonterminal(terminal);
+                inline bool can_reduce_nonterminal(int nonterminal, state* state) {
+                    return state->can_reduce<nonterminal_fetcher>(nonterminal, 0, m_Stack, state->m_Stack);
                 }
             };
 
