@@ -85,7 +85,7 @@ boost_console::boost_console(int argc, const char** argv)
     po::options_description cmdLine;
     po::options_description help;
     cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions).add(hiddenOptions);
-    cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions);
+    help.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions);
 
 	// Store the options
     try {
@@ -93,7 +93,7 @@ boost_console::boost_console(int argc, const char** argv)
         po::notify(m_VarMap);
     } catch (po::error e) {
         cerr << e.what() << endl << endl;
-		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << help << endl;
         ::exit(1);
     }
 
@@ -120,14 +120,14 @@ boost_console::boost_console(int argc, const char** argv)
     }
     
 	if (m_VarMap.count("help")) {
-		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << help << endl;
 	    doneSomething = true;
 	}
 
 	// Also display help if no input file is displayed
 	if (!doneSomething && m_VarMap.count("input-file") == 0) {
 		cerr << argv[0] << ": no input files" << endl << endl;
-		cout << inputOptions << endl << outputOptions << endl << errorOptions << endl << infoOptions << endl;
+		cout << help << endl;
 	}
     
     // Set the value of the input file string
