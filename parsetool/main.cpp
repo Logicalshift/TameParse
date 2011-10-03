@@ -159,8 +159,8 @@ int main (int argc, const char * argv[])
         lrParserStage.compile();
         
         // Write the parser out if requested
-        if (!console.get_option(L"show-parser").empty()) {
-            wcout << formatter::to_string(*lrParserStage.get_parser(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+        if (!console.get_option(L"show-parser").empty() || !console.get_option(L"show-parser-closure").empty()) {
+            wcout << formatter::to_string(*lrParserStage.get_parser(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals(), !console.get_option(L"show-parser-closure").empty()) << endl;
         }
         
         // Stop if we have an error

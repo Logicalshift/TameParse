@@ -70,6 +70,11 @@ boost_console::boost_console(int argc, const char** argv)
         ("allow-reduce-conflicts",                              "reduce/reduce conflicts will produce a warning instead of an error.")
         ("no-conflicts",                                        "all parser conflicts count as an error and not a warning.");
 
+    po::options_description hiddenOptions;
+
+    hiddenOptions.add_options()
+    	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.");
+
 	// Positional options
 	po::positional_options_description positional;
 
@@ -78,6 +83,8 @@ boost_console::boost_console(int argc, const char** argv)
     
     // Command line options
     po::options_description cmdLine;
+    po::options_description help;
+    cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions).add(hiddenOptions);
     cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions);
 
 	// Store the options
