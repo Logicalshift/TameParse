@@ -92,12 +92,15 @@ language Ansi-C {
 	
 		<Argument-Expression-List>		= <Assignment-Expression> (',' <Assignment-Expression>)*	
 	
+		//
+		// sizeof(x) is slightly ambiguous. We'll treat 'x' as a type name if we can
+		//
 		<Unary-Expression>				= <Postfix-Expression>
 										| "++" <Unary-Expression>
 										| "--" <Unary-Expression>
 										| ('&' | '*' | '+' | '-' | '~' | '!') <Cast-Expression>
 										| sizeof <Unary-Expression>
-										| sizeof '(' <Type-Name> ')'
+										| sizeof [=> '(' <Type-Name>] '(' <Type-Name> ')'
 	
 		//
 		// Casts are interesting as they are ambiguous with function calls in a few situations
@@ -116,7 +119,27 @@ language Ansi-C {
 		// We resolve the ambiguous cases as casts for now.
 		//
 		<Cast-Expression>				= <Unary-Expression>
-										| '(' <Type-Name> [=> ')' <Cast-Expression>] ')' <Cast-Expression>
+										| <Unambiguous-Cast> <Cast-Expression>
+										| <Ambiguous-Cast> <Cast-Expression>
+										// | '(' <Type-Name> [=> ')' <Cast-Expression>] ')' <Cast-Expression>
+		
+		//
+		// (int)(x), (foo const)(x), (foo) x, etc are all definitely casts
+		//
+		<Unambiguous-Cast>				= '(' [=> <Unambiguous-Cast-Follow>] <Type-Name> ')'
+
+		<Unambiguous-Cast-Follow>		= <Simple-Type-Specifier>											// int, void, etc
+										| <Type-Qualifier>													// const, volatile
+										| identifier (<Simple-Type-Specifier> | <Type-Qualifier>)			// foo const etc
+										| identifier <Abstract-Declarator>? ')' ("++" <Unary-Expression> | "--" <Unary-Expression> | '&' | '*' | '~' | '!' | sizeof | identifier | <Constant>)
+
+		//
+		// (x)+1, (x)-1 and (x)(y) are all ambiguous and might be a cast or something else
+		// depending on the type of x
+		//
+		<Ambiguous-Cast>				= '(' [=> <Ambiguous-Cast-Follow>] <Type-Name> ')'
+
+		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '-' | '(' <Expression> ')')
 			
 		<Multiplicative-Expression>		= <Cast-Expression>
 										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
@@ -227,8 +250,7 @@ language Ansi-C {
 	
 		<Struct-Declaration>			= <Specifier-Qualifier-List> [=> <Struct-Declarator-List> ';'] <Struct-Declarator-List> ';'
 	
-		<Specifier-Qualifier-List>		= (<Simple-Type-Specifier> | <Type-Qualifier>)+
-										| (<Simple-Type-Specifier> | <Type-Qualifier>)+ identifier (<Simple-Type-Specifier> | <Type-Qualifier>)*
+		<Specifier-Qualifier-List>		= (<Type-Specifier> | <Type-Qualifier>)+
 	
 		<Struct-Declarator-List>		= <Struct-Declarator> (',' <Struct-Declarator>)*
 
