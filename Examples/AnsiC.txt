@@ -33,6 +33,11 @@
 ///   Declarations:	'extern foo;' could be a declaration of 'foo' without a type or
 ///					an object of type 'foo' without a name. We assume it's the former.
 ///
+///					Perhaps more weirdly, 'foo bar;' could be two different things. However
+///					if both foo and bar are types this is an error so there's no real
+///					ambiguity here. This parser will accept 'foo bar baz;' as a statement
+///					because it's in the spec even if it makes no sense.
+///
 ///   Parameters:	'int foo(bar);' could declare a function with an int parameter called
 ///					'bar' or an anonymous parameter of type 'bar'. We assume the latter.
 ///
