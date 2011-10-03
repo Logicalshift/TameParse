@@ -244,7 +244,7 @@ namespace lr {
             if (m_Tables->has_end_of_guard(state)) {
                 // Check if we can reduce the EOG symbol. No need to check twice.
                 if (!canReduceEog) {
-                    canReduceEog = can_reduce_nonterminal(m_Tables->end_of_guard());
+                    canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), this);
                 }
                 
                 // Switch to the EOG action if it exists
@@ -267,12 +267,12 @@ namespace lr {
                     // TODO: see if this produces a meaningful speedup before complicating the code
                     if (la.item() != NULL) {
                         // Standard symbol: use the usual form of can_reduce
-                        if (!can_reduce(la)) {
+                        if (!guardActions.can_reduce(la->matched(), this)) {
                             continue;
                         }
                     } else {
                         // Reached the end of input: check can_reduce for the EOI symbol
-                        if (!can_reduce_nonterminal(m_Tables->end_of_input())) {
+                        if (!guardActions.can_reduce_nonterminal(m_Tables->end_of_input(), this)) {
                             continue;
                         }
                     }
@@ -330,7 +330,7 @@ namespace lr {
     }
     
     /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
-    template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed) {
+    template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed, const stack& underlyingStack) {
         // Get the reduce rule
         const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
         
@@ -350,7 +350,7 @@ namespace lr {
         if (!pushed.empty()) {
             state = pushed.top();
         } else {
-            state = m_Stack[stackPos].state;
+            state = underlyingStack[stackPos].state;
         }
         
         // Work out the goto action
@@ -365,14 +365,14 @@ namespace lr {
     }
     
     /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
-    template<typename I, typename A, typename T> template<class symbol_fetcher> bool parser<I, A, T>::state::can_reduce(int symbol, int stackPos, std::stack<int> pushed) {
+    template<typename I, typename A, typename T> template<class symbol_fetcher> bool parser<I, A, T>::state::can_reduce(int symbol, int stackPos, std::stack<int> pushed, const stack& underlyingStack) {
         // Get the new state
         int state;
         if (!pushed.empty()) {
             // (This will always happen unless there's a bug in the parser tables)
             state = pushed.top();
         } else {
-            state = m_Stack[stackPos].state;
+            state = underlyingStack[stackPos].state;
         }
         
         // Get the initial action for the terminal
@@ -405,8 +405,8 @@ namespace lr {
                     std::stack<int> weakStack(pushed);
                     
                     // If we can reduce via this item, then the result is true
-                    fake_reduce(act, weakPos, weakStack);
-                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack)) return true;
+                    fake_reduce(act, weakPos, weakStack, underlyingStack);
+                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) return true;
                     
                     // If not, keep looking for a stronger action
                     act++;
@@ -416,7 +416,7 @@ namespace lr {
                 case lr_action::act_reduce:
                 {
                     // Update our 'fake state' to be whatever will happen due to this reduce
-                    fake_reduce(act, stackPos, pushed);
+                    fake_reduce(act, stackPos, pushed, underlyingStack);
                     
                     // Get the new state
                     int state;
@@ -424,7 +424,7 @@ namespace lr {
                         // (This will always happen unless there's a bug in the parser tables)
                         state = pushed.top();
                     } else {
-                        state = m_Stack[stackPos].state;
+                        state = underlyingStack[stackPos].state;
                     }
                     
                     // Get the initial action for the terminal
@@ -462,11 +462,11 @@ namespace lr {
             // If this is a weak reduce action, then check if the action is successful
             if (act->m_Type == lr_action::act_weakreduce) {
                 if (isTerminal) {
-                    if (!can_reduce(symbol)) {
+                    if (!actDelegate.can_reduce(symbol, this)) {
                         continue;
                     }
                 } else {
-                    if (!can_reduce_nonterminal(symbol)) {
+                    if (!actDelegate.can_reduce_nonterminal(symbol, this)) {
                         continue;
                     }
                 }
@@ -576,7 +576,7 @@ namespace lr {
             
             // If this is a reduce or weakreduce action, check if we can reduce this symbol
             if (checkAction->m_Type == lr_action::act_reduce || checkAction->m_Type == lr_action::act_weakreduce) {
-                if (can_reduce_nonterminal(guardSymbol)) {
+                if (actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
                     canReduce = true;
                     break;
                 }
@@ -610,7 +610,7 @@ namespace lr {
             
             if (act->m_Type == lr_action::act_weakreduce) {
                 // Check if we can perform a reduction
-                if (!can_reduce_nonterminal(guardSymbol)) {
+                if (!actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
                     // Try the next action if we can't reduce this item
                     act++;
                     continue;

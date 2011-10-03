@@ -374,6 +374,16 @@ namespace lr {
                 inline void reject(const lexeme_container& rejected) {
                     m_Trace.reject(rejected);
                 }
+                
+                /// \brief Returns true if the specified terminal symbol can be reduced
+                inline bool can_reduce(int terminal, state* state) {
+                    return state->can_reduce(terminal);
+                }
+                
+                /// \brief Returns true if the specified terminal symbol can be reduced
+                inline bool can_reduce_nonterminal(int terminal, state* state) {
+                    return state->can_reduce_nonterminal(terminal);
+                }
             };
             
             friend class guard_actions;
@@ -453,6 +463,16 @@ namespace lr {
                 
                 /// \brief The specified symbol has been rejected
                 inline void reject(const lexeme_container& rejected) {
+                }
+                
+                /// \brief Returns true if the specified terminal symbol can be reduced
+                inline bool can_reduce(int terminal, state* state) {
+                    return state->can_reduce(terminal);
+                }
+                
+                /// \brief Returns true if the specified terminal symbol can be reduced
+                inline bool can_reduce_nonterminal(int terminal, state* state) {
+                    return state->can_reduce_nonterminal(terminal);
                 }
             };
 
@@ -538,10 +558,10 @@ namespace lr {
             };
             
             /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
-            inline void fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed);
+            inline void fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed, const stack& underlyingStack);
             
             /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
-            template<class symbol_fetcher> bool can_reduce(int symbol, int stackPos, std::stack<int> pushed);
+            template<class symbol_fetcher> bool can_reduce(int symbol, int stackPos, std::stack<int> pushed, const stack& underlyingStack);
             
         public:
             /// \brief Returns true if a reduction of the specified lexeme will result in it being shifted
@@ -559,7 +579,7 @@ namespace lr {
             /// be resolved by a LR(1) parser, this will disambiguate the grammar (making it possible to choose
             /// only the action that allows the parser to continue)
             inline bool can_reduce(int terminalId) {
-                return can_reduce<terminal_fetcher>(terminalId, 0, std::stack<int>());
+                return can_reduce<terminal_fetcher>(terminalId, 0, std::stack<int>(), m_Stack);
             }
 
             /// \brief Returns true if a reduction of the lookahead will result in it being shifted
@@ -570,7 +590,7 @@ namespace lr {
         private:
             /// \brief As for can_reduce, but with a fake nonterminal lookahead value
             inline bool can_reduce_nonterminal(int nt) {
-                return can_reduce<nonterminal_fetcher>(nt, 0, std::stack<int>());
+                return can_reduce<nonterminal_fetcher>(nt, 0, std::stack<int>(), m_Stack);
             }
             
         public:
