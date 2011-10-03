@@ -7,6 +7,39 @@
 /// Converted to TameParse format by Andrew Hunter
 ///
 
+///
+/// ANSI C is a context-sensitive language by default. It is only LR(1) provided that the
+/// compiler makes a note of which identifiers refer to types in which contexts. This makes
+/// it a hard target for traditional parsers.
+///
+/// TameParse can do something which traditional parsers cannot: make decisions about which
+/// parse tree to follow based on context. This parser does not require type context to
+/// recognise C programs, and will produce a 'best guess' parse tree where ambiguous
+/// identifiers are resolved using their most likely interpretation.
+///
+/// This gives a major advantage over traditional C parsers: it can interpret fragments of
+/// code without the need for context and produce meaningful results. There are comments
+/// below talking about the specific ambiguities, but here's a summary of what you'll
+/// encounter in the parse tree:
+///
+///   Casts:		many ambiguities. (x)(y) is either a cast or a function call depending
+///					on if x is a type or not, and there are other cases that are similarly
+///   				confusing. <Unambiguous-Cast> and <Ambiguous-Cast> explictly separate
+///					the cases. Some unambiguous casts may end up in ambiguous cast.
+///	
+///	  Sizeof:		sizeof(x) could be the size of the variable x or the type x depending
+///					on how x is defined. We assume x is a type.
+///
+///   Declarations:	'extern foo;' could be a declaration of 'foo' without a type or
+///					an object of type 'foo' without a name. We assume it's the former.
+///
+///   Parameters:	'int foo(bar);' could declare a function with an int parameter called
+///					'bar' or an anonymous parameter of type 'bar'. We assume the latter.
+///
+///   Statements:	'x * y;' could be x multiplied by y and discarded, or a declaration of
+///					y as a pointer to x. We always interpret it as the latter if we can.
+///
+
 language Ansi-C {
 	///
 	/// Character types
@@ -206,7 +239,7 @@ language Ansi-C {
 		/// is interpreted correctly (the first fred can only be a type and the second can
 		/// only be sensibly interpreted as a variable name)
 		///
-		<Declaration>					= <Declaration-Specifiers> [=> <Init-Declarator> (';' | ',')] <Init-Declarator-List>? ';'
+		<Declaration>					= <Declaration-Specifiers> [=> ';' | <Init-Declarator> (';' | ',')] <Init-Declarator-List>? ';'
 	
 		<Declaration-Specifiers>		= (<Storage-Class-Specifier> | <Type-Specifier> | <Type-Qualifier>)+
 			
@@ -336,8 +369,6 @@ language Ansi-C {
 		///
 		/// When this ambiguity arises, we take the latter interpretation; the no effect
 		/// statement is going to be a rare case.
-		///
-		/// TODO: we end up recursively evaluating guards here, which is inefficient.
 		///
 		<Declaration-List>				= ([=> <Declaration>] <Declaration>)+
 
