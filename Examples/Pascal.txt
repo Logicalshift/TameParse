@@ -1,0 +1,567 @@
+///
+/// ISO 7185 Pascal grammar
+///
+/// Written by Andrew Hunter
+///
+
+language Pascal {
+	///
+	/// Types of symbol
+	///
+	lexer-symbols {
+		letter 						= /[A-Za-z]/
+		digit 						= /[0-9]/
+
+		identifier					= /{letter}({letter}|{digit})*/
+		unsigned-integer			= /{digit}+/
+		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+	}
+
+	///
+	/// Keywords
+	///
+	keywords {
+		and			array		begin		case		const		div			do
+		downto		else		end			file		for			function	goto
+		if			in			label		mod			nil			not			of
+		or			packed		procedure	program		record		repeat		set
+		then		to			type		until		var			while		with
+	}
+
+	///
+	/// Directives are weak keywords
+	///
+	weak keywords {
+		forward		external
+	}
+
+	///
+	/// Lexical tokens
+	///
+	lexer {
+		identifier					= /{identifier}*/
+		unsigned-number				= /{unsigned-integer}|{unsigned-real}/
+		character-string			= /'([^']|'')*'/
+	}
+
+	ignore {
+		whitespace					= /[\n\r\t ]+/
+		commentary					= /(\{|\(\*)([^\}\*]|\*[^\)])*(\}|\*\))/
+	}
+
+	///
+	/// Grammar
+	///
+	grammar {
+
+		///
+		/// 6.1.4 Directives
+		///
+
+		<Directive>					= forward
+									| external
+
+		///
+		/// 6.2.1 Blocks
+		///
+
+		<Block>						= <Label-Declaration-Part>? <Constant-Definition-Part>? 
+									  <Type-Definition-Part>? <Variable-Declaration-Part>?
+									  <Procedure-And-Function-Declaration-Part> 
+									  <Statement-Part>
+		
+		<Label-Declaration-Part>	= label <Label> (',' <Label>)* ';'
+
+		<Label>						= unsigned-number
+
+		<Constant-Definition-Part>	= const (<Constant-Definition> ';')+
+
+		<Type-Definition-Part>		= type (<Type-Definition> ';')+
+
+		<Variable-Declaration-Part>	= var (<Variable-Declaration> ';')+
+
+		<Procedure-And-Function-Declaration-Part> = ((<Procedure-Declaration> | <Function-Declaration>) ';')*
+
+		<Statement-Part>			= <Compound-Statement>
+
+
+		///
+		/// 6.3 Constant-definitions
+		///
+
+		<Constant-Definition>		= identifier '=' <Constant>
+
+		<Constant>					= <Signed-Number>
+									| identifier
+									| ('+' | '-') identifier
+									| character-string
+		
+
+		///
+		/// 6.4 Type-definitions
+		///
+			
+		<Type-Definition>			= identifier '=' <Type-Denoter>
+
+		<Type-Denoter>				= identifier
+									| <New-Type>
+		
+		<New-Type>					= <New-Ordinal-Type>
+									| <New-Structured-Type>
+									| <New-Pointer-Type>
+		
+
+		///
+		/// 6.4.2 Simple-types
+		///
+
+		<Simple-Type>				= <New-Ordinal-Type>
+									| identifier
+
+		<Ordinal-Type>				= <New-Ordinal-Type>
+									| identifier
+		
+		<New-Ordinal-Type>			= <Enumerated-Type>
+									| <Subrange-Type>
+		
+		///
+		/// 6.4.2.3 Enumerated-types
+		///
+		<Enumerated-Type>			= '(' <Identifier-List> ')'
+
+		<Identifier-List>			= identifier (',' identifier)*
+
+		///
+		/// 6.4.2.4 Subrange-types
+		///
+		<Subrange-Type>				= <Constant> ".." <Constant>
+
+
+		///
+		/// 6.4.3.1 Structured types (general)
+		///
+
+		<Structured-Type>			= <New-Structured-Type>
+									| identifier
+		
+		<New-Structured-Type>		= packed? <Unpacked-Structure-Type>
+
+		<Unpacked-Structure-Type>	= <Array-Type>
+									| <Record-Type>
+									| <Set-Type>
+									| <File-Type>
+		
+
+		///
+		/// 6.4.3.2 Array-Types
+		///
+
+		<Array-Type>				= array '[' <Index-Type> (',' <Index-Type>)* ']' of <Component-Type>
+
+		<Index-Type>				= <Ordinal-Type>
+
+		<Component-Type>			= <Type-Denoter>
+
+
+		///
+		/// 6.4.3.3 Record-Types
+		///
+
+		<Record-Type>				= record <Field-List>? end
+
+		// Need a lookahead of 2 here
+		<Field-List>				= ((<Fixed-Part> ([=> ';' case] ';' <Variant-Part>)?) | <Variant-Part>) ';'?
+
+		<Fixed-Part>				= <Record-Section> ([=> ';' <Record-Section>] ';' <Record-Section>)*
+
+		<Record-Section>			= <Identifier-List> ':' <Type-Denoter>
+
+		<Field-Identifier>			= identifier
+
+		<Variant-Part>				= case <Variant-Selector> of <Variant> ([=> ';' <Variant>] ';' <Variant>)*
+
+		// Need a lookahead of 2 to parse these correctly
+		<Variant-Selector>			= ([=> <Tag-Field> ':'] <Tag-Field> ':')? <Tag-Type>
+
+		<Tag-Field>					= identifier
+
+		<Variant>					= <Case-Constant-List> ':' '(' <Field-List> ')'
+
+		<Tag-Type>					= identifier
+
+		<Case-Constant-List>		= <Case-Constant> (',' <Case-Constant>)*
+
+		<Case-Constant>				= <Constant>
+
+
+		///
+		/// 6.4.3.4 Set-types
+		///
+
+		<Set-Type>					= set of <Base-Type>
+
+		<Base-Type>					= <Ordinal-Type>
+
+
+		///
+		/// 6.4.3.5 File-types
+		///
+
+		<File-Type>					= file of <Component-Type>
+
+
+		///
+		/// 6.4.4 Pointer-types
+		///
+
+		<Pointer-Type>				= <New-Pointer-Type>
+									| identifier
+		
+		<New-Pointer-Type>			= '^' <Domain-Type>
+
+		<Domain-Type>				= identifier
+
+
+		///
+		/// 6.5.1 Variable-declarations
+		///
+
+		<Variable-Declaration>		= <Identifier-List> ':' <Type-Denoter>
+
+		<Variable-Access>			= <Entire-Variable>
+									| <Component-Variable>
+									| <Identified-Variable>
+									// | <Buffer-Variable> // (same syntax as identified-variable)
+		
+
+		///
+		/// 6.5.2 Entire-variables
+		///
+
+		<Entire-Variable>			= <Variable-Identifier>
+
+		<Variable-Identifier>		= identifier
+
+
+		///
+		/// 6.5.3 Component-Variables
+		///
+
+		<Component-Variable>		= <Indexed-Variable>
+									| <Field-Designator>
+		
+		<Indexed-Variable>			= <Array-Variable> '[' <Index-Expression> (',' <Index-Expression>)* ']'
+
+		<Array-Variable>			= <Variable-Access>
+
+		<Index-Expression>			= <Expression>
+
+
+		///
+		/// 6.5.3.3 Field-designators
+		///
+
+		<Field-Designator>			= <Record-Variable> '.' <Field-Specifier>
+
+		<Record-Variable>			= <Variable-Access>
+
+		<Field-Specifier>			= identifier
+
+
+		///
+		/// 6.5.4 Identified-Variables
+		///
+
+		<Identified-Variable>		= <Variable-Access> '^'
+
+
+		///
+		/// 6.5.5 Buffer-variables
+		///
+
+		<Buffer-Variable>			= <Variable-Access> '^'
+
+
+		///
+		/// 6.6.1 Procedure-declarations
+		///
+
+		<Procedure-Declaration>		= <Procedure-Heading> ';' <Directive>
+									| <Procedure-Heading> ';' <Procedure-Block>
+		
+		<Procedure-Heading>			= procedure identifier <Formal-Parameter-List>?
+
+		<Procedure-Identification>	= procedure identifier
+
+		<Procedure-Identifier>		= identifier
+
+		<Procedure-Block>			= <Block>
+
+
+		///
+		/// 6.6.2 Function-declarations
+		///
+
+		<Function-Declaration>		= <Function-Heading> ';' <Directive>
+									| <Function-Identification> ';' <Function-Block>
+									| <Function-Heading> ';' <Function-Block>
+		
+		<Function-Heading>			= function identifier <Formal-Parameter-List> '?' ':' <Result-Type>
+
+		<Function-Identification>	= function identifier
+
+		<Function-Identifier>		= identifier
+
+		<Result-Type>				= identifier
+
+		<Function-Block>			= <Block>
+
+
+		///
+		/// 6.6.3 Parameters
+		///
+
+		<Formal-Parameter-List>		= '(' <Formal-Parameter-Section> (';' <Formal-Parameter-Section>)* ')'
+
+		<Formal-Parameter-Section>	= <Value-Parameter-Specification>
+									| <Variable-Parameter-Specification>
+									| <Procedural-Parameter-Specification>
+									| <Functional-Parameter-Specification>
+		
+		<Value-Parameter-Specification>	= <Identifier-List> ':' identifier
+
+		<Variable-Parameter-Specification> = var <Identifier-List> ':' identifier
+
+		<Procedural-Parameter-Specification> = <Procedure-Heading>
+
+		<Functional-Parameter-Specification> = <Function-Heading>
+
+
+		///
+		/// 6.6.3.7 Conformant array parameters
+		///
+
+		<Formal-Parameter-Section>	+= <Conformant-Array-Parameter-Specification>
+
+		<Conformant-Array-Parameter-Specification> 	= <Value-Conformant-Array-Specification>
+													| <Variable-Conformant-Array-Specification>
+		
+		<Value-Conformant-Array-Specification>		= <Identifier-List> ':' <Conformant-Array-Schema>
+
+		<Variable-Conformant-Array-Specification>	= var <Identifier-List> ':' <Conformant-Array-Schema>
+
+		<Conformant-Array-Schema>					= <Packed-Conformant-Array-Schema>
+													| <Unpacked-Conformant-Array-Schema>
+		
+		<Packed-Conformant-Array-Schema>			= packed array '[' <Index-Type-Specification> ']' of identifier
+
+		<Unpacked-Conformant-Array-Schema>			= array '[' <Index-Type-Specification> ']' of (identifier | <Conformant-Array-Schema>)
+
+		<Index-Type-Specification>					= identifier ".." identifier ':' identifier
+
+
+		///
+		/// 6.7.1 Expressions (general)
+		///
+
+		<Expression>				= <Simple-Expression> (<Relational-Operator> <Simple-Expression>)?
+
+		<Simple-Expression>			= ('+' | '-')? <Term> (<Adding-Operator> <Term>)*
+
+		<Term>						= <Factor> (<Multiplying-Operator> <Factor>)*
+
+		<Factor>					= <Variable-Access>
+									| <Unsigned-Constant>
+									| <Function-Designator>
+									| <Set-Constructor>
+									| '(' <Expression> ')'
+									| not <Factor>
+		
+		<Unsigned-Constant>			= unsigned-number
+									| character-string
+									// | identifier
+									| nil
+		
+		<Set-Constructor>			= '[' (<Member-Designator> (',' <Member-Designator>)*)? ']'
+
+		<Member-Designator>			= <Expression> (".." <Expression>)
+
+
+		///
+		/// 6.7.2 Operators
+		///
+
+		<Multiplying-Operator>		= '*' | '/' | div | mod | and
+
+		<Adding-Operator>			= '+' | '-' | or
+
+		<Relational-Operator>		= '=' | "<>" | '<' | '>' | "<=" | ">=" | in
+
+
+		///
+		/// 6.7.3 Function-designators
+		///
+
+		<Function-Designator>		= identifier <Actual-Parameter-List>
+
+		<Actual-Parameter-List>		= '(' <Actual-Parameter> (',' <Actual-Parameter>)* ')'
+
+		<Actual-Parameter>			= <Expression>
+
+
+		///
+		/// 6.8.1 Statements (general)
+		///
+
+		<Statement>					= (<Label> ':')? (<Simple-Statement> | <Structured-Statement>)
+
+
+		///
+		/// 6.8.2.1 Simple-statements (general)
+		///
+
+		<Simple-Statement>			= <Empty-Statement>
+									| <Assignment-Statement>
+									| <Procedure-Statement>
+									| <Goto-Statement>
+		
+		<Empty-Statement>			=
+
+
+		///
+		/// 6.8.2.2 Assignment-statements
+		///
+
+		<Assignment-Statement>		= <Variable-Access> ":=" <Expression>
+
+
+		///
+		/// 6.8.2.3 Procedure-statements
+		///
+
+		// Read-parameter-list etc commented out as they're basically a more restricted version of Actual-Parameter-List
+		// Could use a guard to use the specific forms when they're available but for now it's unnecessary
+
+		<Procedure-Statement>		= identifier (<Actual-Parameter-List> /* | <Read-Parameter-List> | <Readln-Parameter-List> | <Write-Parameter-List> | <Writeln-Parameter-List> */)?
+
+
+		///
+		/// 6.8.2.4 Goto-statements
+		///
+
+		<Goto-Statement>			= goto <Label>
+
+
+		///
+		/// 6.8.3.1 Structured-statements (general)
+		///
+
+		<Structured-Statement>		= <Compound-Statement>
+									| <Conditional-Statement>
+									| <Repetitive-Statement>
+									| <With-Statement>
+
+		<Statement-Sequence>		= <Statement> (';' <Statement>)*
+
+
+		///
+		/// 6.8.3.2 Compound-Statements
+		///
+
+		<Compound-Statement>		= begin <Statement-Sequence> end
+
+
+		///
+		/// 6.8.3.3 Conditional-statements
+		///
+
+		<Conditional-Statement>		= <If-Statement>
+									| <Case-Statement>
+		
+
+		///
+		/// 6.8.3.4 If-statements
+		///
+
+		<If-Statement>				= if <Expression> then <Statement> <Else-Part>?
+
+		<Else-Part>					= else <Statement>
+
+
+		///
+		/// 6.8.3.5 Case-statements
+		///
+
+		<Case-Statement>			= case <Case-Index> of <Case-List-Element> (';' <Case-List-Element>)* ';'? end
+
+		<Case-List-Element>			= <Case-Constant-List> ':' <Statement>
+
+		<Case-Index>				= <Expression>
+
+
+		///
+		/// 6.8.3.6 Repetitive-statements
+		///
+
+		<Repetitive-Statement>		= <Repeat-Statement>
+									| <While-Statement>
+									| <For-Statement>
+
+
+		///
+		/// 6.8.3.7 Repeat-statements
+		///
+
+		<Repeat-Statement>			= repeat <Statement-Sequence> until <Expression>
+
+
+		///
+		/// 6.8.3.8 While-statements
+		///
+
+		<While-Statement>			= while <Expression> do <Statement>
+
+
+		///
+		/// 6.8.3.9 For-statements
+		///
+
+		<For-Statement>				= for <Control-Variable> ":=" <Initial-Value> (to | downto) <Final-Value> do <Statement>
+
+		<Control-Variable>			= <Entire-Variable>
+
+		<Initial-Value>				= <Expression>
+
+		<Final-Value>				= <Expression>
+
+
+		///
+		/// 6.8.3.10 With-statements
+		///
+
+		<With-Statement>			= with <Record-Variable-List> do <Statement>
+
+		<Record-Variable-List>		= <Record-Variable> (',' <Record-Variable>)*
+
+		<Field-Designator-Identifier>	= identifier
+
+
+		///
+		/// 6.10 Programs
+		///
+
+		<Program>					= <Program-Heading> ';' <Program-Block> '.'
+
+		<Program-Heading>			= program identifier ('(' <Program-Parameter-List> ')')
+
+		<Program-Parameter-List>	= <Identifier-List>
+
+		<Program-Block>				= <Block>
+
+		/// =========================================================================== ///
+
+		<Signed-Number>				= unsigned-number
+									| '+' unsigned-number
+									| '-' unsigned-number
+	}
+}
