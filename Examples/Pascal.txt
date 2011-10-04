@@ -4,6 +4,24 @@
 /// Written by Andrew Hunter
 ///
 
+//
+// This is a fairly strict ISO 7185 implementation. Some common Pascal conventions will not
+// be accepted (as they are not syntactically valid according to this particular spec)
+//
+// In particular, the ';' separator after functions is mandatory here (it's often omitted)
+// and it's also mandatory after begin/end blocks as well (where it's also often omitted)
+//
+// TODO: TameParse is case-sensitive and Pascal isn't.
+//
+
+//
+// We use guards to deal with the places where Pascal requires a lookahead of 2; this
+// ensures that the generated syntax tree is very similar to that specified in ISO 7185.
+// The specification often does use context-sensitive identifiers. These are not used here
+// so sometimes things like <Variable-Access> will show up where the specification might
+// suggest a more specific production based on the type of the identifier.
+//
+
 language Pascal {
 	///
 	/// Types of symbol
@@ -386,7 +404,7 @@ language Pascal {
 		
 		<Set-Constructor>			= '[' (<Member-Designator> (',' <Member-Designator>)*)? ']'
 
-		<Member-Designator>			= <Expression> (".." <Expression>)
+		<Member-Designator>			= <Expression> (".." <Expression>)?
 
 
 		///
@@ -554,7 +572,7 @@ language Pascal {
 
 		<Program>					= <Program-Heading> ';' <Program-Block> '.'
 
-		<Program-Heading>			= program identifier ('(' <Program-Parameter-List> ')')
+		<Program-Heading>			= program identifier ('(' <Program-Parameter-List> ')')?
 
 		<Program-Parameter-List>	= <Identifier-List>
 
