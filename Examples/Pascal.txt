@@ -308,7 +308,7 @@ language Pascal {
 									| <Function-Identification> ';' <Function-Block>
 									| <Function-Heading> ';' <Function-Block>
 		
-		<Function-Heading>			= function identifier <Formal-Parameter-List> '?' ':' <Result-Type>
+		<Function-Heading>			= function identifier <Formal-Parameter-List>? ':' <Result-Type>
 
 		<Function-Identification>	= function identifier
 
