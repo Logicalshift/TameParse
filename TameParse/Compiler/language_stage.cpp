@@ -85,13 +85,26 @@ language_stage::language_stage(console_container& console, const std::wstring& f
 
 /// \brief Destructor
 language_stage::~language_stage() {
-    
+    // Destroy the cached filenames
+    for (map<wstring, wstring*>::iterator filename = m_Filenames.begin(); filename != m_Filenames.end(); filename++) {
+        delete filename->second;
+    }
+    m_Filenames.clear();
 }
 
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_stage::compile() {
     // Write out a verbose message
     cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar for " << m_Language->identifier() << endl;
+
+    // Find/create a filename for this object
+    wstring* ourFilename;
+    if (m_Filenames.find(filename()) != m_Filenames.end()) {
+        ourFilename = m_Filenames[filename()];
+    } else {
+        ourFilename = new wstring(filename());
+        m_Filenames[filename()] = ourFilename;
+    }
     
     // Find any lexer-symbols sections and add them to the lexer
     for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
@@ -218,7 +231,7 @@ void language_stage::compile() {
                 }
                 
                 // Store where it is defined
-                m_TerminalDefinition[symId] = *lexerItem;
+                m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
                 
                 // Action depends on the type of item
                 switch ((*lexerItem)->get_type()) {
@@ -334,14 +347,14 @@ void language_stage::compile() {
                 // Append the items in this production
                 for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
                     // Compile each item in turn and append them to the rule
-                    compile_item(*newRule, *ebnfItem);
+                    compile_item(*newRule, *ebnfItem, ourFilename);
                 }
                 
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
                 
                 // Remember where this rule was defined
-                m_RuleDefinition[newRule->identifier(m_Grammar)] = *production;
+                m_RuleDefinition[newRule->identifier(m_Grammar)] = block_file(*production, ourFilename);
             }
         }
     }
@@ -349,7 +362,7 @@ void language_stage::compile() {
     // Display warnings for unused symbols
     for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
         // Ignore symbols that we don't have a definition location for
-        if (!m_TerminalDefinition[*unused]) {
+        if (!m_TerminalDefinition[*unused].first) {
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
             continue;
         }        
@@ -359,7 +372,7 @@ void language_stage::compile() {
         
         msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
         
-        cons().report_error(error(error::sev_warning, filename(), L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused]->start_pos()));
+        cons().report_error(error(error::sev_warning, *m_TerminalDefinition[*unused].second, L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused].first->start_pos()));
     }
     
     // Any nonterminal with no rules is one that was referenced but not defined
@@ -371,7 +384,7 @@ void language_stage::compile() {
         // This nonterminal ID is unused if it has no rules
         if (m_Grammar.rules_for_nonterminal(nonterminalId).size() == 0) {
             // Find the place where this nonterminal was first used
-            block*          firstUsage  = m_FirstNonterminalUsage[nonterminalId];
+            block*          firstUsage  = m_FirstNonterminalUsage[nonterminalId].first;
             position        usagePos    = firstUsage?firstUsage->start_pos():position(-1, -1, -1);
             
             // Generate the message
@@ -391,7 +404,7 @@ void language_stage::compile() {
     item_container emptyItem(new empty_item());
     int emptyId = m_Grammar.identifier_for_item(emptyItem);
 
-    for (map<item_container, dfa::position>::const_iterator checkGuard = m_Guards.begin(); checkGuard != m_Guards.end(); ++checkGuard) {
+    for (map<item_container, position_file>::const_iterator checkGuard = m_Guards.begin(); checkGuard != m_Guards.end(); ++checkGuard) {
         // Get the guard item
         const guard* theGuard = checkGuard->first->cast_guard();
         if (!theGuard) continue;
@@ -404,13 +417,13 @@ void language_stage::compile() {
             if (theGuard->get_rule()->items().empty()) {
                 // The empty guard is just a warning
                 if (cons().get_option(L"allow-empty-guards").empty()) {
-                    cons().report_error(error(error::sev_warning, filename(), L"EMPTY_GUARD", L"Empty guards will always be accepted and will supress alternative meanings of an expression", checkGuard->second));
+                    cons().report_error(error(error::sev_warning, *checkGuard->second.second, L"EMPTY_GUARD", L"Empty guards will always be accepted and will supress alternative meanings of an expression", checkGuard->second.first));
                 }
             } else {
                 // Guards with content that evaluate to empty have no effect and are an error
                 wstringstream msg;
                 msg << L"Guard '" << formatter::to_string(*theGuard, m_Grammar, m_Terminals) << "' can evaluate to the empty string and will supress other meanings of any rule it is encountered in.";
-                cons().report_error(error(error::sev_error, filename(), L"INEFFECTIVE_GUARD", msg.str(), checkGuard->second));
+                cons().report_error(error(error::sev_error, *checkGuard->second.second, L"INEFFECTIVE_GUARD", msg.str(), checkGuard->second.first));
             }
         }
     }
@@ -514,7 +527,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
 ///
 /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
 /// to be missing from the terminal dictionary.
-void language_stage::compile_item(rule& rule, ebnf_item* item) {
+void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilename) {
     switch (item->get_type()) {
         case ebnf_item::ebnf_terminal:
         case ebnf_item::ebnf_terminal_character:
@@ -538,7 +551,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
             
             // Mark the place where this nonterminal was first used (this is later used to report an error if this nonterminal is undefined)
             if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
-                m_FirstNonterminalUsage[nonterminalId] = item;
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
             }
             
             // Return a new nonterminal item
@@ -550,7 +563,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
         {
             // Just append the items inside this one to the rule
             for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
-                compile_item(rule, *childItem);
+                compile_item(rule, *childItem, ourFilename);
             }
             break;
         }
@@ -559,7 +572,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
         {
             // Compile into an optional item
             ebnf_optional* newItem = new ebnf_optional();
-            compile_item(*newItem->get_rule(), (*item)[0]);
+            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
             
             // Append to the rule
             rule << item_container(newItem, true);
@@ -570,7 +583,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
         {
             // Compile into a repeating item
             ebnf_repeating* newItem = new ebnf_repeating();
-            compile_item(*newItem->get_rule(), (*item)[0]);
+            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
             
             // Append to the rule
             rule << item_container(newItem, true);
@@ -581,7 +594,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
         {
             // Compile into a repeating item
             ebnf_repeating_optional* newItem = new ebnf_repeating_optional();
-            compile_item(*newItem->get_rule(), (*item)[0]);
+            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
             
             // Append to the rule
             rule << item_container(newItem, true);
@@ -592,14 +605,14 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
         {
             // Compile into a guard item
             guard* newItem = new guard();
-            compile_item(*newItem->get_rule(), (*item)[0]);
+            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
             
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
 
             // Remember this as a language guard: we'll need to check if it can be empty later
-            m_Guards[container] = (*item)[0]->start_pos();
+            m_Guards[container] = position_file((*item)[0]->start_pos(), ourFilename);
             break;
         }
             
@@ -609,10 +622,10 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
             ebnf_alternate* newItem = new ebnf_alternate();
             
             // Left-hand side
-            compile_item(*newItem->get_rule(), (*item)[0]);
+            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
             
             // Right-hand side
-            compile_item(*newItem->add_rule(), (*item)[1]);
+            compile_item(*newItem->add_rule(), (*item)[1], ourFilename);
             
             // Append to the rule
             rule << item_container(newItem, true);
@@ -624,4 +637,42 @@ void language_stage::compile_item(rule& rule, ebnf_item* item) {
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
             break;
     }
+}
+
+typedef language_stage::symbol_map sm;
+static void copy_symbols(map<wstring, wstring*>& filenames, const sm& source, sm& target) {
+    for (sm::const_iterator sourceItem = source.begin(); sourceItem != source.end(); sourceItem++) {
+        // Get/create the filename pointer for this item
+        wstring* filenamePtr;
+        map<wstring, wstring*>::iterator found = filenames.find(*sourceItem->second.second);
+
+        if (found == filenames.end()) {
+            filenamePtr = new wstring(*sourceItem->second.second);
+            filenames[*sourceItem->second.second] = filenamePtr;
+        } else {
+            filenamePtr = found->second;
+        }
+
+        // Copy this item (assuming the block won't get freed, the language_stage object generally doesn't own it anyway)
+        target[sourceItem->first] = language_stage::block_file(sourceItem->second.first, filenamePtr);
+    }
+}
+
+/// \brief Exports the results of this language stage into another
+void language_stage::export_to(language_stage* target) {
+    // Copy the items that can be simply copied
+    target->m_Terminals         = m_Terminals;
+    target->m_Lexer             = m_Lexer;
+    target->m_Grammar           = m_Grammar;
+    target->m_WeakSymbols       = m_WeakSymbols;
+    target->m_IgnoredSymbols    = m_IgnoredSymbols;
+    target->m_UnusedSymbols     = m_UnusedSymbols;
+    target->m_TypeForTerminal   = m_TypeForTerminal;
+
+    // Copy the symbol maps
+    copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);
+    copy_symbols(target->m_Filenames, m_FirstNonterminalUsage,  target->m_FirstNonterminalUsage);
+    copy_symbols(target->m_Filenames, m_RuleDefinition,         target->m_RuleDefinition);
+
+    // Copy the guard items
 }
