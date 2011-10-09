@@ -121,7 +121,7 @@ void language_stage::compile() {
         }
     }
 #else
-    // Importing not supported in the 
+    // Importing not supported in the bootstrapper
     if (!m_Language->inherits().empty()) {
         cons().report_error(error(error::sev_error, filename(), L"CANT_INHERIT_WHEN_BOOTSTRAPPING", L"Inheritance is not supported in the bootstrapper", m_Language->start_pos()));
     }
