@@ -17,9 +17,18 @@
 #include "TameParse/Language/language_block.h"
 #include "TameParse/Language/language_unit.h"
 #include "TameParse/Compiler/compilation_stage.h"
+
+#ifndef TAMEPARSE_BOOTSTRAP
 #include "TameParse/Compiler/import_stage.h"
+#endif
 
 namespace compiler {
+#ifdef TAMEPARSE_BOOTSTRAP
+    class import_stage {
+        // Import stage is not available in the bootstrap parser
+    };
+#endif
+
     ///
     /// \brief Class that handles compiling a language block into a lexer and a grammar
     ///
@@ -84,7 +93,7 @@ namespace compiler {
         
     public:
         /// \brief Creates a compiler that will compile the specified language block
-        language_stage(console_container& console, const std::wstring& filename, const language::language_block* block);
+        language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage);
         
         /// \brief Destructor
         virtual ~language_stage();

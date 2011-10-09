@@ -78,9 +78,10 @@ namespace compiler {
 }
 
 /// \brief Creates a compiler that will compile the specified language block
-language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block)
+language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage)
 : compilation_stage(console, filename)
-, m_Language(block) {
+, m_Language(block)
+, m_Import(importStage) {
 }
 
 /// \brief Destructor
@@ -94,6 +95,38 @@ language_stage::~language_stage() {
 
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_stage::compile() {
+#ifndef TAMEPARSE_BOOTSTRAP
+    // If this language inherits from another, then try to import it and if it exists, compile it first
+    if (!m_Language->inherits().empty()) {
+        // The language block supports multiple items to inherit from, but this stage will only compile the first one
+        const wstring& inheritFrom = m_Language->inherits().front();
+
+        // Fetch the language from the importer
+        // TODO: inheritance loops should produce an error (other than a stack overflow)
+        const language_block* inheritBlock = m_Import->language_with_name(inheritFrom);
+
+        // Report an error if the language is not defined
+        if (!inheritBlock) {
+            wstringstream msg;
+            msg << L"Unable to find language '" << inheritFrom << "'";
+            cons().report_error(error(error::sev_error, filename(), L"CANT_FIND_LANGUAGE", msg.str(), m_Language->start_pos()));
+        } else {
+            // Compile the language this inherits from
+            console_container consCopy(cons_container());
+            language_stage inheritStage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
+            inheritStage.compile();
+
+            // Merge with this language
+            inheritStage.export_to(this);
+        }
+    }
+#else
+    // Importing not supported in the 
+    if (!m_Language->inherits().empty()) {
+        cons().report_error(error(error::sev_error, filename(), L"CANT_INHERIT_WHEN_BOOTSTRAPPING", L"Inheritance is not supported in the bootstrapper", m_Language->start_pos()));
+    }
+#endif
+
     // Write out a verbose message
     cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar for " << m_Language->identifier() << endl;
 
@@ -639,6 +672,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
     }
 }
 
+/// \brief Copies a general symbol/filename block to another
 template<class sm> static void copy_symbols(map<wstring, wstring*>& filenames, const sm& source, sm& target) {
     typedef typename sm::const_iterator iterator;
     typedef typename sm::mapped_type    value_type;

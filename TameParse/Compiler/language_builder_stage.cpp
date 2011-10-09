@@ -54,7 +54,7 @@ void language_builder_stage::compile() {
 		}
 
 		// Create a language stage to compile this language
-		language_stage* stage 		= new language_stage(consContainer, languageFileName, languageBlock);
+		language_stage* stage 		= new language_stage(consContainer, languageFileName, languageBlock, m_ImportStage);
 		m_Languages[languageName] 	= stage;
 
 		// Compile it

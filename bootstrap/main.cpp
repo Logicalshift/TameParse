@@ -127,7 +127,7 @@ int main (int argc, const char * argv[]) {
     }
     
     // Stage 1: interpret the language and generate the NDFA and grammar
-    language_stage languageStage(consContainer, L"definition.txt", lBlock);
+    language_stage languageStage(consContainer, L"definition.txt", lBlock, NULL);
     languageStage.compile();
     
     // Stage 2: compile the lexer
