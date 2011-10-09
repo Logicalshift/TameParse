@@ -32,7 +32,6 @@ typedef tameparse_language::TopLevel_Block                  ast_TopLevel_Block;
 typedef tameparse_language::Language_Block                  ast_Language_Block;
 typedef tameparse_language::Language_Definition             ast_Language_Definition;
 typedef tameparse_language::list_of_Language_Definition     list_of_Language_Definition;
-typedef tameparse_language::list_of__comma__identifier      list_of__comma__identifier;
 typedef tameparse_language::list_of_Lexeme_Definition       list_of_Lexeme_Definition;
 typedef tameparse_language::list_of_Keyword_Definition      list_of_Keyword_Definition;
 typedef tameparse_language::identifier                      identifier;
@@ -446,16 +445,8 @@ static language_block* definition_for(const ast_Language_Block* language) {
     // Deal with the inherits block, if it exists
     if (language->optional_Language_Inherits->Language_Inherits) {
         // Add the first identifier
+        // For the moment, we can only inherit from one language at a time
         result->add_inherits(language->optional_Language_Inherits->Language_Inherits->identifier->content<wchar_t>());
-        
-        // Iterate through the identifiers of the languages this inherits from
-        for (list_of__comma__identifier::iterator inherit = 
-             language->optional_Language_Inherits->Language_Inherits->list_of__comma__identifier->begin();
-             inherit != language->optional_Language_Inherits->Language_Inherits->list_of__comma__identifier->end();
-             inherit++) {
-            // Add each one to the result
-            result->add_inherits((*inherit)->identifier->content<wchar_t>());
-        }
     }
     
     // Add the language definitions
