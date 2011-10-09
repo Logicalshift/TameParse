@@ -639,9 +639,12 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
     }
 }
 
-typedef language_stage::symbol_map sm;
-static void copy_symbols(map<wstring, wstring*>& filenames, const sm& source, sm& target) {
-    for (sm::const_iterator sourceItem = source.begin(); sourceItem != source.end(); sourceItem++) {
+template<class sm> static void copy_symbols(map<wstring, wstring*>& filenames, const sm& source, sm& target) {
+    typedef typename sm::const_iterator iterator;
+    typedef typename sm::mapped_type    value_type;
+    
+    // Iterate through the items in the map
+    for (iterator sourceItem = source.begin(); sourceItem != source.end(); sourceItem++) {
         // Get/create the filename pointer for this item
         wstring* filenamePtr;
         map<wstring, wstring*>::iterator found = filenames.find(*sourceItem->second.second);
@@ -654,7 +657,7 @@ static void copy_symbols(map<wstring, wstring*>& filenames, const sm& source, sm
         }
 
         // Copy this item (assuming the block won't get freed, the language_stage object generally doesn't own it anyway)
-        target[sourceItem->first] = language_stage::block_file(sourceItem->second.first, filenamePtr);
+        target[sourceItem->first] = value_type(sourceItem->second.first, filenamePtr);
     }
 }
 
@@ -674,5 +677,6 @@ void language_stage::export_to(language_stage* target) {
     copy_symbols(target->m_Filenames, m_FirstNonterminalUsage,  target->m_FirstNonterminalUsage);
     copy_symbols(target->m_Filenames, m_RuleDefinition,         target->m_RuleDefinition);
 
-    // Copy the guard items
+    // Copy the guard items (which are in a different format)
+    copy_symbols(target->m_Filenames, m_Guards,                 target->m_Guards);
 }
