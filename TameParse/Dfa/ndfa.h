@@ -68,9 +68,6 @@ namespace dfa {
         /// \brief The current state (used while building up the NDFA)
         int m_CurrentState;
 
-        /// \brief Disabled assignment
-        ndfa& operator=(const ndfa& assignFrom);
-
     protected:
         /// \brief Creates a new NDFA with the specified data
         ndfa(state_list* states, symbol_map* symbols, accept_action_for_state* accept);
@@ -174,6 +171,10 @@ namespace dfa {
         /// This is a slow check to deal with cases where symbol ranges aren't sorting correctly. This should be true for
         /// NDFAs returned by to_ndfa_with_unique_symbols() and to_dfa()
         bool verify_no_symbol_overlap() const;
+        
+    public:
+        /// \brief Copies the values from the specified NDFA into this one (replacing any values it might already contain)
+        ndfa& operator=(const ndfa& assignFrom);
         
     public:
         ///

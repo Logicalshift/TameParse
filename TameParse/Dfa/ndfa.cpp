@@ -509,3 +509,55 @@ bool ndfa::verify_is_dfa() const {
     // Looks good
     return true;
 }
+
+/// \brief Copies the values from the specified NDFA into this one (replacing any values it might already contain)
+ndfa& ndfa::operator=(const ndfa& assignFrom) {
+    // Nothing to do if we're trying to assign to ourselves
+    if (&assignFrom == this) return *this;
+
+    // Destroy any accept actions that might be in this NDFA
+    for (accept_action_for_state::iterator acceptState = m_Accept->begin(); acceptState != m_Accept->end(); acceptState++) {
+        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); actionList++) {
+            delete *actionList;
+        }
+    }
+
+    m_Accept->clear();
+    
+    // Destroy any states
+    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+        delete *stateIt;
+    }
+
+    m_States->clear();
+
+    // Copy the states from the target NDFA
+    for (int stateId=0; stateId < assignFrom.count_states(); stateId++) {
+        m_States->push_back(new state(assignFrom.get_state(stateId)));
+    }
+
+    // Copy the symbol map for this NDFA
+    *m_Symbols = assignFrom.symbols();
+
+    // Copy the accepting states for this NDFA
+    for (accept_action_for_state::const_iterator acceptAct = assignFrom.m_Accept->begin(); acceptAct != assignFrom.m_Accept->end(); ++acceptAct) {
+        // Begin creating a new action list
+        accept_action_list& newActions = (*m_Accept)[acceptAct->first];
+
+        // Iterate through the list of actions for this state
+        for (accept_action_list::const_iterator copyAction = acceptAct->second.begin(); copyAction != acceptAct->second.end(); copyAction++) {
+            // Ignore NULL actions
+            if (!*copyAction) continue;
+
+            // Clone this action
+            newActions.push_back((*copyAction)->clone());
+        }
+    }
+
+    // Copy the remaining parameters
+    m_IsDeterministic   = assignFrom.m_IsDeterministic;
+    m_CurrentState      = assignFrom.m_CurrentState;
+    
+    // Done
+    return *this;
+}
