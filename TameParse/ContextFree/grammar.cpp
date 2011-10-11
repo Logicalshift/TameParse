@@ -38,6 +38,28 @@ grammar::~grammar() {
     }
 }
 
+/// \brief Assignment
+grammar& grammar::operator=(const grammar& assignFrom) {
+    // Nothing to do if we're assigning to ourselves
+    if (&assignFrom == this) return *this;
+    
+    // Copy the grammar
+    m_Nonterminals      = assignFrom.m_Nonterminals;
+    m_NameToNonterminal = assignFrom.m_NameToNonterminal;
+    m_NonterminalToName = assignFrom.m_NonterminalToName;
+    
+    // Clear the caches for this object
+    m_RuleIdentifiers.clear();
+    m_ItemIdentifiers.clear();
+    m_ItemForIdentifier.clear();
+    m_CachedFirstSets.clear();
+    m_CachedFollowSets.clear();
+    m_CachedItemSets.clear();
+    
+    // Finished
+    return *this;
+}
+
 /// \brief Returns the rules for the nonterminal with the specified identifier
 rule_list& grammar::rules_for_nonterminal(int id) {
     return m_Nonterminals[id];

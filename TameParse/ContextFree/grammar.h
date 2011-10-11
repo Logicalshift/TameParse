@@ -100,6 +100,9 @@ namespace contextfree {
         /// \brief Destructor
         ~grammar();
         
+        /// \brief Assignment
+        grammar& operator=(const grammar& assignFrom);
+        
     public:
         /// \brief Returns the first unused item ID
         inline int max_item_identifier() const { return (int)m_ItemIdentifiers.size(); }
