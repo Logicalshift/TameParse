@@ -301,7 +301,22 @@ std::istream* boost_console::open_file(const std::wstring& filename) {
 	// Create the stream
     fs::fstream* readFile = new fs::fstream();
 
+    // Initially try 
     readFile->open(path, fstream::in | fstream::binary);
+    
+    // Try searching various paths until we find the file
+    if (readFile->fail() && !input_file().empty() && path.is_relative()) {
+        // Try next to the input file
+        readFile->close();
+        
+        // Generate a new path based on the input file
+        fs::wpath inputPath(input_file());
+        inputPath.remove_filename();
+        inputPath /= filename;
+        
+        // Try to open this path
+        readFile->open(inputPath, fstream::in | fstream::binary);
+    }
     
     // Return NULL if the file failed to open
     if (readFile->fail()) {
