@@ -135,8 +135,9 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					if ((*lrItem)->rule()->items()[(*lrItem)->offset()] != *clashingGuard) continue;
 
 					// Get the position of this rule
-					int 		ruleId 	= (*lrItem)->rule()->identifier(*language->grammar());
-					position	rulePos	= language->rule_definition_pos(ruleId);
+					int             ruleId      = (*lrItem)->rule()->identifier(*language->grammar());
+					position        rulePos     = language->rule_definition_pos(ruleId);
+                    const wstring&  ruleFile    = language->rule_definition_file(ruleId);
 
 					// We know the item, the guard and the position: generate the error message
 					if (!shownWarning) {
@@ -145,7 +146,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 								<< formatter::to_string(*guarded->first, builder->gram(), builder->terminals())
 								<< L"'";
 						
-						cons.report_error(error(error::sev_warning, language->filename(), L"CLASHING_GUARDS", warning.str(), rulePos));
+						cons.report_error(error(error::sev_warning, ruleFile, L"CLASHING_GUARDS", warning.str(), rulePos));
 					}
 
 					// Provide detail messages on where the clash is
@@ -324,11 +325,12 @@ void lr_parser_stage::compile() {
 				shiftMessage << L" " << formatter::to_string(**shiftItem, *m_Language->grammar(), *m_Language->terminals());
 
 				// Display the warning/error
-				int 		ruleId 	= (*shiftItem)->rule()->identifier(*m_Language->grammar());
-				position 	rulePos	= m_Language->rule_definition_pos(ruleId);
+				int             ruleId      = (*shiftItem)->rule()->identifier(*m_Language->grammar());
+				position        rulePos     = m_Language->rule_definition_pos(ruleId);
+                const wstring&  ruleFile    = m_Language->rule_definition_file(ruleId);
                 
                 if (sev != error::sev_detail || showDetail) {
-                    cons().report_error(error(sev, m_Language->filename(), L"CONFLICT_SHIFT_REDUCE", shiftMessage.str(), rulePos));
+                    cons().report_error(error(sev, ruleFile, L"CONFLICT_SHIFT_REDUCE", shiftMessage.str(), rulePos));
                 }
 			}
 		}
@@ -356,9 +358,10 @@ void lr_parser_stage::compile() {
 			reduceMessage << L" " << formatter::to_string(*reduceItem->first->rule(), *m_Language->grammar(), *m_Language->terminals());
 			
 			// Display the message for this item
-			int 		ruleId 	= reduceItem->first->rule()->identifier(*m_Language->grammar());
-			position 	rulePos	= m_Language->rule_definition_pos(ruleId);
-			cons().report_error(error(reductionSev, m_Language->filename(), reduceCode, reduceMessage.str(), rulePos));
+			int             ruleId      = reduceItem->first->rule()->identifier(*m_Language->grammar());
+			position        rulePos     = m_Language->rule_definition_pos(ruleId);
+            const wstring&  ruleFile    = m_Language->rule_definition_file(ruleId);
+			cons().report_error(error(reductionSev, ruleFile, reduceCode, reduceMessage.str(), rulePos));
 
 			// For reduce/reduce conflicts, display the context in which the reduction can occur
             if (showDetail) {
@@ -415,8 +418,9 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
         if (*item->rule()->items()[item->offset()] != *nonterminal) continue;
 
         // Work out the rule position for this item
-        int 		reducedRuleId 	= item->rule()->identifier(*m_Language->grammar());
-        position 	reducedRulePos	= m_Language->rule_definition_pos(reducedRuleId);
+        int             reducedRuleId 	= item->rule()->identifier(*m_Language->grammar());
+        position        reducedRulePos	= m_Language->rule_definition_pos(reducedRuleId);
+        const wstring&  reducedRuleFile = m_Language->rule_definition_file(reducedRuleId);
         
         // Generate a message
         wstringstream detailMessage;
@@ -425,7 +429,7 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
         detailMessage << formatter::to_string(*item, *m_Language->grammar(), *m_Language->terminals());
         
         // Write it out
-        cons().report_error(error(error::sev_detail, m_Language->filename(), L"DETAIL_REDUCE_IN", detailMessage.str(), reducedRulePos));
+        cons().report_error(error(error::sev_detail, reducedRuleFile, L"DETAIL_REDUCE_IN", detailMessage.str(), reducedRulePos));
         
         // Display the set for the nonterminals for this rule
         report_reduce_conflict(reduceItem, item->rule()->nonterminal(), displayedNonterminals, level+1);

@@ -148,6 +148,24 @@ namespace compiler {
             if (found == m_RuleDefinition.end() || !found->second.first) return dfa::position(-1, -1, -1);
             return found->second.first->start_pos();            
         }
+        
+        /// \brief The name of the file where a particular terminal symbol is defined
+        inline const std::wstring& terminal_definition_file(int id) const {
+            static const std::wstring empty_string;
+            
+            symbol_map::const_iterator found = m_TerminalDefinition.find(id);
+            if (found == m_TerminalDefinition.end() || !found->second.first) return empty_string;
+            return *found->second.second;
+        }
+        
+        /// \brief The name of the file where a particular rule is defined
+        inline const std::wstring& rule_definition_file(int id) const {
+            static const std::wstring empty_string;
+            
+            symbol_map::const_iterator found = m_RuleDefinition.find(id);
+            if (found == m_RuleDefinition.end() || !found->second.first) return empty_string;
+            return *found->second.second;
+        }
 
     private:
         /// \brief Exports the results of this language stage into another
