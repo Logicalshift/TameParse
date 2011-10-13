@@ -1116,6 +1116,9 @@
 /* Begin PBXProject section */
 		4BD7FDF0132D05D600025433 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = 4BD7FDF3132D05D600025433 /* Build configuration list for PBXProject "TameParse" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
