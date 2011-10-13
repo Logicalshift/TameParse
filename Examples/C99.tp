@@ -1,0 +1,46 @@
+///
+/// C99 grammar
+///
+
+import "AnsiC.tp"
+
+language C99 : Ansi-C {
+	///
+	/// New keywords defined in C99
+	///
+	keywords {
+		inline		restrict	_Bool		_Complex	_Imaginary
+	}
+
+	///
+	/// Lexical changes
+	///
+	lexer {
+		constant-hex		|= /0[xX]{hex-digit}+(LL|ll)/
+		constant-octal		|= /0{digit}+(LL|ll)/
+		constant-decimal	|= /{digit}+(ll|LL)/
+	}
+
+	///
+	/// Modified grammar
+	///
+	grammar {
+		<Type-Specifier>			+= _Bool
+									 | _Complex
+									 | _Imaginary
+		
+		<Type-Qualifier>			+= restrict
+
+		<Function-Specifier>		= inline
+
+		<Direct-Declarator>			+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
+									 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+		
+		<Declaration-Specifiers>	+= <Function-Specifier> <Declaration-Specifiers>?
+
+		replace <Compound-Statement> = '{' <Block-Item>* '}'
+
+		<Block-Item>				= <Statement>
+									| <Declaration>
+	}
+}
