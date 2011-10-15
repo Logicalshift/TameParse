@@ -144,8 +144,25 @@ namespace compiler {
 
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {
+            // Try finding the rule in the list
             symbol_map::const_iterator found = m_RuleDefinition.find(id);
-            if (found == m_RuleDefinition.end() || !found->second.first) return dfa::position(-1, -1, -1);
+
+            if (found == m_RuleDefinition.end() || !found->second.first) {
+                // Rule not found. It's possible we know the position of the nonterminal, though
+                // This will apply to EBNF items when they are expanded, but it's not ideal if
+                // a particular item appears in multiple places in the grammar, as we might
+                // indiate an incorrect position.
+                int ntId = grammar()->identifier_for_item(grammar()->rule_with_identifier(id)->nonterminal());
+
+                found = m_FirstNonterminalUsage.find(ntId);
+
+                if (found == m_FirstNonterminalUsage.end() || !found->second.first) {
+                    // Rule not found
+                    return dfa::position(-1, -1, -1);
+                }
+            }
+
+            // Rule was found
             return found->second.first->start_pos();            
         }
         
@@ -162,8 +179,24 @@ namespace compiler {
         inline const std::wstring& rule_definition_file(int id) const {
             static const std::wstring empty_string;
             
+            // Try finding the rule directly
             symbol_map::const_iterator found = m_RuleDefinition.find(id);
-            if (found == m_RuleDefinition.end() || !found->second.first) return empty_string;
+
+            if (found == m_RuleDefinition.end() || !found->second.first) {
+                // Rule not found. It's possible we know the position of the nonterminal, though
+                // This will apply to EBNF items when they are expanded, but it's not ideal if
+                // a particular item appears in multiple places in the grammar, as we might
+                // indiate an incorrect position.
+                int ntId = grammar()->identifier_for_item(grammar()->rule_with_identifier(id)->nonterminal());
+
+                found = m_FirstNonterminalUsage.find(ntId);
+
+                if (found == m_FirstNonterminalUsage.end() || !found->second.first) {
+                    // Rule not found
+                    return empty_string;
+                }
+            }
+
             return *found->second.second;
         }
 
