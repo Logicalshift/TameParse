@@ -8,12 +8,12 @@ language WeakGuard {
 	}
 
 	grammar {
-		<Test> = <Symbol>*
+		<Test> = <Symbol>+
 
 		<Symbol> = <Weak-Guarded>
 			     | <Not-Guarded>
 
-		<Not-Guarded> = identifier*
+		<Not-Guarded> = identifier+
 
 		<Weak-Guarded> = [=> replace identifier '='] identifier '='
 	}
