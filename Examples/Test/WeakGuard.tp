@@ -1,0 +1,20 @@
+language WeakGuard {
+	weak keywords {
+		replace
+	}
+
+	lexer {
+		identifier = /[A-Za-z_][A-Za-z0-9_]*/
+	}
+
+	grammar {
+		<Test> = <Symbol>*
+
+		<Symbol> = <Weak-Guarded>
+			     | <Not-Guarded>
+
+		<Not-Guarded> = identifier*
+
+		<Weak-Guarded> = [=> replace identifier '='] identifier '='
+	}
+}

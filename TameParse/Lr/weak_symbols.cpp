@@ -216,6 +216,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         
         // Guard actions do not mark a weak symbol as 'used'
         if ((*act)->type() == lr_action::act_guard) {
+            newActions.insert(*act);
             continue;
         }
         
