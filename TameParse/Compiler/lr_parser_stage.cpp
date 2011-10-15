@@ -372,7 +372,11 @@ void lr_parser_stage::compile() {
 
 		// We don't understand the conflict type if there are no reduce items
 		if ((*conflict)->first_reduce_item() == (*conflict)->last_reduce_item()) {
-			cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
+            if ((*conflict)->first_shift_item() == (*conflict)->last_shift_item()) {
+                cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_ACTIONS", L"Found a conflict with no actions of any kind", m_StartPosition));                
+            } else {
+                cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
+            }
 			continue;
 		}
 	}
