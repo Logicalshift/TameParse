@@ -408,7 +408,7 @@
 		4B79D0BE142E1E2000D778BC /* tameparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tameparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B79D0C1142E1E2000D778BC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		4B79D0C3142E1E2000D778BC /* tameparse.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = tameparse.1; sourceTree = "<group>"; };
-		4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = ../../../../usr/local/lib/libboost_program_options.a; sourceTree = "<group>"; };
+		4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_program_options.a; path = /usr/local/lib/libboost_program_options.a; sourceTree = "<absolute>"; };
 		4B79D0CD142E1F4300D778BC /* boost_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = boost_console.h; sourceTree = "<group>"; };
 		4B79D0CE142E1F5000D778BC /* boost_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = boost_console.cpp; sourceTree = "<group>"; };
 		4B79D0D6142E514700D778BC /* utf8reader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = utf8reader.cpp; sourceTree = "<group>"; };
@@ -419,8 +419,8 @@
 		4B79D0E4142E6F4A00D778BC /* parser_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_stage.h; sourceTree = "<group>"; };
 		4B79D0E5142F336400D778BC /* import_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = import_stage.cpp; sourceTree = "<group>"; };
 		4B79D0E7142F336D00D778BC /* import_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = import_stage.h; sourceTree = "<group>"; };
-		4B79D0E8142F39FA00D778BC /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = ../../../../usr/local/lib/libboost_filesystem.a; sourceTree = "<group>"; };
-		4B79D0EA142F3B2800D778BC /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = ../../../../usr/local/lib/libboost_system.a; sourceTree = "<group>"; };
+		4B79D0E8142F39FA00D778BC /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		4B79D0EA142F3B2800D778BC /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
 		4B79D0F1142F686E00D778BC /* language_builder_stage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = language_builder_stage.cpp; sourceTree = "<group>"; };
 		4B79D0F3142F687C00D778BC /* language_builder_stage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_builder_stage.h; sourceTree = "<group>"; };
 		4B79D0F6143266C000D778BC /* item_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = item_set.h; sourceTree = "<group>"; };
@@ -773,15 +773,13 @@
 		4BD7FDEE132D05D600025433 = {
 			isa = PBXGroup;
 			children = (
-				4B79D0EA142F3B2800D778BC /* libboost_system.a */,
-				4B79D0E8142F39FA00D778BC /* libboost_filesystem.a */,
-				4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */,
 				4BD7FDFD132D05D600025433 /* Parse-Prefix.pch */,
 				4B79D0B1142DE42C00D778BC /* TameParse */,
 				4BD7FDFB132D05D600025433 /* TameParseLib */,
 				4BD7FE32132D4F1F00025433 /* Test */,
 				4BD612BF140112B000AA560E /* bootstrap */,
 				4B79D0C0142E1E2000D778BC /* parsetool */,
+				4BE6AA84144A22E300CC2430 /* Libraries */,
 				4BD7FDFA132D05D600025433 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -888,6 +886,16 @@
 				4B1B35AA13AEAB6500D1E488 /* dfa_multi_regex.h */,
 			);
 			name = Dfa;
+			sourceTree = "<group>";
+		};
+		4BE6AA84144A22E300CC2430 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				4B79D0EA142F3B2800D778BC /* libboost_system.a */,
+				4B79D0E8142F39FA00D778BC /* libboost_filesystem.a */,
+				4B79D0CB142E1F2C00D778BC /* libboost_program_options.a */,
+			);
+			name = Libraries;
 			sourceTree = "<group>";
 		};
 		4BF31990136F442000C68ACB /* Lr */ = {
