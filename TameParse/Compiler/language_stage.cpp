@@ -606,9 +606,18 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into an optional item
             ebnf_optional* newItem = new ebnf_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+
+            // Create the item container
+            item_container newContainer(newItem, true);
+
+            // Store as the first usage of this nonterminal if it exists
+            int nonterminalId = m_Grammar.identifier_for_item(newContainer);
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
+            }
             
             // Append to the rule
-            rule << item_container(newItem, true);
+            rule << newContainer;
             break;
         }
             
@@ -617,9 +626,18 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into a repeating item
             ebnf_repeating* newItem = new ebnf_repeating();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+
+            // Create the item container
+            item_container newContainer(newItem, true);
+
+            // Store as the first usage of this nonterminal if it exists
+            int nonterminalId = m_Grammar.identifier_for_item(newContainer);
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
+            }
             
             // Append to the rule
-            rule << item_container(newItem, true);
+            rule << newContainer;
             break;
         }
 
@@ -628,9 +646,18 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into a repeating item
             ebnf_repeating_optional* newItem = new ebnf_repeating_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+
+            // Create the item container
+            item_container newContainer(newItem, true);
+
+            // Store as the first usage of this nonterminal if it exists
+            int nonterminalId = m_Grammar.identifier_for_item(newContainer);
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
+            }
             
             // Append to the rule
-            rule << item_container(newItem, true);
+            rule << newContainer;
             break;
         }
             
@@ -643,6 +670,12 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
+
+            // Store as the first usage of this nonterminal if it exists
+            int nonterminalId = m_Grammar.identifier_for_item(container);
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
+            }
 
             // Remember this as a language guard: we'll need to check if it can be empty later
             m_Guards[container] = position_file((*item)[0]->start_pos(), ourFilename);
@@ -659,9 +692,18 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Right-hand side
             compile_item(*newItem->add_rule(), (*item)[1], ourFilename);
+
+            // Create the item container
+            item_container newContainer(newItem, true);
+
+            // Store as the first usage of this nonterminal if it exists
+            int nonterminalId = m_Grammar.identifier_for_item(newContainer);
+            if (m_FirstNonterminalUsage.find(nonterminalId) == m_FirstNonterminalUsage.end()) {
+                m_FirstNonterminalUsage[nonterminalId] = pair<block*, wstring*>(item, ourFilename);
+            }
             
             // Append to the rule
-            rule << item_container(newItem, true);
+            rule << newContainer;
             break;
         }
 
