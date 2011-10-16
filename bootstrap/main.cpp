@@ -6,7 +6,6 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
-#include <unistd.h>
 #include <sstream>
 
 #include "TameParse/Util/utf8reader.h"

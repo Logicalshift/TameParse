@@ -47,7 +47,7 @@ int lalr_state::add(const container& newItem, const grammar* gram) {
     int newId = m_State.add(newItem);
     
     // Create a lookahead set for this item
-    while (newId >= m_Lookahead.size()) {
+    while (newId >= (int) m_Lookahead.size()) {
         m_Lookahead.push_back(new lr1_item::lookahead_set(gram));
     }
     

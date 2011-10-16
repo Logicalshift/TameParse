@@ -69,7 +69,7 @@ int lalr_machine::add_state(container& newState) {
 /// are a little weird: they act like shift actions if they are matched.
 void lalr_machine::add_transition(int stateId, const contextfree::item_container& item, int newStateId) {
     // Do nothing if the new state ID is invalid
-    if (newStateId < 0 || newStateId >= m_States.size()) return;
+    if (newStateId < 0 || newStateId >= (int) m_States.size()) return;
     
     // Set this transition
     m_Transitions[stateId].insert(transition(item, newStateId));

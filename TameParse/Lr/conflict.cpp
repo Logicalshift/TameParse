@@ -150,7 +150,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         }
 
         // Iterate through the items in the state to look for the reduce actions
-        for (int itemId = 0; itemId < thisState.count_items(); itemId++) {
+        for (size_t itemId = 0; itemId < thisState.count_items(); itemId++) {
             // Get the item that this refers to
             const lalr_state::container& thisItem = thisState[itemId];
 

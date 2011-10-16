@@ -65,7 +65,7 @@ typedef map<item_container, lalr_state_container> state_for_item;
 void lalr_builder::create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
     queue<lr1_item_container> waiting;
     
-    for (int itemId = 0; itemId < state.count_items(); itemId++) {
+    for (size_t itemId = 0; itemId < state.count_items(); itemId++) {
         // Mark this item as waiting
         lr0_item_container  lr0 = state[itemId];
         lr1_item_container  lr1(new lr1_item(state[itemId], state.lookahead_for(itemId)), true);
@@ -84,7 +84,7 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
         int         offset  = nextItem->offset();
         
         // No items are generated for an item where the offset is at the end of the rule
-        if (offset >= rule.items().size()) continue;
+        if (offset >= (int) rule.items().size()) continue;
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
         lr1_item_set newItems;
@@ -235,7 +235,7 @@ void lalr_builder::complete_lookaheads() {
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
         
         // Iterate through the items in this state
-        for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
+        for (size_t itemId = 0; itemId < thisState->count_items(); itemId++) {
             // Get the item
             const lalr_state::container& thisItem = (*thisState)[itemId];
             
@@ -243,7 +243,7 @@ void lalr_builder::complete_lookaheads() {
             int         thisOffset  = thisItem->offset();
             
             // Ignore items that are at the end (ie, have no closure)
-            if (thisOffset >= thisRule.items().size()) continue;
+            if (thisOffset >= (int) thisRule.items().size()) continue;
             
             // Get the parser symbol at this offset
             const item_container& symbol = thisRule.items()[thisOffset];
@@ -264,7 +264,7 @@ void lalr_builder::complete_lookaheads() {
                 const int   closeOffset = (*it)->offset();
 
                 // Ignore this item if it's at the end
-                if (closeOffset >= closeRule.items().size()) continue;
+                if (closeOffset >= (int) closeRule.items().size()) continue;
                 
                 const item_container& closeSymbol = closeRule.items()[closeOffset];
                 
@@ -379,7 +379,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
         int         offset  = nextItem->offset();
         
         // No items are generated for an item where the offset is at the end of the rule
-        if (offset >= rule.items().size()) continue;
+        if (offset >= (int) rule.items().size()) continue;
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
         lr1_item_set newItems;
