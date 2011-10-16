@@ -7,6 +7,7 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE
 AC_PROG_CXX
 AC_PROG_CC
+AC_CHECK_PROG(HAVE_XXD, xxd, yes)
 
 # Checks for libraries.
 
