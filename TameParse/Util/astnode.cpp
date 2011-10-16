@@ -51,7 +51,7 @@ bool astnode::operator<(const astnode& compareTo) const {
     if (children().size() < compareTo.children().size()) return true;
     if (children().size() > compareTo.children().size()) return false;
     
-    for (int x=0; x<children().size(); x++) {
+    for (size_t x=0; x<children().size(); x++) {
         if (children()[x] < compareTo.children()[x]) return true;
         if (compareTo.children()[x] < children()[x]) return false;
     }

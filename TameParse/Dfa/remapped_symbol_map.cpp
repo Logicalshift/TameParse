@@ -35,7 +35,7 @@ int remapped_symbol_map::identifier_for_symbols(const symbol_set& symbols, const
     int setId = symbol_map::identifier_for_symbols(symbols);
     
     // Add the set ID as a new symbol for each of the old symbols in this set
-    for (new_symbol_set::iterator old = oldSymbols.begin(); old != oldSymbols.end(); old++) {
+    for (new_symbol_set::const_iterator old = oldSymbols.begin(); old != oldSymbols.end(); old++) {
         m_OldToNew[*old].insert(setId);
     }
     

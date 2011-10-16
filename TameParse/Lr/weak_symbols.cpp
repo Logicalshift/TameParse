@@ -122,7 +122,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
                 
                 // Change the accepting action for this state so that it accepts the new symbol
                 dfa.clear_accept(state);
-                dfa.accept(state, splitSymbolId);
+                dfa.accept(state, accept_action(splitSymbolId));
                 
                 // Map this in the weakToStrong table
                 weakToStrong[splitSymbolId] = strongest;
