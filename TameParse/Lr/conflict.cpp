@@ -205,6 +205,12 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
             reduceTo.insert(sourceItems.begin(), sourceItems.end());
         }
         
+        // Ignore conflicts that contain no items at all
+        if (newConf->first_reduce_item() == newConf->last_reduce_item() && newConf->first_shift_item() == newConf->last_shift_item()) {
+            // These items are generally caused by things like weak symbols where the action was generated spontaneously from a strong symbol
+            continue;
+        }
+        
         // Add the new conflict to the list
         target.push_back(newConf);
     }
