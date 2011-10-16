@@ -10,6 +10,7 @@
 #define _DFA_SYMBOL_TABLE_H
 
 #include <cstdlib>
+#include <cstring>
 #include "TameParse/Dfa/symbol_map.h"
 
 namespace dfa {

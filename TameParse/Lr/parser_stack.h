@@ -9,6 +9,8 @@
 #ifndef _LR_PARSER_STACK_H
 #define _LR_PARSER_STACK_H
 
+#include <cstdlib>
+
 #include <vector>
 #include <stack>
 
