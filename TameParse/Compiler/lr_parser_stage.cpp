@@ -377,6 +377,11 @@ void lr_parser_stage::compile() {
             } else {
                 cons().report_error(error(error::sev_bug, filename(), L"BUG_CONFLICT_NO_REDUCE", L"Found a conflict with no reduce actions", m_StartPosition));
             }
+            
+            // Write out the state and the symbol
+            cons().message_stream() << L"  on symbol: " << formatter::to_string(*(*conflict)->token(), *m_Language->grammar(), *m_Language->terminals()) << endl;
+            cons().message_stream() << L"  in state: " << formatter::to_string(*m_Parser->machine().state_with_id((*conflict)->state()), *m_Language->grammar(), *m_Language->terminals());
+            
 			continue;
 		}
 	}
