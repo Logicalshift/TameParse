@@ -69,11 +69,6 @@ static void run_tests() {
 #endif
 
 int main (int argc, const char * argv[]) {
-    // Write out the current working directory
-    char buf[512];
-    getcwd(buf, 512);
-    cout << buf << endl;
-    
     // Run some tests in debug builds
 #ifdef DEBUG
     run_tests();
