@@ -285,7 +285,7 @@ namespace dfa {
         inline size_t size() const { 
             size_t mySize = sizeof(symbol_level<int, mask, shift>); 
             if (Symbols) {
-                mySize += sizeof(int[c_MaxIndex]);
+                mySize += sizeof(int)*c_MaxIndex;
             }
             return mySize;
         }

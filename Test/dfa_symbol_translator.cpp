@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "dfa_symbol_translator.h"
-#include "symbol_translator.h"
+#include "TameParse/Dfa/symbol_translator.h"
 
 using namespace dfa;
 
