@@ -195,7 +195,7 @@ bool symbol_set::operator==(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() != m_Symbols.size()) return false;
     
     // The contents of all of the sets must be the same
-    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
         if (*it1 != *it2) return false;
     }
     
@@ -211,7 +211,7 @@ bool symbol_set::operator<(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
     
     // Is less than if there's a difference between any of the sets
-    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
         if (*it1 == *it2) continue;
         return *it1 < *it2;
     }
@@ -229,7 +229,7 @@ bool symbol_set::operator<=(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
     
     // Is less than if there's a difference between any of the sets
-    for (symbol_store::iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); it1++, it2++) {
+    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
         if (*it1 == *it2) continue;
         return *it1 < *it2;
     }

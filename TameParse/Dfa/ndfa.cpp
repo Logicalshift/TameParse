@@ -87,7 +87,7 @@ int ndfa::goto_state(int newState) {
     m_CurrentState = newState;
     
     // Set the current state to 0 if an out of range state is specified
-    if (m_CurrentState < 0 || m_CurrentState >= m_States->size()) {
+    if (m_CurrentState < 0 || m_CurrentState >= (int) m_States->size()) {
         m_CurrentState = 0;
     }
     
@@ -135,8 +135,8 @@ void ndfa::add_transition(const symbol_set& symbols, int newState) {
 /// \brief Adds a transition from the old state to the new state
 void ndfa::add_transition(int oldState, const symbol_set& symbols, int newState) {
     // Nothing to do if the state ID is invalid
-    if (oldState < 0 || oldState >= m_States->size()) return;
-    if (newState < 0 || newState >= m_States->size()) return;
+    if (oldState < 0 || oldState >= (int) m_States->size()) return;
+    if (newState < 0 || newState >= (int) m_States->size()) return;
     
     // Get the ID for this symbol set
     int symbolId = m_Symbols->identifier_for_symbols(symbols);
