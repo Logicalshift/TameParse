@@ -30,6 +30,7 @@ AX_BOOST_BASE([1.47])
 
 AC_CONFIG_FILES([Makefile
                  Test/Makefile
+                 TameParse/Makefile
                  bootstrap/Makefile
                  parsetool/Makefile
                  Examples/Makefile

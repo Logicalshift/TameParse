@@ -15,14 +15,11 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Compiler/compilation_stage.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \
-					  ../TameParse/Compiler/import_stage.cpp \
-					  ../TameParse/Compiler/language_builder_stage.cpp \
 					  ../TameParse/Compiler/language_stage.cpp \
 					  ../TameParse/Compiler/lexer_stage.cpp \
 					  ../TameParse/Compiler/lr_parser_stage.cpp \
 					  ../TameParse/Compiler/output_stage.cpp \
 					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
-					  ../TameParse/Compiler/parser_stage.cpp \
 					  ../TameParse/Compiler/std_console.cpp \
 					  ../TameParse/ContextFree/ebnf_items.cpp \
 					  ../TameParse/ContextFree/grammar.cpp \
