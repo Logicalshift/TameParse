@@ -261,7 +261,8 @@ void lr_parser_stage::compile() {
     action_rewriter_container ignoreContainer(ignored, true);
     
     for (set<int>::iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
-        ignored->add_item(terminal(*ignoredTerminalId));
+    	item_container newTerm(new terminal(*ignoredTerminalId), true);
+        ignored->add_item(newTerm);
     }
 
 	// Add the initial states to the LALR builder
