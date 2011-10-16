@@ -103,7 +103,7 @@ namespace lr {
         static lexeme_container endOfFile((lexeme*)NULL);
         
         // Read a new symbol if necessary
-        int pos = m_LookaheadPos + offset;
+        size_t pos = m_LookaheadPos + offset;
         
         while (pos >= m_Session->m_Lookahead.size()) {
             if (!m_Session->m_EndOfFile) {
