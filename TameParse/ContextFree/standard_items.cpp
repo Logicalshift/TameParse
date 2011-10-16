@@ -118,7 +118,7 @@ item_set nonterminal::first(const grammar& gram) const {
         if (ruleFirst.contains(an_empty_item_c)) {
             // If there's an empty item, then merge the first sets from the later parts of the rule
             int pos;
-            for (pos = 1; pos < ruleItems.size(); pos++) {
+            for (pos = 1; pos < (int) ruleItems.size(); pos++) {
                 // Remove the empty item from the current set
                 result.erase(an_empty_item);
                 
