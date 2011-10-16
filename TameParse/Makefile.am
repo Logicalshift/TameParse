@@ -2,7 +2,7 @@ EXTRA_DIST					= Unicode/unicode.pl \
 					 	  	  Language/definition.tp
 
 definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
-	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
+	$(LN_S) -f $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
 	xxd -i "definition.tp" >definition_tp.h
 
 tameparse_language.h tameparse_language.cpp: ../bootstrap/bootstrap
@@ -184,7 +184,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  version.cpp
 
 library_includedir 			= $(includedir)/TameParse-$(PACKAGE_VERSION)/TameParse
-library_include_HEADERS		= Compiler/compilation_stage.h \
+nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
 							  Compiler/import_stage.h \
@@ -264,3 +264,6 @@ library_include_HEADERS		= Compiler/compilation_stage.h \
 							  Util/unicode.h \
 							  Util/utf8reader.h \
 							  version.h
+
+install-data-hook:
+	$(LN_S) $(library_includedir) $(includedir)/TameParse
