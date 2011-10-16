@@ -1,6 +1,8 @@
 noinst_PROGRAMS		= bootstrap
 EXTRA_DIST 			= boostrap.1
 
+bootstrap_CFLAGS	= -I$(srcdir)/..
+bootstrap_CXXFLAGS	= -I$(srcdir)/..
 bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Compiler/compilation_stage.cpp \
 					  ../TameParse/Compiler/console.cpp \
