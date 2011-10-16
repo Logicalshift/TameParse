@@ -67,7 +67,7 @@ int symbol_map::find_identifier_for_symbols(const symbol_set& symbols) const {
 
 /// \brief Returns the symbol set for a particular identifier
 const symbol_set& symbol_map::operator[](int identifier) const {
-    if (identifier < 0 || identifier >= m_SymbolsForId.size()) return nosymbols;
+    if (identifier < 0 || identifier >= (int) m_SymbolsForId.size()) return nosymbols;
     return *m_SymbolsForId[identifier];
 }
 
