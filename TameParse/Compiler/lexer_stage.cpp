@@ -154,7 +154,7 @@ void lexer_stage::compile() {
         int initialSymCount = terminals->count_symbols();
         
         // Iterate through the symbol IDs
-        for (set<int>::iterator weakSymId = weakSymbolIds->begin(); weakSymId != weakSymbolIds->end(); weakSymId++) {
+        for (set<int>::const_iterator weakSymId = weakSymbolIds->begin(); weakSymId != weakSymbolIds->end(); weakSymId++) {
             weakSymSet.insert(item_container(new terminal(*weakSymId), true));
         }
         

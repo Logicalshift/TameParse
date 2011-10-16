@@ -260,7 +260,7 @@ void lr_parser_stage::compile() {
     ignored_symbols* ignored = new ignored_symbols();
     action_rewriter_container ignoreContainer(ignored, true);
     
-    for (set<int>::iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
+    for (set<int>::const_iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
     	item_container newTerm(new terminal(*ignoredTerminalId), true);
         ignored->add_item(newTerm);
     }
