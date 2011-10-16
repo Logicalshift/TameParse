@@ -1,8 +1,8 @@
 noinst_PROGRAMS		= test
 EXTRA_DIST 			= Test.1
 
-test_CFLAGS			= -I$(top_srcdir)
-test_CXXFLAGS		= -I$(top_srcdir)
+test_CFLAGS			= -I$(top_srcdir) -I../TameParse
+test_CXXFLAGS		= -I$(top_srcdir) -I../TameParse
 test_LDADD			= ../TameParse/libTameParse.la
 
 test_SOURCES		= \
