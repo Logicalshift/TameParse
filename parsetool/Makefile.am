@@ -10,3 +10,5 @@ tameparse_SOURCES		= \
 						  \
 						  boost_console.cpp \
 						  main.cpp
+
+tameparse_MANS			= tameparse.1
