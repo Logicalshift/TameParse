@@ -669,7 +669,7 @@ void output_cplusplus::end_lexer_definitions() {
 	*m_SourceFile << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << m_StateToEntryOffset.size()-1 << ");\n";
 
 	// Create the lexer itself
-	*m_SourceFile << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false> lexer_definition;\n";
+	*m_SourceFile << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false, const lexer_state_machine&> lexer_definition;\n";
 	*m_SourceFile << "static lexer_definition s_LexerDefinition(s_StateMachine, " << m_StateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
 
 	// Finally, the lexer class itself

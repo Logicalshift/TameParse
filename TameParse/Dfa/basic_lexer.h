@@ -114,7 +114,7 @@ namespace dfa {
     /// firstState indicates the state that the lexer starts in before it has received any input. newlineState indicates the state the lexer moves into
     /// if the last lexeme ends with a newline character.
     ///
-    template<typename state_machine, int firstState = 0, int newlineState = 0, bool deleteTables = true> class dfa_lexer_base : public basic_lexer {
+    template<typename state_machine, int firstState = 0, int newlineState = 0, bool deleteTables = true, typename state_machine_ref = const state_machine&> class dfa_lexer_base : public basic_lexer {
     private:
         /// \brief The state machine for this lexer
         ///
@@ -169,7 +169,7 @@ namespace dfa {
         }
 
         /// \brief Constructs a lexer from a state machine
-        dfa_lexer_base(const state_machine& stateMachine, int maxState, const int* accept)
+        dfa_lexer_base(state_machine_ref stateMachine, int maxState, const int* accept)
         : m_StateMachine(stateMachine)
         , m_MaxState(maxState)
         , m_Accept(accept) {
@@ -190,7 +190,7 @@ namespace dfa {
         class dfa_stream : public lexeme_stream {
         private:
             /// \brief The state machine for this lexer
-            const state_machine& m_StateMachine;
+            state_machine_ref m_StateMachine;
             
             /// \brief Array of symbols that are accepted in each state
             const int* m_Accept;
@@ -214,7 +214,7 @@ namespace dfa {
             
         public:
             /// \brief Creates a new stream that works with the specified state machine, list of accepting actions and symbol stream
-            dfa_stream(const state_machine& sm, const int* acc, lexer_symbol_stream* str)
+            dfa_stream(state_machine_ref sm, const int* acc, lexer_symbol_stream* str)
             : m_StateMachine(sm)
             , m_Accept(acc)
             , m_Stream(str)
