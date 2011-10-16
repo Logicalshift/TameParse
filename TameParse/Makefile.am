@@ -1,14 +1,14 @@
 EXTRA_DIST					= Unicode/unicode.pl \
-					 	  	  Language/definition.txt
+					 	  	  Language/definition.tp
 
-definition_txt.h: $(top_srcdir)/TameParse/Language/definition.txt
-	ln -sf $(top_srcdir)/TameParse/Language/definition.txt ./definition.txt
-	xxd -i "definition.txt" >definition_txt.h
+definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
+	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
+	xxd -i "definition.tp" >definition_tp.h
 
 tameparse_language.h tameparse_language.cpp: ../bootstrap/bootstrap
 	../bootstrap/bootstrap
 
-Language/bootstrap.cpp: definition_txt.h
+Language/bootstrap.cpp: definition_tp.h
 
 Language/language_parser.cpp: tameparse_language.h
 

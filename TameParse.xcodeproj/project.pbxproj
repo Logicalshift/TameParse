@@ -270,7 +270,7 @@
 		4BF31993136F444400C68ACB /* lr_lalr_general.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF31991136F444400C68ACB /* lr_lalr_general.cpp */; };
 		4BF319961371E50100C68ACB /* lr_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BF319941371E50100C68ACB /* lr_action.cpp */; };
 		4BF319971371E50100C68ACB /* lr_action.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF319951371E50100C68ACB /* lr_action.h */; };
-		4BF84F9E13B8DDB700B899B6 /* definition_txt.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF84F9D13B8DDB700B899B6 /* definition_txt.h */; };
+		4BF84F9E13B8DDB700B899B6 /* definition_tp.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BF84F9D13B8DDB700B899B6 /* definition_tp.h */; };
 		4BFD4A5B13735EB700D6657D /* action_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5913735EB700D6657D /* action_rewriter.cpp */; };
 		4BFD4A5C13735EB700D6657D /* action_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BFD4A5A13735EB700D6657D /* action_rewriter.h */; };
 		4BFD4A60137483DA00D6657D /* weak_symbols.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */; };
@@ -534,14 +534,14 @@
 		4BF319941371E50100C68ACB /* lr_action.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lr_action.cpp; sourceTree = "<group>"; };
 		4BF319951371E50100C68ACB /* lr_action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lr_action.h; sourceTree = "<group>"; };
 		4BF84F9C13B8DA9600B899B6 /* build_defn.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_defn.sh; sourceTree = "<group>"; };
-		4BF84F9D13B8DDB700B899B6 /* definition_txt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = definition_txt.h; sourceTree = BUILT_PRODUCTS_DIR; };
+		4BF84F9D13B8DDB700B899B6 /* definition_tp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = definition_tp.h; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BFD4A5913735EB700D6657D /* action_rewriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = action_rewriter.cpp; sourceTree = "<group>"; };
 		4BFD4A5A13735EB700D6657D /* action_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = action_rewriter.h; sourceTree = "<group>"; };
 		4BFD4A5E137483DA00D6657D /* weak_symbols.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weak_symbols.cpp; sourceTree = "<group>"; };
 		4BFD4A5F137483DA00D6657D /* weak_symbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weak_symbols.h; sourceTree = "<group>"; };
 		4BFD4A6613773EE600D6657D /* parser_stack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser_stack.cpp; sourceTree = "<group>"; };
 		4BFD4A6713773EE600D6657D /* parser_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_stack.h; sourceTree = "<group>"; };
-		4BFD4A741388384A00D6657D /* definition.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = definition.txt; sourceTree = "<group>"; };
+		4BFD4A741388384A00D6657D /* definition.tp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = definition.tp; sourceTree = "<group>"; };
 		4BFD4A7613883A5000D6657D /* bootstrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bootstrap.cpp; sourceTree = "<group>"; };
 		4BFD4A7713883A5000D6657D /* bootstrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bootstrap.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -914,8 +914,8 @@
 			children = (
 				4BF84F9C13B8DA9600B899B6 /* build_defn.sh */,
 				4B9803FF1412778300B5F857 /* bootstrap_language.sh */,
-				4BFD4A741388384A00D6657D /* definition.txt */,
-				4BF84F9D13B8DDB700B899B6 /* definition_txt.h */,
+				4BFD4A741388384A00D6657D /* definition.tp */,
+				4BF84F9D13B8DDB700B899B6 /* definition_tp.h */,
 				4BFD4A7613883A5000D6657D /* bootstrap.cpp */,
 				4BFD4A7713883A5000D6657D /* bootstrap.h */,
 				4B9804021412789D00B5F857 /* tameparse_language.cpp */,
@@ -1005,7 +1005,7 @@
 				4B7F0C591387F8550012C085 /* ignored_symbols.h in Headers */,
 				4B7F0C661393F2690012C085 /* formatter.h in Headers */,
 				4B556F18139A8B13002C7154 /* conflict.h in Headers */,
-				4BF84F9E13B8DDB700B899B6 /* definition_txt.h in Headers */,
+				4BF84F9E13B8DDB700B899B6 /* definition_tp.h in Headers */,
 				4BEDDA7813BBB91E002FBD79 /* guard.h in Headers */,
 				4B2A687513C9B4EF00957CEF /* lr1_item_set.h in Headers */,
 				4B68195813CA52BE0085CA95 /* parser_state.h in Headers */,
@@ -1154,7 +1154,7 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Language/definition.txt",
+				"$(SRCROOT)/Language/definition.tp",
 				"${BUILT_PRODUCTS_DIR}/bootstrap",
 			);
 			outputPaths = (
@@ -1171,10 +1171,10 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Language/definition.txt",
+				"$(SRCROOT)/Language/definition.tp",
 			);
 			outputPaths = (
-				"${BUILT_PRODUCTS_DIR}/definition_txt.h",
+				"${BUILT_PRODUCTS_DIR}/definition_tp.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1187,11 +1187,11 @@
 			files = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/Language/definition.txt",
+				"$(SRCROOT)/Language/definition.tp",
 			);
 			name = "Run Script";
 			outputPaths = (
-				"${BUILT_PRODUCTS_DIR}/definition_txt.h",
+				"${BUILT_PRODUCTS_DIR}/definition_tp.h",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

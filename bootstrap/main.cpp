@@ -84,7 +84,7 @@ int main (int argc, const char * argv[]) {
     
     // Create the console object
     // We do the parsing stages manually so there's not much actual use for a filename
-    std_console         cons(L"definition.txt");
+    std_console         cons(L"definition.tp");
     console_container   consContainer(&cons, false);
     
     // Create the bootstrap language
@@ -127,22 +127,22 @@ int main (int argc, const char * argv[]) {
     }
     
     // Stage 1: interpret the language and generate the NDFA and grammar
-    language_stage languageStage(consContainer, L"definition.txt", lBlock, NULL);
+    language_stage languageStage(consContainer, L"definition.tp", lBlock, NULL);
     languageStage.compile();
     
     // Stage 2: compile the lexer
-    lexer_stage lexerStage(consContainer, L"definition.txt", &languageStage);
+    lexer_stage lexerStage(consContainer, L"definition.tp", &languageStage);
     lexerStage.compile();
     
     // Stage 3: compile the LR parser
     vector<wstring> startSymbols;
     startSymbols.push_back(L"<Parser-Language>");
 
-    lr_parser_stage lrStage(consContainer, L"definition.txt", &languageStage, &lexerStage, startSymbols);
+    lr_parser_stage lrStage(consContainer, L"definition.tp", &languageStage, &lexerStage, startSymbols);
     lrStage.compile();
     
     // Stage 4: build as a C++ parser
-    output_cplusplus cPlusPlus(consContainer, L"definition.txt", &lexerStage, &languageStage, &lrStage, L"tameparse_language", L"tameparse_language", L"language"); 
+    output_cplusplus cPlusPlus(consContainer, L"definition.tp", &lexerStage, &languageStage, &lrStage, L"tameparse_language", L"tameparse_language", L"language"); 
     
     cPlusPlus.compile();
     

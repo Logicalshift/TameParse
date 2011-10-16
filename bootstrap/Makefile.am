@@ -1,16 +1,16 @@
 noinst_PROGRAMS		= bootstrap
 EXTRA_DIST 			= boostrap.1
 
-definition_txt.h: $(top_srcdir)/TameParse/Language/definition.txt
-	ln -sf $(top_srcdir)/TameParse/Language/definition.txt ./definition.txt
-	xxd -i "definition.txt" >definition_txt.h
+definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
+	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
+	xxd -i "definition.tp" >definition_tp.h
 
-../TameParse/Language/bootstrap.cpp: definition_txt.h
+../TameParse/Language/bootstrap.cpp: definition_tp.h
 
 bootstrap_CFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
-					  definition_txt.h \
+					  definition_tp.h \
 					  ../TameParse/Compiler/compilation_stage.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \

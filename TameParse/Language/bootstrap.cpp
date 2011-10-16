@@ -25,7 +25,7 @@ using namespace lr;
 using namespace language;
 
 // Declare a string containing the language definition
-#include "definition_txt.h"
+#include "definition_tp.h"
 
 /// \brief Retrieves a string containing the language definition for the parser language
 const std::string& bootstrap::get_default_language_definition() {
@@ -34,7 +34,7 @@ const std::string& bootstrap::get_default_language_definition() {
     
     // Fill in the result if it's empty
     if (result.size() == 0) {
-        result.assign((char*) definition_txt, definition_txt_len);
+        result.assign((char*) definition_tp, definition_tp_len);
     }
     
     // Return the result
