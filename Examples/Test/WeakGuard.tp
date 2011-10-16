@@ -19,6 +19,24 @@ language WeakGuard {
 
 		<Not-Guarded> = identifier
 
-		<Weak-Guarded> = [=> replace identifier '='] identifier '='
+		<Weak-Guarded> = [=> replace identifier '='] identifier '='			// The '=' token is only matched if the guard matches, so we can use to test it
 	}
+}
+
+test WeakGuard {
+	<Not-Guarded>		= simple-identifier		("foo")
+						  weak-identifier		("replace")
+	
+	<Weak-Guarded>		= simple-identifier		("replace foo =")
+						  weak-identifier		("replace replace =")
+	
+	<Test>				= simple				("foo")
+						  weak-guard-fail		("replace")
+						  guard-pass			("replace foo =")
+						  simple-then-guard 	("foo replace foo =")
+						  weak-then-guard 		("replace replace foo =")
+						  complex-guard-1		("foo replace foo = bar")
+						  complex-guard-2		("foo replace foo = replace replace")
+						  complex-guard-3		("replace replace foo = replace replace")
+						  complex-guard-4		("replace replace foo = replace replace foo =")
 }

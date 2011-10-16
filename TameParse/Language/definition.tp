@@ -59,6 +59,8 @@ language ParserLanguage {
 		grammar
 		replace
 		parser
+		test
+		from
 	}
 	
 	/// The grammar itself
@@ -73,6 +75,7 @@ language ParserLanguage {
 		<TopLevel-Block>		= <Language-Block>
 								| <Import-Block>
 								| <Parser-Block>
+								| <Test-Block>
 		
 		<Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
 		
@@ -150,5 +153,18 @@ language ParserLanguage {
 		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)+ '}'
 		
 		<Parser-StartSymbol>		= <Nonterminal>
+
+		//
+		// Test definition block
+		//
+
+		<Test-Block>				= test identifier '{' <Test-Definition>* '}'
+
+		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>+
+									| <Nonterminal> "!=" <Test-Specification>+
+									| <Nonterminal> from string+
+		
+		<Test-Specification>		= string
+									| [=> identifier '('] identifier '(' string ')'
 	}
 }
