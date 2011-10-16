@@ -7,13 +7,17 @@ language WeakGuard {
 		identifier = /[A-Za-z_][A-Za-z0-9_]*/
 	}
 
+	ignore {
+		whitespace = /[ \t\r\n]/
+	}
+
 	grammar {
 		<Test> = <Symbol>+
 
 		<Symbol> = <Weak-Guarded>
 			     | <Not-Guarded>
 
-		<Not-Guarded> = identifier+
+		<Not-Guarded> = identifier
 
 		<Weak-Guarded> = [=> replace identifier '='] identifier '='
 	}
