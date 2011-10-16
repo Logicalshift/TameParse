@@ -138,13 +138,16 @@ namespace lr {
         
     private:
         /// \brief Compares a symbol to an action
-        inline static bool compare_symbols(const action& a, int symbol) {
-            return a.m_SymbolId < symbol;
+        inline static bool compare_symbols(const action& a, const action& compareTo) {
+			return a.m_SymbolId < compareTo.m_SymbolId;
         }
         
         /// \brief Finds an action
         inline const action_iterator find_action(int symbol, action* actionList, int count) const {
-            return std::lower_bound(actionList, actionList + count, symbol, compare_symbols);
+			action compareAction;
+			compareAction.m_SymbolId = symbol;
+
+            return std::lower_bound(actionList, actionList + count, compareAction, compare_symbols);
         }
         
     public:

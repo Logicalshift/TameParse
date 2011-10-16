@@ -270,7 +270,7 @@ std::string output_cplusplus::name_for_item(const contextfree::item_container& i
 	}
 
 	// Don't allow 0-length item names
-	string name = res.tellp();
+	string name = res.str();
 	if (name.empty()) {
 		name = "item";
 	}
