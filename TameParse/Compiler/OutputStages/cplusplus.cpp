@@ -9,6 +9,7 @@
 #include <time.h>
 #include <sstream>
 #include <algorithm>
+#include <locale>
 
 #include "TameParse/Compiler/OutputStages/cplusplus.h"
 
@@ -50,11 +51,14 @@ output_cplusplus::~output_cplusplus() {
 	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
 }
 
+/// \brief The current locale
+static std::locale loc;
+
 /// \brief Converts a string to upper case
 static string toupper(const string& s) {
 	string res = s;
     for (string::iterator c = res.begin(); c != res.end(); c++) {
-        *c = std::toupper(*c);
+        *c = std::toupper(*c, loc);
     }
 	return res;
 }
@@ -162,7 +166,7 @@ std::string output_cplusplus::name_for_rule(const contextfree::rule_container& t
 		bool 			first = true;
 		stringstream	res;
 
-		for (int itemId = 0; itemId < thisRule->items().size(); itemId++) {
+		for (size_t itemId = 0; itemId < thisRule->items().size(); itemId++) {
 			// Append divider
 			if (!first) {
 				res << "_";

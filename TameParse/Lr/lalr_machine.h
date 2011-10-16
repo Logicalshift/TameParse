@@ -106,7 +106,7 @@ namespace lr {
         /// \brief Returns the state with the specified identifier
         inline const container& state_with_id(int identifier) const {
             static const container empty;
-            if (identifier < 0 || identifier >= m_States.size()) return empty;
+            if (identifier < 0 || identifier >= (int) m_States.size()) return empty;
             
             return m_States[identifier];
         }
@@ -114,7 +114,7 @@ namespace lr {
         /// \brief The set of transitions for a state with the specified identifier
         inline const transition_set& transitions_for_state(int stateId) const {
             static const transition_set empty;
-            if (stateId < 0 || stateId >= m_Transitions.size()) return empty;
+            if (stateId < 0 || stateId >= (int) m_Transitions.size()) return empty;
             
             return m_Transitions[stateId];
         }

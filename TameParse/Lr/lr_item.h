@@ -87,7 +87,7 @@ namespace lr {
         inline int offset() const { return m_Offset; }
         
         /// \brief True if this item is at the end of the rule (ie, is in a reducing state)
-        inline bool at_end() const { return offset() >= rule()->items().size(); }
+        inline bool at_end() const { return offset() >= (int) rule()->items().size(); }
 
     public:
         /// \brief Clones an LR(0) item
