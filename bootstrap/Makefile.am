@@ -7,9 +7,8 @@ definition_txt.h: $(top_srcdir)/TameParse/Language/definition.txt
 
 ../TameParse/Language/bootstrap.cpp: definition_txt.h
 
-bootstrap_CFLAGS	= -I$(top_srcdir)
-bootstrap_CXXFLAGS	= -I$(top_srcdir) $(BOOST_CPPFLAGS)
-bootstrap_LDFLAGS	= $(BOOST_LDFLAGS)
+bootstrap_CFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
+bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
 					  definition_txt.h \
 					  ../TameParse/Compiler/compilation_stage.cpp \

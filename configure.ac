@@ -1,4 +1,5 @@
 AC_PREREQ([2.68])
+AC_CONFIG_MACRO_DIR([m4])
 AC_INIT([TameParse], [1.0.0], [andrew@logicalshift.co.uk])
 AC_CONFIG_SRCDIR([parsetool/main.cpp])
 AC_CONFIG_HEADERS([config.h])
@@ -7,6 +8,7 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_LIBTOOL
 AC_CHECK_PROG(HAVE_XXD, xxd, yes)
 
 # Checks for libraries.

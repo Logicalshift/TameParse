@@ -3,6 +3,7 @@ syntax: glob
 TameParse.xcodeproj/project.xcworkspace/xcuserdata
 TameParse.xcodeproj/xcuserdata
 autom4te.cache
+UnicodeData.txt
 build
 obj
 bin
@@ -11,6 +12,14 @@ aclocal.m4
 depcomp
 install-sh
 missing
+config.guess
+config.sub
+ltmain.sh
+libtool.m4
+ltoptions.m4
+ltsugar.m4
+ltversion.m4
+lt~obsolete.m4
 configure
 *~
 .DS_Store
