@@ -1,6 +1,3 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
 AC_PREREQ([2.68])
 AC_INIT([TameParse], [1.0.0], [andrew@logicalshift.co.uk])
 AC_CONFIG_SRCDIR([parsetool/main.cpp])
@@ -32,5 +29,7 @@ AX_BOOST_BASE([1.47])
 AC_CONFIG_FILES([Makefile
                  Test/Makefile
                  bootstrap/Makefile
-                 parsetool/Makefile])
+                 parsetool/Makefile
+                 Examples/Makefile
+                 doxy/Makefile])
 AC_OUTPUT
