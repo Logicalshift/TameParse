@@ -1,0 +1,16 @@
+syntax: glob
+
+TameParse.xcodeproj/project.xcworkspace/xcuserdata
+TameParse.xcodeproj/xcuserdata
+autom4te.cache
+build
+obj
+bin
+Makefile.in
+aclocal.m4
+depcomp
+install-sh
+missing
+configure
+*~
+.DS_Store
