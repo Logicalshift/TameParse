@@ -32,7 +32,7 @@ namespace lr {
         typedef parser<astnode_container, ast_parser_actions> ast_parser;
         
         /// \brief Type of a list of reduced symbols
-        typedef parser::reduce_list reduce_list;
+        typedef ast_parser::reduce_list reduce_list;
         
     private:
         /// \brief The stream of lexemes that this actions object will read from
