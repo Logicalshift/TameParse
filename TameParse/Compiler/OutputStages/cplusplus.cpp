@@ -17,6 +17,9 @@ using namespace dfa;
 using namespace contextfree;
 using namespace compiler;
 
+/// \brief A suffix used to distinguish node types from the variables that reference them
+static const string s_TypeSuffix = "_n";
+
 /// \brief Creates a new output stage
 output_cplusplus::output_cplusplus(console_container& console, const std::wstring& filename, lexer_stage* lexer, language_stage* language, lr_parser_stage* parser, const std::wstring& filenamePrefix, const std::wstring& className, const std::wstring& namespaceName)
 : output_stage(console, filename, lexer, language, parser)
@@ -1088,6 +1091,7 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 void output_cplusplus::begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item) {
 	// Get the name for this nonterminal
 	string name = name_for_nonterminal(itemIdentifier, item, *m_Grammar, *m_Terminals);
+	name += s_TypeSuffix;
 	m_CurrentNonterminal = name;
 
 	// Write out a forward declaration for this item
@@ -1123,6 +1127,7 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 
 	// Get the name for this nonterminal
 	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
+	ntName += s_TypeSuffix;
 	m_CurrentNonterminal = ntName;
 
 	// Repeating items have a content and a vector node
@@ -1228,14 +1233,14 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	// Guards have no corresponding variable
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end() && item->type() != item::guard) {
-		*m_NtClassDefinitions << "        const util::syntax_ptr<" << baseName << "> " << itemName << ";\n";
+		*m_NtClassDefinitions << "        const util::syntax_ptr<" << baseName << s_TypeSuffix << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
 	m_CurrentRuleNames.push_back(itemName);
 
 	if (item->type() != item::guard) {
-		m_CurrentRuleTypes.push_back(baseName);
+		m_CurrentRuleTypes.push_back(baseName + s_TypeSuffix);
 	} else {
 		// Guards have no type
 		m_CurrentRuleTypes.push_back("");
@@ -1283,12 +1288,12 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 	// Add to the definition if we haven't declared it in this nonterminal yet
 	if (m_UsedNtItems.find(itemName) == m_UsedNtItems.end()) {
-		*m_NtClassDefinitions << "        const util::syntax_ptr<class " << baseName << "> " << itemName << ";\n";
+		*m_NtClassDefinitions << "        const util::syntax_ptr<class " << baseName << s_TypeSuffix << "> " << itemName << ";\n";
 	}
 
 	// Add to the items in the current rule
 	m_CurrentRuleNames.push_back(itemName);
-	m_CurrentRuleTypes.push_back(baseName);
+	m_CurrentRuleTypes.push_back(baseName + s_TypeSuffix);
 
 	// Mark as used
 	m_UsedRuleItems.insert(itemName);

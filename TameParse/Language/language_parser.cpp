@@ -26,25 +26,25 @@ language_parser::language_parser()
 : m_FileDefinition(NULL, true) {
 }
 
-typedef tameparse_language::Parser_Language                 Parser_Language;
-typedef tameparse_language::list_of_TopLevel_Block          list_of_TopLevel_Block;
-typedef tameparse_language::TopLevel_Block                  ast_TopLevel_Block;
-typedef tameparse_language::Language_Block                  ast_Language_Block;
-typedef tameparse_language::Language_Definition             ast_Language_Definition;
-typedef tameparse_language::list_of_Language_Definition     list_of_Language_Definition;
-typedef tameparse_language::list_of_Lexeme_Definition       list_of_Lexeme_Definition;
-typedef tameparse_language::list_of_Keyword_Definition      list_of_Keyword_Definition;
-typedef tameparse_language::identifier                      identifier;
-typedef tameparse_language::regex                           ast_regex;
-typedef tameparse_language::string_2                        ast_string;
-typedef tameparse_language::character                       ast_character;
-typedef tameparse_language::list_of_Nonterminal_Definition  list_of_Nonterminal_Definition;
-typedef tameparse_language::list_of__pipe__Production       list_of__pipe__Production;
-typedef tameparse_language::list_of_Simple_Ebnf_Item        list_of_Simple_Ebnf_Item;
-typedef tameparse_language::Nonterminal_Definition          ast_Nonterminal_Definition;
-typedef tameparse_language::Production                      ast_Production;
-typedef tameparse_language::Simple_Ebnf_Item                ast_Simple_Ebnf_Item;
-typedef tameparse_language::Ebnf_Item                       ast_Ebnf_Item;
+typedef tameparse_language::Parser_Language_n                   Parser_Language;
+typedef tameparse_language::list_of_TopLevel_Block_n            list_of_TopLevel_Block;
+typedef tameparse_language::TopLevel_Block_n                    ast_TopLevel_Block;
+typedef tameparse_language::Language_Block_n                    ast_Language_Block;
+typedef tameparse_language::Language_Definition_n               ast_Language_Definition;
+typedef tameparse_language::list_of_Language_Definition_n       list_of_Language_Definition;
+typedef tameparse_language::list_of_Lexeme_Definition_n         list_of_Lexeme_Definition;
+typedef tameparse_language::list_of_Keyword_Definition_n        list_of_Keyword_Definition;
+typedef tameparse_language::identifier_n                        identifier;
+typedef tameparse_language::regex_n                             ast_regex;
+typedef tameparse_language::string_2_n                          ast_string;
+typedef tameparse_language::character_n                         ast_character;
+typedef tameparse_language::list_of_Nonterminal_Definition_n    list_of_Nonterminal_Definition;
+typedef tameparse_language::list_of__pipe__Production_n         list_of__pipe__Production;
+typedef tameparse_language::list_of_Simple_Ebnf_Item_n          list_of_Simple_Ebnf_Item;
+typedef tameparse_language::Nonterminal_Definition_n            ast_Nonterminal_Definition;
+typedef tameparse_language::Production_n                        ast_Production;
+typedef tameparse_language::Simple_Ebnf_Item_n                  ast_Simple_Ebnf_Item;
+typedef tameparse_language::Ebnf_Item_n                         ast_Ebnf_Item;
 
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
 
@@ -90,9 +90,9 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     }
     
     // Create an alternate if one is supplied
-    if (ebnfItem->Ebnf_Item_2) {
+    if (ebnfItem->Ebnf_Item) {
         // Get the alternative item
-        ebnf_item* alternative = definition_for(ebnfItem->Ebnf_Item_2);
+        ebnf_item* alternative = definition_for(ebnfItem->Ebnf_Item);
         
         if (alternative == NULL) {
             // Bug
@@ -184,7 +184,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
     
     else if (simpleItem->_star_) {
         // Item of the form X*
-        ebnf_item* starredItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        ebnf_item* starredItem = definition_for(simpleItem->Simple_Ebnf_Item);
         if (starredItem == NULL) {
             // Bug
             return NULL;
@@ -197,7 +197,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
     
     else if (simpleItem->_plus_) {
         // Item of the form X+
-        ebnf_item* plusItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        ebnf_item* plusItem = definition_for(simpleItem->Simple_Ebnf_Item);
         if (plusItem == NULL) {
             // Bug
             return NULL;
@@ -210,7 +210,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
     
     else if (simpleItem->_question_) {
         // Item of the form X?
-        ebnf_item* optionalItem = definition_for(simpleItem->Simple_Ebnf_Item_2);
+        ebnf_item* optionalItem = definition_for(simpleItem->Simple_Ebnf_Item);
         if (optionalItem == NULL) {
             // Bug
             return NULL;
@@ -528,7 +528,7 @@ static definition_file* definition_for(const Parser_Language* language) {
 }
 
 /// \brief Turns a base definition into a definition file object
-static definition_file* definition_for(const tameparse_language::epsilon* root) {
+static definition_file* definition_for(const tameparse_language::epsilon_n* root) {
     // Pass the parser language straight through
     return definition_for(root->Parser_Language);
 }
@@ -590,7 +590,7 @@ bool language_parser::parse(const std::wstring& language) {
     if (result) {
         // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
         // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
-        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
+        const tameparse_language::Parser_Language_n* root = static_cast<const tameparse_language::Parser_Language_n*>(parser_state->get_item().item());
         
         // Turn into a definition
         m_FileDefinition = definition_file_container(definition_for(root), true);
@@ -637,7 +637,7 @@ bool language_parser::parse(const std::string& language) {
     if (result) {
         // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
         // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
-        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
+        const tameparse_language::Parser_Language_n* root = static_cast<const tameparse_language::Parser_Language_n*>(parser_state->get_item().item());
         
         // Turn into a definition
         m_FileDefinition = definition_file_container(definition_for(root), true);
@@ -681,7 +681,7 @@ bool language_parser::parse(std::istream& language) {
     if (result) {
         // Fetch the root item (which will be an epsilon item at the moment due to the way the parser is built up)
         // The name of this item will probably change to something more sensible at some point (and I'll forget to remove this comment)
-        const tameparse_language::Parser_Language* root = static_cast<const tameparse_language::Parser_Language*>(parser_state->get_item().item());
+        const tameparse_language::Parser_Language_n* root = static_cast<const tameparse_language::Parser_Language_n*>(parser_state->get_item().item());
         
         // Turn into a definition
         m_FileDefinition = definition_file_container(definition_for(root), true);
