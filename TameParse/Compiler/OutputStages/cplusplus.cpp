@@ -270,12 +270,13 @@ std::string output_cplusplus::name_for_item(const contextfree::item_container& i
 	}
 
 	// Don't allow 0-length item names
-	if (res.tellp() == 0) {
-		res << "item";
+	string name = res.tellp();
+	if (name.empty()) {
+		name = "item";
 	}
 
 	// Return the result
-	return res.str();
+	return name;
 }
 
 /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
