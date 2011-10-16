@@ -29,7 +29,7 @@ namespace lr {
         typedef dfa::lexeme_stream lexeme_stream;
         
         /// \brief Type of a parser that uses these actions
-        typedef parser<astnode_container, ast_parser_actions> parser;
+        typedef parser<astnode_container, ast_parser_actions> ast_parser;
         
         /// \brief Type of a list of reduced symbols
         typedef parser::reduce_list reduce_list;
@@ -82,7 +82,7 @@ namespace lr {
     };
     
     /// \brief A parser that produces an AST from the input source file
-    typedef ast_parser_actions::parser ast_parser;
+    typedef ast_parser_actions::ast_parser ast_parser;
 }
 
 #endif

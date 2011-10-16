@@ -13,8 +13,8 @@
 
 #include "TameParse/Dfa/range.h"
 
-#include "TameParse/Contextfree/grammar.h"
-#include "TameParse/Contextfree/terminal_dictionary.h"
+#include "TameParse/ContextFree/grammar.h"
+#include "TameParse/ContextFree/terminal_dictionary.h"
 
 #include "TameParse/Lr/lalr_builder.h"
 #include "TameParse/Lr/parser_tables.h"
