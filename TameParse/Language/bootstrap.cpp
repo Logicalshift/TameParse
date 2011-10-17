@@ -24,6 +24,36 @@ using namespace contextfree;
 using namespace lr;
 using namespace language;
 
+#ifdef _WIN32
+
+#include <windows.h>
+#include "resource.h"
+
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+#define ThisModule ((HINSTANCE)&__ImageBase)
+
+/// \brief Retrieves a string containing the language definition for the parser language
+const std::string& bootstrap::get_default_language_definition() {
+    // Static string that will contain the language definition
+    static std::string result;
+    
+    // Fill in the result if it's empty
+    if (result.size() == 0) {
+		HRSRC	definitionResource	= FindResource(ThisModule, MAKEINTRESOURCE(IDR_DEFINITION_FILE), "Text");
+		DWORD	definitionSize		= SizeofResource(ThisModule, definitionResource);
+		HGLOBAL	definitionHandle	= LoadResource(ThisModule, definitionResource);
+		char*	definition			= (char*) LockResource(definitionHandle);
+
+        result.assign(definition, definitionSize);
+    }
+    
+    // Return the result
+    return result;
+}
+
+
+#else
+
 // Declare a string containing the language definition
 #include "definition_tp.h"
 
@@ -40,6 +70,8 @@ const std::string& bootstrap::get_default_language_definition() {
     // Return the result
     return result;
 }
+
+#endif
 
 /// \brief Adds a new terminal item to an NDFA, and to this object
 contextfree::item_container bootstrap::add_terminal(dfa::ndfa_regex* ndfa, const std::wstring& name, const std::wstring& regex) {
