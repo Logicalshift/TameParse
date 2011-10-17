@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".."
+				AdditionalIncludeDirectories="..;.\bootstrap"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -110,7 +110,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".."
+				AdditionalIncludeDirectories="..;.\bootstrap"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -201,22 +201,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\TameParse\Compiler\import_stage.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Compiler\import_stage.h"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Compiler\language_builder_stage.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Compiler\language_builder_stage.h"
-					>
-				</File>
-				<File
 					RelativePath="..\TameParse\Compiler\language_stage.cpp"
 					>
 				</File>
@@ -246,14 +230,6 @@
 				</File>
 				<File
 					RelativePath="..\TameParse\Compiler\output_stage.h"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Compiler\parser_stage.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Compiler\parser_stage.h"
 					>
 				</File>
 				<File
@@ -573,14 +549,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\TameParse\Language\language_parser.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\TameParse\Language\language_parser.h"
-					>
-				</File>
-				<File
 					RelativePath="..\TameParse\Language\language_unit.cpp"
 					>
 				</File>
@@ -847,7 +815,19 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\bootstrap\bootstrap.rc"
+				>
+			</File>
 		</Filter>
+		<File
+			RelativePath="..\TameParse\Language\definition.tp"
+			>
+		</File>
+		<File
+			RelativePath=".\bootstrap\resource.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
