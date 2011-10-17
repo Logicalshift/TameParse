@@ -34,7 +34,7 @@ static bool test_lex(string phrase, const lexer& lex, int expectedSymbol) {
     
     bool result = true;
     if (match->content().size() != phrase.size()) {
-        for (int x=0; x<match->content().size(); x++) {
+        for (size_t x=0; x<match->content().size(); x++) {
             cerr << (char)match->content()[x];
         }
         cerr << endl;
