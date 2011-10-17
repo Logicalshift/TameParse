@@ -777,7 +777,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 /// \brief Functor that returns the number of actions for a given terminal object
 class count_terminal_actions {
 public:
-	int operator()(const lr::parser_tables& tables, int state) {
+	int operator()(const lr::parser_tables& tables, int state) const {
 		return tables.action_counts()[state].m_NumTerms;
 	}	
 };
@@ -785,7 +785,7 @@ public:
 /// \brief Functor that returns the number of actions for a given non-terminal object
 class count_nonterminal_actions {
 public:
-	int operator()(const lr::parser_tables& tables, int state) {
+	int operator()(const lr::parser_tables& tables, int state) const {
 		return tables.action_counts()[state].m_NumNonterms;
 	}	
 };

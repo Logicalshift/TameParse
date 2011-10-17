@@ -19,7 +19,7 @@ namespace lr {
     ///
     template<typename item_type> class state_no_merge {
     public:
-        inline bool operator()(item_type& mergeInto, const item_type& mergeFrom) {
+        inline bool operator()(item_type& mergeInto, const item_type& mergeFrom) const {
             return false;
         }
     };

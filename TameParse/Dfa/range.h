@@ -28,7 +28,7 @@ namespace dfa {
         /// non-overlapping ranges)
         class sort_by_lower {
         public:
-            inline bool operator()(const range<T>& a, const range<T>& b) {
+            inline bool operator()(const range<T>& a, const range<T>& b) const {
                 return a.lower() < b.lower();
             }
         };
