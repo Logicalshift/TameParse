@@ -8,6 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TameParseLib", "TameParseLi
 		{A6654A16-2EAB-4946-B2E2-F26604421C0D} = {A6654A16-2EAB-4946-B2E2-F26604421C0D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcproj", "{E7666743-042E-429C-A142-C49C26AC7B80}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0930EA5C-8392-4CF1-A134-F525B3E78834} = {0930EA5C-8392-4CF1-A134-F525B3E78834}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +27,10 @@ Global
 		{0930EA5C-8392-4CF1-A134-F525B3E78834}.Debug|Win32.Build.0 = Debug|Win32
 		{0930EA5C-8392-4CF1-A134-F525B3E78834}.Release|Win32.ActiveCfg = Release|Win32
 		{0930EA5C-8392-4CF1-A134-F525B3E78834}.Release|Win32.Build.0 = Release|Win32
+		{E7666743-042E-429C-A142-C49C26AC7B80}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E7666743-042E-429C-A142-C49C26AC7B80}.Debug|Win32.Build.0 = Debug|Win32
+		{E7666743-042E-429C-A142-C49C26AC7B80}.Release|Win32.ActiveCfg = Release|Win32
+		{E7666743-042E-429C-A142-C49C26AC7B80}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
