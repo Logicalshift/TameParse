@@ -54,7 +54,7 @@ static void dump(const rule& rule, const grammar& gram, const terminal_dictionar
     dump(*rule.nonterminal(), gram, dict);
     
     wcerr << L" ->";
-    int pos;
+    size_t pos;
     for (pos = 0; pos < rule.items().size(); pos++) {
         wcerr << L" ";
         dump(*rule.items()[pos], gram, dict);
@@ -66,7 +66,7 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram, 
     dump(*item.rule()->nonterminal(), gram, dict);
     
     wcerr << L" ->";
-    int pos;
+    size_t pos;
     for (pos = 0; pos < item.rule()->items().size(); pos++) {
         if (pos == item.offset()) wcerr << L" *";
         wcerr << L" ";
@@ -78,7 +78,7 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram, 
     dump(la, gram, dict);
     
     wcerr << L" [";
-    if (item.offset() < item.rule()->items().size()) {
+    if (item.offset() < (int) item.rule()->items().size()) {
         dump(*item.rule()->items()[item.offset()], gram, dict);
         wcerr << L" >FIRST>";
         dump(gram.first(*item.rule()->items()[item.offset()]), gram, dict);
@@ -150,7 +150,7 @@ static void dump_machine(const lalr_builder& builder) {
             dump(item, state.lookahead_for(itemId), machine.gram(), builder.terminals());
             wcerr << endl;
             
-            if (item.offset() < item.rule()->items().size()) {
+            if (item.offset() < (int) item.rule()->items().size()) {
                 lr1_item lr1(item, empty_set);
                 item.rule()->items()[item.offset()]->cache_closure(lr1, closure, machine.gram());
             }
@@ -223,11 +223,11 @@ static bool no_duplicate_states(lalr_machine& m) {
     return ok;
 }
 
-typedef basic_string<int> symbol_string;
-typedef basic_stringstream<int> symbol_stringstream;
+typedef basic_string<int> int_string;
+typedef basic_stringstream<int> int_stringstream;
 
-static bool can_parse(symbol_string& symbols, simple_parser& p, character_lexer& lex) {
-    symbol_stringstream stream(symbols);
+static bool can_parse(int_string& symbols, simple_parser& p, character_lexer& lex) {
+    int_stringstream stream(symbols);
     simple_parser::state* state = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream)));
     
     bool result = state->parse();
@@ -313,8 +313,8 @@ void test_lalr_general::run_tests() {
     simple_parser p(builder, NULL);
     character_lexer lex;
     
-    symbol_string test1;
-    symbol_string test2;
+    int_string test1;
+    int_string test2;
     
     test1 += idId;
     test2 += timesId;
@@ -322,8 +322,8 @@ void test_lalr_general::run_tests() {
     test2 += equalsId;
     test2 += idId;
     
-    symbol_stringstream stream1(test1);
-    symbol_stringstream stream2(test2);
+    int_stringstream stream1(test1);
+    int_stringstream stream2(test2);
     
     simple_parser::state* parse1 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream1)));
     simple_parser::state* parse2 = p.create_parser(new simple_parser_actions(lex.create_stream_from(stream2)));
@@ -359,10 +359,10 @@ void test_lalr_general::run_tests() {
     simple_parser emptyParser(emptyBuilder, NULL);
     
     // Some simple checks to see if this parser works
-    symbol_string empty;
-    symbol_string oneId;
-    symbol_string twoIds;
-    symbol_string manyIds;
+    int_string empty;
+    int_string oneId;
+    int_string twoIds;
+    int_string manyIds;
 
     oneId   += idId;
     twoIds  += idId;
@@ -438,11 +438,11 @@ void test_lalr_general::run_tests() {
     simple_parser simpleCsParser(csBuilder, NULL);
     
     // And some test strings
-    symbol_string threeOfEach;
-    symbol_string csDoesntMatch1;
-    symbol_string csDoesntMatch2;
-    symbol_string csDoesntMatch3;
-    symbol_string oneD;
+    int_string threeOfEach;
+    int_string csDoesntMatch1;
+    int_string csDoesntMatch2;
+    int_string csDoesntMatch3;
+    int_string oneD;
     
     for (int x=0; x<3; x++) threeOfEach += aId;
     for (int x=0; x<3; x++) threeOfEach += bId;
