@@ -25,7 +25,7 @@ namespace dfa {
         int highest = lowHigh>>8;
         
         // Return the default value if the symbol is out of range
-        if (symbol < lowest || symbol >= highest) return table[offset + 0];
+        if ((int) symbol < lowest || (int) symbol >= highest) return table[offset + 0];
         
         // Look up the next level
         int pos			= (((unsigned int) symbol) >> (level * 8))&0xff;
