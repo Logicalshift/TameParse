@@ -24,6 +24,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="cd &quot;$(SolutionDir)\TameParseLib&quot;&#x0D;&#x0A;&quot;$(SolutionDir)$(ConfigurationName)\bootstrap.exe&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -85,7 +86,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="cd &quot;$(SolutionDir)\TameParse&quot;&#x0D;&#x0A;&quot;$(SolutionDir)$(ConfigurationName)\bootstrap.exe&quot;&#x0D;&#x0A;"
+				CommandLine="cd &quot;$(SolutionDir)\TameParseLib&quot;&#x0D;&#x0A;&quot;$(SolutionDir)$(ConfigurationName)\bootstrap.exe&quot;&#x0D;&#x0A;"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
