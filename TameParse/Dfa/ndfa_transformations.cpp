@@ -23,7 +23,7 @@ using namespace dfa;
 class order_actions {
 public:
     /// Returns true if one accept action is less than another
-    inline bool operator()(accept_action* a, accept_action* b) {
+    inline bool operator()(accept_action* a, accept_action* b) const {
         if (a == b)     return false;
         if (a == NULL)  return true;
         if (b == NULL)  return false;

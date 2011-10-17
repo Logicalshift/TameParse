@@ -32,7 +32,7 @@ namespace lr {
         class kernel_only_comparison {
         public:
             /// \brief Compares the LR(0) items contained by two LR(1) items
-            inline bool operator()(const lr1_item_container& first, const lr1_item_container& second) {
+            inline bool operator()(const lr1_item_container& first, const lr1_item_container& second) const {
                 return first->get_lr0_item() < second->get_lr0_item();
             }
             
