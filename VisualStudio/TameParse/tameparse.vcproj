@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\.."
+				AdditionalIncludeDirectories="&quot;${ProgramFiles(x86)}\boost\boost_1_47&quot;;..\.."
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -111,7 +111,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\.."
+				AdditionalIncludeDirectories="&quot;C:\Program Files (x86)\boost\boost_1_47&quot;;..\.."
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -129,6 +129,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="&quot;$(SolutionDir)$(ConfigurationName)\TameParseLib.lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files (x86)\boost\boost_1_47\lib&quot;"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
