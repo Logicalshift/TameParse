@@ -52,7 +52,7 @@ END
 // Text
 //
 
-IDR_DEFINITION_FILE               Text                    "..\\TameParse\\Language\\definition.tp"
+IDR_DEFINITION_FILE               Text                    "..\\..\\TameParse\\Language\\definition.tp"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
