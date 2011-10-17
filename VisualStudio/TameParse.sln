@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bootstrap", "bootstrap.vcproj", "{A6654A16-2EAB-4946-B2E2-F26604421C0D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TameParse", "TameParse.vcproj", "{0930EA5C-8392-4CF1-A134-F525B3E78834}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TameParseLib", "TameParseLib.vcproj", "{0930EA5C-8392-4CF1-A134-F525B3E78834}"
 	ProjectSection(ProjectDependencies) = postProject
 		{A6654A16-2EAB-4946-B2E2-F26604421C0D} = {A6654A16-2EAB-4946-B2E2-F26604421C0D}
 	EndProjectSection

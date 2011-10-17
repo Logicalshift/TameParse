@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="TameParse"
+	Name="TameParseLib"
 	ProjectGUID="{0930EA5C-8392-4CF1-A134-F525B3E78834}"
-	RootNamespace="TameParse"
+	RootNamespace="TameParseLib"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
