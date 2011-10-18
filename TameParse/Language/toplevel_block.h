@@ -15,6 +15,7 @@
 #include "TameParse/Language/language_block.h"
 #include "TameParse/Language/import_block.h"
 #include "TameParse/Language/parser_block.h"
+#include "TameParse/Language/test_block.h"
 
 namespace language {
     /// \brief Class representing a toplevel block
@@ -26,8 +27,11 @@ namespace language {
         /// \brief NULL if this is not an import block, otherwise the import block represented by this item
         import_block* m_ImportBlock;
         
-        /// \brief NULL if this isn not a parser block, otherwise the parser block represented by this item
+        /// \brief NULL if this is not a parser block, otherwise the parser block represented by this item
         parser_block* m_ParserBlock;
+
+        /// \brief NULL if this is not a test block, otherwise the test block represetned by this item
+        test_block* m_TestBlock;
         
     public:
         /// \brief Creates a new top level block containing a language block
@@ -38,6 +42,9 @@ namespace language {
         
         /// \brief Creates a new top level block containing a parser block
         toplevel_block(parser_block* parser);
+
+        /// \brief Creates a new top level block containing a test block
+        toplevel_block(test_block* test);
         
         /// \brief Copies an existing toplevel block
         toplevel_block(const toplevel_block& copyFrom);
@@ -54,8 +61,11 @@ namespace language {
         /// \brief NULL, or the import block represented by this toplevel block
         inline const import_block* import() const { return m_ImportBlock; }
         
-        /// \brief NULL, or the parser block represented byt his toplevel block
+        /// \brief NULL, or the parser block represented by this toplevel block
         inline const parser_block* parser() const { return m_ParserBlock; }
+
+        /// \brief NULL, or the test block represeted by this toplevel block
+        inline const test_block* test() const { return m_TestBlock; }
     };
 }
 
