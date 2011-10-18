@@ -63,6 +63,8 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/parser_block.cpp \
 					  ../TameParse/Language/process.cpp \
 					  ../TameParse/Language/production_definition.cpp \
+					  ../TameParse/Language/test_block.cpp \
+					  ../TameParse/Language/test_definition.cpp \
 					  ../TameParse/Language/toplevel_block.cpp \
 					  ../TameParse/Lr/action_rewriter.cpp \
 					  ../TameParse/Lr/ast_parser.cpp \

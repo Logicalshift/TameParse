@@ -76,6 +76,8 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/parser_block.h \
 							  Language/process.h \
 							  Language/production_definition.h \
+					  		  Language/test_block.h \
+					  		  Language/test_definition.h \
 							  Language/toplevel_block.h \
 							  Lr/action_rewriter.h \
 							  Lr/ast_parser.h \
@@ -159,6 +161,8 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/parser_block.cpp \
 							  Language/process.cpp \
 							  Language/production_definition.cpp \
+							  Language/test_block.cpp \
+							  Language/test_definition.cpp \
 							  Language/toplevel_block.cpp \
 							  Lr/action_rewriter.cpp \
 							  Lr/ast_parser.cpp \
