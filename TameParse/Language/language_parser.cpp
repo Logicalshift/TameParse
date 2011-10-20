@@ -45,6 +45,86 @@ typedef tameparse_language::Nonterminal_Definition_n            ast_Nonterminal_
 typedef tameparse_language::Production_n                        ast_Production;
 typedef tameparse_language::Simple_Ebnf_Item_n                  ast_Simple_Ebnf_Item;
 typedef tameparse_language::Ebnf_Item_n                         ast_Ebnf_Item;
+typedef tameparse_language::Test_Block_n                        ast_Test_Block;
+typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
+typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
+typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
+
+/// \brief Adds a test definition to the test block
+static bool add_test_definition(test_block* target, const ast_Test_Definition* defn) {
+    // Sanity check
+    if (!defn->Nonterminal) return false;
+
+    // Fetch the name of the nonterminal and the language that this definition is in
+    wstring nonterminalLanguage;
+    wstring nonterminalName;
+
+    if (defn->Nonterminal->identifier) {
+        nonterminalLanguage = defn->Nonterminal->identifier->content<wchar_t>();
+    }
+
+    nonterminalName = defn->Nonterminal->nonterminal_2->content<wchar_t>();
+
+    // Work out the type of this definition
+    test_definition::test_type type = test_definition::match;
+
+    if (defn->_equals_) {
+        type = test_definition::match;
+    } else if (defn->_exclamation__equals_) {
+        type = test_definition::no_match;
+    } else if (defn->from) {
+        type = test_definition::match_from_file;
+    } else {
+        // Unknown definition type
+        return false;
+    }
+
+    // Iterate through the test specifications and generate new test definitions
+    for (ast_list_of_Test_Specification::iterator spec = defn->list_of_Test_Specification->begin(); spec != defn->list_of_Test_Specification->end(); spec++) {
+        // Get the identifier for this test (if it has one)
+        wstring identifier;
+
+        if ((*spec)->Test_Specification->identifier) {
+            identifier = (*spec)->Test_Specification->identifier->content<wchar_t>();
+        }
+
+        // Now the string value of the test
+        wstring testString = process::dequote_string((*spec)->Test_Specification->string_2->content<wchar_t>());
+
+        // Generate the test definition
+        test_definition* newDefn = new test_definition(nonterminalLanguage, nonterminalName, type, identifier, testString);
+
+        // Add to the target
+        target->add_test_definition(newDefn);
+    }
+
+    // Win
+    return true;
+}
+
+/// \brief Converts a test block into a test_block
+static test_block* definition_for(const ast_Test_Block* testBlock) {
+    // Sanity check
+    if (!testBlock->identifier)                 return NULL;
+    if (!testBlock->list_of_Test_Definition)    return NULL;
+
+    // Get the identifier for this block
+    wstring identifier = testBlock->identifier->content<wchar_t>();
+
+    // Create the result
+    test_block* result = new test_block(identifier, testBlock->pos(), testBlock->final_pos());
+
+    // Iterate through the test definitions
+    for (ast_list_of_Test_Definition::iterator defn = testBlock->list_of_Test_Definition->begin();
+         defn != testBlock->list_of_Test_Definition->end();
+         defn++) {
+         // Add this definition to this block
+         add_test_definition(result, (*defn)->Test_Definition);
+     }
+
+     // Got the result
+     return result;
+}
 
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
 
@@ -492,6 +572,18 @@ static toplevel_block* definition_for(const ast_TopLevel_Block* toplevel) {
     else if (toplevel->Import_Block) {
         // Fairly simple to convert
         return new toplevel_block(new import_block(process::dequote_string(toplevel->Import_Block->string_2->content<wchar_t>()), toplevel->pos(), toplevel->final_pos()));
+    }
+
+    // Test block
+    else if (toplevel->Test_Block) {
+        test_block* test = definition_for(toplevel->Test_Block);
+        if (!test) {
+            // Doh
+            return NULL;
+        }
+
+        // Turn into a toplevel block
+        return new toplevel_block(test);
     }
     
     // Parser block
