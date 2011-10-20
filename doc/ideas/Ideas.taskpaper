@@ -1,0 +1,23 @@
+Grammar items:
+	- An 'anything' symbol
+
+	- An 'anything but' symbol
+
+	- FIRST(x) and FOLLOW(x) symbols
+
+	- Make the 'alternative' symbol generate a closure that eliminates itself
+
+Multiple language support:
+
+	- Ability to use nonterminals from languages other than the current one (or an inherited one)
+		This requires making the lexer and parser generator work in a fairly weird way: we need to merge the lexers, but match the same sets of symbols for each individual language.
+
+	- Make it possible to inherit from more than one language
+			(At least, if this makes sense). I think this also requires messing around with the way that the lexer works.
+
+	- Fix issue with extending NDFA symbols
+
+	- Make it possible to replace NDFA symbols
+
+AST generation:
+	- Aliases for items in rules (to specify variable names in the generated AST)
