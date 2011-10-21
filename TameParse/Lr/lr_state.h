@@ -203,7 +203,7 @@ namespace lr {
         }
         
         /// \brief Number of items in this state (kernel or non-kernel)
-        inline size_t count_items() const { return m_ItemList.size(); }
+        inline int count_items() const { return (int) m_ItemList.size(); }
         
         /// \brief Item with the specified identifier
         inline const container& operator[](int identifier) const { return m_ItemList[identifier]; }

@@ -245,7 +245,7 @@ namespace dfa {
                 
                 for (;;) {
                     // Add to the end of the buffer if it is empty
-                    if (pos == m_Buffer.size()) {
+                    if (pos == (int) m_Buffer.size()) {
                         // Get the next symbol
                         int nextSym;
                         (*m_Stream) >> nextSym;
