@@ -42,9 +42,7 @@ void test_dfa_ndfa::run_tests() {
     // NDFA with epsilons and two transitions on 'a'
     ndfa twoEpsilonAs;
     twoEpsilonAs >> epsilon() >> 'a' >> accept_action(0);
-    numStates = twoEpsilonAs.count_states();
     twoEpsilonAs >> epsilon() >> 'a' >> accept_action(1);
-    numStates = twoEpsilonAs.count_states();
     
     // Check that it looks OK (should be 3 states)
     numStates = twoEpsilonAs.count_states();
@@ -69,7 +67,7 @@ void test_dfa_ndfa::run_tests() {
     
     // NDFA from a regexp
     ndfa_regex oneOrTwoAs;
-    int finalState = oneOrTwoAs.add_regex(0, "a?a", 1);
+    oneOrTwoAs.add_regex(0, "a?a", 1);
     
     ndfa* oneOrTwoAsAsDfa = oneOrTwoAs.to_dfa();
 
@@ -85,7 +83,7 @@ void test_dfa_ndfa::run_tests() {
     
     // Simple 'or' regex
     ndfa_regex aOrB;
-    finalState = aOrB.add_regex(0, "a|b", 1);
+    aOrB.add_regex(0, "a|b", 1);
 
     ndfa* aOrBAsDfa = aOrB.to_dfa();
     
@@ -100,7 +98,7 @@ void test_dfa_ndfa::run_tests() {
 
     // Bracketed 'or' regex
     ndfa_regex aaOrBb;
-    finalState = aaOrBb.add_regex(0, "(aa)|(bb)", 1);
+    aaOrBb.add_regex(0, "(aa)|(bb)", 1);
     
     ndfa* aaOrBbAsDfa = aaOrBb.to_dfa();
     
