@@ -1411,9 +1411,6 @@ void output_cplusplus::end_ast_rule() {
 
 			// Fill in the appropriate field
 			*m_SourceFile << m_CurrentRuleNames[index] << "(" << m_CurrentRuleTypes[index][0] << "_" << index << ")";
-
-			// No longer first
-			first = false;
 		}
 
 		*m_SourceFile << " {\n";
