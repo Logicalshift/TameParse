@@ -135,7 +135,7 @@ void lalr_builder::complete_parser() {
             int         offset  = (*item)->offset();
             
             // Items at the end of a rule don't produce any transitions
-            if (offset == rule.items().size()) continue;
+            if (offset == (int) rule.items().size()) continue;
             
             // Get the item that the 'dot' is before
             const item_container& dottedItem = rule.items()[offset];
