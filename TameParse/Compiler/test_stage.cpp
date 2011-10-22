@@ -23,6 +23,73 @@ test_stage::test_stage(console_container& console, const std::wstring& filename,
 , m_Import(import) {
 }
 
+/// \brief Destructor
+test_stage::~test_stage() {
+	
+}
+
+/// \brief Retrieves the language stage for the language with the specified name
+language_stage* test_stage::get_language(const std::wstring& languageName, const dfa::position& pos) {
+	// Try to retrieve the existing language
+	language_map::iterator found = m_Languages.find(languageName);
+	if (found != m_Languages.end()) {
+		return found->second;
+	}
+
+	// Retrieve the language for this test
+	const language_block*	language 		= m_Import->language_with_name(languageName);
+	wstring                 languageFile    = m_Import->file_with_language(languageName);
+
+	// Error if the language could not be found
+	if (!language) {
+        wstringstream msg;
+        msg << L"Unable to find language '" << languageName << "'";
+		cons().report_error(error(error::sev_error, filename(), L"CANT_FIND_LANGUAGE", msg.str(), pos));
+		return m_Languages[languageName] = NULL;
+	}
+
+	// Create a new language stage
+    console_container   cons    = cons_container();
+	language_stage*     stage   = new language_stage(cons, languageFile, language, m_Import);
+
+	// Compile it
+	stage->compile();
+
+	// TODO: return NULL if there was a compile error
+
+	// Return it
+	return m_Languages[languageName] = stage;
+}
+
+/// \brief Retrieves the lexer for the language with the specified name
+lexer_stage* test_stage::get_lexer(const std::wstring& languageName, const dfa::position& pos) {
+	// Try to retrieve the existing lexer
+	lexer_map::iterator found = m_Lexers.find(languageName);
+	if (found != m_Lexers.end()) {
+		return found->second;
+	}
+
+	// Get the language stage corresponding to this lexer
+	language_stage* language 		= get_language(languageName, pos);
+	wstring    		languageFile    = m_Import->file_with_language(languageName);
+	if (!language) {
+		// Value is null if the language couldn't be generated for any reason
+		return m_Lexers[languageName] = NULL;
+	}
+
+	// Create the lexer stage for this language
+    console_container   cons    = cons_container();
+	lexer_stage*        stage   = new lexer_stage(cons, languageFile, language);
+
+	// Compile it
+	stage->compile();
+
+	// TODO: return NULL if there was a compile error
+
+	// Return it
+	return m_Lexers[languageName] = stage;
+}
+
 /// \brief Performs the actions associated with this compilation stage
 void test_stage::compile() {
 	// Sanity check
@@ -40,6 +107,8 @@ void test_stage::compile() {
     cons().verbose_stream() << L"  = Running tests" << endl;
 
 	// Iterate through the definitions
+    bool firstTestSet = true;
+    
 	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); defn++) {
 		// Retrieve the tests for this block
 		const test_block* tests = (*defn)->test();
@@ -61,13 +130,29 @@ void test_stage::compile() {
         
         // Message for these tests
         wstringstream testMessages;
-        testMessages << endl << L"    Tests for " << tests->language() << endl;
+        if (!firstTestSet) {
+            testMessages << endl;
+        }
+        testMessages << L"    Tests for " << tests->language() << endl;
         
         // Passed/failed ratios for these tests
         int passed  = 0;
         int failed  = 0;
 
+        // Get the lexer for this language
+        lexer_stage* lexer = get_lexer(tests->language(), tests->start_pos());
+        if (!lexer) {
+        	// Do nothing more if the lexer doesn't exist (failed to build)
+        	// The lexer compiler should have reported an error so this should be OK
+        	continue;
+        }
+
         // Run the tests themselves
+        for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
+
+        	// Compile a language for this nonterminal if one doesn't exist already
+        	// TODO: deal with nonterminals in other languages
+        }
         
         // Write the messages. We use the verbose stream if the tests mostly passed
         if (failed) {
@@ -83,5 +168,8 @@ void test_stage::compile() {
         if (passed == 0 && failed == 0) {
             cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found no tests to run", tests->start_pos()));
         }
+        
+        // No longer on the first test set
+        firstTestSet = false;
 	}
 }

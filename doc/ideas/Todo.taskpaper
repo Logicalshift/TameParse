@@ -8,6 +8,8 @@ General:
 
 	- Replace all usages of it or x with a more descriptive variable name
 
+	- Make it possible to determine if a stage reported an error on an individual stage basis
+
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
 LALR Parser:
