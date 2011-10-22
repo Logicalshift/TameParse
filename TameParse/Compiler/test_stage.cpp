@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace lr;
 using namespace language;
 using namespace compiler;
 
@@ -195,7 +196,7 @@ void test_stage::compile() {
 
         // Get the lexer for this language
         lexer_stage* lexer = get_lexer(tests->language(), tests->start_pos());
-        if (!lexer) {
+        if (!lexer || !lexer->get_lexer()) {
         	// Do nothing more if the lexer doesn't exist (failed to build)
         	// The lexer compiler should have reported an error so this should be OK
         	continue;
@@ -205,6 +206,35 @@ void test_stage::compile() {
         for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
         	// Compile a language for this nonterminal if one doesn't exist already
         	// TODO: deal with nonterminals in other languages
+        	lr_parser_stage* parserStage = get_parser(tests->language(), (*testDefn)->nonterminal(), tests->start_pos());
+
+        	// Get the text to be tested
+        	// TODO: deal with 'from' items
+        	wstringstream testText((*testDefn)->test_string());
+
+      		// Create the parser
+      		simple_parser parser(parserStage->get_tables(), false);
+
+        	// Create the lexeme stream
+        	lexeme_stream* stream = lexer->get_lexer()->create_stream_from(testText);
+
+        	// Create the parser state
+        	simple_parser::state* parseState = parser.create_parser(new simple_parser_actions(stream));
+
+        	// Run the test
+        	bool result = parseState->parse();
+
+        	// Done with the parser
+        	delete parseState;
+
+        	// Add a message about this test
+
+        	// Add to the count of successful/failed tests
+        	if (result) {
+        		passed++;
+        	} else {
+        		failed++;
+        	}
         }
         
         // Write the messages. We use the verbose stream if the tests mostly passed
