@@ -14,10 +14,3 @@ language Repetition {
 		<Test>	= one+ zero*
 	}
 }
-
-test Repetition {
-	<Test>		= "one one one"
-				  "one zero zero"
-	
-	<Test>		!= "zero zero"
-}
