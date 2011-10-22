@@ -8,10 +8,12 @@
 
 #include <sstream>
 
+#include "TameParse/util/utf8reader.h"
 #include "TameParse/Compiler/test_stage.h"
 #include "TameParse/Language/test_block.h"
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace lr;
 using namespace language;
@@ -213,7 +215,36 @@ void test_stage::compile() {
 
         	// Get the text to be tested
         	// TODO: deal with 'from' items
-        	wstringstream testText((*testDefn)->test_string());
+        	wstringstream testText;
+
+        	if ((*testDefn)->type() == test_definition::match_from_file) {
+        		// Read from the supplied file (which we assume is in UTF-8 format)
+        		istream* fromFile = cons().open_file((*testDefn)->test_string());
+
+        		// Error if the file doesn't exist
+        		if (!fromFile) {
+        			cons().report_error(error(error::sev_error, (*testDefn)->test_string(), L"TEST_FILE_NOT_FOUND", L"File not found", position(-1, -1, -1)));
+        			continue;
+        		}
+
+        		// Read in as UTF-8
+        		utf8reader reader(fromFile, true);
+
+        		for (;;) {
+        			// Get the next character
+        			wchar_t nextChar;
+        			reader.get(nextChar);
+
+        			// Stop at the end (or if the stream goes ungood for any reason)
+        			if (!reader.good()) break;
+
+        			// Store this character
+        			testText << nextChar;
+        		}
+        	} else {
+        		// Just use the literal test string
+        		testText << (*testDefn)->test_string();
+        	}
 
       		// Create the parser
       		simple_parser parser(parserStage->get_tables(), false);
