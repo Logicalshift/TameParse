@@ -16,7 +16,6 @@ General:
 
 	- end_ast_rule needs rewriting with less confusing logic
 		In fact, we really need to change the whole way that languages are generated so that new languages can be added sensibly.
-
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
 LALR Parser:
@@ -83,7 +82,18 @@ Error reporting:
 		Currently if the error happens in a generated rule we report the first usage which is no good
 
 Testing:
+	- call tameparse with the --run-tests option for all of the examples
 
+	- write tests for the Ansi C language
+
+	- write tests for the Pascal language
+
+	- write tests for the parser definition language
+
+	- write tests for the C99 language (once it's done)
+
+Examples:
+	- Finish the C99 language
 Report statistics:
 	- Number of states @done
 	
