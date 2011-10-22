@@ -82,6 +82,8 @@ Error reporting:
 		Currently if the error happens in a generated rule we report the first usage which is no good
 
 Testing:
+	- report the line of the error when the match_from_file style is in use
+	
 	- call tameparse with the --run-tests option for all of the examples
 
 	- write tests for the Ansi C language
