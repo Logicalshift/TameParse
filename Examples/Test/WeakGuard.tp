@@ -19,7 +19,7 @@ language WeakGuard {
 
 		<Not-Guarded> = identifier
 
-		<Weak-Guarded> = [=> replace identifier '='] identifier '='			// The '=' token is only matched if the guard matches, so we can use to test it
+		<Weak-Guarded> = [=> replace identifier '='] replace identifier '='			// The '=' token is only matched if the guard matches, so we can use to test it
 	}
 }
 

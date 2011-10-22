@@ -80,6 +80,8 @@
 #include "TameParse/Language/process.h"
 #include "TameParse/Language/production_definition.h"
 #include "TameParse/Language/toplevel_block.h"
+#include "TameParse/Language/test_block.h"
+#include "TameParse/Language/test_definition.h"
 
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/console.h"
@@ -93,5 +95,6 @@
 #include "TameParse/Compiler/parser_stage.h"
 #include "TameParse/Compiler/import_stage.h"
 #include "TameParse/Compiler/language_builder_stage.h"
+#include "TameParse/Compiler/test_stage.h"
 
 #endif
