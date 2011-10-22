@@ -162,7 +162,7 @@ language ParserLanguage {
 
 		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>+
 									| <Nonterminal> "!=" <Test-Specification>+
-									| <Nonterminal> from string+
+									| <Nonterminal> from <Test-Specification>+
 		
 		<Test-Specification>		= string
 									| [=> identifier '('] identifier '(' string ')'
