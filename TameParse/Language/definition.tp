@@ -160,8 +160,8 @@ language ParserLanguage {
 
 		<Test-Block>				= test identifier '{' <Test-Definition>* '}'
 
-		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>+
-									| <Nonterminal> "!=" <Test-Specification>+
+		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>*
+									| <Nonterminal> "!=" <Test-Specification>*
 									| <Nonterminal> from string+
 		
 		<Test-Specification>		= string
