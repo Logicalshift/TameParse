@@ -25,7 +25,21 @@ test_stage::test_stage(console_container& console, const std::wstring& filename,
 
 /// \brief Destructor
 test_stage::~test_stage() {
-	
+	// Delete the lexers
+	for (lexer_map::iterator deadLexer = m_Lexers.begin(); deadLexer != m_Lexers.end(); deadLexer++) {
+		if (deadLexer->second) {
+	 		delete deadLexer->second;
+		}
+	}
+	m_Lexers.clear();
+
+	// Delete the languages
+	for (language_map::iterator deadLanguage = m_Languages.begin(); deadLanguage != m_Languages.end(); deadLanguage++) {
+	 	if (deadLanguage->second) {
+		 	delete deadLanguage->second;
+	 	}
+	}
+	m_Languages.clear();
 }
 
 /// \brief Retrieves the language stage for the language with the specified name
