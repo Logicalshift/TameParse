@@ -227,6 +227,12 @@ void test_stage::compile() {
         	// Run the test
         	bool result = parseState->parse();
 
+        	// The result is inverted if the test type is a no match test
+        	if ((*testDefn)->type() == test_definition::no_match) {
+        		// We expect to not be able to parse this
+        		result = !result;
+        	}
+
         	// Done with the parser
         	delete parseState;
 
