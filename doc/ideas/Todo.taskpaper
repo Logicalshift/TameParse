@@ -10,6 +10,9 @@ General:
 
 	- Make it possible to determine if a stage reported an error on an individual stage basis
 
+	- end_ast_rule needs rewriting with less confusing logic
+		In fact, we really need to change the whole way that languages are generated so that new languages can be added sensibly.
+
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
 LALR Parser:
