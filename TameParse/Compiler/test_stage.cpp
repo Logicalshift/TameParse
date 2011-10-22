@@ -104,6 +104,46 @@ lexer_stage* test_stage::get_lexer(const std::wstring& languageName, const dfa::
 	return m_Lexers[languageName] = stage;
 }
 
+/// \brief Retrieves the parser for the language with the specified name
+lr_parser_stage* test_stage::get_parser(const std::wstring& languageName, const std::wstring& nonterminalName, const dfa::position& pos) {
+	// Try to retrieve the existing parser
+	pair<wstring, wstring> parserName(languageName, nonterminalName);
+
+	parser_map::iterator found = m_Parsers.find(parserName);
+	if (found != m_Parsers.end()) {
+		return found->second;
+	}
+
+	// Get the name of the file that the language is defined in
+	wstring    		languageFile    = m_Import->file_with_language(languageName);
+
+	// Get the lexer for this language
+	lexer_stage*	lexer = get_lexer(languageName, pos);
+
+	// Get the language block
+	language_stage* language = get_language(languageName, pos);
+
+	if (!lexer || !language) {
+		// Value is null if the language couldn't be generated for any reason
+		return m_Parsers[parserName] = NULL;
+	}
+
+	// Create a parser for this language
+	vector<wstring> 	startSymbols;
+	console_container	cons(cons_container());
+	startSymbols.push_back(nonterminalName);
+
+	lr_parser_stage* parser = new lr_parser_stage(cons, languageFile, language, lexer, startSymbols);
+
+	// Compile it
+	parser->compile();
+
+	// TODO: return NULL if there was a compile error
+
+	// Return it
+	return m_Parsers[parserName] = parser;
+}
+
 /// \brief Performs the actions associated with this compilation stage
 void test_stage::compile() {
 	// Sanity check
@@ -163,7 +203,6 @@ void test_stage::compile() {
 
         // Run the tests themselves
         for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
-
         	// Compile a language for this nonterminal if one doesn't exist already
         	// TODO: deal with nonterminals in other languages
         }
