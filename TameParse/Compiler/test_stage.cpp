@@ -264,9 +264,6 @@ void test_stage::compile() {
         		result = !result;
         	}
 
-        	// Done with the parser
-        	delete parseState;
-
         	// Work out a name for this test
         	wstringstream testName;
 
@@ -294,12 +291,25 @@ void test_stage::compile() {
         					<< (result?L"ok":L"FAILED")
         					<< endl;
 
+        	// For 'from' tests, report the line number of any failure
+        	if (!result && (*testDefn)->type() == test_definition::match_from_file) {
+        		position failPos(-1, -1, -1);
+                if (parseState->look().item()) {
+                    failPos = parseState->look()->pos();
+                }
+
+        		cons().report_error(error(error::sev_warning, (*testDefn)->test_string(), L"TEST_SYNTAX_ERROR", L"Syntax error in test file", failPos));
+        	}
+
         	// Add to the count of successful/failed tests
         	if (result) {
         		passed++;
         	} else {
         		failed++;
         	}
+
+        	// Done with the parser
+        	delete parseState;
         }
         
         // Write the messages. We use the verbose stream if the tests mostly passed

@@ -13,9 +13,13 @@ General:
 	- Replace all usages of it or x with a more descriptive variable name
 
 	- Make it possible to determine if a stage reported an error on an individual stage basis
+		- Use this to stop trying to run tests if the parser/lexer for a language can't be built
 
 	- end_ast_rule needs rewriting with less confusing logic
 		In fact, we really need to change the whole way that languages are generated so that new languages can be added sensibly.
+
+	- Ensure that the errors format matches that of gcc
+		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
 LALR Parser:
@@ -71,6 +75,8 @@ Language generation:
 Error reporting:
 	- Improve the way reduce/reduce conflicts are reported
 
+	- If a syntax error occurs at the end of the file, we don't report its position
+
 	- Report bad regular expressions
 
 	- Make it possible to disable errors on conflicting guards
@@ -82,7 +88,7 @@ Error reporting:
 		Currently if the error happens in a generated rule we report the first usage which is no good
 
 Testing:
-	- report the line of the error when the match_from_file style is in use
+	- report the line of the error when the match_from_file style is in use @done
 	
 	- call tameparse with the --run-tests option for all of the examples
 
