@@ -1424,8 +1424,9 @@ void output_cplusplus::end_ast_rule() {
 	*m_ReduceDefinitions << "\n    case " << m_CurrentRuleId << ":\n";
 	*m_ReduceDefinitions << "    {\n";
 
-	// Construct the content item for any item with a constructor
-	if (declareConstructor) {
+	// Construct the content item for any item with a constructor (or all the of items for a one-or-more repetition)
+	// TODO: this whole function has got really really difficult to follow!
+	if (declareConstructor || m_CurrentNonterminalKind == item::repeat) {
 		if (repeating) {
 			// Repeating items first create a content node
 			*m_ReduceDefinitions << "        util::syntax_ptr<class " << ntClass << "> content(new " << ntClass << "(";
@@ -1435,13 +1436,17 @@ void output_cplusplus::end_ast_rule() {
 		}
 
 		// Constructor parameters
-		first = true;
+		first 			= true;
+		numValidItems 	= 0;
 		for (size_t index=0; index < m_CurrentRuleNames.size(); index++) {
 			// Get the type
 			string type = m_CurrentRuleTypes[index];
 
 			// Ignore items with an empty type
 			if (type.empty()) continue;
+
+			// This is a valid item
+			numValidItems++;
 
 			// Comma between items
 			if (!first) {
@@ -1467,8 +1472,9 @@ void output_cplusplus::end_ast_rule() {
 
 	// For repeating items either create or retrieve the node
 	if (repeating) {
-		if (!declareConstructor) {
-			// If there is no constructor, then just return an empty item
+		// The constructor is delcared for the item that contains the repetition
+		if (!declareConstructor && m_CurrentNonterminalKind == item::repeat_zero_or_one) {
+			// This is the empty rule in a zero-or-more repetition: create an empty item
 			*m_ReduceDefinitions << "        return node(new " << m_CurrentNonterminal << "());\n";
 		} else {
 			// Get the node where the definition is being built up
