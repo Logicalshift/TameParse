@@ -119,11 +119,15 @@ static test_block* definition_for(const ast_Test_Block* testBlock) {
          defn != testBlock->list_of_Test_Definition->end();
          defn++) {
          // Add this definition to this block
-         add_test_definition(result, (*defn)->Test_Definition);
-     }
+        if (!add_test_definition(result, (*defn)->Test_Definition)) {
+            // Bug: couldn't get this test definition
+            delete result;
+            return NULL;
+        }
+    }
 
-     // Got the result
-     return result;
+    // Got the result
+    return result;
 }
 
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
