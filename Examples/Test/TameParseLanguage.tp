@@ -3,11 +3,11 @@
 ///
 
 // Load in the language definition
-import "../../Language/definition.tp"
+import "../../TameParse/Language/definition.tp"
 
 // Test the language
 test ParserLanguage {
-	<Parser-Language> from 	self			("../../Language/definition.tp")
+	<Parser-Language> from 	self			("../../TameParse/Language/definition.tp")
 							ansic			("../AnsiC.tp")
 							c99				("../C99.tp")
 							pascal			("../Pascal.tp")
