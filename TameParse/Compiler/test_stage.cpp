@@ -202,6 +202,9 @@ void test_stage::compile() {
         	continue;
         }
 
+        // Test IDs for given test names
+        map<wstring, int> testIds;
+
         // Run the tests themselves
         for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
         	// Compile a language for this nonterminal if one doesn't exist already
@@ -227,7 +230,32 @@ void test_stage::compile() {
         	// Done with the parser
         	delete parseState;
 
-        	// Add a message about this test
+        	// Work out a name for this test
+        	wstringstream testName;
+
+        	// The name starts <language name>.
+        	testName << tests->language() << L".";
+
+        	// Followed up by the identifier or the nonterminal if none is available
+        	if (!(*testDefn)->identifier().empty()) {
+        		// Use the test identifier instead if one is supplied
+        		testName << (*testDefn)->identifier();
+        	} else {
+        		// Use the nonterminal
+        		testName << (*testDefn)->nonterminal();
+        	}
+
+        	// Finally, get the identifier so identically named tests can be handled
+        	// TODO: maybe don't append this for unique tests?
+        	int identifier = ++testIds[testName.str()];
+        	testName << L"." << identifier;
+
+        	// Write out a message to the result string
+        	wstring finalName(testName.str());
+        	testMessages 	<< L"      " << finalName 
+        					<< wstring(54 - finalName.size(), L'.')
+        					<< (result?L"ok":L"FAILED")
+        					<< endl;
 
         	// Add to the count of successful/failed tests
         	if (result) {
