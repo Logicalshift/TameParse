@@ -1,0 +1,36 @@
+Grammar items:
+	- An 'anything' symbol
+		Useful when merging languages, or when applying syntactic elements to otherwise unstructured data.
+
+		Could be tricky to deal with in the lookahead for a reduce (though could perhaps make all of the reductions other than the 'anything' one weak)
+
+	- An 'anything but' symbol
+		Useful in similar situations to the anything symbol
+
+	- FIRST(x) and FOLLOW(x) symbols
+		Useful for guards. We probably want to be able to say 'FIRST(x) except y' as well.
+
+	- Make the 'alternative' symbol generate a closure that eliminates itself
+		Maybe tricky to achieve in the current architecture. This would reduce the number of conflicts in the generated parser, make the parser run faster and make the AST that is eventually generated simpler.
+Multiple language support:
+	- Ability to use nonterminals from languages other than the current one (or an inherited one)
+		This requires making the lexer and parser generator work in a fairly weird way: we need to merge the lexers, but match the same sets of symbols for each individual language.
+
+	- Make it possible to inherit from more than one language
+		(At least, if this makes sense). I think this also requires messing around with the way that the lexer works.
+
+	- Fix issue with extending NDFA symbols
+
+	- Make it possible to replace NDFA symbols
+AST generation:
+	- Aliases for items in rules (to specify variable names in the generated AST)
+
+	- Eliminate the _content classes for 
+
+	- Tree transformation language
+
+Parser generation:
+	- Language for writing new parser generators in
+		Depends on how many languages we wind up supporting. The basic generation steps are fairly repetitive for most kinds of language but are quite unweildy to write in C++. The current C++ generator is really just a giant monolith of code as a result.
+
+		Some kind of templating language to make this easy would be good. It would need to deal with issues like names that clash with language symbols, and would need to deal reasonably elegantly with the language features, but this could make it much easier to write a parser for a new language (only the enhanced LR algorithm needs to be implemented once this is done)
