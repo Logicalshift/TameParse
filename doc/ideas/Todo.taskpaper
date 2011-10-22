@@ -1,5 +1,9 @@
 Documentation:
 	- Generate docs for the API
+
+Bugs:
+	- Setting an output filename doesn't seem to work 
+		It still generates the name of the C++ files from the 
 General:
 	- Be more consistent about the way that public fields are named
 		Stack entry uses no 'm_' but the parse tables do, for instance
