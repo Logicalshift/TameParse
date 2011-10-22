@@ -79,8 +79,16 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
         return false;
     }
 
+    // Sanity check: there must be at least one test specification for this block to be valid
+    size_t defn_count = defn->list_of_Test_Specification->size();
+    if (defn_count == 0) {
+        return false;
+    }
+    
     // Iterate through the test specifications and generate new test definitions
-    for (ast_list_of_Test_Specification::iterator spec = defn->list_of_Test_Specification->begin(); spec != defn->list_of_Test_Specification->end(); spec++) {
+    for (ast_list_of_Test_Specification::iterator spec = defn->list_of_Test_Specification->begin();
+         spec != defn->list_of_Test_Specification->end(); 
+         spec++) {
         // Get the identifier for this test (if it has one)
         wstring identifier;
 
