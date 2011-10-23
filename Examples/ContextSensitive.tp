@@ -23,3 +23,13 @@ language ContextSensitive {
 		
 	}
 }
+
+test ContextSensitive {
+	<Context-Sensitive>		= "abc"
+							  "aabbcc"
+							  "aaabbbccc"
+	
+	<Context-Sensitive>		!= "abbc"
+							   "aabcc"
+							   "aabbccc"
+}
