@@ -248,6 +248,14 @@
 					RelativePath="..\..\TameParse\Compiler\std_console.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\TameParse\Compiler\test_stage.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Compiler\test_stage.h"
+					>
+				</File>
 				<Filter
 					Name="OutputStages"
 					>
@@ -618,6 +626,22 @@
 				</File>
 				<File
 					RelativePath="..\..\TameParse\Language\production_definition.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\test_block.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\test_block.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\test_definition.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\test_definition.h"
 					>
 				</File>
 				<File
