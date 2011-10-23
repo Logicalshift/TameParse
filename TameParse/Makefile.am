@@ -33,6 +33,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
+							  Compiler/test_stage.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -76,6 +77,8 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/parser_block.h \
 							  Language/process.h \
 							  Language/production_definition.h \
+					  		  Language/test_block.h \
+					  		  Language/test_definition.h \
 							  Language/toplevel_block.h \
 							  Lr/action_rewriter.h \
 							  Lr/ast_parser.h \
@@ -115,6 +118,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/OutputStages/cplusplus.cpp \
 							  Compiler/parser_stage.cpp \
 							  Compiler/std_console.cpp \
+							  Compiler/test_stage.cpp \
 							  ContextFree/ebnf_items.cpp \
 							  ContextFree/grammar.cpp \
 							  ContextFree/guard.cpp \
@@ -159,6 +163,8 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/parser_block.cpp \
 							  Language/process.cpp \
 							  Language/production_definition.cpp \
+							  Language/test_block.cpp \
+							  Language/test_definition.cpp \
 							  Language/toplevel_block.cpp \
 							  Lr/action_rewriter.cpp \
 							  Lr/ast_parser.cpp \
@@ -196,6 +202,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
+							  Compiler/test_stage.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -240,6 +247,8 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Language/process.h \
 							  Language/production_definition.h \
 							  Language/toplevel_block.h \
+					  		  Language/test_block.h \
+					  		  Language/test_definition.h \
 							  Lr/action_rewriter.h \
 							  Lr/ast_parser.h \
 							  Lr/conflict.h \

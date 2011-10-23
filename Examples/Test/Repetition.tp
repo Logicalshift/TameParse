@@ -1,0 +1,23 @@
+language Repetition {
+	keywords {
+		one		zero
+	}
+
+	ignore {
+		whitespace = /[ \t\r\n]/
+	}
+
+	///
+	/// Language that accepts either 'one one one...' or 'one one one zero zero zero...'
+	///
+	grammar {
+		<Test>	= one+ zero*
+	}
+}
+
+test Repetition {
+	<Test>		= "one one one"
+				  "one zero zero"
+	
+	<Test>		!= "zero zero"
+}

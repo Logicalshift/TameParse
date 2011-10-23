@@ -120,7 +120,7 @@ namespace lr {
         iterator end() const;
         
         /// \brief Number of items in this state
-        inline size_t count_items() const { return m_State.count_items(); }
+        inline int count_items() const { return m_State.count_items(); }
         
         /// \brief Item with the specified identifier
         inline const container& operator[](int identifier) const { return m_State[identifier]; }

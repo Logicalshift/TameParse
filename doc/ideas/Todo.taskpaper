@@ -1,0 +1,114 @@
+Documentation:
+	- Generate docs for the API
+
+Bugs:
+	- Setting an output filename doesn't seem to work 
+		It still generates the name of the C++ files from the 
+General:
+	- Be more consistent about the way that public fields are named
+		Stack entry uses no 'm_' but the parse tables do, for instance
+		
+	- Check that all the operator< implementations work correctly
+
+	- Replace all usages of it or x with a more descriptive variable name
+
+	- Make it possible to determine if a stage reported an error on an individual stage basis
+		- Use this to stop trying to run tests if the parser/lexer for a language can't be built
+
+	- end_ast_rule needs rewriting with less confusing logic
+		In fact, we really need to change the whole way that languages are generated so that new languages can be added sensibly.
+
+	- Ensure that the errors format matches that of gcc
+		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
+Lexer:
+	- Combine ignored symbols into a single symbol if they aren't used in the parser
+LALR Parser:
+	Parser generator:
+		- Fix terminology to be less confusing
+			LR items are easily confused with symbols in a production. The problem is made worse by references to symbols in the DFA.
+
+		- Work out how to do LR(k) lookaheads
+			One way might be to check if conflicts can be resolved this way and automatically generate guards.
+
+		- Add operator precedence
+
+		- Add support for diverts and guards in can_reduce
+
+		- Add error recovery
+
+	Misc:
+
+		- Assignment operator for the parser table class
+		
+		- Look into compressing the LR tables
+		
+		- Add 'reduce now' symbol
+			Symbol that causes reduction regardless of lookahead. This is useful when mixing multiple languages, as it can act as a separator to specify where a block in a different language can end and the original language can resume.
+
+			Need to actually support child languages for this to work, though.
+
+		- Detect conflicts that can be resolved by using a LR(1) parser
+			These are reduce/reduce conflicts where the two symbols always end up in different states. The weakreduce operation can be used on these to successfully match the language.
+
+			In any state with both nonterminals, the grammar is LR(1) if the conflicted symbol is only used in the follow set of one of them.
+
+			A conflict where the following symbol causes a further reduction can be resolved in a similar way provided that the conflicted symbol causes a further reduction for both nonterminals and that symbol is distinguished in a similar way. I think the conflict cannot be resolved if one of the nonterminals has a shift action in this situation. (That is, unless the follow set for the found state already distinguishes the two symbols). Hm, this will produce a further reduce/reduce conflict, which won't be a problem if we can already resolve it with a weak reduce, so the trick is just to resolve the conflict in the new state first.
+
+			Make this an option passed in on the command line?
+
+Language generation:
+	New languages:
+		- XML
+
+		- Binary
+
+		- Write the tables in tameparse format
+
+	C++ generator:
+		- Deal with items that are identical apart from the guards (will produce a compilation error at the moment)
+
+		- Functions to create parsers for each start symbol
+
+		- The root language node ends up being called epsilon
+			Though this symbol is never generated…
+			
+Error reporting:
+	- Improve the way reduce/reduce conflicts are reported
+
+	- If a syntax error occurs at the end of the file, we don't report its position
+
+	- Report bad regular expressions
+
+	- Make it possible to disable errors on conflicting guards
+
+	- Way to suppress shift/reduce conflicts, for example when dealing with the else ambiguity
+		Disabling specific conflicts is better than disabling the lot
+
+	- Improve the way errors are reported when an EBNF item (eg identifier*) causes a problem
+		Currently if the error happens in a generated rule we report the first usage which is no good
+
+Testing:
+	- report the line of the error when the match_from_file style is in use @done
+	
+	- call tameparse with the --run-tests option for all of the examples
+
+	- write tests for the Ansi C language
+
+	- write tests for the Pascal language
+
+	- write tests for the parser definition language
+
+	- write tests for the C99 language (once it's done)
+
+Examples:
+	- Finish the C99 language
+Report statistics:
+	- Number of states @done
+	
+	- Number of rules & nonterminals
+
+	- DFA size @done
+
+	- Parser table sizes @done
+
+	- Number of weak reductions
