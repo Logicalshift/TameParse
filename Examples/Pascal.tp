@@ -594,10 +594,10 @@ test Pascal {
 	/// Full program tests
 	///
 	<Program> = 
-				helloworld("
-					program HelloWorld;
-					begin
-					  writeln('Hello World');
-					end.
-				")
+		helloworld("
+			program HelloWorld;
+			begin
+			  writeln('Hello World');
+			end.
+		")
 }

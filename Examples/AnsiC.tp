@@ -411,3 +411,18 @@ language Ansi-C {
 										| [=> <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
 	}
 }
+
+///
+/// Tests for the Ansi C language
+///
+test Ansi-C {
+	///
+	/// Full program tests
+	///
+	<Translation-Unit> =
+		helloworld("
+			int main(int arc, const char* argv[]) {
+				printf(\"Hello, world\");
+			}
+		")
+}

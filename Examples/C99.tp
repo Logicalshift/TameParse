@@ -44,3 +44,18 @@ language C99 : Ansi-C {
 									| <Declaration>
 	}
 }
+
+///
+/// Tests for the C99 language
+///
+test C99 {
+	///
+	/// Full program tests
+	///
+	<Translation-Unit> =
+		helloworld("
+			int main(int arc, const char* argv[]) {
+				printf(\"Hello, world\");
+			}
+		")
+}
