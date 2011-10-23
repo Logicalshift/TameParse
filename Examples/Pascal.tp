@@ -585,3 +585,19 @@ language Pascal {
 									| '-' unsigned-number
 	}
 }
+
+///
+/// Tests for the pascal language
+///
+test Pascal {
+	///
+	/// Full program tests
+	///
+	<Program> = 
+				helloworld("
+					program HelloWorld;
+					begin
+					  writeln('Hello World');
+					end.
+				")
+}
