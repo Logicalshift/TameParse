@@ -645,10 +645,10 @@ test Pascal {
 										(side1, side2 : real ; skew : angle);
 									circle :
 										(diameter : real);
-								end"
+							end"
 
 	<Set-Type> =			"set of char"
-							"set of (club, diamon, heart, spade)"
+							"set of (club, diamond, heart, spade)"
 	
 	<File-Type> =			"file of real"
 }
