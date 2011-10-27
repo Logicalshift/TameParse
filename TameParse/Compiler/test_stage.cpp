@@ -330,6 +330,13 @@ void test_stage::compile() {
         if (passed == 0 && failed == 0) {
             cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found an empty test block", tests->start_pos()));
         }
+
+        // Test failures give an error message
+        if (failed != 0) {
+            wstringstream msg;
+            msg << failed << L" tests failed while testing " << tests->language();
+            cons().report_error(error(error::sev_error, filename(), L"TESTS_FAILED", msg.str(), tests->start_pos()));
+        }
         
         // No longer on the first test set
         firstTestSet = false;
