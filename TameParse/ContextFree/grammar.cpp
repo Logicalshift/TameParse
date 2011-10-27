@@ -52,6 +52,7 @@ grammar& grammar::operator=(const grammar& assignFrom) {
     m_ItemIdentifiers   = assignFrom.m_ItemIdentifiers;
     m_ItemForIdentifier = assignFrom.m_ItemForIdentifier;
     m_RuleIdentifiers   = assignFrom.m_RuleIdentifiers;
+    m_RuleForIdentifier = assignFrom.m_RuleForIdentifier;
     
     // Clear the caches for this object
     m_CachedFirstSets.clear();
