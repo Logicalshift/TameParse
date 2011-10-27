@@ -47,11 +47,13 @@ grammar& grammar::operator=(const grammar& assignFrom) {
     m_Nonterminals      = assignFrom.m_Nonterminals;
     m_NameToNonterminal = assignFrom.m_NameToNonterminal;
     m_NonterminalToName = assignFrom.m_NonterminalToName;
+
+    // Preserve the item and rule identifiers
+    m_ItemIdentifiers   = assignFrom.m_ItemIdentifiers;
+    m_ItemForIdentifier = assignFrom.m_ItemForIdentifier;
+    m_RuleIdentifiers   = assignFrom.m_RuleIdentifiers;
     
     // Clear the caches for this object
-    m_RuleIdentifiers.clear();
-    m_ItemIdentifiers.clear();
-    m_ItemForIdentifier.clear();
     m_CachedFirstSets.clear();
     m_CachedFollowSets.clear();
     m_CachedItemSets.clear();
