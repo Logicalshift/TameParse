@@ -1,0 +1,16 @@
+///
+/// Tests for the TameParse language definition file
+///
+
+// Load in the language definition
+import "../../TameParse/Language/definition.tp"
+
+// Test the language
+test ParserLanguage {
+	<Parser-Language> from 	self			("../../TameParse/Language/definition.tp")
+							ansic			("../AnsiC.tp")
+							c99				("../C99.tp")
+							pascal			("../Pascal.tp")
+							test-weakguard	("WeakGuard.tp")
+							test-repetition	("Repetition.tp")
+}

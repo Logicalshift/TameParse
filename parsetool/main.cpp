@@ -58,6 +58,26 @@ int main (int argc, const char * argv[])
         if (console.exit_code()) {
             return console.exit_code();
         }
+
+        // Run any tests that were specified
+        if (!console.get_option(L"run-tests").empty()) {
+            test_stage tests(cons, console.input_file(), parserStage.definition_file(), &importStage);
+            tests.compile();
+
+            // Stop if we have an error
+            if (console.exit_code()) {
+                return console.exit_code();
+            }
+
+            // If --run-tests is specified and no explicit options for generating an output file is supplied then stop here
+            if (console.get_option(L"output-file").empty()
+                && console.get_option(L"start-symbol").empty()
+                && console.get_option(L"output-language").empty()
+                && console.get_option(L"test").empty()
+                && console.get_option(L"show-parser").empty()) {
+                return console.exit_code();
+            }
+        }
         
         // Convert to grammars & NDFAs
         language_builder_stage builderStage(cons, console.input_file(), &importStage);
