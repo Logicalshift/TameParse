@@ -651,4 +651,27 @@ test Pascal {
 							"set of (club, diamond, heart, spade)"
 	
 	<File-Type> =			"file of real"
+
+	<Identified-Variable> =	"p1^"
+							"p1^.father^"
+							"p1^.sibling^.father^"
+
+	<Procedure-Declaration> =
+							"
+								procedure AddVectors (var A, B, C : array [low..high : natural] of real);
+								var
+									i : natural; 
+								begin
+									for i := low to high do A[i] := B[i] + C[i] 
+								end
+							"
+	
+	<Function-Declaration> =
+							"
+								function max(a : int; b : int) : int;
+								begin
+									if a > b then max := a
+									else max := b
+								end
+							"
 }
