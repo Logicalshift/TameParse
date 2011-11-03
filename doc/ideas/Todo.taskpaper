@@ -22,6 +22,8 @@ General:
 		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
+
+	- Add the ability to have case-insensitive regexes
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
