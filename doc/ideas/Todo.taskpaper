@@ -24,6 +24,11 @@ Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser
 
 	- Add the ability to have case-insensitive regexes
+
+	- There appears to be some kind of issue with the way that numbers are parsed in pascal (the +/- thing doesn't get parsed correctly)
+
+	- Add repeats with lower and upper bounds (2 or more x style repeats)
+		
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
