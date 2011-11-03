@@ -32,7 +32,11 @@ language Pascal {
 
 		identifier					= /{letter}({letter}|{digit})*/
 		unsigned-integer			= /{digit}+/
-		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+
+		exponent					= /e[+\-]?{unsigned-integer}/
+		decimal-part 				= /\.{unsigned-integer}/
+
+		unsigned-real				= /{unsigned-integer}({decimal-part}{exponent}?|{exponent})/
 	}
 
 	///
