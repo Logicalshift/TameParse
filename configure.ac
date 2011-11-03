@@ -37,5 +37,6 @@ AC_CONFIG_FILES([Makefile
                  bootstrap/Makefile
                  parsetool/Makefile
                  Examples/Makefile
+                 Examples/Test/Makefile
                  doxy/Makefile])
 AC_OUTPUT

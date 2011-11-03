@@ -164,14 +164,18 @@ void test_stage::compile() {
     cons().verbose_stream() << L"  = Running tests" << endl;
 
 	// Iterate through the definitions
-    bool firstTestSet = true;
-    
+    bool firstTestSet	= true;
+    bool runAnyTests 	= false;
+
 	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); defn++) {
 		// Retrieve the tests for this block
 		const test_block* tests = (*defn)->test();
 
 		// Ignore blocks that aren't test blocks
 		if (!tests) continue;
+
+		// Flag up that we've hit at least one test block
+		runAnyTests = true;
 
 		// Retrieve the language for this test
 		const language_block*	language 		= m_Import->language_with_name(tests->language());
@@ -324,10 +328,22 @@ void test_stage::compile() {
         
         // Warning if there are no tests for this language
         if (passed == 0 && failed == 0) {
-            cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found no tests to run", tests->start_pos()));
+            cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found an empty test block", tests->start_pos()));
+        }
+
+        // Test failures give an error message
+        if (failed != 0) {
+            wstringstream msg;
+            msg << failed << L" tests failed while testing " << tests->language();
+            cons().report_error(error(error::sev_error, filename(), L"TESTS_FAILED", msg.str(), tests->start_pos()));
         }
         
         // No longer on the first test set
         firstTestSet = false;
+	}
+
+	// It's an error to use run-tests on any file with no test blocks
+	if (!runAnyTests) {
+		cons().report_error(error(error::sev_error, filename(), L"NO_TEST_BLOCKS", L"Could not find any tests to run in this file", position(-1, -1, -1)));
 	}
 }

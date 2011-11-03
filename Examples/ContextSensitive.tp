@@ -23,3 +23,19 @@ language ContextSensitive {
 		
 	}
 }
+
+///
+/// Tests for this language
+///
+test ContextSensitive {
+
+	<Context-Sensitive>		= abc			("abc")
+							  aabbcc 		("aabbcc")
+							  aaabbbccc		("aaabbbccc")
+	
+	<Context-Sensitive>		!= not-abbc		("abbc")
+							   not-abcc		("aabcc")
+							   not-aabbccc 	("aabbccc")
+							   not-aaabbcc 	("aaabbcc")
+
+}
