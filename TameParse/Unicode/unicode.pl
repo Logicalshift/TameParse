@@ -114,7 +114,7 @@ print "\n    { NULL, NULL }\n};\n";
 print "\nconst unicode::block* unicode::s_EndBlock = s_Blocks + $count;\n";
 
 # Generate the array of uppercase values
-print "\nconst int[][] unicode::s_UppercaseMap = {\n";
+print "\nconst int unicode::s_UppercaseMap[][3] = {\n";
 $first = 1;
 foreach my $range (@$uppercase) {
 	if ($first == 0) {
@@ -126,7 +126,7 @@ foreach my $range (@$uppercase) {
 print " };\n";
 
 # ... and the array of lowercase values
-print "\nconst int[][] unicode::s_LowercaseMap = {\n    ";
+print "\nconst int unicode::s_LowercaseMap[][3] = {\n    ";
 $first = 1;
 foreach my $range (@$lowercase) {
 	if ($first == 0) {

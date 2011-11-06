@@ -39,6 +39,12 @@ namespace util {
         
         /// \brief The block after the last block in the list
         static const block* s_EndBlock;
+
+        /// \brief Sorted array mapping lowercase characters to their uppercase equivalent
+        static const int s_UppercaseMap[][3];
+
+        /// \brief Sorted array mapping uppercase characters to their lowercase equivalent
+        static const int s_LowercaseMap[][3];
         
     public:
         /// \brief The first character range
