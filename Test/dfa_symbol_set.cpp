@@ -8,8 +8,10 @@
 
 #include "dfa_symbol_set.h"
 #include "TameParse/Dfa/symbol_set.h"
+#include "TameParse/Util/unicode.h"
 
 using namespace dfa;
+using namespace util;
 
 void test_dfa_symbol_set::run_tests() {
     typedef range<int> r;
@@ -95,4 +97,22 @@ void test_dfa_symbol_set::run_tests() {
     report("Invert3", ~(threeGroups | ~threeGroups) == empty);
     report("Invert4", (threeGroups & ~threeGroups) == empty);
     report("Invert5", (threeGroups | ~threeGroups) == ~empty);
+
+    symbol_set a_to_z(r('a', 'z'));
+    symbol_set A_to_Z(r('A', 'Z'));
+    symbol_set m_to_o(r('m', 'o'));
+    symbol_set M_to_O(r('M', 'O'));
+    symbol_set a_to_z_to_0 = a_to_z | r('0', '9');
+    symbol_set A_to_Z_to_0 = A_to_Z | r('0', '9');
+    unicode uc;
+
+    report("ToUpper1", uc.to_upper(a_to_z) == A_to_Z);
+    report("ToUpper2", uc.to_upper(A_to_Z) == A_to_Z);
+    report("ToUpper3", uc.to_upper(a_to_z_to_0) == A_to_Z_to_0);
+    report("ToUpper4", uc.to_upper(m_to_o) == M_to_O);
+
+    report("ToLower1", uc.to_lower(A_to_Z) == a_to_z);
+    report("ToLower2", uc.to_lower(a_to_z) == a_to_z);
+    report("ToLower3", uc.to_lower(A_to_Z_to_0) == a_to_z_to_0);
+    report("ToLower4", uc.to_lower(M_to_O) == m_to_o);
 }
