@@ -30,6 +30,9 @@ namespace dfa {
         /// \brief Set to true if the compiler should construct unicode surrogate sequences for characters >0xffff
         bool m_ConstructSurrogates;
 
+        /// \brief If true, then any regexes are added in a case insensitive manner
+        bool m_CaseInsensitive;
+
         /// \brief Maps expressions to regular expressions
         std::map<symbol_string, symbol_string> m_ExpressionMap;
 
@@ -132,6 +135,9 @@ namespace dfa {
         ///
         /// By default, this is turned on, as 16-bit unicode characters are far more common.
         inline void set_use_surrogates(bool useSurrogates) { m_ConstructSurrogates = useSurrogates; }
+
+        /// \brief Sets whether or not the regular expressions should be treated as case-insensitive
+        inline void set_case_insensitive(bool caseInsensitive) { m_CaseInsensitive = caseInsensitive; }
 
         /// \brief Defines a new expression as a regular expression
         ///

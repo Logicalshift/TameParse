@@ -16,19 +16,22 @@ using namespace dfa;
 
 /// \brief Constructs an empty NDFA
 ndfa_regex::ndfa_regex()
-: m_ConstructSurrogates(true) {
+: m_ConstructSurrogates(true)
+, m_CaseInsensitive(false) {
 }
 
 /// \brief Conversion constructor
 ndfa_regex::ndfa_regex(const ndfa& copyFrom)
 : ndfa(copyFrom)
-, m_ConstructSurrogates(true) { 
+, m_ConstructSurrogates(true)
+, m_CaseInsensitive(false) { 
 }
 
 /// \brief Copy constructor
 ndfa_regex::ndfa_regex(const ndfa_regex& copyFrom)
 : ndfa(copyFrom)
 , m_ConstructSurrogates(copyFrom.m_ConstructSurrogates)
+, m_CaseInsensitive(copyFrom.m_CaseInsensitive)
 , m_ExpressionMap(copyFrom.m_ExpressionMap)
 , m_LiteralExpressionMap(copyFrom.m_LiteralExpressionMap) {
 }
@@ -101,6 +104,7 @@ int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     // Create a constructor in the initial state
     builder cons = get_cons();
     cons.set_generate_surrogates(m_ConstructSurrogates);
+    cons.set_case_options(m_CaseInsensitive, m_CaseInsensitive);
     cons.goto_state(get_state(initialState));
     
     // Compile as a straight string
@@ -121,6 +125,7 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     // Create a constructor in the initial state
     builder cons = get_cons();
     cons.set_generate_surrogates(m_ConstructSurrogates);
+    cons.set_case_options(m_CaseInsensitive, m_CaseInsensitive);
     cons.goto_state(get_state(initialState));
     
     // Compile the regular expression
