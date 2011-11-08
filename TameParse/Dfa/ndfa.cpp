@@ -11,9 +11,11 @@
 #include "TameParse/Dfa/ndfa.h"
 #include "TameParse/Dfa/transition.h"
 #include "TameParse/Dfa/remapped_symbol_map.h"
+#include "TameParse/Util/unicode.h"
 
 using namespace std;
 using namespace dfa;
+using namespace util;
 
 /// \brief Empty action list
 const ndfa::accept_action_list ndfa::s_NoActions;
@@ -241,8 +243,11 @@ static void add_surrogate_transition(const range<int>& surrogateRange, int curre
     }
 }
 
+/// \brief Unicode converter
+static unicode s_Unicode;
+
 /// \brief Moves to a new state when the specified range of symbols are encountered
-ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
+inline void ndfa::builder::add_with_surrogates(const symbol_set& symbols) {
     // Get the state that should be moved to by this transition
     int nextState = m_NextState;
     m_NextState = -1;
@@ -302,7 +307,7 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
             pop();
 
             // Done
-            return *this;
+            return;
         }
     }
     
@@ -310,8 +315,29 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
     m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
     m_PreviousState = m_CurrentState;
     m_CurrentState  = nextState;
-    
-    // Return the resulting object
+}
+
+/// \brief Moves to a new state when the specified range of symbols are encountered
+ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
+    // Add upper and lower-case variants of the symbols if this is set to be case insensitive
+    if (m_AddLowercase || m_AddUppercase) {
+        symbol_set transformed = symbols;
+
+        if (m_AddLowercase) {
+            transformed |= s_Unicode.to_lower(symbols);
+        }
+
+        if (m_AddUppercase) {
+            transformed |= s_Unicode.to_upper(symbols);
+        }
+
+        add_with_surrogates(transformed);
+    } else {
+        // Pass straight through
+        add_with_surrogates(symbols);
+    }
+
+    // Returns itself
     return *this;
 }
 
