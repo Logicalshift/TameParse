@@ -64,6 +64,9 @@ namespace compiler {
         /// \brief The last terminal dictionary supplied to this object
         const contextfree::terminal_dictionary* m_Terminals;
 
+        /// \brief Reserved words and keywords
+        std::set<std::string> m_ReservedWords;
+
         /// \brief The used class (and other identifier) names for the class (which should not be re-used)
         std::set<std::string> m_UsedClassNames;
 

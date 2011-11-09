@@ -36,6 +36,98 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_ReduceDefinitions(NULL)
 , m_PosDefinitions(NULL)
 , m_FinalPosDefinitions(NULL) {
+	// Keywords (ANSI-C)
+	m_ReservedWords.insert("auto");
+	m_ReservedWords.insert("break");
+	m_ReservedWords.insert("case");
+	m_ReservedWords.insert("char");
+	m_ReservedWords.insert("const");
+	m_ReservedWords.insert("continue");
+	m_ReservedWords.insert("default");
+	m_ReservedWords.insert("do");
+	m_ReservedWords.insert("double");
+	m_ReservedWords.insert("else");
+	m_ReservedWords.insert("enum");
+	m_ReservedWords.insert("extern"); 
+	m_ReservedWords.insert("float");
+	m_ReservedWords.insert("for");
+	m_ReservedWords.insert("goto");
+	m_ReservedWords.insert("if");
+	m_ReservedWords.insert("int");
+	m_ReservedWords.insert("long"); 
+	m_ReservedWords.insert("register");
+	m_ReservedWords.insert("return");
+	m_ReservedWords.insert("short");
+	m_ReservedWords.insert("signed");
+	m_ReservedWords.insert("sizeof");
+	m_ReservedWords.insert("static"); 
+	m_ReservedWords.insert("struct");
+	m_ReservedWords.insert("switch");
+	m_ReservedWords.insert("typedef");
+	m_ReservedWords.insert("union");
+	m_ReservedWords.insert("unsigned");
+	m_ReservedWords.insert("void"); 
+	m_ReservedWords.insert("volatile");
+	m_ReservedWords.insert("while");
+
+	// Keywords (C99)
+	m_ReservedWords.insert("complex");
+	m_ReservedWords.insert("imaginary");
+	m_ReservedWords.insert("inline");
+	m_ReservedWords.insert("restrict");
+
+	// Keywords (C++11)
+	m_ReservedWords.insert("and");
+	m_ReservedWords.insert("and_eq");
+	m_ReservedWords.insert("alignas");
+	m_ReservedWords.insert("alignof");
+	m_ReservedWords.insert("asm");
+	m_ReservedWords.insert("bitand");
+	m_ReservedWords.insert("bitor");
+	m_ReservedWords.insert("bool");
+	m_ReservedWords.insert("catch");
+	m_ReservedWords.insert("char16_t");
+	m_ReservedWords.insert("char32_t");
+	m_ReservedWords.insert("class");
+	m_ReservedWords.insert("compl");
+	m_ReservedWords.insert("constexpr");
+	m_ReservedWords.insert("const_cast");
+	m_ReservedWords.insert("decltype");
+	m_ReservedWords.insert("delete");
+	m_ReservedWords.insert("dynamic_cast");
+	m_ReservedWords.insert("explicit");
+	m_ReservedWords.insert("export");
+	m_ReservedWords.insert("false");
+	m_ReservedWords.insert("friend");
+	m_ReservedWords.insert("mutable");
+	m_ReservedWords.insert("namespace");
+	m_ReservedWords.insert("new");
+	m_ReservedWords.insert("noexcept");
+	m_ReservedWords.insert("not");
+	m_ReservedWords.insert("not_eq");
+	m_ReservedWords.insert("nullptr");
+	m_ReservedWords.insert("operator");
+	m_ReservedWords.insert("or");
+	m_ReservedWords.insert("or_eq");
+	m_ReservedWords.insert("private");
+	m_ReservedWords.insert("protected");
+	m_ReservedWords.insert("public");
+	m_ReservedWords.insert("reinterpret_cast");
+	m_ReservedWords.insert("static_assert");
+	m_ReservedWords.insert("static_cast");
+	m_ReservedWords.insert("template");
+	m_ReservedWords.insert("this");
+	m_ReservedWords.insert("thread_local");
+	m_ReservedWords.insert("throw");
+	m_ReservedWords.insert("true");
+	m_ReservedWords.insert("try");
+	m_ReservedWords.insert("typeid");
+	m_ReservedWords.insert("typename");
+	m_ReservedWords.insert("using");
+	m_ReservedWords.insert("virtual");
+	m_ReservedWords.insert("wchar_t");
+	m_ReservedWords.insert("xor");
+	m_ReservedWords.insert("xor_eq");
 }
 
 /// \brief Destructor
@@ -148,6 +240,11 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
 				res << "_";
 				break;
 		}
+	}
+
+	// Ensure that this doesn't match any reserved words
+	while (m_ReservedWords.find(res.str()) != m_ReservedWords.end()) {
+		res << "_";
 	}
     
     // Produce the final result
@@ -1022,99 +1119,6 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("syntax_node");
 	m_UsedClassNames.insert("node");
 	m_UsedClassNames.insert("content");
-
-	// Keywords (ANSI-C)
-	m_UsedClassNames.insert("auto");
-	m_UsedClassNames.insert("break");
-	m_UsedClassNames.insert("case");
-	m_UsedClassNames.insert("char");
-	m_UsedClassNames.insert("const");
-	m_UsedClassNames.insert("continue");
-	m_UsedClassNames.insert("default");
-	m_UsedClassNames.insert("do");
-	m_UsedClassNames.insert("double");
-	m_UsedClassNames.insert("else");
-	m_UsedClassNames.insert("enum");
-	m_UsedClassNames.insert("extern"); 
-	m_UsedClassNames.insert("float");
-	m_UsedClassNames.insert("for");
-	m_UsedClassNames.insert("goto");
-	m_UsedClassNames.insert("if");
-	m_UsedClassNames.insert("int");
-	m_UsedClassNames.insert("long"); 
-	m_UsedClassNames.insert("register");
-	m_UsedClassNames.insert("return");
-	m_UsedClassNames.insert("short");
-	m_UsedClassNames.insert("signed");
-	m_UsedClassNames.insert("sizeof");
-	m_UsedClassNames.insert("static"); 
-	m_UsedClassNames.insert("struct");
-	m_UsedClassNames.insert("switch");
-	m_UsedClassNames.insert("typedef");
-	m_UsedClassNames.insert("union");
-	m_UsedClassNames.insert("unsigned");
-	m_UsedClassNames.insert("void"); 
-	m_UsedClassNames.insert("volatile");
-	m_UsedClassNames.insert("while");
-
-	// Keywords (C99)
-	m_UsedClassNames.insert("complex");
-	m_UsedClassNames.insert("imaginary");
-	m_UsedClassNames.insert("inline");
-	m_UsedClassNames.insert("restrict");
-
-	// Keywords (C++11)
-	m_UsedClassNames.insert("and");
-	m_UsedClassNames.insert("and_eq");
-	m_UsedClassNames.insert("alignas");
-	m_UsedClassNames.insert("alignof");
-	m_UsedClassNames.insert("asm");
-	m_UsedClassNames.insert("bitand");
-	m_UsedClassNames.insert("bitor");
-	m_UsedClassNames.insert("bool");
-	m_UsedClassNames.insert("catch");
-	m_UsedClassNames.insert("char16_t");
-	m_UsedClassNames.insert("char32_t");
-	m_UsedClassNames.insert("class");
-	m_UsedClassNames.insert("compl");
-	m_UsedClassNames.insert("constexpr");
-	m_UsedClassNames.insert("const_cast");
-	m_UsedClassNames.insert("decltype");
-	m_UsedClassNames.insert("delete");
-	m_UsedClassNames.insert("dynamic_cast");
-	m_UsedClassNames.insert("explicit");
-	m_UsedClassNames.insert("export");
-	m_UsedClassNames.insert("false");
-	m_UsedClassNames.insert("friend");
-	m_UsedClassNames.insert("mutable");
-	m_UsedClassNames.insert("namespace");
-	m_UsedClassNames.insert("new");
-	m_UsedClassNames.insert("noexcept");
-	m_UsedClassNames.insert("not");
-	m_UsedClassNames.insert("not_eq");
-	m_UsedClassNames.insert("nullptr");
-	m_UsedClassNames.insert("operator");
-	m_UsedClassNames.insert("or");
-	m_UsedClassNames.insert("or_eq");
-	m_UsedClassNames.insert("private");
-	m_UsedClassNames.insert("protected");
-	m_UsedClassNames.insert("public");
-	m_UsedClassNames.insert("reinterpret_cast");
-	m_UsedClassNames.insert("static_assert");
-	m_UsedClassNames.insert("static_cast");
-	m_UsedClassNames.insert("template");
-	m_UsedClassNames.insert("this");
-	m_UsedClassNames.insert("thread_local");
-	m_UsedClassNames.insert("throw");
-	m_UsedClassNames.insert("true");
-	m_UsedClassNames.insert("try");
-	m_UsedClassNames.insert("typeid");
-	m_UsedClassNames.insert("typename");
-	m_UsedClassNames.insert("using");
-	m_UsedClassNames.insert("virtual");
-	m_UsedClassNames.insert("wchar_t");
-	m_UsedClassNames.insert("xor");
-	m_UsedClassNames.insert("xor_eq");
 
 	// Mainly stuff from the std namespace
 	m_UsedClassNames.insert("string");
