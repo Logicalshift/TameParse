@@ -1023,7 +1023,7 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("node");
 	m_UsedClassNames.insert("content");
 
-	// Keywords
+	// Keywords (ANSI-C)
 	m_UsedClassNames.insert("auto");
 	m_UsedClassNames.insert("break");
 	m_UsedClassNames.insert("case");
@@ -1055,7 +1055,66 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("unsigned");
 	m_UsedClassNames.insert("void"); 
 	m_UsedClassNames.insert("volatile");
-	m_UsedClassnames.insert("while");
+	m_UsedClassNames.insert("while");
+
+	// Keywords (C99)
+	m_UsedClassNames.insert("complex");
+	m_UsedClassNames.insert("imaginary");
+	m_UsedClassNames.insert("inline");
+	m_UsedClassNames.insert("restrict");
+
+	// Keywords (C++11)
+	m_UsedClassNames.insert("and");
+	m_UsedClassNames.insert("and_eq");
+	m_UsedClassNames.insert("alignas");
+	m_UsedClassNames.insert("alignof");
+	m_UsedClassNames.insert("asm");
+	m_UsedClassNames.insert("bitand");
+	m_UsedClassNames.insert("bitor");
+	m_UsedClassNames.insert("bool");
+	m_UsedClassNames.insert("catch");
+	m_UsedClassNames.insert("char16_t");
+	m_UsedClassNames.insert("char32_t");
+	m_UsedClassNames.insert("class");
+	m_UsedClassNames.insert("compl");
+	m_UsedClassNames.insert("constexpr");
+	m_UsedClassNames.insert("const_cast");
+	m_UsedClassNames.insert("decltype");
+	m_UsedClassNames.insert("delete");
+	m_UsedClassNames.insert("dynamic_cast");
+	m_UsedClassNames.insert("explicit");
+	m_UsedClassNames.insert("export");
+	m_UsedClassNames.insert("false");
+	m_UsedClassNames.insert("friend");
+	m_UsedClassNames.insert("mutable");
+	m_UsedClassNames.insert("namespace");
+	m_UsedClassNames.insert("new");
+	m_UsedClassNames.insert("noexcept");
+	m_UsedClassNames.insert("not");
+	m_UsedClassNames.insert("not_eq");
+	m_UsedClassNames.insert("nullptr");
+	m_UsedClassNames.insert("operator");
+	m_UsedClassNames.insert("or");
+	m_UsedClassNames.insert("or_eq");
+	m_UsedClassNames.insert("private");
+	m_UsedClassNames.insert("protected");
+	m_UsedClassNames.insert("public");
+	m_UsedClassNames.insert("reinterpret_cast");
+	m_UsedClassNames.insert("static_assert");
+	m_UsedClassNames.insert("static_cast");
+	m_UsedClassNames.insert("template");
+	m_UsedClassNames.insert("this");
+	m_UsedClassNames.insert("thread_local");
+	m_UsedClassNames.insert("throw");
+	m_UsedClassNames.insert("true");
+	m_UsedClassNames.insert("try");
+	m_UsedClassNames.insert("typeid");
+	m_UsedClassNames.insert("typename");
+	m_UsedClassNames.insert("using");
+	m_UsedClassNames.insert("virtual");
+	m_UsedClassNames.insert("wchar_t");
+	m_UsedClassNames.insert("xor");
+	m_UsedClassNames.insert("xor_eq");
 
 	// Mainly stuff from the std namespace
 	m_UsedClassNames.insert("string");
