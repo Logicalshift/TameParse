@@ -277,6 +277,9 @@ void language_stage::compile() {
                     
                     // Store where it is defined
                     m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+
+                    // Set whether the regexes or literals we add should be case insensitive
+                    m_Lexer.set_case_insensitive(lex->is_case_insensitive());
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
