@@ -1023,6 +1023,40 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 	m_UsedClassNames.insert("node");
 	m_UsedClassNames.insert("content");
 
+	// Keywords
+	m_UsedClassNames.insert("auto");
+	m_UsedClassNames.insert("break");
+	m_UsedClassNames.insert("case");
+	m_UsedClassNames.insert("char");
+	m_UsedClassNames.insert("const");
+	m_UsedClassNames.insert("continue");
+	m_UsedClassNames.insert("default");
+	m_UsedClassNames.insert("do");
+	m_UsedClassNames.insert("double");
+	m_UsedClassNames.insert("else");
+	m_UsedClassNames.insert("enum");
+	m_UsedClassNames.insert("extern"); 
+	m_UsedClassNames.insert("float");
+	m_UsedClassNames.insert("for");
+	m_UsedClassNames.insert("goto");
+	m_UsedClassNames.insert("if");
+	m_UsedClassNames.insert("int");
+	m_UsedClassNames.insert("long"); 
+	m_UsedClassNames.insert("register");
+	m_UsedClassNames.insert("return");
+	m_UsedClassNames.insert("short");
+	m_UsedClassNames.insert("signed");
+	m_UsedClassNames.insert("sizeof");
+	m_UsedClassNames.insert("static"); 
+	m_UsedClassNames.insert("struct");
+	m_UsedClassNames.insert("switch");
+	m_UsedClassNames.insert("typedef");
+	m_UsedClassNames.insert("union");
+	m_UsedClassNames.insert("unsigned");
+	m_UsedClassNames.insert("void"); 
+	m_UsedClassNames.insert("volatile");
+	m_UsedClassnames.insert("while");
+
 	// Mainly stuff from the std namespace
 	m_UsedClassNames.insert("string");
 	m_UsedClassNames.insert("wstring");
