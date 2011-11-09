@@ -23,7 +23,7 @@ General:
 Lexer:
 	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer
 
-	- Add the ability to have case-insensitive regexes @lexer
+	- Add the ability to have case-insensitive regexes @lexer @done
 
 	- Add repeats with lower and upper bounds (2 or more x style repeats) @lexer
 		
