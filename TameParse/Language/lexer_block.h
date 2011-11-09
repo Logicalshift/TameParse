@@ -35,10 +35,16 @@ namespace language {
     private:
         /// \brief The lexemes that maek up this block
         lexeme_list m_Lexemes;
+
+        /// \brief True if the symbols defined by this block should be treated as 'weak'
+        bool m_Weak;
+
+        /// \brief True if the symbols defined by this block should be treated as 'case insensitive'
+        bool m_CaseInsensitive;
         
     public:
         /// \brief Creates a new lexer block
-        lexer_block(position start = position(), position end = position());
+        lexer_block(bool weak, bool caseInsensitive, position start = position(), position end = position());
         
         /// \brief Creates a lexer block by copying an old one
         lexer_block(const lexer_block& copyFrom);
@@ -57,6 +63,12 @@ namespace language {
         
         /// \brief Returns the definition after the last definition in this object
         inline iterator end() const { return m_Lexemes.end(); }
+
+        /// \brief Returns true if the symbols in this block should be treated as 'weak'
+        inline bool is_weak() const { return m_Weak; }
+
+        /// \brief Returns true if the symbols in this block should be treated as case insensitive
+        inline bool is_case_insensitive() const { return m_CaseInsensitive; }
     };
 }
 

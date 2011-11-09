@@ -198,6 +198,12 @@ namespace dfa {
 
             /// \brief True if this builder should generate surrogate characters for values >0xffff
             bool m_GenerateSurrogates;
+
+            /// \brief True if this builder should add lowercase characters to any symbol sets it receives
+            bool m_AddLowercase;
+
+            /// \brief True if this builder should add uppercase characters to any symbol sets it receives
+            bool m_AddUppercase;
             
             /// \brief Entry on the state stack
             ///
@@ -214,8 +220,13 @@ namespace dfa {
             , m_PreviousState(0)
             , m_NextState(-1)
             , m_Ndfa(dfa)
-            , m_GenerateSurrogates(false) {
+            , m_GenerateSurrogates(false)
+            , m_AddLowercase(false)
+            , m_AddUppercase(false) {
             }
+
+            /// \brief Adds a symbol set and applies surrogate processing if generate_surrogates is turned on
+            void add_with_surrogates(const symbol_set& symbols);
             
         public:
             /// \brief Copy constructor
@@ -225,7 +236,9 @@ namespace dfa {
             , m_PreviousState(copyFrom.m_PreviousState)
             , m_Ndfa(copyFrom.m_Ndfa)
             , m_Stack(copyFrom.m_Stack)
-            , m_GenerateSurrogates(copyFrom.m_GenerateSurrogates) { 
+            , m_GenerateSurrogates(copyFrom.m_GenerateSurrogates)
+            , m_AddLowercase(copyFrom.m_AddLowercase)
+            , m_AddUppercase(copyFrom.m_AddUppercase) { 
             }
             
             /// \brief Moves to a new state when the specified range of symbols are encountered
@@ -259,6 +272,14 @@ namespace dfa {
                 m_GenerateSurrogates = generateSurrogates;
             }
             
+            /// \brief Sets whether or not lower or upper case versions of the character sets supplied to this builder should also be included.
+            ///
+            /// Setting both of these options creates a builder that generates a case-insensitive NDFA.
+            inline void set_case_options(bool makeLowercase, bool makeUppercase) {
+                m_AddLowercase = makeLowercase;
+                m_AddUppercase = makeUppercase;
+            }
+
             ///
             /// \brief Returns the state this was in before the most recent transition
             ///

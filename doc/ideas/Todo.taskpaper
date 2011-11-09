@@ -21,7 +21,12 @@ General:
 	- Ensure that the errors format matches that of gcc
 		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
-	- Combine ignored symbols into a single symbol if they aren't used in the parser
+	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer
+
+	- Add the ability to have case-insensitive regexes @lexer @done
+
+	- Add repeats with lower and upper bounds (2 or more x style repeats) @lexer
+		
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
@@ -77,7 +82,7 @@ Error reporting:
 
 	- If a syntax error occurs at the end of the file, we don't report its position
 
-	- Report bad regular expressions
+	- Report bad regular expressions @lexer
 
 	- Make it possible to disable errors on conflicting guards
 
@@ -90,11 +95,11 @@ Error reporting:
 Testing:
 	- report the line of the error when the match_from_file style is in use @done
 	
-	- call tameparse with the --run-tests option for all of the examples
+	- call tameparse with the --run-tests option for all of the examples @done
 
 	- write tests for the Ansi C language
 
-	- write tests for the Pascal language
+	- write tests for the Pascal language @done
 
 	- write tests for the parser definition language
 
@@ -102,6 +107,8 @@ Testing:
 
 Examples:
 	- Finish the C99 language
+
+	- Write more tests for Pascal
 Report statistics:
 	- Number of states @done
 	

@@ -32,13 +32,17 @@ language Pascal {
 
 		identifier					= /{letter}({letter}|{digit})*/
 		unsigned-integer			= /{digit}+/
-		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+
+		exponent					= /e[+\-]?{unsigned-integer}/
+		decimal-part 				= /\.{unsigned-integer}/
+
+		unsigned-real				= /{unsigned-integer}({decimal-part}{exponent}?|{exponent})/
 	}
 
 	///
 	/// Keywords
 	///
-	keywords {
+	case insensitive keywords {
 		and			array		begin		case		const		div			do
 		downto		else		end			file		for			function	goto
 		if			in			label		mod			nil			not			of
@@ -49,14 +53,14 @@ language Pascal {
 	///
 	/// Directives are weak keywords
 	///
-	weak keywords {
+	case insensitive weak keywords {
 		forward		external
 	}
 
 	///
 	/// Lexical tokens
 	///
-	lexer {
+	case insensitive lexer {
 		identifier					= /{identifier}*/
 		unsigned-number				= /{unsigned-integer}|{unsigned-real}/
 		character-string			= /'([^']|'')*'/
@@ -624,6 +628,7 @@ test Pascal {
 							"'0'..'9'"
 	
 	<Array-Type> =			"array [1..100] of real"
+							"ArrAy [1..100] of REAL"
 							"array [Boolean] of colour"
 							"array [Boolean] of array[1..10] of array[size] of real"
 

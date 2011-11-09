@@ -49,6 +49,7 @@ typedef tameparse_language::Test_Block_n                        ast_Test_Block;
 typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
 typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
 typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
+typedef tameparse_language::list_of_Lexer_Modifier_n            list_of_Lexer_Modifier;
 
 /// \brief Adds a test definition to the test block
 static bool add_test_definition(test_block* target, const ast_Test_Definition* defn) {
@@ -422,9 +423,23 @@ static language_unit* definition_for(const list_of_Nonterminal_Definition* items
 }
 
 /// \brief Interprets a keyword symbol definition block
-static language_unit* definition_for(const list_of_Keyword_Definition* items, language_unit::unit_type type) {
+static language_unit* definition_for(const list_of_Keyword_Definition* items, const list_of_Lexer_Modifier* modifiers, language_unit::unit_type type) {
+    // Work out the modifiers
+    bool isWeak             = false;
+    bool isCaseInsensitive  = false;
+
+    if (modifiers) {
+        for (list_of_Lexer_Modifier::iterator modifier = modifiers->begin(); modifier != modifiers->end(); modifier++) {
+            if ((*modifier)->Lexer_Modifier->weak) {
+                isWeak = true;
+            } else if ((*modifier)->Lexer_Modifier->insensitive) {
+                isCaseInsensitive = true;
+            }
+        }
+    }
+
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); keyword++) {
@@ -462,9 +477,23 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, la
 }
 
 /// \brief Interprets a lexer symbol definition block
-static language_unit* definition_for(const list_of_Lexeme_Definition* items, language_unit::unit_type type) {
+static language_unit* definition_for(const list_of_Lexeme_Definition* items, const list_of_Lexer_Modifier* modifiers, const  language_unit::unit_type type) {
+    // Work out the modifiers
+    bool isWeak             = false;
+    bool isCaseInsensitive  = false;
+
+    if (modifiers) {
+        for (list_of_Lexer_Modifier::iterator modifier = modifiers->begin(); modifier != modifiers->end(); modifier++) {
+            if ((*modifier)->Lexer_Modifier->weak) {
+                isWeak = true;
+            } else if ((*modifier)->Lexer_Modifier->insensitive) {
+                isCaseInsensitive = true;
+            }
+        }
+    }
+
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); lexeme++) {
@@ -511,17 +540,13 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
     
     // Most of the lexer type nodes are very similar, except for the node type
     if (defn->Lexer_Symbols_Definition) {
-        return definition_for(defn->Lexer_Symbols_Definition->list_of_Lexeme_Definition, language_unit::unit_lexer_symbols);
+        return definition_for(defn->Lexer_Symbols_Definition->list_of_Lexeme_Definition, NULL, language_unit::unit_lexer_symbols);
     } else if (defn->Lexer_Definition) {
-        bool isWeak = defn->Lexer_Definition->optional_weak->weak;
-        
-        return definition_for(defn->Lexer_Definition->list_of_Lexeme_Definition, isWeak?language_unit::unit_weak_lexer_definition:language_unit::unit_lexer_definition);
+        return definition_for(defn->Lexer_Definition->list_of_Lexeme_Definition, defn->Lexer_Definition->list_of_Lexer_Modifier, language_unit::unit_lexer_definition);
     } else if (defn->Ignore_Definition) {
-        return definition_for(defn->Ignore_Definition->list_of_Keyword_Definition, language_unit::unit_ignore_definition);
+        return definition_for(defn->Ignore_Definition->list_of_Keyword_Definition, NULL, language_unit::unit_ignore_definition);
     } else if (defn->Keywords_Definition) {
-        bool isWeak = defn->Keywords_Definition->optional_weak->weak;
-        
-        return definition_for(defn->Keywords_Definition->list_of_Keyword_Definition, isWeak?language_unit::unit_weak_keywords_definition:language_unit::unit_keywords_definition);
+        return definition_for(defn->Keywords_Definition->list_of_Keyword_Definition, defn->Keywords_Definition->list_of_Lexer_Modifier, language_unit::unit_keywords_definition);
     } else if (defn->Grammar_Definition) {
         return definition_for(defn->Grammar_Definition->list_of_Nonterminal_Definition);
     }
