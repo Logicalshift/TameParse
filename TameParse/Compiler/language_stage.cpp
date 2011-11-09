@@ -27,17 +27,19 @@ namespace compiler {
     class language_accept_action : public accept_action {
     private:
         language_unit::unit_type m_UnitType;
+        bool m_IsWeak;
         
     public:
         /// \brief Creates a standard accept action for the specified symbol
-        language_accept_action(int symbol, language_unit::unit_type unitType)
+        language_accept_action(int symbol, language_unit::unit_type unitType, bool isWeak)
         : accept_action(symbol)
-        , m_UnitType(unitType) {
+        , m_UnitType(unitType)
+        , m_IsWeak(isWeak) {
         }
         
         /// \brief For subclasses, allows the NDFA to clone this accept action for storage purposes
         virtual accept_action* clone() const {
-            return new language_accept_action(symbol(), m_UnitType);
+            return new language_accept_action(symbol(), m_UnitType, m_IsWeak);
         }
 
         /// \brief Determines if this action is less important than another
@@ -49,6 +51,12 @@ namespace compiler {
             
             // We are always higher priority than the standard set of accept actions
             if (!compareToLanguageAction) return true;
+
+            // Weak actions have higher priority than strong ones
+            if (compareToLanguageAction->m_IsWeak != m_IsWeak) {
+                if (compareToLanguageAction->m_IsWeak)  return true;
+                else                                    return false;
+            }
             
             // Compare the unit types; these are ordered in priority order in the language_unit class (we are less important if our type is of a lower priority)
             if (compareToLanguageAction->m_UnitType < m_UnitType) return true;
@@ -191,8 +199,6 @@ void language_stage::compile() {
     
     // Order that lexer blocks should be processed in (the priority of the symbols)
     language_unit::unit_type lexerDefinitionOrder[] = { 
-            language_unit::unit_weak_keywords_definition, 
-            language_unit::unit_weak_lexer_definition, 
             language_unit::unit_keywords_definition, 
             language_unit::unit_lexer_definition, 
             language_unit::unit_ignore_definition,
@@ -206,115 +212,120 @@ void language_stage::compile() {
     // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
     // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
     // defined in the grammar itself (as the grammar must be processed last)
-    for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; thisType++) {
-        // Create symbols for all of the items defined in lexer blocks
-        for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
-            // Fetch the lexer block
-            lexer_block* lex = (*lexerBlock)->any_lexer_block();
-            
-            // Ignore blocks that don't define lexer symbols
-            if (!lex) continue;
-            
-            // Fetch the type
-            language_unit::unit_type blockType = (*lexerBlock)->type();
-            
-            // Process only the block types that belong in this pass
-            if (blockType != *thisType) continue;
-            
-            // Add the symbols to the lexer
-            for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-                // Get the ID that we'll define for this symbol
-                int symId;
+    for (int weakness = 0; weakness < 2; weakness++)
+    {
+        // Weak blocks have the highest priority
+        bool isWeak = weakness == 0;
+
+        // Process the remaining blocks in order
+        for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; thisType++) {
+            // Create symbols for all of the items defined in lexer blocks
+            for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
+                // Fetch the lexer block
+                lexer_block* lex = (*lexerBlock)->any_lexer_block();
                 
-                if (!(*lexerItem)->add_to_definition()) {
-                    // It's an error to define the same symbol twice
-                    if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                        wstringstream msg;
-                        msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                        cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
-                    }
+                // Ignore blocks that don't define lexer symbols
+                if (!lex) continue;
+                
+                // Fetch the type
+                language_unit::unit_type blockType = (*lexerBlock)->type();
+                
+                // Process only the block types that belong in this pass
+                if (blockType != *thisType || lex->is_weak() != isWeak) continue;
+                
+                // Add the symbols to the lexer
+                for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+                    // Get the ID that we'll define for this symbol
+                    int symId;
                     
-                    // Add the symbol ID
-                    symId = m_Terminals.add_symbol((*lexerItem)->identifier());
-                } else {
-                    // Get the existing symbol ID
-                    symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
-                    
-                    // It's an error to try use the |= operator with a symbol that does not have a primary definition
-                    if (symId < 0) {
-                        wstringstream msg;
-                        msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
-                        cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
-                    }
-                    
-                    // It's an error to try to add items to a symbol of a different type
-                    else if (m_TypeForTerminal[symId] != blockType) {
-                        wstringstream msg;
-                        msg << L"Cannot add definitions to a symbol defined in a different lexer block: " << (*lexerItem)->identifier();
-                        cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
-                    }
-                }
-                
-                // Set the type of this symbol
-                m_TypeForTerminal[symId] = blockType;
-                
-                // Mark it as unused provided that we're not defining the ignored symbols (which are generally unused by definition)
-                if (blockType != language_unit::unit_ignore_definition) {
-                    m_UnusedSymbols.insert(symId);
-                }
-                
-                // Store where it is defined
-                m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
-                
-                // Action depends on the type of item
-                switch ((*lexerItem)->get_type()) {
-                    case lexeme_definition::regex:
-                    {
-                        // Remove the '/' symbols from the regex
-                        wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
+                    if (!(*lexerItem)->add_to_definition()) {
+                        // It's an error to define the same symbol twice
+                        if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                            wstringstream msg;
+                            msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                            cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                        }
                         
-                        // Add to the NDFA
-                        m_Lexer.add_regex(0, withoutSlashes, language_accept_action(symId, blockType));
-                        break;
-                    }
+                        // Add the symbol ID
+                        symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                    } else {
+                        // Get the existing symbol ID
+                        symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
                         
-                    case lexeme_definition::literal:
-                    {
-                        // Add as a literal to the NDFA
-                        m_Lexer.add_literal(0, (*lexerItem)->identifier(), language_accept_action(symId, blockType));
-                        break;
+                        // It's an error to try use the |= operator with a symbol that does not have a primary definition
+                        if (symId < 0) {
+                            wstringstream msg;
+                            msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
+                            cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
+                        }
+                        
+                        // It's an error to try to add items to a symbol of a different type
+                        else if (m_TypeForTerminal[symId] != blockType) {
+                            wstringstream msg;
+                            msg << L"Cannot add definitions to a symbol defined in a different lexer block: " << (*lexerItem)->identifier();
+                            cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
+                        }
+                    }
+                    
+                    // Set the type of this symbol
+                    m_TypeForTerminal[symId] = blockType;
+                    
+                    // Mark it as unused provided that we're not defining the ignored symbols (which are generally unused by definition)
+                    if (blockType != language_unit::unit_ignore_definition) {
+                        m_UnusedSymbols.insert(symId);
+                    }
+                    
+                    // Store where it is defined
+                    m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    
+                    // Action depends on the type of item
+                    switch ((*lexerItem)->get_type()) {
+                        case lexeme_definition::regex:
+                        {
+                            // Remove the '/' symbols from the regex
+                            wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
+                            
+                            // Add to the NDFA
+                            m_Lexer.add_regex(0, withoutSlashes, language_accept_action(symId, blockType, isWeak));
+                            break;
+                        }
+                            
+                        case lexeme_definition::literal:
+                        {
+                            // Add as a literal to the NDFA
+                            m_Lexer.add_literal(0, (*lexerItem)->identifier(), language_accept_action(symId, blockType, isWeak));
+                            break;
+                        }
+
+                        case lexeme_definition::string:
+                        case lexeme_definition::character:
+                        {
+                            // Add as a literal to the NDFA
+                            // We can do both characters and strings here (dequote_string will work on both kinds of item)
+                            m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), language_accept_action(symId, blockType, isWeak));
+                            break;
+                        }
+
+                        default:
+                            // Unknown type of lexeme definition
+                            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
+                            break;
+                    }
+                    
+                    // Add the symbol to the set appropriate for the block type
+                    switch (blockType) {
+                        case language_unit::unit_ignore_definition:
+                            // Add as an ignored symbol
+                            m_IgnoredSymbols.insert(symId);
+                            break;
+                            
+                        default:
+                            break;
                     }
 
-                    case lexeme_definition::string:
-                    case lexeme_definition::character:
-                    {
-                        // Add as a literal to the NDFA
-                        // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                        m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), language_accept_action(symId, blockType));
-                        break;
-                    }
-
-                    default:
-                        // Unknown type of lexeme definition
-                        cons().report_error(error(error::sev_bug, filename(), L"BUG_UNK_LEXEME_DEFINITION", L"Unhandled type of lexeme definition", (*lexerItem)->start_pos()));
-                        break;
-                }
-                
-                // Add the symbol to the set appropriate for the block type
-                switch (blockType) {
-                    case language_unit::unit_ignore_definition:
-                        // Add as an ignored symbol
-                        m_IgnoredSymbols.insert(symId);
-                        break;
-                        
-                    case language_unit::unit_weak_lexer_definition:
-                    case language_unit::unit_weak_keywords_definition:
-                        // Add as a weak symbol
+                    if (lex->is_weak()) {
                         m_WeakSymbols.insert(symId);
-                        break;
-                        
-                    default:
-                        break;
+                    }
                 }
             }
         }
@@ -509,11 +520,11 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, item->identifier(), language_accept_action(symId, language_unit::unit_weak_keywords_definition));
+            m_Lexer.add_literal(0, item->identifier(), language_accept_action(symId, language_unit::unit_keywords_definition, true));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
-            m_TypeForTerminal[symId] = language_unit::unit_weak_keywords_definition;
+            m_TypeForTerminal[symId] = language_unit::unit_keywords_definition;
 
             // Symbols defined within the parser grammar count as weak symbols
             m_WeakSymbols.insert(symId);
@@ -533,11 +544,11 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             
             // Define a new symbol
             int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, process::dequote_string(item->identifier()), language_accept_action(symId, language_unit::unit_weak_keywords_definition));
+            m_Lexer.add_literal(0, process::dequote_string(item->identifier()), language_accept_action(symId, language_unit::unit_keywords_definition, true));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
-            m_TypeForTerminal[symId] = language_unit::unit_weak_keywords_definition;
+            m_TypeForTerminal[symId] = language_unit::unit_keywords_definition;
             
             // Symbols defined within the parser count as weak symbols
             m_WeakSymbols.insert(symId);

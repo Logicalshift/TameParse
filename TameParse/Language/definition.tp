@@ -61,6 +61,9 @@ language ParserLanguage {
 		parser
 		test
 		from
+		case
+		sensitive
+		insensitive
 	}
 	
 	/// The grammar itself
@@ -99,11 +102,15 @@ language ParserLanguage {
 		
 		<Lexer-Symbols-Definition>	= lexer-symbols '{' (<Lexeme-Definition>)* '}'
 		
-		<Lexer-Definition> 			= weak? lexer '{' (<Lexeme-Definition>)* '}'
+		<Lexer-Definition> 			= <Lexer-Modifier>* lexer '{' (<Lexeme-Definition>)* '}'
 		
 		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
 		
-		<Keywords-Definition>		= weak? keywords '{' (<Keyword-Definition>)* '}'
+		<Keywords-Definition>		= <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
+
+		<Lexer-Modifier>			= weak
+									| case sensitive
+									| case insensitive
 		
 		<Keyword-Definition>		= identifier
 									| identifier ('=' | "|=") (regex | string | character)
