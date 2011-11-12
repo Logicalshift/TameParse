@@ -43,7 +43,9 @@ Lexer:
 
 	- Add repeats with lower and upper bounds (2 or more x style repeats) @lexer
 
-	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions)
+	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
+
+	- Add support for case-insensitive lexer symbols @lexer
 		
 LALR Parser:
 	Parser generator:
