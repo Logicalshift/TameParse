@@ -33,21 +33,34 @@ namespace compiler {
     	/// \brief The definitions in this lexer data
     	mutable definition_map m_Definitions;
 
+    	/// \brief The expressions in this lexer data
+    	mutable definition_map m_Expressions;
+
     public:
     	/// \brief Adds a new lexer definition to this object
     	void add_definition(const std::wstring& term, const lexer_item& newItem);
 
-    	/// \brief Removes all of th definitions for a terminal with a particular name from this item
+    	/// \brief Removes all of the definitions for a terminal with a particular name from this item
     	void remove_definition(const std::wstring& term);
 
     	/// \brief Returns all of the definitions for a particular terminal value
     	const item_list& get_definitions(const std::wstring& term) const;
 
-    	/// \brief The first item defined in this data object
+    	/// \brief The first definition defined in this data object
     	iterator begin() const;
 
-    	/// \brief The item after the final item defined in this data object
+    	/// \brief The item after the final definition defined in this data object
     	iterator end() const;
+
+    	/// \brief Adds a new lexer expression to this object
+    	void add_expression(const std::wstring& term, const lexer_item& newItem);
+
+    	/// \brief Removes a lexer expression from this object
+    	void remove_expression(const std::wstring& term);
+
+    	/// \brief Returns all of the expressions for a particular value
+    	const item_list& get_expressions(const std::wstring& term) const;
+
     };
 }
 

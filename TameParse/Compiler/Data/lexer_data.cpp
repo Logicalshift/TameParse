@@ -34,3 +34,18 @@ lexer_data::iterator lexer_data::begin() const {
 lexer_data::iterator lexer_data::end() const {
 	return m_Definitions.end();
 }
+
+/// \brief Adds a new lexer expression to this object
+void lexer_data::add_expression(const std::wstring& term, const lexer_item& newItem) {
+	m_Expressions[term].push_back(newItem);
+}
+
+/// \brief Removes a lexer expression from this object
+void lexer_data::remove_expression(const std::wstring& term) {
+	m_Expressions.erase(term);
+}
+
+/// \brief Returns all of the expressions for a particular value
+const lexer_data::item_list& lexer_data::get_expressions(const std::wstring& term) const {
+	return m_Expressions[term];
+}
