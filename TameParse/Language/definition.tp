@@ -100,16 +100,19 @@ language ParserLanguage {
 		// Basic language items
 		//
 		
-		<Lexer-Symbols-Definition>	= lexer-symbols '{' (<Lexeme-Definition>)* '}'
+		<Lexer-Symbols-Definition>	= <Lexer-Symbols-Modifier>* lexer-symbols '{' (<Lexeme-Definition>)* '}'
 		
-		<Lexer-Definition> 			= <Lexer-Modifier>* lexer '{' (<Lexeme-Definition>)* '}'
+		<Lexer-Definition> 			= [=> <Lexer-Modifier>* lexer] <Lexer-Modifier>* lexer '{' (<Lexeme-Definition>)* '}'
 		
 		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
 		
-		<Keywords-Definition>		= <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
+		<Keywords-Definition>		= [=> <Lexer-Modifier>* lexer] <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
 
 		<Lexer-Modifier>			= weak
 									| case sensitive
+									| case insensitive
+		
+		<Lexer-Symbols-Modifier>	= case sensitive
 									| case insensitive
 		
 		<Keyword-Definition>		= identifier
