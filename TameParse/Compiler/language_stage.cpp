@@ -101,6 +101,26 @@ language_stage::~language_stage() {
     m_Filenames.clear();
 }
 
+/// \brief Removes any terminal symbols used in the specified rule from the unused list
+void language_stage::remove_unused(const contextfree::rule& rule) {
+    // Iterate through the rules in this item
+    for (rule::iterator item = rule.begin(); item != rule.end(); item++) {
+        // Remove terminal items
+        if ((*item)->type() == item::terminal) {
+            m_UnusedSymbols.erase((*item)->symbol());
+        }
+
+        // Recurse into EBNF items
+        const ebnf* ebnfItem = (*item)->cast_ebnf();
+        if (ebnfItem) {
+            // Also remove items for any contained EBNF rules
+            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ebnfRule++) {
+                remove_unused(**ebnfRule);
+            }
+        }
+    }
+}
+
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_stage::compile() {
 #ifndef TAMEPARSE_BOOTSTRAP
@@ -407,6 +427,17 @@ void language_stage::compile() {
             }
         }
     }
+
+    // Go through the grammar and remove any terminal symbols that are used in any of the productions
+    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); itemId++) {
+        // Get the rules for this item
+        const rule_list& itemRules = m_Grammar.rules_for_nonterminal(itemId);
+
+        // Remove any unused symbol from the list
+        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); itemRule++) {
+            remove_unused(**itemRule);
+        }
+    }
     
     // Display warnings for unused symbols
     for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
@@ -589,9 +620,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Get the ID of this terminal. We can just use the identifier supplied in the item, as it will be unique
             int terminalId = m_Terminals.symbol_for_name(item->identifier());
             
-            // Remove from the unused list
-            m_UnusedSymbols.erase(terminalId);
-            
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
             break;
@@ -765,8 +793,8 @@ void language_stage::export_to(language_stage* target) {
     target->m_Grammar           = m_Grammar;
     target->m_WeakSymbols       = m_WeakSymbols;
     target->m_IgnoredSymbols    = m_IgnoredSymbols;
-    target->m_UnusedSymbols     = m_UnusedSymbols;
     target->m_TypeForTerminal   = m_TypeForTerminal;
+    target->m_UnusedSymbols     = m_UnusedSymbols;
 
     // Copy the symbol maps
     copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);

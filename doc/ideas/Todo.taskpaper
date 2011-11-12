@@ -54,7 +54,17 @@ Lexer:
 
 	- Add a way to override exisiting lexer symbols with new ones, especially when inheriting a language @lexer
 
-	- Reports 'unused symbol' warning when |= is used in an inherited language @lexer
+	- Reports 'unused symbol' warning when |= is used in an inherited language @lexer @done
+
+	- Check that we check for unused symbols in inherited languages @lexer @done
+		- Oops, we report them twice!
+		- Only check for unused symbols in the language that we're actually compiling
+
+	- Make it possible to use (weak) lexer symbols 'in line' @lexer
+
+	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
+
+	- Make it possible to generate only a lexer
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
