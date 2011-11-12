@@ -40,7 +40,7 @@ namespace compiler {
 		dfa::accept_action* accept;
 
 		/// \brief Creates a new lexer item
-		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, unit_type block_type = language::language_unit::unit_lexer_symbols, dfa::accept_action* accept = NULL);
+		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, dfa::accept_action* accept = NULL);
 
 		/// \brief Disposes a lexer item
 		virtual ~lexer_item();
