@@ -18,8 +18,10 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Compiler/lexer_stage.cpp \
 					  ../TameParse/Compiler/lr_parser_stage.cpp \
 					  ../TameParse/Compiler/output_stage.cpp \
-					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
 					  ../TameParse/Compiler/std_console.cpp \
+					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
+					  ../TameParse/Compiler/Data/lexer_data.cpp \
+					  ../TameParse/Compiler/Data/lexer_item.cpp \
 					  ../TameParse/ContextFree/ebnf_items.cpp \
 					  ../TameParse/ContextFree/grammar.cpp \
 					  ../TameParse/ContextFree/guard.cpp \
