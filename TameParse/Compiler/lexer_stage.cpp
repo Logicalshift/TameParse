@@ -19,6 +19,75 @@ using namespace contextfree;
 using namespace lr;
 using namespace compiler;
 
+/// \brief Class that extends ndfa_regex to support taking expressions from a lexer_data object
+class ndfa_lexer_compiler : public ndfa_regex {
+private:
+    /// \brief Item list in a lexer data item
+    typedef lexer_data::item_list item_list;
+
+    /// \brief The lexer data that should be used to compile expressions
+    const lexer_data* m_Data;
+
+public:
+    ndfa_lexer_compiler(const lexer_data* data)
+    : m_Data(data) { }
+
+    /// \brief Compiles the value of a {} expression
+    virtual bool compile_expression(const symbol_string& expression, builder& cons) {
+        // Look up the expression in the lexer data
+        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+
+        // Use the standard behaviour if we don't find any items
+        if (items.empty()) return ndfa_regex::compile_expression(expression, cons);
+
+        // Remember the current state of the builder
+        bool isLower = cons.make_lowercase();
+        bool isUpper = cons.make_uppercase();
+
+        // Start a new subexpression
+        cons.push();
+
+        // The result can be any of the supplied items
+        bool first = true;
+        for (item_list::const_iterator item = items.begin(); item != items.end(); item++) {
+            // Or items together
+            if (!first) {
+                cons.begin_or();
+            }
+
+            // Set case sensitivity
+            if (item->case_insensitive) {
+                cons.set_case_options(true, true);
+            } else {
+                // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
+                // TODO: you can specifically say 'case sensitive lexer-symbols' but we treat that as a no-op for now
+                cons.set_case_options(isLower, isUpper);
+            }
+
+            // Add as 
+            switch (item->type) {
+                case lexer_item::regex:
+                    add_regex(cons, convert(item->definition));
+                    break;
+
+                case lexer_item::literal:
+                    add_literal(cons, convert(item->definition));
+                    break;
+            }
+
+            // No longer the first item
+            first = false;
+        }
+
+        // Done: reset the constructor
+        cons.set_case_options(isLower, isUpper);
+        cons.pop();
+
+        // Found an expression
+        return true;
+    }
+};
+
 /// \brief Creates a new lexer compiler
 ///
 /// The compiler will not 'own' the objects passed in to this constructor; however, they must have a lifespan
@@ -47,7 +116,7 @@ lexer_stage::~lexer_stage() {
 /// \brief Compiles the lexer
 void lexer_stage::compile() {
     // Grab the input
-    const ndfa*             ndfa            = m_Language->ndfa();
+    const lexer_data*       lex             = m_Language->lexer();
     terminal_dictionary*    terminals       = m_Language->terminals();
     const set<int>*         weakSymbolIds   = m_Language->weak_symbols();
     
@@ -55,16 +124,49 @@ void lexer_stage::compile() {
     m_WeakSymbols = lr::weak_symbols(m_Language->grammar());
     
     // Sanity check
-    if (!ndfa || !terminals || !weakSymbolIds) {
+    if (!lex || !terminals || !weakSymbolIds) {
         cons().report_error(error(error::sev_bug, filename(), L"BUG_LEXER_BAD_PARAMETERS", L"Missing input for the lexer stage", position(-1, -1, -1)));
         return;
     }
     
     // Output a staging message
     cons().verbose_stream() << L"  = Constructing final lexer" << endl;
+
+    // Create the ndfa
+    typedef lexer_data::item_list item_list;
+
+    ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
+
+    // Iterate through the definition lists for each item
+    for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
+        // Iterate through the individual definitions for this item
+        for (item_list::const_iterator item = itemList->second.begin(); item != itemList->second.end(); item++) {
+            // Ignore items without a valid accept action (this is a bug)
+            if (!item->accept) {
+                cons().report_error(error(error::sev_bug, filename(), L"BUG_MISSING_ACTION", L"Missing action for lexer symbol", position(-1, -1, -1)));
+                continue;
+            }
+            
+            // Add the corresponding items
+            switch (item->type) {
+                case lexer_item::regex:
+                    stage0->set_case_insensitive(item->case_insensitive);
+                    stage0->add_regex(0, item->definition, *item->accept);
+                    break;
+
+                case lexer_item::literal:
+                    stage0->set_case_insensitive(item->case_insensitive);
+                    stage0->add_literal(0, item->definition, *item->accept);
+                    break;
+            }
+        }
+    }
+
+    // Write out some stats about the ndfa
+    cons().verbose_stream() << L"    Number states in the NDFA:              " << stage0->count_states() << endl;
     
     // Compile the NDFA to a NDFA without overlapping symbol sets
-    dfa::ndfa* stage1 = ndfa->to_ndfa_with_unique_symbols();
+    dfa::ndfa* stage1 = stage0->to_ndfa_with_unique_symbols();
     
     if (!stage1) {
         cons().report_error(error(error::sev_bug, filename(), L"BUG_DFA_FAILED_TO_CONVERT", L"Failed to create an NDFA with unique symbols", position(-1, -1, -1)));
@@ -72,12 +174,16 @@ void lexer_stage::compile() {
     }
     
     // Write some information about the first stage
-    cons().verbose_stream() << L"    Initial number of character sets:       " << ndfa->symbols().count_sets() << endl;
+    cons().verbose_stream() << L"    Initial number of character sets:       " << stage0->symbols().count_sets() << endl;
     cons().verbose_stream() << L"    Final number of character sets:         " << stage1->symbols().count_sets() << endl;
+
+    delete stage0;
+    stage0 = NULL;
     
     // Compile the NDFA to a DFA
     dfa::ndfa* stage2 = stage1->to_dfa();
     delete stage1;
+    stage1 = NULL;
     
     if (!stage2) {
         cons().report_error(error(error::sev_bug, filename(), L"BUG_DFA_FAILED_TO_COMPILE", L"Failed to compile DFA", position(-1, -1, -1)));
@@ -171,6 +277,7 @@ void lexer_stage::compile() {
     cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
     dfa::ndfa* stage3 = stage2->to_compact_dfa();
     delete stage2;
+    stage2 = NULL;
     
     // Write some information about the DFA we just produced
     cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << stage3->count_states() << endl;
@@ -178,6 +285,7 @@ void lexer_stage::compile() {
     // Eliminate any unnecessary symbol sets
     dfa::ndfa* stage4 = stage3->to_ndfa_with_merged_symbols();
     delete stage3;
+    stage3 = NULL;
     
     // Write some information about the DFA we just produced
     cons().verbose_stream() << L"    Number of symbols in the compacted DFA: " << stage4->symbols().count_sets() << endl;

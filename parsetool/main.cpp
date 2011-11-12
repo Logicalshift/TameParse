@@ -153,6 +153,9 @@ int main (int argc, const char * argv[])
             return error::sev_error;
         }
         
+        // Report any unused symbols in the language
+        compileLanguageStage->report_unused_symbols();
+        
         // Infer the start symbols if there are none
         if (startSymbols.empty()) {
             // TODO: Use the first nonterminal defined in the language block

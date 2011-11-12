@@ -2,15 +2,31 @@ Documentation:
 	- Generate docs for the API
 
 Bugs:
-	- Setting an output filename doesn't seem to work 
-		It still generates the name of the C++ files from the 
-General:
+	- Setting an output filename doesn't seem to work @commandline
+		It still generates the name of the C++ files from the name of the language file
+Refactoring:
+	- Simplify/split up the language_stage class @compiler
+		It current compiles the lexer and builds up an abstract representation of the grammar. We need to separate the lexer and grammar generation phases, and move the data into their own classes.
+
+		(The existing definition of the class: that it translate the grammar/lexer for a particular language is fine but there are really too many steps for a single class to reasonably deal with)
+
+	- Move the compiler data into separate classes @compiler
+		Currently we pass the compiler classes around but this will make it difficult to maintain the compiler in the long term.
+
+		Should probably make the stages that print out statistics separate from the stages that generate them
+		- language_stage
+		- import_stage
+		- lexer_stage
+		- parser_stage (though we already use the definition_file_container object for this purpose)
+
 	- Be more consistent about the way that public fields are named
 		Stack entry uses no 'm_' but the parse tables do, for instance
-		
+General:
 	- Check that all the operator< implementations work correctly
 
 	- Replace all usages of it or x with a more descriptive variable name
+
+	- Write a textmate/sublime text language file for the definition language
 
 	- Make it possible to determine if a stage reported an error on an individual stage basis
 		- Use this to stop trying to run tests if the parser/lexer for a language can't be built
@@ -26,7 +42,29 @@ Lexer:
 	- Add the ability to have case-insensitive regexes @lexer @done
 
 	- Add repeats with lower and upper bounds (2 or more x style repeats) @lexer
-		
+
+	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
+
+	- Add support for case-insensitive lexer symbols @lexer
+
+	- Make sure |= works in lexer symbol maps @lexer @done
+
+	- If a lexer symbols block is specifically set as case sensitive, then make it case sensitive even in case insensitive contexts @lexer
+		Currently we only make sure that case insensitive symbol sets are treated correctly
+
+	- Add a way to override exisiting lexer symbols with new ones, especially when inheriting a language @lexer
+
+	- Reports 'unused symbol' warning when |= is used in an inherited language @lexer @done
+
+	- Check that we check for unused symbols in inherited languages @lexer @done
+		- Oops, we report them twice! @done
+		- Only check for unused symbols in the language that we're actually compiling @done
+
+	- Make it possible to use (weak) lexer symbols 'in line' @lexer
+
+	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
+
+	- Make it possible to generate only a lexer
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
@@ -97,13 +135,15 @@ Testing:
 	
 	- call tameparse with the --run-tests option for all of the examples @done
 
-	- write tests for the Ansi C language
+	- write tests for the Ansi C language @testing
 
 	- write tests for the Pascal language @done
 
-	- write tests for the parser definition language
+	- write tests for the parser definition language @testing
 
-	- write tests for the C99 language (once it's done)
+	- write tests for the C99 language (once it's done) @testing
+
+	- Stop from running tests if any errors are detected while generating the parser
 
 Examples:
 	- Finish the C99 language

@@ -186,8 +186,8 @@ void lr_parser_stage::compile() {
 		return;
 	}
 
-	if (!m_Language->ndfa()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_NDFA", L"Language compiler stage has not generated a lexer", m_StartPosition));
+	if (!m_Language->lexer()) {
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_LEXER", L"Language compiler stage has not generated a lexer", m_StartPosition));
 		return;
 	}
 

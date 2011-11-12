@@ -8,6 +8,7 @@ tameparse_language.h
 autom4te.cache
 UnicodeData.txt
 build
+build-*
 obj
 bin
 Debug

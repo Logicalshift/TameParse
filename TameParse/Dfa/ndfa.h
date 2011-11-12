@@ -280,6 +280,15 @@ namespace dfa {
                 m_AddUppercase = makeUppercase;
             }
 
+            /// \brief Whether or not this should generate surrogate values
+            bool generate_surrogates() const { return m_GenerateSurrogates; }
+
+            /// \brief True if this will add lowercase equivalents to everything supplied to it
+            bool make_lowercase() const { return m_AddLowercase; }
+
+            /// \brief True if this will add uppercase equivalents to everything supplied to it
+            bool make_uppercase() const { return m_AddUppercase; }
+
             ///
             /// \brief Returns the state this was in before the most recent transition
             ///
