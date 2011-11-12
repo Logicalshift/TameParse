@@ -553,7 +553,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             wstring                 dequote = process::dequote_string(item->identifier());
             language_accept_action* accept  = new language_accept_action(symId, language_unit::unit_keywords_definition, true);
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, dequote, false, accept));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, accept));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
