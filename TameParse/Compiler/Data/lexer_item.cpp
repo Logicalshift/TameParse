@@ -11,8 +11,18 @@
 using namespace compiler;
 
 /// \brief Creates a new lexer item
-lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive) 
+lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, unit_type bt, dfa::accept_action* aa)
 : type(ty)
 , definition(def)
-, case_insensitive(insensitive) {
+, case_insensitive(insensitive)
+, block_type(bt)
+, accept(aa) {
+}
+
+/// \brief Disposes a lexer item
+lexer_item::~lexer_item() {
+	// Delete the accept action if it exists
+	if (accept) {
+		delete accept;
+	}
 }

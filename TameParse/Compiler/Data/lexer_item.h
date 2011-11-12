@@ -11,10 +11,16 @@
 
 #include <string>
 
+#include "TameParse/Dfa/accept_action.h"
+#include "TameParse/Language/language_unit.h"
+
 namespace compiler {
 	/// \brief Class representing the data associated with an individual lexer item
 	class lexer_item {
 	public:
+		/// \brief The type of the language unit where this block was defined
+		typedef language::language_unit::unit_type unit_type;
+
 		/// \brief The type of a lexer item
 		enum item_type {
 			regex,
@@ -30,8 +36,14 @@ namespace compiler {
 		/// \brief True if this item should be case-insensitive
 		bool case_insensitive;
 
+		/// \brief NULL, or the accepting action for this item
+		dfa::accept_action* accept;
+
 		/// \brief Creates a new lexer item
-		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive);
+		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, unit_type block_type = language::language_unit::unit_lexer_symbols, dfa::accept_action* accept = NULL);
+
+		/// \brief Disposes a lexer item
+		virtual ~lexer_item();
 	};
 }
 
