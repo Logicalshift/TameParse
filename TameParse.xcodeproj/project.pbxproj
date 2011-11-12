@@ -144,6 +144,9 @@
 		4BADD6C1146E9A20008209EC /* lexer_data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BADD6C0146E9A20008209EC /* lexer_data.cpp */; };
 		4BADD6C2146E9A20008209EC /* lexer_data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BADD6C0146E9A20008209EC /* lexer_data.cpp */; };
 		4BADD6C4146E9A2A008209EC /* lexer_data.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BADD6C3146E9A2A008209EC /* lexer_data.h */; };
+		4BADD6C6146EC2FD008209EC /* lexer_item.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BADD6C5146EC2FD008209EC /* lexer_item.h */; };
+		4BADD6C8146EC305008209EC /* lexer_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BADD6C7146EC305008209EC /* lexer_item.cpp */; };
+		4BADD6C9146EC305008209EC /* lexer_item.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BADD6C7146EC305008209EC /* lexer_item.cpp */; };
 		4BB2C9101425010800D501E7 /* syntax_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB2C90F1425010800D501E7 /* syntax_ptr.cpp */; };
 		4BB2C9111425010800D501E7 /* syntax_ptr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4BB2C90F1425010800D501E7 /* syntax_ptr.cpp */; };
 		4BB2C9141425010F00D501E7 /* syntax_ptr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4BB2C9131425010F00D501E7 /* syntax_ptr.h */; };
@@ -469,6 +472,8 @@
 		4B9804031412789D00B5F857 /* tameparse_language.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tameparse_language.h; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BADD6C0146E9A20008209EC /* lexer_data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer_data.cpp; sourceTree = "<group>"; };
 		4BADD6C3146E9A2A008209EC /* lexer_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_data.h; sourceTree = "<group>"; };
+		4BADD6C5146EC2FD008209EC /* lexer_item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_item.h; sourceTree = "<group>"; };
+		4BADD6C7146EC305008209EC /* lexer_item.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer_item.cpp; sourceTree = "<group>"; };
 		4BB2C90F1425010800D501E7 /* syntax_ptr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = syntax_ptr.cpp; sourceTree = "<group>"; };
 		4BB2C9131425010F00D501E7 /* syntax_ptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = syntax_ptr.h; sourceTree = "<group>"; };
 		4BB6615613DB16F500CDED59 /* block.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = block.cpp; sourceTree = "<group>"; };
@@ -746,6 +751,8 @@
 			children = (
 				4BADD6C0146E9A20008209EC /* lexer_data.cpp */,
 				4BADD6C3146E9A2A008209EC /* lexer_data.h */,
+				4BADD6C7146EC305008209EC /* lexer_item.cpp */,
+				4BADD6C5146EC2FD008209EC /* lexer_item.h */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1079,6 +1086,7 @@
 				4B2B4B38144E3675004F5C47 /* test_definition.h in Headers */,
 				4BECE7B51452D1AA0047E1E2 /* test_stage.h in Headers */,
 				4BADD6C4146E9A2A008209EC /* lexer_data.h in Headers */,
+				4BADD6C6146EC2FD008209EC /* lexer_item.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1345,6 +1353,7 @@
 				4B2B4B2F144E21FB004F5C47 /* test_block.cpp in Sources */,
 				4B2B4B33144E29D1004F5C47 /* test_definition.cpp in Sources */,
 				4BADD6C1146E9A20008209EC /* lexer_data.cpp in Sources */,
+				4BADD6C8146EC305008209EC /* lexer_item.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1435,6 +1444,7 @@
 				4B2B4B37144E3673004F5C47 /* test_definition.cpp in Sources */,
 				4BECE7B41452D1A80047E1E2 /* test_stage.cpp in Sources */,
 				4BADD6C2146E9A20008209EC /* lexer_data.cpp in Sources */,
+				4BADD6C9146EC305008209EC /* lexer_item.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

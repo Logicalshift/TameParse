@@ -35,6 +35,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/Data/lexer_data.h \
+							  Compiler/Data/lexer_item.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -121,6 +122,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/test_stage.cpp \
 							  Compiler/OutputStages/cplusplus.cpp \
 							  Compiler/Data/lexer_data.cpp \
+							  Compiler/Data/lexer_item.cpp \
 							  ContextFree/ebnf_items.cpp \
 							  ContextFree/grammar.cpp \
 							  ContextFree/guard.cpp \
@@ -206,6 +208,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/Data/lexer_data.h \
+							  Compiler/Data/lexer_item.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \

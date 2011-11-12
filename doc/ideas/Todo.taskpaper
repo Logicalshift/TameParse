@@ -18,10 +18,10 @@ Refactoring:
 		- import_stage
 		- lexer_stage
 		- parser_stage (though we already use the definition_file_container object for this purpose)
-General:
+
 	- Be more consistent about the way that public fields are named
 		Stack entry uses no 'm_' but the parse tables do, for instance
-		
+General:
 	- Check that all the operator< implementations work correctly
 
 	- Replace all usages of it or x with a more descriptive variable name
