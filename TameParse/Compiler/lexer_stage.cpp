@@ -72,6 +72,12 @@ void lexer_stage::compile() {
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
         // Iterate through the individual definitions for this item
         for (item_list::const_iterator item = itemList->second.begin(); item != itemList->second.end(); item++) {
+            // Ignore items without a valid accept action (this is a bug)
+            if (!item->accept) {
+                cons().report_error(error(error::sev_bug, filename(), L"BUG_MISSING_ACTION", L"Missing action for lexer symbol", position(-1, -1, -1)));
+                continue;
+            }
+            
             // Add the corresponding items
             switch (item->type) {
                 case lexer_item::regex:
