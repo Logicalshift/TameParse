@@ -100,6 +100,9 @@ namespace dfa {
         }
         
         /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+        int add_literal(builder& cons, const symbol_string& literal);
+        
+        /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
         int add_literal(int initialState, const symbol_string& literal);
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state and adding an accepting action
