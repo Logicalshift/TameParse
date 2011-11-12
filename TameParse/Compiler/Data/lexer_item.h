@@ -41,6 +41,12 @@ namespace compiler {
 
 		/// \brief Creates a new lexer item
 		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, dfa::accept_action* accept = NULL);
+        
+        /// \brief Copies a lexer item
+        lexer_item(const lexer_item& copyFrom);
+        
+        /// \brief Assigns a lexer item
+        lexer_item& operator=(const lexer_item& assignFrom);
 
 		/// \brief Disposes a lexer item
 		virtual ~lexer_item();
