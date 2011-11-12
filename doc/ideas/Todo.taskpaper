@@ -46,7 +46,11 @@ Lexer:
 	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
 
 	- Add support for case-insensitive lexer symbols @lexer
-		
+
+	- Make sure |= works in lexer symbol maps @lexer
+
+	- If a lexer symbols block is specifically set as case sensitive, then make it case sensitive even in case insensitive contexts @lexer
+		Currently we only make sure that case insensitive symbol sets are treated correctly
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing

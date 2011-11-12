@@ -62,6 +62,9 @@ namespace dfa {
         /// \brief Converts a null-terminated to a symbol_string
         static symbol_string convert(wchar_t* source);
 
+        /// \brief Converts a symbol string into a wstring
+        static std::wstring convert_syms(const symbol_string& source);
+
     public:
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(builder& cons, const symbol_string& regex);

@@ -19,6 +19,75 @@ using namespace contextfree;
 using namespace lr;
 using namespace compiler;
 
+/// \brief Class that extends ndfa_regex to support taking expressions from a lexer_data object
+class ndfa_lexer_compiler : ndfa_regex {
+private:
+    /// \brief Item list in a lexer data item
+    typedef lexer_data::item_list item_list;
+
+    /// \brief The lexer data that should be used to compile expressions
+    lexer_data* m_Data;
+
+public:
+    ndfa_lexer_compiler(lexer_data* data)
+    : m_Data(data) { }
+
+    /// \brief Compiles the value of a {} expression
+    virtual bool compile_expression(const symbol_string& expression, builder& cons) {
+        // Look up the expression in the lexer data
+        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+
+        // Use the standard behaviour if we don't find any items
+        if (items.empty()) return ndfa_regex::compile_expression(expression, cons);
+
+        // Remember the current state of the builder
+        bool isLower = cons.make_lowercase();
+        bool isUpper = cons.make_uppercase();
+
+        // Start a new subexpression
+        cons.push();
+
+        // The result can be any of the supplied items
+        bool first = true;
+        for (item_list::const_iterator item = items.begin(); item != items.end(); item++) {
+            // Or items together
+            if (!first) {
+                cons.begin_or();
+            }
+
+            // Set case sensitivity
+            if (item->case_insensitive) {
+                cons.set_case_options(true, true);
+            } else {
+                // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
+                // TODO: you can specifically say 'case sensitive lexer-symbols' but we treat that as a no-op for now
+                cons.set_case_options(isLower, isUpper);
+            }
+
+            // Add as 
+            switch (item->type) {
+                case lexer_item::regex:
+                    add_regex(cons, convert(item->definition));
+                    break;
+
+                case lexer_item::literal:
+                    add_literal(cons, convert(item->definition));
+                    break;
+            }
+
+            // No longer the first item
+            first = false;
+        }
+
+        // Done: reset the constructor
+        cons.set_case_options(isLower, isUpper);
+        cons.pop();
+
+        // Found an expression
+        return true;
+    }
+};
+
 /// \brief Creates a new lexer compiler
 ///
 /// The compiler will not 'own' the objects passed in to this constructor; however, they must have a lifespan
@@ -66,7 +135,7 @@ void lexer_stage::compile() {
     // Create the ndfa
     typedef lexer_data::item_list item_list;
 
-    dfa::ndfa_regex* stage0 = new ndfa_regex();
+    dfa::ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
 
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {

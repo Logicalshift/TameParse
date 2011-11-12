@@ -96,6 +96,21 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     return result;        
 }
 
+/// \brief Converts a symbol string into a wstring
+static std::wstring convert_syms(const symbol_string& source) {
+    // Create the result
+    wstring result;
+    
+    // Fill it in, treating the characters as unsigned
+    for (symbol_string::const_iterator pos = source.begin(); pos != source.end(); ++pos) {
+        result += (wchar_t)*pos;
+    }
+    
+    // This is the result
+    return result;        
+}
+
+
 /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
 int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     // Can't really do anything if the initial state is invalid
