@@ -20,16 +20,16 @@ using namespace lr;
 using namespace compiler;
 
 /// \brief Class that extends ndfa_regex to support taking expressions from a lexer_data object
-class ndfa_lexer_compiler : ndfa_regex {
+class ndfa_lexer_compiler : public ndfa_regex {
 private:
     /// \brief Item list in a lexer data item
     typedef lexer_data::item_list item_list;
 
     /// \brief The lexer data that should be used to compile expressions
-    lexer_data* m_Data;
+    const lexer_data* m_Data;
 
 public:
-    ndfa_lexer_compiler(lexer_data* data)
+    ndfa_lexer_compiler(const lexer_data* data)
     : m_Data(data) { }
 
     /// \brief Compiles the value of a {} expression
@@ -135,7 +135,7 @@ void lexer_stage::compile() {
     // Create the ndfa
     typedef lexer_data::item_list item_list;
 
-    dfa::ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
+    ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
 
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
