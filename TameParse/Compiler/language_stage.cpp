@@ -136,7 +136,7 @@ void language_stage::compile() {
 #endif
 
     // Write out a verbose message
-    cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar for " << m_Language->identifier() << endl;
+    cons().verbose_stream() << L"  = Constructing lexer and grammar for " << m_Language->identifier() << endl;
 
     // Find/create a filename for this object
     wstring* ourFilename;
@@ -168,24 +168,24 @@ void language_stage::compile() {
                     // Remove the '/' symbols from the regex
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
-                    // Add to the NDFA
-                    m_Lexer.define_expression((*lexerItem)->identifier(), withoutSlashes);
+                    // Add to the lexer
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
-                    // Add as a literal to the NDFA
-                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), (*lexerItem)->identifier());
+                    // Add as a literal to the lexer
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive()));
                     break;
                 }
 
                 case lexeme_definition::string:
                 case lexeme_definition::character:
                 {
-                    // Add as a literal to the NDFA
+                    // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), process::dequote_string((*lexerItem)->definition()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive()));
                     break;
                 }
 
@@ -279,7 +279,8 @@ void language_stage::compile() {
                     m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
 
                     // Set whether the regexes or literals we add should be case insensitive
-                    m_Lexer.set_case_insensitive(lex->is_case_insensitive());
+                    bool ci = lex->is_case_insensitive();
+                    language_accept_action acceptAction(symId, blockType, isWeak);
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
@@ -288,24 +289,25 @@ void language_stage::compile() {
                             // Remove the '/' symbols from the regex
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
-                            // Add to the NDFA
-                            m_Lexer.add_regex(0, withoutSlashes, language_accept_action(symId, blockType, isWeak));
+                            // Add to the lexer
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, acceptAction.clone()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
-                            // Add as a literal to the NDFA
-                            m_Lexer.add_literal(0, (*lexerItem)->identifier(), language_accept_action(symId, blockType, isWeak));
+                            // Add as a literal to the lexer
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, acceptAction.clone()));
                             break;
                         }
 
                         case lexeme_definition::string:
                         case lexeme_definition::character:
                         {
-                            // Add as a literal to the NDFA
+                            // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                            m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), language_accept_action(symId, blockType, isWeak));
+                            wstring dequoted = process::dequote_string((*lexerItem)->definition());
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, acceptAction.clone()));
                             break;
                         }
 
@@ -475,10 +477,9 @@ void language_stage::compile() {
         }
     }
 
-    // Display a summary of what the grammar and NDFA contains if we're in verbose mode
+    // Display a summary of what the grammar and lexer contains if we're in verbose mode
     wostream& summary = cons().verbose_stream();
     
-    summary << L"    Number of NDFA states:                  " << m_Lexer.count_states() << endl;
     summary << L"    Number of lexer symbols:                " << m_Terminals.count_symbols() << endl;
     summary << L"          ... which are weak:               " << (int)m_WeakSymbols.size() << endl;
     summary << L"          ... which are implicitly defined: " << implicitCount << endl;
@@ -522,8 +523,10 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             cons().report_error(error(error::sev_warning, filename(), L"IMPLICIT_LEXER_SYMBOL", warningMsg.str(), item->start_pos()));
             
             // Define a new literal string
-            int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, item->identifier(), language_accept_action(symId, language_unit::unit_keywords_definition, true));
+            int                     symId   = m_Terminals.add_symbol(item->identifier());
+            language_accept_action* accept  = new language_accept_action(symId, language_unit::unit_keywords_definition, true);
+
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, accept));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
@@ -546,8 +549,11 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             }
             
             // Define a new symbol
-            int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, process::dequote_string(item->identifier()), language_accept_action(symId, language_unit::unit_keywords_definition, true));
+            int                     symId   = m_Terminals.add_symbol(item->identifier());
+            wstring                 dequote = process::dequote_string(item->identifier());
+            language_accept_action* accept  = new language_accept_action(symId, language_unit::unit_keywords_definition, true);
+
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, dequote, false, accept));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
