@@ -101,6 +101,26 @@ language_stage::~language_stage() {
     m_Filenames.clear();
 }
 
+/// \brief Removes any terminal symbols used in the specified rule from the unused list
+void language_stage::remove_unused(const contextfree::rule& rule) {
+    // Iterate through the rules in this item
+    for (rule::iterator item = rule.begin(); item != rule.end(); item++) {
+        // Remove terminal items
+        if ((*item)->type() == item::terminal) {
+            m_UnusedSymbols.erase((*item)->symbol());
+        }
+
+        // Recurse into EBNF items
+        const ebnf* ebnfItem = (*item)->cast_ebnf();
+        if (ebnfItem) {
+            // Also remove items for any contained EBNF rules
+            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ebnfRule++) {
+                remove_unused(**ebnfRule);
+            }
+        }
+    }
+}
+
 /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
 void language_stage::compile() {
 #ifndef TAMEPARSE_BOOTSTRAP
@@ -136,7 +156,7 @@ void language_stage::compile() {
 #endif
 
     // Write out a verbose message
-    cons().verbose_stream() << L"  = Constructing lexer NDFA and grammar for " << m_Language->identifier() << endl;
+    cons().verbose_stream() << L"  = Constructing lexer and grammar for " << m_Language->identifier() << endl;
 
     // Find/create a filename for this object
     wstring* ourFilename;
@@ -168,24 +188,24 @@ void language_stage::compile() {
                     // Remove the '/' symbols from the regex
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
-                    // Add to the NDFA
-                    m_Lexer.define_expression((*lexerItem)->identifier(), withoutSlashes);
+                    // Add to the lexer
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
-                    // Add as a literal to the NDFA
-                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), (*lexerItem)->identifier());
+                    // Add as a literal to the lexer
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive()));
                     break;
                 }
 
                 case lexeme_definition::string:
                 case lexeme_definition::character:
                 {
-                    // Add as a literal to the NDFA
+                    // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.define_expression_literal((*lexerItem)->identifier(), process::dequote_string((*lexerItem)->definition()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive()));
                     break;
                 }
 
@@ -279,7 +299,8 @@ void language_stage::compile() {
                     m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
 
                     // Set whether the regexes or literals we add should be case insensitive
-                    m_Lexer.set_case_insensitive(lex->is_case_insensitive());
+                    bool ci = lex->is_case_insensitive();
+                    language_accept_action acceptAction(symId, blockType, isWeak);
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
@@ -288,24 +309,25 @@ void language_stage::compile() {
                             // Remove the '/' symbols from the regex
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
-                            // Add to the NDFA
-                            m_Lexer.add_regex(0, withoutSlashes, language_accept_action(symId, blockType, isWeak));
+                            // Add to the lexer
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, acceptAction.clone()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
-                            // Add as a literal to the NDFA
-                            m_Lexer.add_literal(0, (*lexerItem)->identifier(), language_accept_action(symId, blockType, isWeak));
+                            // Add as a literal to the lexer
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, acceptAction.clone()));
                             break;
                         }
 
                         case lexeme_definition::string:
                         case lexeme_definition::character:
                         {
-                            // Add as a literal to the NDFA
+                            // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                            m_Lexer.add_literal(0, process::dequote_string((*lexerItem)->definition()), language_accept_action(symId, blockType, isWeak));
+                            wstring dequoted = process::dequote_string((*lexerItem)->definition());
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, acceptAction.clone()));
                             break;
                         }
 
@@ -405,21 +427,16 @@ void language_stage::compile() {
             }
         }
     }
-    
-    // Display warnings for unused symbols
-    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
-        // Ignore symbols that we don't have a definition location for
-        if (!m_TerminalDefinition[*unused].first) {
-            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
-            continue;
-        }        
 
-        // Indicate that this symbol was defined but not used in the grammar
-        wstringstream msg;
-        
-        msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
-        
-        cons().report_error(error(error::sev_warning, *m_TerminalDefinition[*unused].second, L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused].first->start_pos()));
+    // Go through the grammar and remove any terminal symbols that are used in any of the productions
+    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); itemId++) {
+        // Get the rules for this item
+        const rule_list& itemRules = m_Grammar.rules_for_nonterminal(itemId);
+
+        // Remove any unused symbol from the list
+        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); itemRule++) {
+            remove_unused(**itemRule);
+        }
     }
     
     // Any nonterminal with no rules is one that was referenced but not defined
@@ -475,15 +492,34 @@ void language_stage::compile() {
         }
     }
 
-    // Display a summary of what the grammar and NDFA contains if we're in verbose mode
+    // Display a summary of what the grammar and lexer contains if we're in verbose mode
     wostream& summary = cons().verbose_stream();
     
-    summary << L"    Number of NDFA states:                  " << m_Lexer.count_states() << endl;
     summary << L"    Number of lexer symbols:                " << m_Terminals.count_symbols() << endl;
     summary << L"          ... which are weak:               " << (int)m_WeakSymbols.size() << endl;
     summary << L"          ... which are implicitly defined: " << implicitCount << endl;
     summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
+}
+
+
+/// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
+void language_stage::report_unused_symbols() {
+    // Display warnings for unused symbols
+    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
+        // Ignore symbols that we don't have a definition location for
+        if (!m_TerminalDefinition[*unused].first) {
+            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
+            continue;
+        }        
+
+        // Indicate that this symbol was defined but not used in the grammar
+        wstringstream msg;
+        
+        msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
+        
+        cons().report_error(error(error::sev_warning, *m_TerminalDefinition[*unused].second, L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused].first->start_pos()));
+    }
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
@@ -522,8 +558,10 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             cons().report_error(error(error::sev_warning, filename(), L"IMPLICIT_LEXER_SYMBOL", warningMsg.str(), item->start_pos()));
             
             // Define a new literal string
-            int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, item->identifier(), language_accept_action(symId, language_unit::unit_keywords_definition, true));
+            int                     symId   = m_Terminals.add_symbol(item->identifier());
+            language_accept_action* accept  = new language_accept_action(symId, language_unit::unit_keywords_definition, true);
+
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, accept));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
@@ -546,8 +584,11 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             }
             
             // Define a new symbol
-            int symId = m_Terminals.add_symbol(item->identifier());
-            m_Lexer.add_literal(0, process::dequote_string(item->identifier()), language_accept_action(symId, language_unit::unit_keywords_definition, true));
+            int                     symId   = m_Terminals.add_symbol(item->identifier());
+            wstring                 dequote = process::dequote_string(item->identifier());
+            language_accept_action* accept  = new language_accept_action(symId, language_unit::unit_keywords_definition, true);
+
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, accept));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
@@ -582,9 +623,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         {
             // Get the ID of this terminal. We can just use the identifier supplied in the item, as it will be unique
             int terminalId = m_Terminals.symbol_for_name(item->identifier());
-            
-            // Remove from the unused list
-            m_UnusedSymbols.erase(terminalId);
             
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
@@ -759,8 +797,8 @@ void language_stage::export_to(language_stage* target) {
     target->m_Grammar           = m_Grammar;
     target->m_WeakSymbols       = m_WeakSymbols;
     target->m_IgnoredSymbols    = m_IgnoredSymbols;
-    target->m_UnusedSymbols     = m_UnusedSymbols;
     target->m_TypeForTerminal   = m_TypeForTerminal;
+    target->m_UnusedSymbols     = m_UnusedSymbols;
 
     // Copy the symbol maps
     copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);

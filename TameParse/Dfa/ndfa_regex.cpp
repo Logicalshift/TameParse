@@ -96,6 +96,32 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     return result;        
 }
 
+/// \brief Converts a symbol string into a wstring
+std::wstring ndfa_regex::convert_syms(const symbol_string& source) {
+    // Create the result
+    wstring result;
+    
+    // Fill it in, treating the characters as unsigned
+    for (symbol_string::const_iterator pos = source.begin(); pos != source.end(); ++pos) {
+        result += (wchar_t)*pos;
+    }
+    
+    // This is the result
+    return result;        
+}
+
+/// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+int ndfa_regex::add_literal(builder& cons, const symbol_string& literal) {
+    // Compile as a straight string
+    for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); pos++) {
+        // Add the next string
+        cons >> *pos;
+    }
+    
+    // Return the final state
+    return ((state)cons).identifier();
+}
+
 /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
 int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     // Can't really do anything if the initial state is invalid
@@ -107,14 +133,7 @@ int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     cons.set_case_options(m_CaseInsensitive, m_CaseInsensitive);
     cons.goto_state(get_state(initialState));
     
-    // Compile as a straight string
-    for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); pos++) {
-        // Add the next string
-        cons >> *pos;
-    }
-    
-    // Return the final state
-    return ((state)cons).identifier();
+    return add_literal(cons, literal);
 }
 
 /// \brief Compiles a regular expression starting at the specified state, returning the final state
