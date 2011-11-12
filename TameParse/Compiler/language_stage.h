@@ -101,6 +101,9 @@ namespace compiler {
         
         /// \brief Compiles the language, creating the dictionary of terminals, the lexer and the grammar
         void compile();
+
+        /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
+        void report_unused_symbols();
         
     private:
         /// \brief Adds any lexer items that are defined by a specific EBNF item to this object

@@ -57,8 +57,8 @@ Lexer:
 	- Reports 'unused symbol' warning when |= is used in an inherited language @lexer @done
 
 	- Check that we check for unused symbols in inherited languages @lexer @done
-		- Oops, we report them twice!
-		- Only check for unused symbols in the language that we're actually compiling
+		- Oops, we report them twice! @done
+		- Only check for unused symbols in the language that we're actually compiling @done
 
 	- Make it possible to use (weak) lexer symbols 'in line' @lexer
 

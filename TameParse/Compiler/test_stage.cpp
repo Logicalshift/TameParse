@@ -93,6 +93,9 @@ lexer_stage* test_stage::get_lexer(const std::wstring& languageName, const dfa::
 		// Value is null if the language couldn't be generated for any reason
 		return m_Lexers[languageName] = NULL;
 	}
+    
+    // Report any unused symbols in this language
+    language->report_unused_symbols();
 
 	// Create the lexer stage for this language
     console_container   cons    = cons_container();

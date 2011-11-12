@@ -439,22 +439,6 @@ void language_stage::compile() {
         }
     }
     
-    // Display warnings for unused symbols
-    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
-        // Ignore symbols that we don't have a definition location for
-        if (!m_TerminalDefinition[*unused].first) {
-            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
-            continue;
-        }        
-
-        // Indicate that this symbol was defined but not used in the grammar
-        wstringstream msg;
-        
-        msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
-        
-        cons().report_error(error(error::sev_warning, *m_TerminalDefinition[*unused].second, L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused].first->start_pos()));
-    }
-    
     // Any nonterminal with no rules is one that was referenced but not defined
     for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); nonterminalId++) {
         // Get the item corresponding to this ID
@@ -516,6 +500,26 @@ void language_stage::compile() {
     summary << L"          ... which are implicitly defined: " << implicitCount << endl;
     summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
+}
+
+
+/// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
+void language_stage::report_unused_symbols() {
+    // Display warnings for unused symbols
+    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
+        // Ignore symbols that we don't have a definition location for
+        if (!m_TerminalDefinition[*unused].first) {
+            cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
+            continue;
+        }        
+
+        // Indicate that this symbol was defined but not used in the grammar
+        wstringstream msg;
+        
+        msg << L"Unused terminal symbol definition: " << m_Terminals.name_for_symbol(*unused);
+        
+        cons().report_error(error(error::sev_warning, *m_TerminalDefinition[*unused].second, L"UNUSED_TERMINAL_SYMBOL", msg.str(), m_TerminalDefinition[*unused].first->start_pos()));
+    }
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
