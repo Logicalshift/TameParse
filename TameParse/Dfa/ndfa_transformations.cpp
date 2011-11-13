@@ -494,7 +494,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
             } 
 
             // Otherwise, do nothing if this transition maps to the same state
-            else if (foundState->second == newState) {
+            else if (foundState->second == newState || newState == -1) {
                 // Nothing to do
             }
 
