@@ -171,6 +171,49 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     return result;
 }
 
+/// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
+///
+/// Note that if further transitions are added to the new NDFA, it may lose the unique symbol sets
+ndfa* ndfa::to_ndfa_with_unique_symbols() const {
+    // Remap the symbols so that there are no duplicates
+    remapped_symbol_map* symbols = remapped_symbol_map::deduplicate(*m_Symbols);
+    
+    // Rebuild the transition table with the new symbols
+    state_list*                 states  = new state_list();
+    accept_action_for_state*    accept  = new accept_action_for_state();
+
+    // Copy the accept actions
+    for (accept_action_for_state::const_iterator it = m_Accept->begin(); it != m_Accept->end(); it++) {
+        accept_action_list& action = (*accept)[it->first];
+        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
+            action.push_back((*actionIt)->clone());
+        }
+    }
+
+    // Recreate the states
+    for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+        // Create a new state
+        states->push_back(new state((int)states->size()));
+        state& newState = **(states->rbegin());
+        
+        // Create transitions for this state
+        for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); transit++) {
+            // Get the new symbols for this transition
+            int transitSet      = transit->symbol_set();
+            int transitState    = transit->new_state();
+            
+            const remapped_symbol_map::new_symbol_set& newSyms = symbols->new_symbols(transitSet);
+            
+            for (remapped_symbol_map::new_symbol_set::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); symIt++) {
+                newState.add(transition(*symIt, transitState));
+            }
+        }
+    }
+    
+    // Create the new NDFA
+    return new ndfa(states, symbols, accept);
+}
+
 /// \brief Compacts a DFA, reducing the number of states
 ///
 /// For DFAs with only a single initial state, this may have one extra state than is required. If firstAction is set
