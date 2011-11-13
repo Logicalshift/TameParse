@@ -275,17 +275,32 @@ void lexer_stage::compile() {
     
     // Compact the resulting DFA
     cons().verbose_stream() << L"    Number of states in the lexer DFA:      " << stage2->count_states() << endl;
-    dfa::ndfa* stage3 = stage2->to_compact_dfa();
-    delete stage2;
-    stage2 = NULL;
+
+    dfa::ndfa* stage3;
+
+    if (cons().get_option(L"disable-compact-dfa").empty()) {
+        stage3 = stage2->to_compact_dfa();
+        delete stage2;
+        stage2 = NULL;
     
-    // Write some information about the DFA we just produced
-    cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << stage3->count_states() << endl;
+        // Write some information about the DFA we just produced
+        cons().verbose_stream() << L"    Number of states in the compacted DFA:  " << stage3->count_states() << endl;
+    } else {
+        stage3 = stage2;
+        stage2 = NULL;
+    }
     
     // Eliminate any unnecessary symbol sets
-    dfa::ndfa* stage4 = stage3->to_ndfa_with_merged_symbols();
-    delete stage3;
-    stage3 = NULL;
+    dfa::ndfa* stage4;
+    
+    if (cons().get_option(L"disable-merged-dfa").empty()) {
+        stage4 = stage3->to_ndfa_with_merged_symbols();
+        delete stage3;
+        stage3 = NULL;
+    } else {
+        stage4 = stage3;
+        stage3 = NULL;
+    }
     
     // Write some information about the DFA we just produced
     cons().verbose_stream() << L"    Number of symbols in the compacted DFA: " << stage4->symbols().count_sets() << endl;

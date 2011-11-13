@@ -60,7 +60,7 @@ Lexer:
 		- Oops, we report them twice! @done
 		- Only check for unused symbols in the language that we're actually compiling @done
 
-	- Make it possible to use (weak) lexer symbols 'in line' @lexer
+	- Make it possible to use (weak) regular expressions 'in line' @lexer
 
 	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
 
