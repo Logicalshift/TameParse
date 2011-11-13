@@ -64,10 +64,13 @@ Lexer:
 
 	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
 
-	- Make it possible to generate only a lexer
+	- Make it possible to generate only a lexer @lexer
+		For cases where a parser is not required
 	 
-	- Issue with the case sensitivity tests @lexer
+	- Issue with the case sensitivity tests @lexer @done
 		Problem appears to be that when merging if there's no transition for a symbol that's currently merged but similar transitions for all the other symbols then the two sets of symbols are not distinguished.
+
+	- Investigate ways to make the lexer smaller, particularly with unicode @lexer @size
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
