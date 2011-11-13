@@ -30,32 +30,32 @@ language CaseSensitivity {
 }
 
 test CaseSensitivity {
-	<A-C> =		"a"
-				"b"
-				"c"
-				"A"
-				"B"
-				"C"
+	<A-C> =		a("a")
+				b("b")
+				c("c")
+				A("A")
+				B("B")
+				C("C")
 	
-	<D-F> =		"d"
-				"e"
-				"f"
+	<D-F> =		d("d")
+				e("e")
+				f("f")
 
-	<D-F> !=	"D"
-				"E"
-				"F"
+	<D-F> !=	D("D")
+				E("E")
+				F("F")
 
-	<FooBar> =	"foo"
-				"bar"
-				"FOO"
-				"fOO"
-				"Foo"
-				"fOo"
+	<FooBar> =	foo("foo")
+				bar("bar")
+				FOO("FOO")
+				fOO("fOO")
+				Foo("Foo")
+				fOo("fOo")
 	
-	<FooBar> !=	"BAR"
-				"bAr"
-				"baR"
-				"BAr"
-				"Bar"
-				"BaR"
+	<FooBar> !=	BAR("BAR")
+				bAr("bAr")
+				baR("baR")
+				BAr("BAr")
+				Bar("Bar")
+				BaR("BaR")
 }
