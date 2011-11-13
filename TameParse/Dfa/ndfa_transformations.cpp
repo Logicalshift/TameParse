@@ -449,11 +449,15 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
     // Maps symbols in this DFA to symbols in our new DFA
     map<int, int>       symbolForSymbol;
 
+    // A set of all the symbols in this NDFA
+    set<int> symbols;
+
     // Begin with a set of all symbols, as ID 0
     uniqueSymbols.push_back(set<int>());
     for (symbol_map::iterator symbolSet = m_Symbols->begin(); symbolSet != m_Symbols->end(); symbolSet++) {
         uniqueSymbols[0].insert(symbolSet->second);
         symbolForSymbol[symbolSet->second] = 0;
+        symbols.insert(symbolSet->second);
     }
 
     // Iterate through all of the states to find the symbol sets that are different from one another
@@ -464,22 +468,34 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
         // Maps new symbol sets to the state that they transfer to
         map<int, int> stateForSet;
 
+        // Start at the initial transition
+        state::iterator transit = thisState.begin();
+
+        // Iterate through the symbols
+        set<int>::iterator oldSymbolSet = symbols.begin();
+
         // Iterate through the transitions for this state
-        for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+        for (;oldSymbolSet != symbols.end();) {
             // Get the new symbol set for this transit
-            int symbolSet = symbolForSymbol[transit->symbol_set()];
+            int newSymbolSet = symbolForSymbol[*oldSymbolSet];
 
             // Look for the state that this symbol produces
-            map<int, int>::iterator foundState = stateForSet.find(symbolSet);
+            map<int, int>::iterator foundState = stateForSet.find(newSymbolSet);
+
+            // Get the state this transition moves to (-1 if this is a rejecting symbol)
+            int newState = -1;
+            if (transit != thisState.end() && transit->symbol_set() == *oldSymbolSet) {
+                newState = transit->new_state();
+            }
 
             // Just remember this target state if it hasn't been encountered before
             if (foundState == stateForSet.end()) {
-                stateForSet[symbolSet] = transit->new_state();
+                stateForSet[newSymbolSet] = newState;
             } 
 
             // Otherwise, do nothing if this transition maps to the same state
-            else if (foundState->second == transit->new_state()) {
-                continue;
+            else if (foundState->second == newState) {
+                // Nothing to do
             }
 
             // This symbol set is different: create a new set consisting of all of the symbols that map to the same set and transit to this alternate state
@@ -490,19 +506,38 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
                 set<int>&   newSet      = uniqueSymbols.back();
 
                 // Add any symbol that has the same set and target state
-                for (state::iterator similarTransit = transit; similarTransit != thisState.end(); similarTransit++) {
-                    // Check that this transit goes to the same state
-                    if (similarTransit->new_state() != transit->new_state()) continue;
+                if (newState != -1) {
+                    // Add all of the symbols that go to the same state as this one
+                    for (state::iterator similarTransit = transit; similarTransit != thisState.end(); similarTransit++) {
+                        // Check that this transit goes to the same state
+                        if (similarTransit->new_state() != newState) continue;
 
-                    // It must also use the same symbol set as before
-                    int originalSet = similarTransit->symbol_set();
-                    int similarSet  = symbolForSymbol[originalSet];
-                    if (similarSet != symbolSet) continue;
+                        // It must also use the same symbol set as before
+                        int originalSet = similarTransit->symbol_set();
+                        int similarSet  = symbolForSymbol[originalSet];
+                        if (similarSet != newSymbolSet) continue;
 
-                    // This symbol should be remapped to the set we just created
-                    uniqueSymbols[symbolSet].erase(originalSet);
-                    newSet.insert(originalSet);
-                    symbolForSymbol[originalSet] = newSetId;
+                        // This symbol should be remapped to the set we just created
+                        uniqueSymbols[newSymbolSet].erase(originalSet);
+                        newSet.insert(originalSet);
+                        symbolForSymbol[originalSet] = newSetId;
+                    }
+                } else {
+                    // TODO: add all of the symbols that go nowhere
+                }
+            }
+
+            // Move on to the next transit and/or symbol set
+            if (newState == -1) {
+                // The transition applies to a later symbol set: only move the symbol set on
+                oldSymbolSet++;
+            } else {
+                // The transition matches the symbols: move the transition on
+                transit++;
+
+                // Move the symbols on as well if the transition now has a different set
+                if (transit == thisState.end() || transit->symbol_set() != *oldSymbolSet) {
+                    oldSymbolSet++;
                 }
             }
         }
