@@ -12,10 +12,20 @@ language CaseSensitivity {
 		d-f = /{d-to-f}/
 	}
 
+	case insensitive keywords {
+		foo
+	}
+
+	keywords {
+		bar
+	}
+
 	grammar {
 		<A-C> = a-c
 
 		<D-F> = d-f
+
+		<FooBar> = foo | bar
 	}
 }
 
@@ -34,4 +44,18 @@ test CaseSensitivity {
 	<D-F> !=	"D"
 				"E"
 				"F"
+
+	<FooBar> =	"foo"
+				"bar"
+				"FOO"
+				"fOO"
+				"Foo"
+				"fOo"
+	
+	<FooBar> !=	"BAR"
+				"bAr"
+				"baR"
+				"BAr"
+				"Bar"
+				"BaR"
 }
