@@ -106,7 +106,7 @@ language ParserLanguage {
 		
 		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
 		
-		<Keywords-Definition>		= [=> <Lexer-Modifier>* lexer] <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
+		<Keywords-Definition>		= [=> <Lexer-Modifier>* keywords] <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
 
 		<Lexer-Modifier>			= weak
 									| case sensitive
