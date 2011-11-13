@@ -1,0 +1,37 @@
+language CaseSensitivity {
+	case insensitive lexer-symbols {
+		a-to-c = /[a-c]/
+	}
+
+	case sensitive lexer-symbols {
+		d-to-f = /[d-f]/
+	}
+
+	lexer {
+		a-c = /{a-to-c}/
+		d-f = /{d-to-f}/
+	}
+
+	grammar {
+		<A-C> = a-c
+
+		<D-F> = d-f
+	}
+}
+
+test CaseSensitivity {
+	<A-C> =		"a"
+				"b"
+				"c"
+				"A"
+				"B"
+				"C"
+	
+	<D-F> =		"d"
+				"e"
+				"f"
+
+	<D-F> !=	"D"
+				"E"
+				"F"
+}

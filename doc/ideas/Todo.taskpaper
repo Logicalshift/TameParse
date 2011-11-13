@@ -45,7 +45,7 @@ Lexer:
 
 	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
 
-	- Add support for case-insensitive lexer symbols @lexer
+	- Add support for case-insensitive lexer symbols @lexer @done
 
 	- Make sure |= works in lexer symbol maps @lexer @done
 
