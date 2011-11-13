@@ -12,26 +12,50 @@ language CaseSensitivity {
 		d-f = /{d-to-f}/
 	}
 
+	case insensitive keywords {
+		foo
+	}
+
+	keywords {
+		bar
+	}
+
 	grammar {
 		<A-C> = a-c
 
 		<D-F> = d-f
+
+		<FooBar> = foo | bar
 	}
 }
 
 test CaseSensitivity {
-	<A-C> =		"a"
-				"b"
-				"c"
-				"A"
-				"B"
-				"C"
+	<A-C> =		a("a")
+				b("b")
+				c("c")
+				A("A")
+				B("B")
+				C("C")
 	
-	<D-F> =		"d"
-				"e"
-				"f"
+	<D-F> =		d("d")
+				e("e")
+				f("f")
 
-	<D-F> !=	"D"
-				"E"
-				"F"
+	<D-F> !=	D("D")
+				E("E")
+				F("F")
+
+	<FooBar> =	foo("foo")
+				bar("bar")
+				FOO("FOO")
+				fOO("fOO")
+				Foo("Foo")
+				fOo("fOo")
+	
+	<FooBar> !=	BAR("BAR")
+				bAr("bAr")
+				baR("baR")
+				BAr("BAr")
+				Bar("Bar")
+				BaR("BaR")
 }
