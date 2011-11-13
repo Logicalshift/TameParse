@@ -494,7 +494,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
             } 
 
             // Otherwise, do nothing if this transition maps to the same state
-            else if (foundState->second == newState || newState == -1) {
+            else if (foundState->second == newState) {
                 // Nothing to do
             }
 
@@ -523,7 +523,25 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
                         symbolForSymbol[originalSet] = newSetId;
                     }
                 } else {
-                    // TODO: add all of the symbols that go nowhere
+                    // Add all of the symbols that go nowhere
+                    set<int> goNowhere = symbols;
+
+                    // Remove any symbols that go somewhere
+                    for (state::iterator otherTransit = thisState.begin(); otherTransit != thisState.end(); otherTransit++) {
+                        goNowhere.erase(otherTransit->symbol_set());
+                    }
+
+                    // Add all of the goNowhere symbols
+                    for (set<int>::iterator nowhere = goNowhere.begin(); nowhere != goNowhere.end(); nowhere++) {
+                        // Only remap symbols with a similar set
+                        int similarSet  = symbolForSymbol[*nowhere];
+                        if (similarSet != newSymbolSet) continue;
+
+                        // This symbol should be remapped to the set we just created
+                        uniqueSymbols[newSymbolSet].erase(*nowhere);
+                        newSet.insert(*nowhere);
+                        symbolForSymbol[*nowhere] = newSetId;
+                    }
                 }
             }
 
