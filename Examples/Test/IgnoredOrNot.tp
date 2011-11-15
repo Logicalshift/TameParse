@@ -1,0 +1,33 @@
+language IgnoredOrNot {
+	ignore {
+		whitespace		=	/[ \t]/
+		line-separator	=	/[\n\r]/
+		c				= 	/c/
+	}
+
+	keywords {
+		a
+		b
+	}
+
+	grammar {
+		<Ignore-Whitespace> = a* b*
+
+		<With-Whitespace> = a* whitespace b*
+	}
+}
+
+test IgnoredOrNot {
+	<Ignore-Whitespace>	= 	"aabb"
+							"aacbb"
+							"aa bb"
+							"aa
+bb"
+
+	<With-Whitespace> =		ok("aa bb")
+
+	<With-Whitespace> !=	"aabb"
+							"aacbb"
+							"aa
+bb"
+}
