@@ -202,8 +202,10 @@ void lexer_stage::compile() {
 
     // Create the ndfa
     typedef lexer_data::item_list item_list;
-
     ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
+
+    int             ignoreSymbol    = -1;
+    const set<int>* usedIgnored     = m_Language->used_ignored_symbols();
 
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
@@ -214,17 +216,33 @@ void lexer_stage::compile() {
                 cons().report_error(error(error::sev_bug, filename(), L"BUG_MISSING_ACTION", L"Missing action for lexer symbol", position(-1, -1, -1)));
                 continue;
             }
-            
+
+            // Decide on a symbol ID
+            int symbolId = item->symbol;
+
+            // We modify ignore symbols if they aren't used in the grammar so that they all map to a single place
+            // This may prove confusing if the user wishes to use the lexer independently
+            if (item->definition_type == language_unit::unit_ignore_definition) {
+                // If this is an ignored item with no syntactic meaning, give it the same symbol ID as the first ignored item we encountered
+                if (usedIgnored->find(symbolId) == usedIgnored->end()) {
+                    if (ignoreSymbol < 0) {
+                        ignoreSymbol = symbolId;
+                    } else {
+                        symbolId = ignoreSymbol;
+                    }
+                }
+            }
+
             // Add the corresponding items
             switch (item->type) {
                 case lexer_item::regex:
                     stage0->set_case_insensitive(item->case_insensitive);
-                    stage0->add_regex(0, item->definition, language_accept_action(item->symbol, item->definition_type, item->is_weak));
+                    stage0->add_regex(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
                     break;
 
                 case lexer_item::literal:
                     stage0->set_case_insensitive(item->case_insensitive);
-                    stage0->add_literal(0, item->definition, language_accept_action(item->symbol, item->definition_type, item->is_weak));
+                    stage0->add_literal(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
                     break;
             }
         }

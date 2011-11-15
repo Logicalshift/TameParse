@@ -37,7 +37,9 @@ General:
 	- Ensure that the errors format matches that of gcc
 		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
-	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer
+	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer @done
+		- Make it possible to turn this feature off in case the lexer needs to be used independently of the parser @lexer
+		- Suppress warnings that this generates @lexer
 
 	- Add the ability to have case-insensitive regexes @lexer @done
 
