@@ -61,6 +61,7 @@ Lexer:
 		- Only check for unused symbols in the language that we're actually compiling @done
 
 	- Make it possible to use (weak) regular expressions 'in line' @lexer
+		Probably only want the to produce these symbols when the parser actually expects them
 
 	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
 

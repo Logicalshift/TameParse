@@ -24,7 +24,7 @@ test IgnoredOrNot {
 							"aa
 bb"
 
-	<With-Whitespace> =		ok("aa bb")
+	<With-Whitespace> =		"aa bb"
 
 	<With-Whitespace> !=	"aabb"
 							"aacbb"

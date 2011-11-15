@@ -102,12 +102,17 @@ language_stage::~language_stage() {
 }
 
 /// \brief Removes any terminal symbols used in the specified rule from the unused list
-void language_stage::remove_unused(const contextfree::rule& rule) {
+void language_stage::process_rule_symbols(const contextfree::rule& rule) {
     // Iterate through the rules in this item
     for (rule::iterator item = rule.begin(); item != rule.end(); item++) {
-        // Remove terminal items
+        // Remove terminal items from the unused list
         if ((*item)->type() == item::terminal) {
             m_UnusedSymbols.erase((*item)->symbol());
+
+            // Remember which ignored symbols are sometimes used in the language
+            if (m_IgnoredSymbols.find((*item)->symbol()) != m_IgnoredSymbols.end()) {
+                m_UsedIgnoredSymbols.insert((*item)->symbol());
+            }
         }
 
         // Recurse into EBNF items
@@ -115,7 +120,7 @@ void language_stage::remove_unused(const contextfree::rule& rule) {
         if (ebnfItem) {
             // Also remove items for any contained EBNF rules
             for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ebnfRule++) {
-                remove_unused(**ebnfRule);
+                process_rule_symbols(**ebnfRule);
             }
         }
     }
@@ -435,7 +440,7 @@ void language_stage::compile() {
 
         // Remove any unused symbol from the list
         for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); itemRule++) {
-            remove_unused(**itemRule);
+            process_rule_symbols(**itemRule);
         }
     }
     
@@ -792,13 +797,14 @@ template<class sm> static void copy_symbols(map<wstring, wstring*>& filenames, c
 /// \brief Exports the results of this language stage into another
 void language_stage::export_to(language_stage* target) {
     // Copy the items that can be simply copied
-    target->m_Terminals         = m_Terminals;
-    target->m_Lexer             = m_Lexer;
-    target->m_Grammar           = m_Grammar;
-    target->m_WeakSymbols       = m_WeakSymbols;
-    target->m_IgnoredSymbols    = m_IgnoredSymbols;
-    target->m_TypeForTerminal   = m_TypeForTerminal;
-    target->m_UnusedSymbols     = m_UnusedSymbols;
+    target->m_Terminals             = m_Terminals;
+    target->m_Lexer                 = m_Lexer;
+    target->m_Grammar               = m_Grammar;
+    target->m_WeakSymbols           = m_WeakSymbols;
+    target->m_IgnoredSymbols        = m_IgnoredSymbols;
+    target->m_TypeForTerminal       = m_TypeForTerminal;
+    target->m_UnusedSymbols         = m_UnusedSymbols;
+    target->m_UsedIgnoredSymbols    = m_UsedIgnoredSymbols;
 
     // Copy the symbol maps
     copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);
