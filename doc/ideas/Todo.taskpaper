@@ -61,7 +61,16 @@ Lexer:
 		- Only check for unused symbols in the language that we're actually compiling @done
 
 	- Make it possible to use (weak) regular expressions 'in line' @lexer
-		Probably only want the to produce these symbols when the parser actually expects them
+		Probably only want the to produce these symbols when the parser actually expects them.
+
+		Not sure how to name these symbols when they are used.
+
+	- Make it possible to have symbols that aren't generated unless they are explicitly expected.
+		This is an enhancement to the existing weak symbols system and can be used when a 'weak' symbol would otherwise be interpreted as more than one token.
+
+		For example, if we make 'Foo-Bar' a weak symbol, it won't be split up into 'Foo' '-' 'Bar' if the parser is not in  a state where the weak version is expected (so it's effectively a strong symbol). If the parser tells the lexer it's not looking for 'Foo-Bar', however, the lexer will be able to make the appropriate split.
+
+		Not sure if there are any languages where this is useful.
 
 	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
 

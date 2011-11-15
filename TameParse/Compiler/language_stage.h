@@ -147,6 +147,9 @@ namespace compiler {
 
         /// \brief The set of symbol identifiers that should be ignored by the parser
         inline const std::set<int>* ignored_symbols() const                 { return &m_IgnoredSymbols; }
+
+        /// \brief The symbols that are usually ignored but occasionally have syntactic meaning
+        inline const std::set<int>* used_ignored_symbols() const            { return &m_UsedIgnoredSymbols; }
         
         /// \brief The position in the file where the terminal symbol with the given ID was defined
         inline dfa::position terminal_definition_pos(int id) const {
