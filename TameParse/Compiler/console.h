@@ -118,7 +118,4 @@ namespace compiler {
     typedef util::container<console> console_container;
 }
 
-// Common templates using console
-extern template class util::container<compiler::console>;
-
 #endif
