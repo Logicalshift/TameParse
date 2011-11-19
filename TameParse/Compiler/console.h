@@ -114,6 +114,8 @@ namespace compiler {
         virtual std::ostream* open_binary_file_for_writing(const std::wstring& filename) = 0;
     };
     
+    // Console container class
+    extern template class util::container<console>;
     typedef util::container<console> console_container;
 }
 

@@ -10,4 +10,3 @@
 #include "TameParse/templates.h"
 
 // Containers (we use a lot of these)
-template class util::container<compiler::console>;

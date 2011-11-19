@@ -13,6 +13,9 @@
 using namespace std;
 using namespace compiler;
 
+// External template declarations
+template class util::container<console>;
+
 /// \brief Orders this console with respect to another (default operation is just a pointer compare)
 bool console::operator<(const console& compareTo) const {
     // Just do a pointer comparison

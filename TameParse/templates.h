@@ -21,6 +21,5 @@
 ///
 
 // Containers (we use a lot of these)
-extern template class util::container<compiler::console>;
 
 #endif
