@@ -30,6 +30,9 @@ namespace compiler {
         /// \brief Orders this console with respect to another (default operation is just a pointer compare)
         virtual bool operator<(const console& compareTo) const;
 
+        /// \brief Compares this console to another (default operation is to compare pointers)
+        virtual bool operator==(const console& compareTo) const;
+
         /// \brief Comparison function so we can use consoles in a container
         inline static bool compare(const console* a, const console* b) {
             if (a == b)     return true;

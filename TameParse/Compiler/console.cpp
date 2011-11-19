@@ -18,6 +18,13 @@ bool console::operator<(const console& compareTo) const {
     // Just do a pointer comparison
     return this < &compareTo;
 }
+
+/// \brief Compares this console to another (default operation is to compare pointers)
+bool console::operator==(const console& compareTo) const {
+    // Just do a pointer comparison
+    return this == &compareTo;
+}
+
 /// \brief Converts a wstring filename to whatever is the preferred format for the current system
 std::string console::convert_filename(const std::wstring& filename) {
     // This is mainly here because C++ sucks and has missed out on about the last 20 years of development

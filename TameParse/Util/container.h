@@ -47,8 +47,8 @@ namespace util {
             const bool m_WillDelete;
             mutable int m_RefCount;
             
-            reference(const reference& noCopying) { }
-            reference& operator=(const reference& noCopying) { }
+            reference(const reference& noCopying) : m_WillDelete(false) { }
+            reference& operator=(const reference& noCopying) { return *this; }
             
         public:
             /// \brief Creates a reference to an item, with a reference count of 1. The item will be deleted if the reference count reached 0 and willDelete is true
