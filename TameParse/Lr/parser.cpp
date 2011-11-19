@@ -9,3 +9,5 @@
 #include "TameParse/common.h"
 
 #include "TameParse/Lr/parser.h"
+
+template class lr::parser<int, lr::simple_parser_actions>;

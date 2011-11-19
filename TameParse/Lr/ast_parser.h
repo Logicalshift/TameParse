@@ -85,4 +85,6 @@ namespace lr {
     typedef ast_parser_actions::ast_parser ast_parser;
 }
 
+extern template class lr::parser<util::astnode_container, lr::ast_parser_actions>;
+
 #endif

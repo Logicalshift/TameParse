@@ -8,5 +8,3 @@
 
 #include "TameParse/common.h"
 #include "TameParse/templates.h"
-
-// Containers (we use a lot of these)

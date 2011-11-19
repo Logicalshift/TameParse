@@ -11,6 +11,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 
 ///
 /// Extern templates used by TameParse that are in the STL
@@ -19,13 +20,14 @@
 /// the C++ files in the tameparse library itself
 ///
 
-// Strings (hrm, these seem to make the result bigger)
-//extern template class std::basic_string<int>;
-//extern template class std::basic_string<wchar_t>;
-//extern template class std::basic_string<char>;
+// Sets
+extern template class std::set<int>;
 
 // Maps
 extern template class std::map<std::string, int>;
 extern template class std::map<int, std::string>;
+extern template class std::map<int, std::wstring>;
+extern template class std::map<int, int>;
+extern template class std::map<int, std::set<int> >;
 
 #endif

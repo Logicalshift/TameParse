@@ -9,3 +9,5 @@
 #include "TameParse/common.h"
 
 #include "TameParse/Lr/ast_parser.h"
+
+template class lr::parser<util::astnode_container, lr::ast_parser_actions>;

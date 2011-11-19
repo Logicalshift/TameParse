@@ -146,7 +146,7 @@ namespace lr {
             // (For hard-coded parsers, the tables often aren't, so there's no need to copy)
             if (copyFrom.m_OwnsTables) {
                 m_OwnsTables    = true;
-                m_ParserTables  = new parser_tables(copyFrom.m_ParserTables);
+                m_ParserTables  = new parser_tables(*copyFrom.m_ParserTables);
             } else {
                 m_OwnsTables    = false;
                 m_ParserTables  = copyFrom.m_ParserTables;
@@ -237,7 +237,7 @@ namespace lr {
             
         private:
             /// \brief States can't be assigned
-            state& operator=(const state& noAssignment) { }
+            state& operator=(const state& noAssignment) { return *this; }
             
         private:
             /// \brief Constructs a new state, used by the parser
@@ -570,7 +570,7 @@ namespace lr {
             /// be resolved by a LR(1) parser, this will disambiguate the grammar (making it possible to choose
             /// only the action that allows the parser to continue)
             inline bool can_reduce(const lexeme_container& lexeme) {
-                return can_reduce<terminal_fetcher>(lexeme->matched(), 0, std::stack<int>());
+                return can_reduce<terminal_fetcher>(lexeme->matched(), 0, std::stack<int>(), m_Stack);
             }
 
             /// \brief Returns true if a reduction of the specified terminal symbol will result in it being shifted
@@ -661,7 +661,7 @@ namespace lr {
         }
         
         /// \brief Retrieves the tables for this parser
-        inline const parser_tables& get_tables() const { return m_ParserTables; }
+        inline const parser_tables& get_tables() const { return *m_ParserTables; }
     };
     
     ///
@@ -710,6 +710,8 @@ namespace lr {
     /// \brief Simple parser, can be used to test if a language is accepted by a parser (but not much else)
     typedef parser<int, simple_parser_actions> simple_parser;
 }
+
+extern template class lr::parser<int, lr::simple_parser_actions>;
 
 #include "parser_state.h"
 
