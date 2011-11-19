@@ -16,7 +16,7 @@ using namespace lr;
 using namespace contextfree;
 
 
-item* empty_item_constructor::construct() {
+item* empty_item_constructor::default_item() {
     return new empty_item();
 }
 

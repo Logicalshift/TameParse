@@ -42,7 +42,7 @@ namespace contextfree {
     ///
     class empty_item_constructor {
     public:
-        static item* construct();
+        static item* default_item();
         
         static void destruct(item* i);
     };

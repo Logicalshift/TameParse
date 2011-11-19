@@ -17,9 +17,9 @@ namespace util {
     ///
     template<typename ItemType> class simple_constructor {
     public:
-        /// \brief Constructs an object of type ItemType
-        inline static ItemType* construct() {
-            return new ItemType();
+        /// \brief Returns the default item for a container (NULL by default)
+        inline static ItemType* default_item() {
+            return NULL;
         }
         
         /// \brief Destroys an item of type ItemType
@@ -171,9 +171,9 @@ namespace util {
         };
         
     public:
-        /// \brief Default constructor (creates a reference to a new item)
+        /// \brief Default constructor (creates a reference to a default item, NULL by default)
         inline container() {
-            m_Ref = new reference(ItemAllocator::construct(), true);
+            m_Ref = new reference(ItemAllocator::default_item(), true);
         }
         
         /// \brief Creates a new container (clones the item)
