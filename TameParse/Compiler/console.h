@@ -115,7 +115,7 @@ namespace compiler {
     };
     
     // Console container class
-    typedef util::container<console> console_container;
+    typedef util::container<console, util::abstract_constructor<console> > console_container;
 }
 
 #endif

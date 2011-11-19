@@ -19,6 +19,22 @@ namespace util {
     public:
         /// \brief Returns the default item for a container (NULL by default)
         inline static ItemType* default_item() {
+            return new ItemType();
+        }
+        
+        /// \brief Destroys an item of type ItemType
+        inline static void destruct(ItemType* item) {
+            delete item;
+        }
+    };
+
+    ///
+    /// \brief Allocator class for the container class that's designed to deal with abstract classes
+    ///
+    template<typename ItemType> class abstract_constructor {
+    public:
+        /// \brief Returns the default item for a container (NULL by default)
+        inline static ItemType* default_item() {
             return NULL;
         }
         
