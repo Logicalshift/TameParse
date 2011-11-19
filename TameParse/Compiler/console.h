@@ -115,8 +115,10 @@ namespace compiler {
     };
     
     // Console container class
-    extern template class util::container<console>;
     typedef util::container<console> console_container;
 }
+
+// Common templates using console
+extern template class util::container<compiler::console>;
 
 #endif
