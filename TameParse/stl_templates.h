@@ -19,12 +19,13 @@
 /// the C++ files in the tameparse library itself
 ///
 
-// Strings
-extern template class std::basic_string<int>;
-extern template class std::basic_string<wchar_t>;
-extern template class std::basic_string<char>;
+// Strings (hrm, these seem to make the result bigger)
+//extern template class std::basic_string<int>;
+//extern template class std::basic_string<wchar_t>;
+//extern template class std::basic_string<char>;
 
 // Maps
 extern template class std::map<std::string, int>;
+extern template class std::map<int, std::string>;
 
 #endif
