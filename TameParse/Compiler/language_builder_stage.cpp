@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/Compiler/language_builder_stage.h"
 
 using namespace dfa;

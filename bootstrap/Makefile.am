@@ -11,6 +11,8 @@ bootstrap_CFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
 					  definition_tp.h \
+					  ../TameParse/templates.cpp \
+					  ../TameParse/stl_templates.cpp \
 					  ../TameParse/Compiler/compilation_stage.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \

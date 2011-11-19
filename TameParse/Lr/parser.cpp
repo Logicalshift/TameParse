@@ -6,4 +6,6 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/Lr/parser.h"

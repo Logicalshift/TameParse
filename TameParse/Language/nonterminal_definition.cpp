@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/Language/nonterminal_definition.h"
 
 using namespace language;

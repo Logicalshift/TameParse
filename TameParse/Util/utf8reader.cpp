@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/Util/utf8reader.h"
 
 using namespace std;

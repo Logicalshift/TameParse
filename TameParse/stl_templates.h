@@ -9,6 +9,9 @@
 #ifndef _TAMEPARSE_STL_TEMPLATES_H
 #define _TAMEPARSE_STL_TEMPLATES_H
 
+#include <string>
+#include <map>
+
 ///
 /// Extern templates used by TameParse that are in the STL
 ///
@@ -17,11 +20,11 @@
 ///
 
 // Strings
-extern template std::basic_string<int>;
-extern template std::basic_string<wchar_t>;
-extern template std::basic_string<char>;
+extern template class std::basic_string<int>;
+extern template class std::basic_string<wchar_t>;
+extern template class std::basic_string<char>;
 
 // Maps
-extern template std::map<std::string, int>;
+extern template class std::map<std::string, int>;
 
 #endif

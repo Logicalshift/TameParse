@@ -9,6 +9,7 @@
 #ifndef _TAMEPARSE_H
 #define _TAMEPARSE_H
 
+#include "TameParse/templates.h"
 #include "TameParse/version.h"
 
 #include "TameParse/Util/astnode.h"

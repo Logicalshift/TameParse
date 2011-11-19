@@ -10,6 +10,8 @@
 // The various to_x methods for the NDFA (seperated out as they are rather large and there's a lot of them)
 //
 
+#include "TameParse/common.h"
+
 #include <stack>
 
 #include "TameParse/Dfa/ndfa.h"

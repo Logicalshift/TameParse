@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/ContextFree/item.h"
 #include "TameParse/Lr/lr_item.h"
 #include "TameParse/Lr/lr1_item_set.h"

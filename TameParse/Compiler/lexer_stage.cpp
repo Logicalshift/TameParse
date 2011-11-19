@@ -10,6 +10,8 @@
 //       (we don't do this at the moment to keep things reasonably simple, there's a lot of dependencies that means that DI
 //       wouldn't really fix the problem, and would just create a new 'giant constructor of doom' problem)
 
+#include "TameParse/common.h"
+
 #include <sstream>
 #include "TameParse/Compiler/lexer_stage.h"
 

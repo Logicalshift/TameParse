@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include "TameParse/Dfa/ndfa_regex.h"
 #include "TameParse/Dfa/symbol_set.h"
 #include "TameParse/Util/unicode.h"

@@ -21,6 +21,12 @@ libTameParse_la_LDFLAGS		= -version-info $(libTameParse_VERSION)
 libTameParse_la_SOURCES		= tameparse_language.h \
 							  tameparse_language.cpp \
 							  \
+							  common.h \
+							  templates.h \
+							  templates.cpp \
+							  stl_templates.h \
+							  stl_templates.cpp \
+							  \
 							  Compiler/compilation_stage.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
@@ -278,6 +284,8 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Util/syntax_ptr.h \
 							  Util/unicode.h \
 							  Util/utf8reader.h \
+							  templates.h \
+							  stl_templates.h \
 							  version.h
 
 install-data-hook:

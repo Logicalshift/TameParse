@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include "TameParse/common.h"
+
 #include <sstream>
 #include "TameParse/Compiler/lr_parser_stage.h"
 #include "TameParse/Lr/conflict.h"
