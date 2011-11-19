@@ -1,0 +1,61 @@
+language CaseSensitivity {
+	case insensitive lexer-symbols {
+		a-to-c = /[a-c]/
+	}
+
+	case sensitive lexer-symbols {
+		d-to-f = /[d-f]/
+	}
+
+	lexer {
+		a-c = /{a-to-c}/
+		d-f = /{d-to-f}/
+	}
+
+	case insensitive keywords {
+		foo
+	}
+
+	keywords {
+		bar
+	}
+
+	grammar {
+		<A-C> = a-c
+
+		<D-F> = d-f
+
+		<FooBar> = foo | bar
+	}
+}
+
+test CaseSensitivity {
+	<A-C> =		a("a")
+				b("b")
+				c("c")
+				A("A")
+				B("B")
+				C("C")
+	
+	<D-F> =		d("d")
+				e("e")
+				f("f")
+
+	<D-F> !=	D("D")
+				E("E")
+				F("F")
+
+	<FooBar> =	foo("foo")
+				bar("bar")
+				FOO("FOO")
+				fOO("fOO")
+				Foo("Foo")
+				fOo("fOo")
+	
+	<FooBar> !=	BAR("BAR")
+				bAr("bAr")
+				baR("baR")
+				BAr("BAr")
+				Bar("Bar")
+				BaR("BaR")
+}

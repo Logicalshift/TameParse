@@ -37,7 +37,9 @@ General:
 	- Ensure that the errors format matches that of gcc
 		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
-	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer
+	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer @done
+		- Make it possible to turn this feature off in case the lexer needs to be used independently of the parser @lexer
+		- Suppress warnings that this generates @lexer
 
 	- Add the ability to have case-insensitive regexes @lexer @done
 
@@ -45,7 +47,7 @@ Lexer:
 
 	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
 
-	- Add support for case-insensitive lexer symbols @lexer
+	- Add support for case-insensitive lexer symbols @lexer @done
 
 	- Make sure |= works in lexer symbol maps @lexer @done
 
@@ -60,11 +62,27 @@ Lexer:
 		- Oops, we report them twice! @done
 		- Only check for unused symbols in the language that we're actually compiling @done
 
-	- Make it possible to use (weak) lexer symbols 'in line' @lexer
+	- Make it possible to use (weak) regular expressions 'in line' @lexer
+		Probably only want the to produce these symbols when the parser actually expects them.
+
+		Not sure how to name these symbols when they are used.
+
+	- Make it possible to have symbols that aren't generated unless they are explicitly expected.
+		This is an enhancement to the existing weak symbols system and can be used when a 'weak' symbol would otherwise be interpreted as more than one token.
+
+		For example, if we make 'Foo-Bar' a weak symbol, it won't be split up into 'Foo' '-' 'Bar' if the parser is not in  a state where the weak version is expected (so it's effectively a strong symbol). If the parser tells the lexer it's not looking for 'Foo-Bar', however, the lexer will be able to make the appropriate split.
+
+		Not sure if there are any languages where this is useful.
 
 	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
 
-	- Make it possible to generate only a lexer
+	- Make it possible to generate only a lexer @lexer
+		For cases where a parser is not required
+	 
+	- Issue with the case sensitivity tests @lexer @done
+		Problem appears to be that when merging if there's no transition for a symbol that's currently merged but similar transitions for all the other symbols then the two sets of symbols are not distinguished.
+
+	- Investigate ways to make the lexer smaller, particularly with unicode @lexer @size
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
