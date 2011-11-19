@@ -8,7 +8,7 @@
 
 #include <sstream>
 
-#include "TameParse/util/utf8reader.h"
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Compiler/test_stage.h"
 #include "TameParse/Language/test_block.h"
 
