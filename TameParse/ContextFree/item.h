@@ -241,8 +241,6 @@ namespace contextfree {
     };
 }
 
-extern template class util::container<contextfree::item, contextfree::empty_item_constructor>;
-
 #include "TameParse/ContextFree/standard_items.h"
 #include "TameParse/ContextFree/ebnf_items.h"
 #include "TameParse/ContextFree/rule.h"

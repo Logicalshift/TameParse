@@ -15,8 +15,6 @@
 using namespace lr;
 using namespace contextfree;
 
-template class util::container<contextfree::item, contextfree::empty_item_constructor>;
-
 item* empty_item_constructor::default_item() {
     return new empty_item();
 }
