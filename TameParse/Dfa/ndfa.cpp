@@ -11,9 +11,11 @@
 #include "TameParse/Dfa/ndfa.h"
 #include "TameParse/Dfa/transition.h"
 #include "TameParse/Dfa/remapped_symbol_map.h"
+#include "TameParse/Util/unicode.h"
 
 using namespace std;
 using namespace dfa;
+using namespace util;
 
 /// \brief Empty action list
 const ndfa::accept_action_list ndfa::s_NoActions;
@@ -241,8 +243,11 @@ static void add_surrogate_transition(const range<int>& surrogateRange, int curre
     }
 }
 
+/// \brief Unicode converter
+static unicode s_Unicode;
+
 /// \brief Moves to a new state when the specified range of symbols are encountered
-ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
+inline void ndfa::builder::add_with_surrogates(const symbol_set& symbols) {
     // Get the state that should be moved to by this transition
     int nextState = m_NextState;
     m_NextState = -1;
@@ -302,7 +307,7 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
             pop();
 
             // Done
-            return *this;
+            return;
         }
     }
     
@@ -310,8 +315,29 @@ ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
     m_Ndfa->add_transition(m_CurrentState, symbols, nextState);
     m_PreviousState = m_CurrentState;
     m_CurrentState  = nextState;
-    
-    // Return the resulting object
+}
+
+/// \brief Moves to a new state when the specified range of symbols are encountered
+ndfa::builder& ndfa::builder::operator>>(const symbol_set& symbols) {
+    // Add upper and lower-case variants of the symbols if this is set to be case insensitive
+    if (m_AddLowercase || m_AddUppercase) {
+        symbol_set transformed = symbols;
+
+        if (m_AddLowercase) {
+            transformed |= s_Unicode.to_lower(symbols);
+        }
+
+        if (m_AddUppercase) {
+            transformed |= s_Unicode.to_upper(symbols);
+        }
+
+        add_with_surrogates(transformed);
+    } else {
+        // Pass straight through
+        add_with_surrogates(symbols);
+    }
+
+    // Returns itself
     return *this;
 }
 
@@ -388,49 +414,6 @@ void ndfa::builder::rejoin() {
     if (m_Stack.top().first == -1) {
         m_Stack.pop();
     }
-}
-
-/// \brief Creates a new NDFA that is equivalent to this one, except there will be no overlapping symbol sets
-///
-/// Note that if further transitions are added to the new NDFA, it may lose the unique symbol sets
-ndfa* ndfa::to_ndfa_with_unique_symbols() const {
-    // Remap the symbols so that there are no duplicates
-    remapped_symbol_map* symbols = remapped_symbol_map::deduplicate(*m_Symbols);
-    
-    // Rebuild the transition table with the new symbols
-    state_list*                 states  = new state_list();
-    accept_action_for_state*    accept  = new accept_action_for_state();
-
-    // Copy the accept actions
-    for (accept_action_for_state::const_iterator it = m_Accept->begin(); it != m_Accept->end(); it++) {
-        accept_action_list& action = (*accept)[it->first];
-        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
-            action.push_back((*actionIt)->clone());
-        }
-    }
-
-    // Recreate the states
-    for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
-        // Create a new state
-        states->push_back(new state((int)states->size()));
-        state& newState = **(states->rbegin());
-        
-        // Create transitions for this state
-        for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); transit++) {
-            // Get the new symbols for this transition
-            int transitSet      = transit->symbol_set();
-            int transitState    = transit->new_state();
-            
-            const remapped_symbol_map::new_symbol_set& newSyms = symbols->new_symbols(transitSet);
-            
-            for (remapped_symbol_map::new_symbol_set::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); symIt++) {
-                newState.add(transition(*symIt, transitState));
-            }
-        }
-    }
-    
-    // Create the new NDFA
-    return new ndfa(states, symbols, accept);
 }
 
 /// \brief Internal method: computes the closure of the specified set of states (modifies the set to include 

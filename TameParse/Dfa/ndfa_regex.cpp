@@ -16,19 +16,22 @@ using namespace dfa;
 
 /// \brief Constructs an empty NDFA
 ndfa_regex::ndfa_regex()
-: m_ConstructSurrogates(true) {
+: m_ConstructSurrogates(true)
+, m_CaseInsensitive(false) {
 }
 
 /// \brief Conversion constructor
 ndfa_regex::ndfa_regex(const ndfa& copyFrom)
 : ndfa(copyFrom)
-, m_ConstructSurrogates(true) { 
+, m_ConstructSurrogates(true)
+, m_CaseInsensitive(false) { 
 }
 
 /// \brief Copy constructor
 ndfa_regex::ndfa_regex(const ndfa_regex& copyFrom)
 : ndfa(copyFrom)
 , m_ConstructSurrogates(copyFrom.m_ConstructSurrogates)
+, m_CaseInsensitive(copyFrom.m_CaseInsensitive)
 , m_ExpressionMap(copyFrom.m_ExpressionMap)
 , m_LiteralExpressionMap(copyFrom.m_LiteralExpressionMap) {
 }
@@ -93,16 +96,22 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     return result;        
 }
 
+/// \brief Converts a symbol string into a wstring
+std::wstring ndfa_regex::convert_syms(const symbol_string& source) {
+    // Create the result
+    wstring result;
+    
+    // Fill it in, treating the characters as unsigned
+    for (symbol_string::const_iterator pos = source.begin(); pos != source.end(); ++pos) {
+        result += (wchar_t)*pos;
+    }
+    
+    // This is the result
+    return result;        
+}
+
 /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
-int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
-    // Can't really do anything if the initial state is invalid
-    if (initialState < 0 || initialState >= count_states()) return initialState;
-    
-    // Create a constructor in the initial state
-    builder cons = get_cons();
-    cons.set_generate_surrogates(m_ConstructSurrogates);
-    cons.goto_state(get_state(initialState));
-    
+int ndfa_regex::add_literal(builder& cons, const symbol_string& literal) {
     // Compile as a straight string
     for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); pos++) {
         // Add the next string
@@ -113,6 +122,20 @@ int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
     return ((state)cons).identifier();
 }
 
+/// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+int ndfa_regex::add_literal(int initialState, const symbol_string& literal) {
+    // Can't really do anything if the initial state is invalid
+    if (initialState < 0 || initialState >= count_states()) return initialState;
+    
+    // Create a constructor in the initial state
+    builder cons = get_cons();
+    cons.set_generate_surrogates(m_ConstructSurrogates);
+    cons.set_case_options(m_CaseInsensitive, m_CaseInsensitive);
+    cons.goto_state(get_state(initialState));
+    
+    return add_literal(cons, literal);
+}
+
 /// \brief Compiles a regular expression starting at the specified state, returning the final state
 int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     // Can't really do anything if the initial state is invalid
@@ -121,6 +144,7 @@ int ndfa_regex::add_regex(int initialState, const symbol_string& regex) {
     // Create a constructor in the initial state
     builder cons = get_cons();
     cons.set_generate_surrogates(m_ConstructSurrogates);
+    cons.set_case_options(m_CaseInsensitive, m_CaseInsensitive);
     cons.goto_state(get_state(initialState));
     
     // Compile the regular expression

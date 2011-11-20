@@ -30,6 +30,9 @@ namespace dfa {
         /// \brief Set to true if the compiler should construct unicode surrogate sequences for characters >0xffff
         bool m_ConstructSurrogates;
 
+        /// \brief If true, then any regexes are added in a case insensitive manner
+        bool m_CaseInsensitive;
+
         /// \brief Maps expressions to regular expressions
         std::map<symbol_string, symbol_string> m_ExpressionMap;
 
@@ -58,6 +61,9 @@ namespace dfa {
         
         /// \brief Converts a null-terminated to a symbol_string
         static symbol_string convert(wchar_t* source);
+
+        /// \brief Converts a symbol string into a wstring
+        static std::wstring convert_syms(const symbol_string& source);
 
     public:
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
@@ -92,6 +98,9 @@ namespace dfa {
         inline int add_regex(int initialState, const std::wstring& regex, const accept_action& action) {
             return add_regex(initialState, convert(regex), action);
         }
+        
+        /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+        int add_literal(builder& cons, const symbol_string& literal);
         
         /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
         int add_literal(int initialState, const symbol_string& literal);
@@ -132,6 +141,9 @@ namespace dfa {
         ///
         /// By default, this is turned on, as 16-bit unicode characters are far more common.
         inline void set_use_surrogates(bool useSurrogates) { m_ConstructSurrogates = useSurrogates; }
+
+        /// \brief Sets whether or not the regular expressions should be treated as case-insensitive
+        inline void set_case_insensitive(bool caseInsensitive) { m_CaseInsensitive = caseInsensitive; }
 
         /// \brief Defines a new expression as a regular expression
         ///

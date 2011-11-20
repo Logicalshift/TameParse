@@ -1,0 +1,23 @@
+# Branching
+
+This repository uses named branches for work on individual features, rather than
+cloning to isolate changes. Here are the rules I've been following:
+
+ * Major features are developed on named branches
+ * Bug fixes can go on any branch (but if you aren't working directly on a feature they
+   should go on the small bugs branch)
+ * Once a feature is working, it should be merged into the stable-ish branch
+ * The merge messages for the stable-ish branch should be suitable to put the
+   ChangeLog file.
+ * In general, merges are either to or from the Stable-ish branch.
+
+The stable-ish branch should thus contain working builds of TameParse. Failing that,
+the branches for individual platforms can be used to find the last build that was
+known to work on that platform. This is convenient because it makes it easy to find
+a working build at any time.
+
+The feature branches are useful for two reasons: firstly, they facilitate working
+together; it's possible to push changes frequently without needing to merge in
+other partially implemented features. Secondly, it's easy to look at the history
+for a feature branch to see how that feature evolved (with the possible exception
+of bug fixes to that feature, depending on how development has gone).

@@ -1,0 +1,31 @@
+language LexerTests {
+	lexer-symbols {
+		letter 						= /[A-Za-z]/
+		digit 						= /[0-9]/
+
+		identifier					= /{letter}({letter}|{digit})*/
+		unsigned-integer			= /{digit}+/
+		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+	}
+
+	lexer {
+		plus-or-minus = /[+\-]/
+		unsigned-real = /{unsigned-real}/
+	}
+
+	grammar {
+		<plus-or-minus> = plus-or-minus
+
+		<unsigned-real> = unsigned-real
+	}
+}
+
+test LexerTests {
+	<plus-or-minus> =	plus("+")
+						minus("-")
+
+
+	<unsigned-real> =	"1.2e12"
+						"1.2e+1"
+						"1.2e-1"
+}

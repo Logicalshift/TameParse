@@ -24,6 +24,9 @@ namespace dfa {
     ///
     class lexeme_stream {
     public:
+        /// \brief Destructor
+        virtual ~lexeme_stream();
+        
         /// \brief Fills in the contents of the specified pointer with the next lexeme (or NULL if the end of input has been reached)
         ///
         /// The caller needs to delete the resulting lexeme object

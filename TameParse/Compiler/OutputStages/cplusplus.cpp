@@ -36,6 +36,98 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_ReduceDefinitions(NULL)
 , m_PosDefinitions(NULL)
 , m_FinalPosDefinitions(NULL) {
+	// Keywords (ANSI-C)
+	m_ReservedWords.insert("auto");
+	m_ReservedWords.insert("break");
+	m_ReservedWords.insert("case");
+	m_ReservedWords.insert("char");
+	m_ReservedWords.insert("const");
+	m_ReservedWords.insert("continue");
+	m_ReservedWords.insert("default");
+	m_ReservedWords.insert("do");
+	m_ReservedWords.insert("double");
+	m_ReservedWords.insert("else");
+	m_ReservedWords.insert("enum");
+	m_ReservedWords.insert("extern"); 
+	m_ReservedWords.insert("float");
+	m_ReservedWords.insert("for");
+	m_ReservedWords.insert("goto");
+	m_ReservedWords.insert("if");
+	m_ReservedWords.insert("int");
+	m_ReservedWords.insert("long"); 
+	m_ReservedWords.insert("register");
+	m_ReservedWords.insert("return");
+	m_ReservedWords.insert("short");
+	m_ReservedWords.insert("signed");
+	m_ReservedWords.insert("sizeof");
+	m_ReservedWords.insert("static"); 
+	m_ReservedWords.insert("struct");
+	m_ReservedWords.insert("switch");
+	m_ReservedWords.insert("typedef");
+	m_ReservedWords.insert("union");
+	m_ReservedWords.insert("unsigned");
+	m_ReservedWords.insert("void"); 
+	m_ReservedWords.insert("volatile");
+	m_ReservedWords.insert("while");
+
+	// Keywords (C99)
+	m_ReservedWords.insert("complex");
+	m_ReservedWords.insert("imaginary");
+	m_ReservedWords.insert("inline");
+	m_ReservedWords.insert("restrict");
+
+	// Keywords (C++11)
+	m_ReservedWords.insert("and");
+	m_ReservedWords.insert("and_eq");
+	m_ReservedWords.insert("alignas");
+	m_ReservedWords.insert("alignof");
+	m_ReservedWords.insert("asm");
+	m_ReservedWords.insert("bitand");
+	m_ReservedWords.insert("bitor");
+	m_ReservedWords.insert("bool");
+	m_ReservedWords.insert("catch");
+	m_ReservedWords.insert("char16_t");
+	m_ReservedWords.insert("char32_t");
+	m_ReservedWords.insert("class");
+	m_ReservedWords.insert("compl");
+	m_ReservedWords.insert("constexpr");
+	m_ReservedWords.insert("const_cast");
+	m_ReservedWords.insert("decltype");
+	m_ReservedWords.insert("delete");
+	m_ReservedWords.insert("dynamic_cast");
+	m_ReservedWords.insert("explicit");
+	m_ReservedWords.insert("export");
+	m_ReservedWords.insert("false");
+	m_ReservedWords.insert("friend");
+	m_ReservedWords.insert("mutable");
+	m_ReservedWords.insert("namespace");
+	m_ReservedWords.insert("new");
+	m_ReservedWords.insert("noexcept");
+	m_ReservedWords.insert("not");
+	m_ReservedWords.insert("not_eq");
+	m_ReservedWords.insert("nullptr");
+	m_ReservedWords.insert("operator");
+	m_ReservedWords.insert("or");
+	m_ReservedWords.insert("or_eq");
+	m_ReservedWords.insert("private");
+	m_ReservedWords.insert("protected");
+	m_ReservedWords.insert("public");
+	m_ReservedWords.insert("reinterpret_cast");
+	m_ReservedWords.insert("static_assert");
+	m_ReservedWords.insert("static_cast");
+	m_ReservedWords.insert("template");
+	m_ReservedWords.insert("this");
+	m_ReservedWords.insert("thread_local");
+	m_ReservedWords.insert("throw");
+	m_ReservedWords.insert("true");
+	m_ReservedWords.insert("try");
+	m_ReservedWords.insert("typeid");
+	m_ReservedWords.insert("typename");
+	m_ReservedWords.insert("using");
+	m_ReservedWords.insert("virtual");
+	m_ReservedWords.insert("wchar_t");
+	m_ReservedWords.insert("xor");
+	m_ReservedWords.insert("xor_eq");
 }
 
 /// \brief Destructor
@@ -148,6 +240,11 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
 				res << "_";
 				break;
 		}
+	}
+
+	// Ensure that this doesn't match any reserved words
+	while (m_ReservedWords.find(res.str()) != m_ReservedWords.end()) {
+		res << "_";
 	}
     
     // Produce the final result

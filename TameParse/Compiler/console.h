@@ -43,6 +43,9 @@ namespace compiler {
         virtual console* clone() const = 0;
         
     public:
+        /// \brief Destructor
+        virtual ~console();
+
         /// \brief Reports an error to the console
         virtual void report_error(const error& error) = 0;
         

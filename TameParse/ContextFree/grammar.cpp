@@ -47,11 +47,14 @@ grammar& grammar::operator=(const grammar& assignFrom) {
     m_Nonterminals      = assignFrom.m_Nonterminals;
     m_NameToNonterminal = assignFrom.m_NameToNonterminal;
     m_NonterminalToName = assignFrom.m_NonterminalToName;
+
+    // Preserve the item and rule identifiers
+    m_ItemIdentifiers   = assignFrom.m_ItemIdentifiers;
+    m_ItemForIdentifier = assignFrom.m_ItemForIdentifier;
+    m_RuleIdentifiers   = assignFrom.m_RuleIdentifiers;
+    m_RuleForIdentifier = assignFrom.m_RuleForIdentifier;
     
     // Clear the caches for this object
-    m_RuleIdentifiers.clear();
-    m_ItemIdentifiers.clear();
-    m_ItemForIdentifier.clear();
     m_CachedFirstSets.clear();
     m_CachedFollowSets.clear();
     m_CachedItemSets.clear();
@@ -231,14 +234,30 @@ const item_set& grammar::first(const item_container& item) const {
 }
 
 /// \brief Computes the first set for the specified rule (or retrieves the cached version)
-const item_set& grammar::first_for_rule(const rule& rule) const {
+item_set grammar::first_for_rule(const rule& rule) const {
     // Return a set containing only the empty item if the rule is 0 items long
     if (rule.items().size() == 0) {
         return *m_EpsilonSet;
     }
     
     // Return the first set of the first item in the rule
-    return first(*rule.items()[0]);
+    item_set result(this);
+    for (size_t itemId = 0; itemId < rule.items().size(); itemId++) {
+        // Remove the epsilon item from the set
+        result.erase(an_empty_item_c);
+
+        // Add the items in the first set for this item
+        result.merge(first(*rule.items()[itemId]));
+
+        // If the result doesn't contain the empty item, then return it
+        if (!result.contains(an_empty_item_c)) {
+            return result;
+        }
+    }
+
+    // The empty item is included
+    result.insert(an_empty_item_c);
+    return result;
 }
 
 

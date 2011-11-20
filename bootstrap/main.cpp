@@ -123,6 +123,7 @@ int main (int argc, const char * argv[]) {
     // Stage 1: interpret the language and generate the NDFA and grammar
     language_stage languageStage(consContainer, L"definition.tp", lBlock, NULL);
     languageStage.compile();
+    languageStage.report_unused_symbols();
     
     // Stage 2: compile the lexer
     lexer_stage lexerStage(consContainer, L"definition.tp", &languageStage);

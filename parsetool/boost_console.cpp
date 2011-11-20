@@ -74,7 +74,9 @@ boost_console::boost_console(int argc, const char** argv)
     po::options_description hiddenOptions;
 
     hiddenOptions.add_options()
-    	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.");
+    	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.")
+    	("disable-compact-dfa",									"do not compact the DFA")
+    	("disable-merged-dfa",									"do not attempt to merge symbol sets in the DFA");
 
 	// Positional options
 	po::positional_options_description positional;
