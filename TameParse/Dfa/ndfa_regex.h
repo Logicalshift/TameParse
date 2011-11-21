@@ -70,6 +70,11 @@ namespace dfa {
         int add_regex(builder& cons, const symbol_string& regex);
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_regex(builder& cons, const std::wstring& regex) {
+            return add_regex(cons, convert(regex));
+        }
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(int initialState, const symbol_string& regex);
         
         /// \brief Compiles a regular expression starting at the specified state, returning the final state and adding an accepting action
@@ -85,7 +90,7 @@ namespace dfa {
         }
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, std::wstring regex) {
+        inline int add_regex(int initialState, std::wstring& regex) {
             return add_regex(initialState, convert(regex));
         }
 
@@ -101,6 +106,11 @@ namespace dfa {
         
         /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
         int add_literal(builder& cons, const symbol_string& literal);
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(builder& cons, const std::wstring& regex) {
+            return add_literal(cons, convert(regex));
+        }
         
         /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
         int add_literal(int initialState, const symbol_string& literal);
