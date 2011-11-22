@@ -154,6 +154,18 @@ public:
         // Found an expression
         return true;
     }
+
+    // \brief Returns true if the specified expression is valid
+    bool check_expression(const symbol_string& expression) {
+        // Look up the expression in the lexer data
+        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+
+        if (!items.empty()) return true;
+
+        // Not a valid expression
+        return ndfa_regex::check_expression(expression);
+    }
+
 };
 
 /// \brief Creates a new lexer compiler
