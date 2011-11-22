@@ -561,6 +561,12 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
             }
             break;
         }
+            
+        case '\\':
+            // Skip over quoted characters
+            // TODO: improve handling of \u, \x, etc
+            pos++;
+            break;
 
         case '{':
         {
