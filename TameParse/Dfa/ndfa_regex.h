@@ -11,8 +11,10 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "TameParse/Dfa/ndfa.h"
+#include "TameParse/Dfa/regex_error.h"
 
 namespace dfa {
     ///
@@ -205,11 +207,22 @@ namespace dfa {
             define_expression_literal(convert(name), convert(value));
         }
 
+        /// \brief Returns a vector of the errors in the specified regular expression
+        std::vector<regex_error> check_regex(const symbol_string& regex);
+
+        /// \brief Returns a vector of the errors in the specified regular expression
+        inline std::vector<regex_error> check_regex(const std::wstring& regex) {
+            return check_regex(convert(regex));
+        }
+
+        /// \brief Returns true if the specified expression is valid
+        virtual bool check_expression(const symbol_string& expression);
+
     protected:
         ///
         /// \brief Compiles a single symbol from a regular expression
         ///
-        /// Subclasses can override this to extend the grammar accepted by the regular expression.
+        /// Subclasses can override this to extend the grammar accepted as the regular expression.
         /// This class should update the supplied iterator and NDFA constructor object with the position of the next item.
         ///
         /// Note that this will be called with pos == end at the end of the regular expression. Implementations should not
@@ -217,6 +230,13 @@ namespace dfa {
         /// of a regular expression.
         ///
         virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, builder& cons);
+
+        ///
+        /// \brief Checks a single symbol from a regular expression
+        ///
+        /// Subclasses can override this to extend the grammar accepted as a regular expression.
+        ///
+        virtual void check(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors);
 
         ///
         /// \brief Compiles the value of a {} expression
