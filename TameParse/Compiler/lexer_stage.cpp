@@ -154,6 +154,18 @@ public:
         // Found an expression
         return true;
     }
+
+    // \brief Returns true if the specified expression is valid
+    bool check_expression(const symbol_string& expression) {
+        // Look up the expression in the lexer data
+        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+
+        if (!items.empty()) return true;
+
+        // Not a valid expression
+        return ndfa_regex::check_expression(expression);
+    }
+
 };
 
 /// \brief Creates a new lexer compiler
@@ -181,6 +193,42 @@ lexer_stage::~lexer_stage() {
     }
 }
 
+/// \brief Reports any errors that might have occurred in the specified regular expression
+void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const dfa::position& pos) {
+    // Fetch the errors in the regex
+    vector<regex_error> errors = ndfa->check_regex(regex);
+
+    // Report them
+    for (vector<regex_error>::const_iterator erm = errors.begin(); erm != errors.end(); erm++) {
+        wstringstream msg;
+
+        switch (erm->type()) {
+            default:
+                msg << L"Invalid regular expression";
+                break;
+
+            case regex_error::missing_round_bracket:
+                msg << L"Missing ')'";
+                break;
+
+            case regex_error::missing_square_bracket:
+                msg << L"Missing ']'";
+                break;
+
+            case regex_error::missing_curly_bracket:
+                msg << L"Missing '}'";
+                break;
+
+            case regex_error::missing_expression:
+                msg << L"Unknown lexer symbol: '" << ndfa_regex::convert_syms(erm->symbol()) << "'";
+                break;
+        }
+
+        // Report the error
+        cons().report_error(error(error::sev_error, filename(), L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
+    }
+}
+
 /// \brief Compiles the lexer
 void lexer_stage::compile() {
     // Grab the input
@@ -202,10 +250,14 @@ void lexer_stage::compile() {
 
     // Create the ndfa
     typedef lexer_data::item_list item_list;
-    ndfa_lexer_compiler* stage0 = new ndfa_lexer_compiler(lex);
+    ndfa_lexer_compiler*    stage0 = new ndfa_lexer_compiler(lex);
 
+    ndfa::builder   ignoreBuilder   = stage0->get_cons();
+    bool            firstIgnore     = true;
     int             ignoreSymbol    = -1;
     const set<int>* usedIgnored     = m_Language->used_ignored_symbols();
+
+    ignoreBuilder.push();
 
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
@@ -218,13 +270,15 @@ void lexer_stage::compile() {
             }
 
             // Decide on a symbol ID
-            int symbolId = item->symbol;
+            int     symbolId    = item->symbol;
+            bool    blandIgnore = false;
 
             // We modify ignore symbols if they aren't used in the grammar so that they all map to a single place
             // This may prove confusing if the user wishes to use the lexer independently
             if (item->definition_type == language_unit::unit_ignore_definition) {
                 // If this is an ignored item with no syntactic meaning, give it the same symbol ID as the first ignored item we encountered
                 if (usedIgnored->find(symbolId) == usedIgnored->end()) {
+                    blandIgnore = true;
                     if (ignoreSymbol < 0) {
                         ignoreSymbol = symbolId;
                     } else {
@@ -236,16 +290,67 @@ void lexer_stage::compile() {
             // Add the corresponding items
             switch (item->type) {
                 case lexer_item::regex:
-                    stage0->set_case_insensitive(item->case_insensitive);
-                    stage0->add_regex(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
+                    // Check
+                    check_regex(stage0, item->definition, position(-1, -1, -1));
+
+                    // Compile
+                    if (blandIgnore) {
+                        // Combine 'bland' ignored items into a single symbol
+                        if (!firstIgnore) {
+                            ignoreBuilder.begin_or();
+                        }
+                        ignoreBuilder.push();
+                        ignoreBuilder.set_case_options(item->case_insensitive, item->case_insensitive);
+                        stage0->add_regex(ignoreBuilder, item->definition);
+                        ignoreBuilder.pop();
+
+                        firstIgnore = false;
+                    } else {
+                        // Add as a new symbol
+                        stage0->set_case_insensitive(item->case_insensitive);
+                        stage0->add_regex(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
+                    }
                     break;
 
                 case lexer_item::literal:
-                    stage0->set_case_insensitive(item->case_insensitive);
-                    stage0->add_literal(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
+                    if (blandIgnore) {
+                        // Combine 'bland' ignored items into a single symbol
+                        if (!firstIgnore) {
+                            ignoreBuilder.begin_or();
+                        }
+                        ignoreBuilder.push();
+                        ignoreBuilder.set_case_options(item->case_insensitive, item->case_insensitive);
+                        stage0->add_literal(ignoreBuilder, item->definition);
+                        ignoreBuilder.pop();
+
+                        firstIgnore = false;
+                    } else {
+                        stage0->set_case_insensitive(item->case_insensitive);
+                        stage0->add_literal(0, item->definition, language_accept_action(symbolId, item->definition_type, item->is_weak));
+                    }
                     break;
             }
         }
+    }
+
+    // Finish the 'bland' ignore builder, if there were any 'bland' symbols
+    if (!firstIgnore) {
+        // Pop the entry on the stack
+        ignoreBuilder.pop();
+
+        // One or more items
+        //const state& previous = ignoreBuilder.previous_state();
+        //const state& current  = ignoreBuilder.current_state();
+        
+        // Can skip from current to previous (so this expression will repeat)
+        //ignoreBuilder.goto_state(current);
+        //ignoreBuilder >> previous >> epsilon();
+        
+        // Final state is the current state (and preserve the 'previous' state)
+        //ignoreBuilder.goto_state(current, previous);
+
+        // Set the symbol
+        ignoreBuilder >> language_accept_action(ignoreSymbol, language_unit::unit_ignore_definition, false);
     }
 
     // Write out some stats about the ndfa

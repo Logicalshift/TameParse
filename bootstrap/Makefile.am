@@ -43,6 +43,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Dfa/position.cpp \
 					  ../TameParse/Dfa/range.cpp \
 					  ../TameParse/Dfa/remapped_symbol_map.cpp \
+					  ../TameParse/Dfa/regex_error.cpp \
 					  ../TameParse/Dfa/state.cpp \
 					  ../TameParse/Dfa/state_machine.cpp \
 					  ../TameParse/Dfa/symbol_map.cpp \
