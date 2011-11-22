@@ -489,6 +489,7 @@ std::vector<regex_error> ndfa_regex::check_regex(const symbol_string& regex) {
     // Iterate through the regular expression and check each character in turn
     for (symbol_string::const_iterator chr = regex.begin(); chr != regex.end(); chr++) {
         check(chr, end, errors);
+        if (chr == end) break;
     }
 
     // Return the result
