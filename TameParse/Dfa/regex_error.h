@@ -32,7 +32,7 @@ namespace dfa {
 			missing_curly_bracket,
 
 			/// \brief An expression that doesn't resolve to anything
-			missing_expression,
+			missing_expression
 		};
 
 	private:
