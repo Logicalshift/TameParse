@@ -181,6 +181,42 @@ lexer_stage::~lexer_stage() {
     }
 }
 
+/// \brief Reports any errors that might have occurred in the specified regular expression
+void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const dfa::position& pos) {
+    // Fetch the errors in the regex
+    vector<regex_error> errors = ndfa->check_regex(regex);
+
+    // Report them
+    for (vector<regex_error>::const_iterator erm = errors.begin(); erm != errors.end(); erm++) {
+        wstringstream msg;
+
+        switch (erm->type()) {
+            default:
+                msg << L"Invalid regular expression";
+                break;
+
+            case regex_error::missing_round_bracket:
+                msg << L"Missing ')'";
+                break;
+
+            case regex_error::missing_square_bracket:
+                msg << L"Missing ']'";
+                break;
+
+            case regex_error::missing_curly_bracket:
+                msg << L"Missing '}'";
+                break;
+
+            case regex_error::missing_expression:
+                msg << L"Unknown lexer symbol: '" << ndfa_regex::convert_syms(erm->symbol()) << "'";
+                break;
+        }
+
+        // Report the error
+        cons().report_error(error(error::sev_error, filename(), L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
+    }
+}
+
 /// \brief Compiles the lexer
 void lexer_stage::compile() {
     // Grab the input
@@ -242,6 +278,10 @@ void lexer_stage::compile() {
             // Add the corresponding items
             switch (item->type) {
                 case lexer_item::regex:
+                    // Check
+                    check_regex(stage0, item->definition, position(-1, -1, -1));
+
+                    // Compile
                     if (blandIgnore) {
                         // Combine 'bland' ignored items into a single symbol
                         if (!firstIgnore) {
