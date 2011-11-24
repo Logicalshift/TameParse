@@ -194,7 +194,7 @@ lexer_stage::~lexer_stage() {
 }
 
 /// \brief Reports any errors that might have occurred in the specified regular expression
-void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const dfa::position& pos) {
+void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const std::wstring* fn, const dfa::position& pos) {
     // Fetch the errors in the regex
     vector<regex_error> errors = ndfa->check_regex(regex);
 
@@ -225,7 +225,14 @@ void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, 
         }
 
         // Report the error
-        cons().report_error(error(error::sev_error, filename(), L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
+        wstring file;
+        if (fn) {
+            file = *fn;
+        } else {
+            file = filename();
+        }
+
+        cons().report_error(error(error::sev_error, file, L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
     }
 }
 
@@ -291,7 +298,7 @@ void lexer_stage::compile() {
             switch (item->type) {
                 case lexer_item::regex:
                     // Check
-                    check_regex(stage0, item->definition, position(-1, -1, -1));
+                    check_regex(stage0, item->definition, item->filename, item->position);
 
                     // Compile
                     if (blandIgnore) {
