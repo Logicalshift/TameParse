@@ -466,11 +466,11 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
             bool                    alternate   = (*keyword)->Keyword_Definition->one_of__equals__or__pipe__equals_->_pipe__equals_;
             
             if (regex) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, keywordId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, keywordId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos(), regex->pos()));
             } else if (string) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, keywordId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, keywordId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos(), string->pos()));
             } else if (character) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, keywordId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, keywordId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos(), character->pos()));
             } else {
                 // Doh, bug: fail
                 delete lexerBlock;
@@ -478,7 +478,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
             }
         } else {
             // A literal keyword defined only by its identifier
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, (*keyword)->pos(), (*keyword)->final_pos()));
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, (*keyword)->pos(), (*keyword)->final_pos(), keywordId->pos()));
         }
     }
     
@@ -528,11 +528,11 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
             bool                    alternate   = (*lexeme)->Lexeme_Definition->one_of__equals__or__pipe__equals_->_pipe__equals_;
             
             if (regex) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos(), regex->pos()));
             } else if (string) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos(), string->pos()));
             } else if (character) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
+                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos(), character->pos()));
             } else {
                 // Doh, bug: fail
                 delete lexerBlock;

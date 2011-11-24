@@ -127,14 +127,14 @@ void language_stage::compile() {
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
                     // Add to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), ourFilename, (*lexerItem)->start_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
                     // Add as a literal to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), ourFilename, (*lexerItem)->start_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -143,7 +143,7 @@ void language_stage::compile() {
                 {
                     // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), ourFilename, (*lexerItem)->start_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -247,14 +247,14 @@ void language_stage::compile() {
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
                             // Add to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->start_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
                             // Add as a literal to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->start_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -264,7 +264,7 @@ void language_stage::compile() {
                             // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
                             wstring dequoted = process::dequote_string((*lexerItem)->definition());
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->start_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 

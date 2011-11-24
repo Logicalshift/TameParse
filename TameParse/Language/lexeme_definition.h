@@ -48,10 +48,13 @@ namespace language {
         ///
         /// Note that for strings, characters and regular expressions quoting is left intact for this field
         std::wstring m_Definition;
+
+        /// \brief Position where the definition is defined
+        dfa::position m_DefinitionPos;
         
     public:
         /// \brief Creates a new lexeme definition
-        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, position start = position(), position end = position());
+        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, position start, position end, position definition_pos);
         
         /// \brief The type of this lexeme definition (determines how the definition field is interpreted)
         inline type get_type() const { return m_Type; }
@@ -69,6 +72,9 @@ namespace language {
         /// If character, this will be a character of the form 'c'
         /// If regex, this will be a regular expression of the form /(regular expression)+/
         inline const std::wstring& definition() const { return m_Definition; }
+
+        /// \brief Position where the definition appears in the file
+        inline const dfa::position& definition_pos() const { return m_DefinitionPos; }
     };
 }
 
