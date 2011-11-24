@@ -11,6 +11,7 @@
 
 #include <string>
 
+#include "TameParse/Dfa/position.h"
 #include "TameParse/Dfa/accept_action.h"
 #include "TameParse/Language/language_unit.h"
 
@@ -45,11 +46,17 @@ namespace compiler {
 		/// \brief True if this is a weak symbol
 		bool is_weak;
 
-		/// \brief Creates a new lexer item
-		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive);
+		/// \brief The file where this symbol is defined
+		const std::wstring* filename;
+
+		/// \brief The position where this symbol is defined
+		dfa::position position;
 
 		/// \brief Creates a new lexer item
-		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, int symbol, unit_type definition_type, bool is_weak);
+		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, const std::wstring* filename, const dfa::position& pos);
+
+		/// \brief Creates a new lexer item
+		lexer_item(item_type type, const std::wstring& definition, bool case_insensitive, int symbol, unit_type definition_type, bool is_weak, const std::wstring* filename, const dfa::position& pos);
         
         /// \brief Copies a lexer item
         lexer_item(const lexer_item& copyFrom);
