@@ -132,7 +132,7 @@ public:
                 cons.set_case_options(isLower, isUpper);
             }
 
-            // Add as 
+            // Add as a regular expression
             switch (item->type) {
                 case lexer_item::regex:
                     add_regex(cons, convert(item->definition));

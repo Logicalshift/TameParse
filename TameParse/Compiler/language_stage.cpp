@@ -22,7 +22,8 @@ using namespace compiler;
 language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage)
 : compilation_stage(console, filename)
 , m_Language(block)
-, m_Import(importStage) {
+, m_Import(importStage)
+, m_InheritsFrom(NULL) {
 }
 
 /// \brief Destructor
@@ -32,6 +33,11 @@ language_stage::~language_stage() {
         delete filename->second;
     }
     m_Filenames.clear();
+    
+    // Destroy the inherited stage
+    if (m_InheritsFrom) {
+        delete m_InheritsFrom;
+    }
 }
 
 /// \brief Removes any terminal symbols used in the specified rule from the unused list
@@ -79,11 +85,13 @@ void language_stage::compile() {
         } else {
             // Compile the language this inherits from
             console_container consCopy(cons_container());
-            language_stage inheritStage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
-            inheritStage.compile();
+            
+            if (m_InheritsFrom) delete m_InheritsFrom;
+            m_InheritsFrom = new language_stage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
+            m_InheritsFrom->compile();
 
             // Merge with this language
-            inheritStage.export_to(this);
+            m_InheritsFrom->export_to(this);
         }
     }
 #else

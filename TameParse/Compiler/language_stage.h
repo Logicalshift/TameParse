@@ -54,6 +54,9 @@ namespace compiler {
         /// \brief The import stage used to find and compile any inherited languages
         const import_stage* m_Import;
         
+        /// \brief Null, or the language stage that this inherits from
+        language_stage* m_InheritsFrom;
+        
         /// \brief The dictionary of terminals defined by the language
         contextfree::terminal_dictionary m_Terminals;
         
