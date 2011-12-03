@@ -129,7 +129,6 @@ namespace compiler {
                     cons.set_case_options(false, false);
                 } else {
                     // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
-                    // TODO: you can specifically say 'case sensitive lexer-symbols' but we treat that as a no-op for now
                     cons.set_case_options(isLower, isUpper);
                 }
 

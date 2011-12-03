@@ -495,6 +495,8 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
         for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
@@ -549,6 +551,8 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
         for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
