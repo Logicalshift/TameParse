@@ -547,7 +547,9 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
                         break;
                 }
 
-                bracketPos++;
+                if (!brackets.empty()) {
+                    bracketPos++;
+                }
             } while (bracketPos != end && !brackets.empty());
 
             // Add an error if the bracket was unmatched
