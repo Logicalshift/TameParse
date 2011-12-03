@@ -572,7 +572,6 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
         {
             // Compiled expression: find the closing '{'
             pos++;
-            if (pos == end) return;
 
             // Read up to the closing '}'
             symbol_string expr;
