@@ -119,6 +119,7 @@ language ParserLanguage {
 									| <Lexeme-Definition>
 		
 		<Lexeme-Definition> 		= identifier ('=' | "|=") (regex | string | character)
+									| [=> replace identifier '='] replace identifier '=' (regex | string | character)
                                     | identifier '=' identifier '.' identifier
 		
 		//

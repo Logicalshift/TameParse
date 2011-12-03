@@ -13,4 +13,10 @@ test ParserLanguage {
 							pascal			("../Pascal.tp")
 							test-weakguard	("WeakGuard.tp")
 							test-repetition	("Repetition.tp")
+	
+	<Lexeme-Definition> =	"foo = \"bar\""
+							"foo = 'x'"
+							"foo = /bar/"
+							"foo |= /bar/"
+							"replace foo = /bar/"
 }
