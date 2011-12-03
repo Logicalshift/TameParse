@@ -144,7 +144,7 @@ namespace dfa {
             
             // Use the highest ranked action
             accept_action* highest = *begin;
-            for (iterator it = begin; it != end; it++) {
+            for (iterator it = begin; it != end; ++it) {
                 if ((*highest) < **it) {
                     highest = *it;
                 }
@@ -166,7 +166,7 @@ namespace dfa {
             m_Accept    = accept;
             
             // Create accepting action lists for each accepting state
-            for (int stateId=0; stateId<m_MaxState; stateId++) {
+            for (int stateId=0; stateId<m_MaxState; ++stateId) {
                 fill_accept(accept[stateId], dfa.actions_for_state(stateId).begin(), dfa.actions_for_state(stateId).end());
             }
         }

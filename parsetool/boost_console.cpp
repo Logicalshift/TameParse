@@ -164,7 +164,7 @@ static wstring convert(string asciiValue) {
 	// Convert to a wstring by assuming that the string is latin-1
 	// TODO: could take account of the locale here, somehow
 	wstring value;
-	for (size_t x = 0; x < asciiValue.size(); x++) {
+	for (size_t x = 0; x < asciiValue.size(); ++x) {
 		value += (wchar_t) asciiValue[x];
 	}
 
@@ -178,7 +178,7 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 	// Convert to a standard string
 	string asciiName;
 
-	for (size_t x=0; x<name.size(); x++) {
+	for (size_t x=0; x<name.size(); ++x) {
 		asciiName += (char) name[x];
 	}
 
@@ -214,7 +214,7 @@ std::vector<std::wstring> boost_console::get_option_list(const std::wstring& nam
 	// Convert to a standard string
 	string asciiName;
 
-	for (size_t x=0; x<name.size(); x++) {
+	for (size_t x=0; x<name.size(); ++x) {
 		asciiName += (char) name[x];
 	}
 
@@ -230,7 +230,7 @@ std::vector<std::wstring> boost_console::get_option_list(const std::wstring& nam
 
 		// Convert to a wstring
 		vector<wstring> value;
-		for (size_t x = 0; x < asciiValue.size(); x++) {
+		for (size_t x = 0; x < asciiValue.size(); ++x) {
 			value.push_back(convert(asciiValue[x]));
 		}
 
@@ -286,7 +286,7 @@ std::vector<std::wstring> boost_console::split_path(const std::wstring& pathname
 	fs::wpath path(pathname);
 	vector<wstring> res;
 
-	for (fs::wpath::iterator component = path.begin(); component != path.end(); component++) {
+	for (fs::wpath::iterator component = path.begin(); component != path.end(); ++component) {
 		res.push_back(component->generic_wstring());
 	}
 
