@@ -236,7 +236,7 @@ namespace dfa {
         ///
         /// Subclasses can override this to extend the grammar accepted as a regular expression.
         ///
-        virtual void check(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors);
+        virtual void check(position_tracker& exprPos, symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors);
 
         ///
         /// \brief Compiles the value of a {} expression
