@@ -443,7 +443,7 @@ static bool add_lexeme_definition(const ast_Lexeme_Definition* defn, lexer_block
         const ast_character*    character   = defn->one_of_regex_or_one_of_string_or_character->character;
         
         bool                    alternate   = defn->one_of__equals__or__pipe__equals_->_pipe__equals_;
-        bool                    replace     = defn->replace != NULL;
+        bool                    replace     = defn->replace;
         
         if (regex) {
             lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), regex->pos()));
@@ -507,7 +507,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
         } else if ((*keyword)->Keyword_Definition->identifier) {
             // A literal keyword defined only by its identifier
             const identifier* keywordId = (*keyword)->Keyword_Definition->identifier;
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, (*keyword)->pos(), (*keyword)->final_pos(), keywordId->pos()));
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, false, (*keyword)->pos(), (*keyword)->final_pos(), keywordId->pos()));
         } else {
             // Unknown keyword type
             delete lexerBlock;
