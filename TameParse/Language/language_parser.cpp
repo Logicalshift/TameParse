@@ -477,6 +477,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     // Work out the modifiers
     bool isWeak             = false;
     bool isCaseInsensitive  = false;
+    bool isCaseSensitive    = false;
 
     if (modifiers1) {
         for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
@@ -484,6 +485,8 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
@@ -497,7 +500,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     }
 
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); keyword++) {
@@ -528,6 +531,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     // Work out the modifiers
     bool isWeak             = false;
     bool isCaseInsensitive  = false;
+    bool isCaseSensitive    = false;
 
     if (modifiers1) {
         for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
@@ -535,6 +539,8 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
@@ -548,7 +554,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     }
 
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); lexeme++) {

@@ -6,17 +6,36 @@ language LexerTests {
 		identifier					= /{letter}({letter}|{digit})*/
 		unsigned-integer			= /{digit}+/
 		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+
+		jim 						= /jim/
+	}
+
+	case sensitive lexer-symbols {
+		fred = /fred/
+	}
+
+	case insensitive lexer-symbols {
+		joe = /joe/
 	}
 
 	lexer {
 		plus-or-minus = /[+\-]/
 		unsigned-real = /{unsigned-real}/
+		joe = /{joe}/
+	}
+
+	case insensitive lexer {
+		jim = /{jim}/
+		fred = /{fred}/
+		jimfred = /{jim}{fred}/
 	}
 
 	grammar {
 		<plus-or-minus> = plus-or-minus
 
 		<unsigned-real> = unsigned-real
+
+		<name> = jim | joe | fred | jimfred
 	}
 }
 
@@ -28,4 +47,15 @@ test LexerTests {
 	<unsigned-real> =	"1.2e12"
 						"1.2e+1"
 						"1.2e-1"
+
+	<name> = 			"jim"
+						"joe"
+						"fred"
+						"jIM"
+						"JoE"
+						"jimfred"
+						"JiMfred"
+
+	<name> !=			"FrEd"
+						"jimFrEd"
 }

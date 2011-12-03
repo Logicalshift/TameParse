@@ -585,7 +585,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
     
     if (childId == nt.id_lexer_symbols_definition) {
         // Lexer symbols block
-        lexer_block* result = new lexer_block(false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexer_block* result = new lexer_block(false, false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
         if (!get_lexer_block(result, (*child)[2])) {
             delete result;
@@ -599,7 +599,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         lexeme_container    closingCurly    = (*child)[4]->lexeme();
         bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        lexer_block* result = new lexer_block(isWeak, false, lexerKw->pos(), closingCurly->final_pos());
+        lexer_block* result = new lexer_block(isWeak, false, false, lexerKw->pos(), closingCurly->final_pos());
         
         if (!get_lexer_block(result, (*child)[3])) {
             delete result;
@@ -609,7 +609,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         return new language_unit(language_unit::unit_lexer_definition, result);
     } else if (childId == nt.id_ignore_definition) {
         // Ignore definition block
-        lexer_block* result = new lexer_block(false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexer_block* result = new lexer_block(false, false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
         if (!get_lexer_block(result, (*child)[2])) {
             delete result;
@@ -623,7 +623,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         lexeme_container    closingCurly    = (*child)[4]->lexeme();
         bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        lexer_block* result = new lexer_block(isWeak, false, lexerKw->pos(), closingCurly->final_pos());
+        lexer_block* result = new lexer_block(isWeak, false, false, lexerKw->pos(), closingCurly->final_pos());
         
         if (!get_lexer_block(result, (*child)[3])) {
             delete result;

@@ -41,10 +41,18 @@ namespace language {
 
         /// \brief True if the symbols defined by this block should be treated as 'case insensitive'
         bool m_CaseInsensitive;
+
+        /// \brief True if the symbols defined by this block should be explicitly treated as 'case sensitive'
+        ///
+        /// Lexer blocks are case-sensitive by default, but may be re-used in other
+        /// blocks if they are specified as a lexer-symbols block, in which case this
+        /// controls whether or not we should inherit the case sensivity of the
+        /// parent item.
+        bool m_CaseSensitive;
         
     public:
         /// \brief Creates a new lexer block
-        lexer_block(bool weak, bool caseInsensitive, position start = position(), position end = position());
+        lexer_block(bool weak, bool caseInsensitive, bool caseSensitive, position start = position(), position end = position());
         
         /// \brief Creates a lexer block by copying an old one
         lexer_block(const lexer_block& copyFrom);
@@ -69,6 +77,14 @@ namespace language {
 
         /// \brief Returns true if the symbols in this block should be treated as case insensitive
         inline bool is_case_insensitive() const { return m_CaseInsensitive; }
+
+        /// \brief True if the symbols defined by this block should be explicitly treated as 'case sensitive'
+        ///
+        /// Lexer blocks are case-sensitive by default, but may be re-used in other
+        /// blocks if they are specified as a lexer-symbols block, in which case this
+        /// controls whether or not we should inherit or override the case sensivity 
+        /// of the parent item.
+        inline bool is_case_sensitive() const { return m_CaseSensitive; }
     };
 }
 

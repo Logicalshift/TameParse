@@ -12,10 +12,11 @@ using namespace language;
 using namespace compiler;
 
 /// \brief Creates a new lexer item
-lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, const std::wstring* fn, const dfa::position& pos)
+lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, bool sensitive, const std::wstring* fn, const dfa::position& pos)
 : type(ty)
 , definition(def)
 , case_insensitive(insensitive)
+, case_sensitive(sensitive)
 , symbol(0)
 , definition_type(language_unit::unit_null)
 , is_weak(false)
@@ -24,10 +25,11 @@ lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, 
 }
 
 /// \brief Creates a new lexer item
-lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, int sym, unit_type def_type, bool weak, const std::wstring* fn, const dfa::position& pos) 
+lexer_item::lexer_item(item_type ty, const std::wstring& def, bool insensitive, bool sensitive, int sym, unit_type def_type, bool weak, const std::wstring* fn, const dfa::position& pos) 
 : type(ty)
 , definition(def)
 , case_insensitive(insensitive)
+, case_sensitive(sensitive)
 , symbol(sym)
 , definition_type(def_type)
 , is_weak(weak)
@@ -40,6 +42,7 @@ lexer_item::lexer_item(const lexer_item& copyFrom)
 : type(copyFrom.type)
 , definition(copyFrom.definition)
 , case_insensitive(copyFrom.case_insensitive)
+, case_sensitive(copyFrom.case_sensitive)
 , symbol(copyFrom.symbol)
 , definition_type(copyFrom.definition_type)
 , is_weak(copyFrom.is_weak)
@@ -56,6 +59,7 @@ lexer_item& lexer_item::operator=(const lexer_item& assignFrom) {
     type                = assignFrom.type;
     definition          = assignFrom.definition;
     case_insensitive    = assignFrom.case_insensitive;
+    case_sensitive      = assignFrom.case_sensitive;
     symbol              = assignFrom.symbol;
     definition_type     = assignFrom.definition_type;
     is_weak             = assignFrom.is_weak;

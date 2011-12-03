@@ -161,14 +161,14 @@ void language_stage::compile() {
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
                     // Add to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
                     // Add as a literal to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -177,7 +177,7 @@ void language_stage::compile() {
                 {
                     // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), ourFilename, (*lexerItem)->definition_pos()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -294,6 +294,7 @@ void language_stage::compile() {
 
                     // Set whether the regexes or literals we add should be case insensitive
                     bool ci = lex->is_case_insensitive();
+                    bool cs = lex->is_case_sensitive();
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
@@ -303,14 +304,14 @@ void language_stage::compile() {
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
                             // Add to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
                             // Add as a literal to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -320,7 +321,7 @@ void language_stage::compile() {
                             // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
                             wstring dequoted = process::dequote_string((*lexerItem)->definition());
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -562,7 +563,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
@@ -588,7 +589,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             int     symId   = m_Terminals.add_symbol(item->identifier());
             wstring dequote = process::dequote_string(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
