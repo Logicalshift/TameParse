@@ -256,7 +256,7 @@ namespace lr {
             
             // Work out which action to perform
             bool ok = false;
-            for (; act != end; act++) {
+            for (; act != end; ++act) {
                 // Stop searching if the symbol is invalid
                 if (act->m_SymbolId != sym) break;
                 
@@ -335,7 +335,7 @@ namespace lr {
         const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
         
         // Pop items from the stack
-        for (int x=0; x<rule.m_Length; x++) {
+        for (int x=0; x<rule.m_Length; ++x) {
             if (!pushed.empty()) {
                 // If we've pushed a fake state, then remove it from the stack
                 pushed.pop();
@@ -355,7 +355,7 @@ namespace lr {
         
         // Work out the goto action
         parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
-        for (; gotoAct != m_Tables->last_nonterminal_action(state); gotoAct++) {
+        for (; gotoAct != m_Tables->last_nonterminal_action(state); ++gotoAct) {
             if (gotoAct->m_Type == lr_action::act_goto) {
                 // Push this goto
                 pushed.push(gotoAct->m_NextState);
@@ -455,7 +455,7 @@ namespace lr {
                                                           parser_tables::action_iterator& act, 
                                                           parser_tables::action_iterator& end) {
         // Work out which action to perform
-        for (; act != end; act++) {
+        for (; act != end; ++act) {
             // Stop searching if the symbol is invalid
             if (act->m_SymbolId != symbol) break;
             
@@ -570,7 +570,7 @@ namespace lr {
         
         // If the action is a reduce action, then we need to check that we can actually perform the reduction
         bool canReduce = false;
-        for (action_iterator checkAction = act; checkAction != end; checkAction++) {
+        for (action_iterator checkAction = act; checkAction != end; ++checkAction) {
             // Give up if this action doesn't refer to the guard symbol
             if (checkAction->m_SymbolId != guardSymbol) break;
             

@@ -33,7 +33,7 @@ ebnf_item::ebnf_item(const ebnf_item& copyFrom) {
 /// \brief Destructor
 ebnf_item::~ebnf_item() {
     // Clear out the child items
-    for (ebnf_item_list::iterator toDelete = m_ChildItems.begin(); toDelete != m_ChildItems.end(); toDelete++) {
+    for (ebnf_item_list::iterator toDelete = m_ChildItems.begin(); toDelete != m_ChildItems.end(); ++toDelete) {
         delete *toDelete;
     }
     m_ChildItems.clear();
@@ -45,7 +45,7 @@ ebnf_item& ebnf_item::operator=(const ebnf_item& copyFrom) {
     if (&copyFrom == this) return *this;
     
     // Clear out the child items
-    for (ebnf_item_list::iterator toDelete = m_ChildItems.begin(); toDelete != m_ChildItems.end(); toDelete++) {
+    for (ebnf_item_list::iterator toDelete = m_ChildItems.begin(); toDelete != m_ChildItems.end(); ++toDelete) {
         delete *toDelete;
     }
     m_ChildItems.clear();
@@ -54,7 +54,7 @@ ebnf_item& ebnf_item::operator=(const ebnf_item& copyFrom) {
     m_Identifier        = copyFrom.m_Identifier;
     m_SourceIdentifier  = copyFrom.m_SourceIdentifier;
     
-    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); toCopy++) {
+    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); ++toCopy) {
         m_ChildItems.push_back(new ebnf_item(**toCopy));
     }
     

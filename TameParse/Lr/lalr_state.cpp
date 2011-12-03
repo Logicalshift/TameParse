@@ -18,7 +18,7 @@ lalr_state::lalr_state() {
 /// \brief Copies this state
 lalr_state::lalr_state(const lalr_state& copyFrom)
 : m_State(copyFrom.m_State) {
-    for (lookahead_for_item::const_iterator it=copyFrom.m_Lookahead.begin(); it != copyFrom.m_Lookahead.end(); it++) {
+    for (lookahead_for_item::const_iterator it=copyFrom.m_Lookahead.begin(); it != copyFrom.m_Lookahead.end(); ++it) {
         m_Lookahead.push_back(new lr1_item::lookahead_set(**it));
     }    
 }
@@ -26,7 +26,7 @@ lalr_state::lalr_state(const lalr_state& copyFrom)
 /// \brief Destroys this state
 lalr_state::~lalr_state() {
     // Destroy all the lookahead sets
-    for (lookahead_for_item::iterator it=m_Lookahead.begin(); it != m_Lookahead.end(); it++) {
+    for (lookahead_for_item::iterator it=m_Lookahead.begin(); it != m_Lookahead.end(); ++it) {
         delete *it;
     }
 }

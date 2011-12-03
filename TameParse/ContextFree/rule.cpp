@@ -62,7 +62,7 @@ int rule::compare_items(const rule& compareTo) const {
     item_list::const_iterator ourItem   = m_Items.begin();
     item_list::const_iterator theirItem = compareTo.begin();
     
-    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
+    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ++ourItem, ++theirItem) {
         if (*ourItem < *theirItem) return -1;
         if (*theirItem < *ourItem) return 1;
     }
@@ -102,7 +102,7 @@ bool rule::operator==(const rule& compareTo) const {
     item_list::const_iterator ourItem   = m_Items.begin();
     item_list::const_iterator theirItem = compareTo.begin();
     
-    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
+    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ++ourItem, ++theirItem) {
         if (*ourItem != *theirItem) return false;
     }
     
@@ -120,7 +120,7 @@ rule& rule::operator<<(const item_container& item) {
 
 /// \brief Appends the production in the specified rule to this item
 rule& rule::operator<<(const rule& rule) {
-    for (iterator it = rule.begin(); it != rule.end(); it++) {
+    for (iterator it = rule.begin(); it != rule.end(); ++it) {
         operator<<(*it);
     }
     return *this;

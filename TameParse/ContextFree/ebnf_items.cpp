@@ -42,7 +42,7 @@ ebnf::ebnf(const ebnf& copyFrom)
 , m_Rules(new rule_list()) {
     item_container ourselves(this, false);
     
-    for (rule_list::const_iterator it = copyFrom.m_Rules->begin(); it != copyFrom.m_Rules->end(); it++) {
+    for (rule_list::const_iterator it = copyFrom.m_Rules->begin(); it != copyFrom.m_Rules->end(); ++it) {
         m_Rules->push_back(rule(**it, ourselves));
     }
 }
@@ -53,7 +53,7 @@ ebnf::ebnf(const rule_list& copyFrom)
 , m_Rules(new rule_list()) {
     item_container ourselves(this, false);
 
-    for (rule_list::const_iterator it = copyFrom.begin(); it != copyFrom.end(); it++) {
+    for (rule_list::const_iterator it = copyFrom.begin(); it != copyFrom.end(); ++it) {
         m_Rules->push_back(rule(**it, ourselves));
     }
 }
@@ -90,7 +90,7 @@ bool ebnf::operator==(const item& compareTo) const {
     rule_iterator ourIt     = first_rule();
     rule_iterator theirIt   = compareEbnf->first_rule();
     
-    for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ourIt++, theirIt++) {
+    for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ++ourIt, ++theirIt) {
         if ((*ourIt)->compare_items(**theirIt) == 0) continue;
         return false;
     }
@@ -120,7 +120,7 @@ bool ebnf::operator<(const item& compareTo) const {
     rule_iterator ourIt     = first_rule();
     rule_iterator theirIt   = compareEbnf->first_rule();
     
-    for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ourIt++, theirIt++) {
+    for (;ourIt != last_rule() && theirIt != compareEbnf->last_rule(); ++ourIt, ++theirIt) {
         int compare = (*ourIt)->compare_items(**theirIt);
         if (compare < 0) return true;
         if (compare > 0) return false;
@@ -330,7 +330,7 @@ item_set ebnf_alternate::first(const grammar& gram) const {
     item_set result(gram);
     
     // Iterate through all of the rules
-    for (rule_iterator it = first_rule(); it != last_rule(); it++) {
+    for (rule_iterator it = first_rule(); it != last_rule(); ++it) {
         // Get the rule
         const rule& r = **it;
         
@@ -353,7 +353,7 @@ void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
     fill_follow(follow, item, gram);
     
     // Any of the items in this rule
-    for (rule_list::const_iterator nextRule = rules().begin(); nextRule != rules().end(); nextRule++) {
+    for (rule_list::const_iterator nextRule = rules().begin(); nextRule != rules().end(); ++nextRule) {
         // If this particular rule is just another alternative, then flatten things out instead of referencing it
         // This simplifies the AST and also reduces the number of reductions that need to be performed
         if ((*nextRule)->items().size() == 1 && (*nextRule)->items()[0]->type() == item::alternative) {
@@ -388,7 +388,7 @@ void ebnf_alternate::closure(const lr::lr1_item& item, lr::lr1_item_set& state, 
                 // Iterate through the rules in this item
                 const ebnf* alternateEbnf = (const ebnf*) alternate.item();
 
-                for (rule_list::const_iterator ruleToFlatten = alternateEbnf->first_rule(); ruleToFlatten != alternateEbnf->last_rule(); ruleToFlatten++) {
+                for (rule_list::const_iterator ruleToFlatten = alternateEbnf->first_rule(); ruleToFlatten != alternateEbnf->last_rule(); ++ruleToFlatten) {
                     // Single-item alternates get flattened later on
                     if ((*ruleToFlatten)->items().size() == 1 && (*ruleToFlatten)->items()[0]->type() == item::alternative) {
                         toFlatten.push(*ruleToFlatten);

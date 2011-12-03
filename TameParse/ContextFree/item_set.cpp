@@ -41,7 +41,7 @@ item_set::item_set(const item_set& copyFrom)
 	if (m_MaxItem > 0) {
 		m_Items = (unsigned int*) malloc(sizeof(unsigned int)*m_MaxItem);
 
-		for (int item = 0; item < m_MaxItem; item++) {
+		for (int item = 0; item < m_MaxItem; ++item) {
 			m_Items[item] = copyFrom.m_Items[item];
 		}
 	}
@@ -60,7 +60,7 @@ item_set& item_set::operator=(const item_set& assignFrom) {
 	m_Size		= assignFrom.m_Size;
 	m_Items		= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-	for (int item=0; item < m_MaxItem; item++) {
+	for (int item=0; item < m_MaxItem; ++item) {
 		m_Items[item] = assignFrom.m_Items[item];
 	}
     
@@ -81,7 +81,7 @@ void item_set::count_size() {
 	m_Size = 0;
 
 	// Iterate through the items
-	for (int item = 0; item < m_MaxItem; item++) {
+	for (int item = 0; item < m_MaxItem; ++item) {
 		// Count the number of bits set in this item (Kerningham's method)
 		unsigned int bits = m_Items[item];
 		while (bits) {
@@ -111,7 +111,7 @@ bool item_set::insert(int itemId) {
     	m_MaxItem 	= setId + 1;
     	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-    	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
+    	for (int item = oldMax; item < m_MaxItem; ++item) m_Items[item] = 0;
     }
 
     // Create the mask
@@ -169,14 +169,14 @@ bool item_set::merge(const item_set& mergeWith) {
     	m_MaxItem 	= mergeWith.m_MaxItem;
     	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-    	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
+    	for (int item = oldMax; item < m_MaxItem; ++item) m_Items[item] = 0;
 	}
 
 	// Remember if the size has changed
 	bool sizeChanged = false;
 
 	// Iterate through the items in the set we're merging with
-	for (int item = 0; item < mergeWith.m_MaxItem; item++) {
+	for (int item = 0; item < mergeWith.m_MaxItem; ++item) {
 		// Get the items in this set
 		unsigned int bits = mergeWith.m_Items[item];
 

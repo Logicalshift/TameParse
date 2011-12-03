@@ -55,7 +55,7 @@ namespace dfa {
             if (length != 0) m_Symbols.reserve(length);
             
             // Store the symbols in turn
-            for (iterator_type it=begin; it != end; it++) {
+            for (iterator_type it=begin; it != end; ++it) {
                 m_Symbols += (int)*it;
             }
         }
@@ -102,7 +102,7 @@ namespace dfa {
             result.reserve(m_Symbols.size());
             
             // Copy the symbols across, using a simple cast operation
-            for (symbols::const_iterator it=m_Symbols.begin(); it != m_Symbols.end(); it++) {
+            for (symbols::const_iterator it=m_Symbols.begin(); it != m_Symbols.end(); ++it) {
                 result += (symbol_type)*it;
             }
             

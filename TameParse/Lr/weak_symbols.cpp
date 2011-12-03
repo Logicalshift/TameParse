@@ -74,7 +74,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
     
     // Iterate through all of the DFA states
     typedef ndfa::accept_action_list accept_actions;
-    for (int state = 0; state < dfa.count_states(); state++) {
+    for (int state = 0; state < dfa.count_states(); ++state) {
         // Get the accepting actions for this state
         const accept_actions& accept = dfa.actions_for_state(state);
         
@@ -85,7 +85,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
         int         strongest   = 0x7fffffff;
         set<int>    usedWeak;
         
-        for (accept_actions::const_iterator it = accept.begin(); it != accept.end(); it++) {
+        for (accept_actions::const_iterator it = accept.begin(); it != accept.end(); ++it) {
             int sym = (*it)->symbol();
             
             // Ignore weak symbols
@@ -108,7 +108,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
         if (usedWeak.empty())           continue;
         
         // Map the weak symbols we found to this identifier
-        for (set<int>::iterator it = usedWeak.begin(); it != usedWeak.end(); it++) {
+        for (set<int>::iterator it = usedWeak.begin(); it != usedWeak.end(); ++it) {
             if (weakToStrong.find(*it) == weakToStrong.end()) {
                 // This is the first conflict between the two symbols. Just mark out the mapping.
                 weakToStrong[*it] = strongest;
@@ -133,7 +133,7 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
     // TODO: if a weak symbol maps to several strong identifiers, it needs to be split into several symbols
     
     // Fill in the strong map for each weak symbol
-    for (map<int, int>::iterator it = weakToStrong.begin(); it != weakToStrong.end(); it++) {
+    for (map<int, int>::iterator it = weakToStrong.begin(); it != weakToStrong.end(); ++it) {
         // Use the first strong symbol for this weak symbol
         item_container strongTerm(new terminal(it->second), true);
         item_container weakTerm(new terminal(it->first), true);
@@ -174,7 +174,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
     // Determine if there are any actions referring to strong symbols in this action set
     bool haveStrong = false;
     
-    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); it++) {
+    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); ++it) {
         // This only deals with actions on terminal items
         if ((*it)->item()->type() != item::terminal) continue;
         
@@ -197,7 +197,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
     stack<lr_action_container>  weakActions;                // Weak actions not processed in the first pass
     stack<lr_action_container>  strongActions;              // Strong actions that might have associated weak symbols
     
-    for (lr_action_set::const_iterator act = actions.begin(); act != actions.end(); act++) {
+    for (lr_action_set::const_iterator act = actions.begin(); act != actions.end(); ++act) {
         // Actions on non-terminal symbols should be preserved
         if ((*act)->item()->type() != item::terminal) {
             newActions.insert(*act);

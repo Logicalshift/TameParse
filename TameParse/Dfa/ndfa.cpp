@@ -31,14 +31,14 @@ ndfa::ndfa(const ndfa& copyFrom)
 , m_CurrentState(0)
 , m_IsDeterministic(copyFrom.m_IsDeterministic) {
     // Copy the states
-    for (state_list::const_iterator it = copyFrom.m_States->begin(); it != copyFrom.m_States->end(); it++) {
+    for (state_list::const_iterator it = copyFrom.m_States->begin(); it != copyFrom.m_States->end(); ++it) {
         m_States->push_back(new state(**it));
     }
     
     // Copy the accept actions
-    for (accept_action_for_state::const_iterator it = copyFrom.m_Accept->begin(); it != copyFrom.m_Accept->end(); it++) {
+    for (accept_action_for_state::const_iterator it = copyFrom.m_Accept->begin(); it != copyFrom.m_Accept->end(); ++it) {
         accept_action_list& action = (*m_Accept)[it->first];
-        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
+        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); ++actionIt) {
             action.push_back((*actionIt)->clone());
         }
     }
@@ -66,14 +66,14 @@ ndfa::ndfa(state_list* states, symbol_map* symbols, accept_action_for_state* acc
 // \brief Destructor
 ndfa::~ndfa() {
     // Destroy any accept actions that might be in this NDFA
-    for (accept_action_for_state::iterator acceptState = m_Accept->begin(); acceptState != m_Accept->end(); acceptState++) {
-        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); actionList++) {
+    for (accept_action_for_state::iterator acceptState = m_Accept->begin(); acceptState != m_Accept->end(); ++acceptState) {
+        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); ++actionList) {
             delete *actionList;
         }
     }
     
     // Destroy any states
-    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); ++stateIt) {
         delete *stateIt;
     }
     
@@ -264,7 +264,7 @@ inline void ndfa::builder::add_with_surrogates(const symbol_set& symbols) {
         symbol_set nonSurrogates;
 
         // Look through the symbol set
-        for (symbol_set::iterator syms = symbols.begin(); syms != symbols.end(); syms++) {
+        for (symbol_set::iterator syms = symbols.begin(); syms != symbols.end(); ++syms) {
             // Ignore empty ranges
             if (syms->lower() >= syms->upper()) continue;
 
@@ -295,7 +295,7 @@ inline void ndfa::builder::add_with_surrogates(const symbol_set& symbols) {
             }
 
             // Add a surrogate transition for each surrogate range
-            for (symbol_set::iterator syms = surrogates.begin(); syms != surrogates.end(); syms++) {
+            for (symbol_set::iterator syms = surrogates.begin(); syms != surrogates.end(); ++syms) {
                 add_surrogate_transition(*syms, m_CurrentState, nextState, m_Ndfa);
             }
 
@@ -431,11 +431,11 @@ void ndfa::closure(set<int>& states) const {
         // Create a set of states we're going to add
         set<int> addedStates;
         
-        for (set<int>::iterator stateIt = newStates.begin(); stateIt != newStates.end(); stateIt++) {
+        for (set<int>::iterator stateIt = newStates.begin(); stateIt != newStates.end(); ++stateIt) {
             // Find any epsilon transitions in this state
             const state& thisState = get_state(*stateIt);
             
-            for (state::iterator transIt = thisState.begin(); transIt != thisState.end(); transIt++) {
+            for (state::iterator transIt = thisState.begin(); transIt != thisState.end(); ++transIt) {
                 // Ignore non-epsilon transitions
                 if (transIt->symbol_set() != epsSymbol) continue;
                 
@@ -470,7 +470,7 @@ bool ndfa::verify_is_dfa() const {
     int epsSymbol = m_Symbols->identifier_for_symbols(epsilon());
     
     // Iterate through the states in this NDFA
-    for (state_list::const_iterator nextState = m_States->begin(); nextState != m_States->end(); nextState++) {
+    for (state_list::const_iterator nextState = m_States->begin(); nextState != m_States->end(); ++nextState) {
         // Verify that there are no duplicate transitions in this state, and no epsilon transitions
         set<int> usedSymbols;
         
@@ -478,7 +478,7 @@ bool ndfa::verify_is_dfa() const {
         usedSymbols.insert(epsSymbol);
         
         // Iterate through the transitions
-        for (state::iterator nextTrans = (*nextState)->begin(); nextTrans != (*nextState)->end(); nextTrans++) {
+        for (state::iterator nextTrans = (*nextState)->begin(); nextTrans != (*nextState)->end(); ++nextTrans) {
             // Verify that this symbol isn't already used
             if (usedSymbols.find(nextTrans->symbol_set()) != usedSymbols.end()) {
                 return false;
@@ -499,8 +499,8 @@ ndfa& ndfa::operator=(const ndfa& assignFrom) {
     if (&assignFrom == this) return *this;
 
     // Destroy any accept actions that might be in this NDFA
-    for (accept_action_for_state::iterator acceptState = m_Accept->begin(); acceptState != m_Accept->end(); acceptState++) {
-        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); actionList++) {
+    for (accept_action_for_state::iterator acceptState = m_Accept->begin(); acceptState != m_Accept->end(); ++acceptState) {
+        for (accept_action_list::iterator actionList = acceptState->second.begin(); actionList != acceptState->second.end(); ++actionList) {
             delete *actionList;
         }
     }
@@ -508,14 +508,14 @@ ndfa& ndfa::operator=(const ndfa& assignFrom) {
     m_Accept->clear();
     
     // Destroy any states
-    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+    for (state_list::iterator stateIt = m_States->begin(); stateIt != m_States->end(); ++stateIt) {
         delete *stateIt;
     }
 
     m_States->clear();
 
     // Copy the states from the target NDFA
-    for (int stateId=0; stateId < assignFrom.count_states(); stateId++) {
+    for (int stateId=0; stateId < assignFrom.count_states(); ++stateId) {
         m_States->push_back(new state(assignFrom.get_state(stateId)));
     }
 
@@ -528,7 +528,7 @@ ndfa& ndfa::operator=(const ndfa& assignFrom) {
         accept_action_list& newActions = (*m_Accept)[acceptAct->first];
 
         // Iterate through the list of actions for this state
-        for (accept_action_list::const_iterator copyAction = acceptAct->second.begin(); copyAction != acceptAct->second.end(); copyAction++) {
+        for (accept_action_list::const_iterator copyAction = acceptAct->second.begin(); copyAction != acceptAct->second.end(); ++copyAction) {
             // Ignore NULL actions
             if (!*copyAction) continue;
 

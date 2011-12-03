@@ -50,7 +50,7 @@ void parser_stage::compile() {
         
         if (!errors.empty()) {
             // Report the errors
-            for (error_list::const_iterator nextError = errors.begin(); nextError != errors.end(); nextError++) {
+            for (error_list::const_iterator nextError = errors.begin(); nextError != errors.end(); ++nextError) {
                 cons().report_error(*nextError);
             }
         } else {

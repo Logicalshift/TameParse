@@ -109,7 +109,7 @@ int main (int argc, const char * argv[]) {
     
     // Run the parser stages to generate the output file
     const language_block* lBlock = NULL;
-    for (definition_file::iterator mightBeLanguage = defn->begin(); mightBeLanguage != defn->end(); mightBeLanguage++) {
+    for (definition_file::iterator mightBeLanguage = defn->begin(); mightBeLanguage != defn->end(); ++mightBeLanguage) {
         if ((*mightBeLanguage)->language()) {
             lBlock = (*mightBeLanguage)->language();
         }

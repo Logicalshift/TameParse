@@ -45,7 +45,7 @@ symbol_string ndfa_regex::convert(const string& source) {
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (string::const_iterator it=source.begin(); it != source.end(); it++) {
+    for (string::const_iterator it=source.begin(); it != source.end(); ++it) {
         result += (int)(unsigned char)*it;
     }
     
@@ -60,7 +60,7 @@ symbol_string ndfa_regex::convert(const wstring& source) {
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (wstring::const_iterator it=source.begin(); it != source.end(); it++) {
+    for (wstring::const_iterator it=source.begin(); it != source.end(); ++it) {
         result += (int)(unsigned)(wchar_t)*it;
     }
     
@@ -75,7 +75,7 @@ symbol_string ndfa_regex::convert(char* source) {
     if (!source) return result;
     
     // Fill it in, treating the characters as unsigned
-    for (char* pos = source; *pos != 0; pos++) {
+    for (char* pos = source; *pos != 0; ++pos) {
         result += (int)(unsigned char)*pos;
     }
     
@@ -90,7 +90,7 @@ symbol_string ndfa_regex::convert(wchar_t* source) {
     if (!source) return result;
     
     // Fill it in, treating the characters as unsigned
-    for (wchar_t* pos = source; *pos != 0; pos++) {
+    for (wchar_t* pos = source; *pos != 0; ++pos) {
         result += (int)(unsigned)(wchar_t)*pos;
     }
     
@@ -115,7 +115,7 @@ std::wstring ndfa_regex::convert_syms(const symbol_string& source) {
 /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
 int ndfa_regex::add_literal(builder& cons, const symbol_string& literal) {
     // Compile as a straight string
-    for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); pos++) {
+    for (symbol_string::const_iterator pos = literal.begin(); pos != literal.end(); ++pos) {
         // Add the next string
         cons >> *pos;
     }
@@ -370,7 +370,7 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
 static int hex(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, int maxDigits) {
     int result = 0;
     
-    for (int x=0; x<maxDigits; x++) {
+    for (int x=0; x<maxDigits; ++x) {
         // Get the next position
         symbol_string::const_iterator next = pos;
         next++;
@@ -402,7 +402,7 @@ static int hex(symbol_string::const_iterator& pos, const symbol_string::const_it
 static int oct(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, int maxDigits) {
     int result = 0;
     
-    for (int x=0; x<maxDigits; x++) {
+    for (int x=0; x<maxDigits; ++x) {
         // Get the next position
         symbol_string::const_iterator next = pos;
         next++;
@@ -488,7 +488,7 @@ std::vector<regex_error> ndfa_regex::check_regex(const symbol_string& regex) {
     position_tracker exprPos(position(0,0,0));
 
     // Iterate through the regular expression and check each character in turn
-    for (symbol_string::const_iterator chr = regex.begin(); chr != regex.end(); chr++) {
+    for (symbol_string::const_iterator chr = regex.begin(); chr != regex.end(); ++chr) {
         check(exprPos, chr, end, errors);
         if (chr == end) break;
         exprPos.update_position(*chr);
@@ -681,7 +681,7 @@ static inline bool match_prefix(const string& prefix, string& str) {
 static string unicode_for_expression(const symbol_string& expression) {
     // Convert to a standard string
     string expr;
-    for (symbol_string::const_iterator it = expression.begin(); it != expression.end(); it++) {
+    for (symbol_string::const_iterator it = expression.begin(); it != expression.end(); ++it) {
         if (*it > 255) {
             expr += '.';
         } else {
@@ -934,7 +934,7 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
         symbol_set  ourSymbols;
 
         // Iterate through all of the unicode block
-        for (unicode::iterator block = someUnicode.begin(); block != someUnicode.end(); block++) {
+        for (unicode::iterator block = someUnicode.begin(); block != someUnicode.end(); ++block) {
             // Main category must match
             if (block->type[0] != unicodeCategory[0]) continue;
 
@@ -942,7 +942,7 @@ bool ndfa_regex::compile_expression(const symbol_string& expression, builder& co
             if (unicodeCategory.size() > 1 && block->type[1] != unicodeCategory[1]) continue;
 
             // This matches: add the symbols ranges
-            for (const unicode::range* r = block->ranges; r->lower >= 0; r++) {
+            for (const unicode::range* r = block->ranges; r->lower >= 0; ++r) {
                 ourSymbols |= range<int>(r->lower, r->upper);
             }
         }

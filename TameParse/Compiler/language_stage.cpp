@@ -29,7 +29,7 @@ language_stage::language_stage(console_container& console, const std::wstring& f
 /// \brief Destructor
 language_stage::~language_stage() {
     // Destroy the cached filenames
-    for (map<wstring, wstring*>::iterator filename = m_Filenames.begin(); filename != m_Filenames.end(); filename++) {
+    for (map<wstring, wstring*>::iterator filename = m_Filenames.begin(); filename != m_Filenames.end(); ++filename) {
         delete filename->second;
     }
     m_Filenames.clear();
@@ -43,7 +43,7 @@ language_stage::~language_stage() {
 /// \brief Removes any terminal symbols used in the specified rule from the unused list
 void language_stage::process_rule_symbols(const contextfree::rule& rule) {
     // Iterate through the rules in this item
-    for (rule::iterator item = rule.begin(); item != rule.end(); item++) {
+    for (rule::iterator item = rule.begin(); item != rule.end(); ++item) {
         // Remove terminal items from the unused list
         if ((*item)->type() == item::terminal) {
             m_UnusedSymbols.erase((*item)->symbol());
@@ -58,7 +58,7 @@ void language_stage::process_rule_symbols(const contextfree::rule& rule) {
         const ebnf* ebnfItem = (*item)->cast_ebnf();
         if (ebnfItem) {
             // Also remove items for any contained EBNF rules
-            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ebnfRule++) {
+            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ++ebnfRule) {
                 process_rule_symbols(**ebnfRule);
             }
         }
@@ -114,7 +114,7 @@ void language_stage::compile() {
     }
     
     // Find any lexer-symbols sections and add them to the lexer
-    for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
+    for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); ++lexerSymbols) {
         if ((*lexerSymbols)->type() != language_unit::unit_lexer_symbols) continue;
 
         // Fetch the lexer block
@@ -124,7 +124,7 @@ void language_stage::compile() {
         if (!lex) continue;
 
         // Define these as expressions
-        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); ++lexerItem) {
             // Check if an expression is already defined and report an error if it is
             if (!m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
                 if (!(*lexerItem)->add_to_definition() && !(*lexerItem)->replace_definition()) {
@@ -204,14 +204,14 @@ void language_stage::compile() {
     // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
     // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
     // defined in the grammar itself (as the grammar must be processed last)
-    for (int weakness = 0; weakness < 2; weakness++) {
+    for (int weakness = 0; weakness < 2; ++weakness) {
         // Weak blocks have the highest priority
         bool isWeak = weakness == 0;
 
         // Process the remaining blocks in order
-        for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; thisType++) {
+        for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; ++thisType) {
             // Create symbols for all of the items defined in lexer blocks
-            for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
+            for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); ++lexerBlock) {
                 // Fetch the lexer block
                 lexer_block* lex = (*lexerBlock)->any_lexer_block();
                 
@@ -225,7 +225,7 @@ void language_stage::compile() {
                 if (blockType != *thisType || lex->is_weak() != isWeak) continue;
                 
                 // Add the symbols to the lexer
-                for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+                for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); ++lexerItem) {
                     // Get the ID that we'll define for this symbol
                     int symId;
                     
@@ -353,7 +353,7 @@ void language_stage::compile() {
     // Create symbols for any items defined in the grammar (these are all weak, so they must be defined first)
     int implicitCount = 0;
     
-    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); ++grammarBlock) {
         // Only interested in grammar blocks here
         if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
         
@@ -361,11 +361,11 @@ void language_stage::compile() {
         grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
         
         // Iterate through the nonterminals
-        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); ++nonterminal) {
             // Iterate through the productions
-            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); ++production) {
                 // Iterate through the items in this production
-                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
                     implicitCount += add_ebnf_lexer_items(*ebnfItem);
                 }
             }
@@ -374,7 +374,7 @@ void language_stage::compile() {
     
     // Build the grammar itself
     // If we reach here, then every terminal symbol in the grammar should be defined somewhere in the terminal dictionary
-    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); ++grammarBlock) {
         // Only interested in grammar blocks here
         if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
         
@@ -382,7 +382,7 @@ void language_stage::compile() {
         grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
         
         // Iterate through the nonterminals
-        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); ++nonterminal) {
             // Get the identifier for the nonterminal that this maps to
             int nonterminalId = m_Grammar.id_for_nonterminal((*nonterminal)->identifier());
             
@@ -403,12 +403,12 @@ void language_stage::compile() {
             }
             
             // Define the productions associated with this nonterminal
-            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); ++production) {
                 // Get a rule for this production
                 rule_container newRule(new rule(nonterminalId), true);
                 
                 // Append the items in this production
-                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
                     // Compile each item in turn and append them to the rule
                     compile_item(*newRule, *ebnfItem, ourFilename);
                 }
@@ -423,18 +423,18 @@ void language_stage::compile() {
     }
 
     // Go through the grammar and remove any terminal symbols that are used in any of the productions
-    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); itemId++) {
+    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); ++itemId) {
         // Get the rules for this item
         const rule_list& itemRules = m_Grammar.rules_for_nonterminal(itemId);
 
         // Remove any unused symbol from the list
-        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); itemRule++) {
+        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); ++itemRule) {
             process_rule_symbols(**itemRule);
         }
     }
     
     // Any nonterminal with no rules is one that was referenced but not defined
-    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); nonterminalId++) {
+    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); ++nonterminalId) {
         // Get the item corresponding to this ID
         item_container ntItem = m_Grammar.item_with_identifier(nonterminalId);
         if (ntItem->type() != item::nonterminal) continue;
@@ -500,7 +500,7 @@ void language_stage::compile() {
 /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
 void language_stage::report_unused_symbols() {
     // Display warnings for unused symbols
-    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
+    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); ++unused) {
         // Ignore symbols that we don't have a definition location for
         if (!m_TerminalDefinition[*unused].first) {
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
@@ -537,7 +537,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
         case ebnf_item::ebnf_optional:
         case ebnf_item::ebnf_parenthesized:
             // Process the child items for these types of object
-            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
                 count += add_ebnf_lexer_items(*childItem);
             }
             break;
@@ -648,7 +648,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         case ebnf_item::ebnf_parenthesized:
         {
             // Just append the items inside this one to the rule
-            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
                 compile_item(rule, *childItem, ourFilename);
             }
             break;
@@ -773,7 +773,7 @@ template<class sm> static void copy_symbols(map<wstring, wstring*>& filenames, c
     typedef typename sm::mapped_type    value_type;
     
     // Iterate through the items in the map
-    for (iterator sourceItem = source.begin(); sourceItem != source.end(); sourceItem++) {
+    for (iterator sourceItem = source.begin(); sourceItem != source.end(); ++sourceItem) {
         // Get/create the filename pointer for this item
         wstring* filenamePtr;
         map<wstring, wstring*>::iterator found = filenames.find(*sourceItem->second.second);

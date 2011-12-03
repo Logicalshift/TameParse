@@ -14,9 +14,9 @@ using namespace dfa;
 
 // True if one of the specified set of symbol set IDs maps to the specified range in the specified map
 static bool contains_range(const symbol_map& map, const remapped_symbol_map::new_symbol_set& sets, range<int> chrs) {
-    for (remapped_symbol_map::new_symbol_set::const_iterator it = sets.begin(); it != sets.end(); it++) {
+    for (remapped_symbol_map::new_symbol_set::const_iterator it = sets.begin(); it != sets.end(); ++it) {
         const symbol_set& thisSet = map[*it];
-        for (symbol_set::iterator it = thisSet.begin(); it != thisSet.end(); it++) {
+        for (symbol_set::iterator it = thisSet.begin(); it != thisSet.end(); ++it) {
             if (chrs == *it) {
                 return true;
             }
@@ -30,7 +30,7 @@ static bool check_ranges(const symbol_map& original, const remapped_symbol_map& 
     typedef remapped_symbol_map::new_symbol_set new_symbols;
     
     // Iterate through the old symbol sets
-    for (symbol_map::iterator oldSymbols = original.begin(); oldSymbols != original.end(); oldSymbols++) {
+    for (symbol_map::iterator oldSymbols = original.begin(); oldSymbols != original.end(); ++oldSymbols) {
         // Set of symbols that haven't been remapped
         symbol_set notMapped = *oldSymbols->first;
         
@@ -38,7 +38,7 @@ static bool check_ranges(const symbol_map& original, const remapped_symbol_map& 
         new_symbols remappedSets = remapped.new_symbols(oldSymbols->second);
         
         // Remove the sets from the 'not mapped' set
-        for (new_symbols::const_iterator newSet = remappedSets.begin(); newSet != remappedSets.end(); newSet++) {
+        for (new_symbols::const_iterator newSet = remappedSets.begin(); newSet != remappedSets.end(); ++newSet) {
             // Should not yet be removed from the unmapped set
             symbol_set intersect = notMapped & remapped[*newSet];
             

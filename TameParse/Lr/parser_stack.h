@@ -155,7 +155,7 @@ namespace lr {
                 
                 // Sweep any unused items in the stack
                 m_NumFree = 0;
-                for (size_t x=0; x<m_Stack.size(); x++) {
+                for (size_t x=0; x<m_Stack.size(); ++x) {
                     if (!marks[x]) {
                         m_Stack[x].m_PreviousIndex = entry::empty;
                         m_NumFree++;
@@ -293,7 +293,7 @@ namespace lr {
         /// IE, reference[-1] gives the entry preceeding this one on the stack
         inline entry& operator[](int x) {
             int index = m_Index;
-            for (int pos = x; pos < 0; pos++) {
+            for (int pos = x; pos < 0; ++pos) {
                 int nextIndex = m_Stack->m_Stack[index].m_PreviousIndex;
                 if (nextIndex >= 0) index = nextIndex;
             }
@@ -305,7 +305,7 @@ namespace lr {
         /// IE, reference[-1] gives the entry preceeding this one on the stack
         inline const entry& operator[](int x) const {
             int index = m_Index;
-            for (int pos = x; pos < 0; pos++) {
+            for (int pos = x; pos < 0; ++pos) {
                 int nextIndex = m_Stack->m_Stack[index].m_PreviousIndex;
                 if (nextIndex >= 0) index = nextIndex;
             }

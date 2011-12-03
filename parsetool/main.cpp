@@ -109,7 +109,7 @@ int main (int argc, const char * argv[])
             int languageCount = 0;
             
             // Find all of the language blocks
-            for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); defnBlock++) {
+            for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); ++defnBlock) {
                 if ((*defnBlock)->language()) {
                     languageCount++;
                     if (languageCount > 1) {

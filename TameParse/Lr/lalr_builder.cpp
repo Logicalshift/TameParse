@@ -65,7 +65,7 @@ typedef map<item_container, lalr_state_container> state_for_item;
 void lalr_builder::create_closure(closure_set& target, const lalr_state& state, const grammar* gram) {
     queue<lr1_item_container> waiting;
     
-    for (int itemId = 0; itemId < state.count_items(); itemId++) {
+    for (int itemId = 0; itemId < state.count_items(); ++itemId) {
         // Mark this item as waiting
         lr0_item_container  lr0 = state[itemId];
         lr1_item_container  lr1(new lr1_item(state[itemId], state.lookahead_for(itemId)), true);
@@ -91,7 +91,7 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
         rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
-        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
+        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); ++it) {
             if (target.insert(**it).second) {
                 // This is a new item: add it to the list of items waiting to be processed
                 waiting.push(*it);
@@ -108,7 +108,7 @@ void lalr_builder::complete_parser() {
     queue<int> waitingStates;
     
     // Begin by filling the queue of states with all the states that are defined
-    for (int x=0; x<m_Machine.count_states(); x++) {
+    for (int x=0; x<m_Machine.count_states(); ++x) {
         waitingStates.push(x);
     }
     
@@ -129,7 +129,7 @@ void lalr_builder::complete_parser() {
         // Work out the transitions by inspecting each item in the closure (ie, generate the kernels reached from this state)
         state_for_item newStates;
         
-        for (closure_set::const_iterator item = closure.begin(); item != closure.end(); item++) {
+        for (closure_set::const_iterator item = closure.begin(); item != closure.end(); ++item) {
             // Take the item apart
             const rule& rule    = *(*item)->rule();
             int         offset  = (*item)->offset();
@@ -187,7 +187,7 @@ void lalr_builder::complete_parser() {
         }
         
         // Add the new states (and transitions) to the machine
-        for (state_for_item::iterator nextState = newStates.begin(); nextState != newStates.end(); nextState++) {
+        for (state_for_item::iterator nextState = newStates.begin(); nextState != newStates.end(); ++nextState) {
             // Add the state that was generated for this item
             int targetState = m_Machine.add_state(nextState->second);
             
@@ -229,13 +229,13 @@ void lalr_builder::complete_lookaheads() {
     m_Propagate.clear();
     
     // Iterate through the states, and generate spontaneous lookaheads and also the propagation table
-    for (int stateId = 0; stateId < m_Machine.count_states(); stateId++) {
+    for (int stateId = 0; stateId < m_Machine.count_states(); ++stateId) {
         // Get the state object
         const lalr_state_container&         thisState   = m_Machine.state_with_id(stateId);
         const lalr_machine::transition_set& transitions = m_Machine.transitions_for_state(stateId);
         
         // Iterate through the items in this state
-        for (int itemId = 0; itemId < thisState->count_items(); itemId++) {
+        for (int itemId = 0; itemId < thisState->count_items(); ++itemId) {
             // Get the item
             const lalr_state::container& thisItem = (*thisState)[itemId];
             
@@ -259,7 +259,7 @@ void lalr_builder::complete_lookaheads() {
             set<lr_item_id>& spontaneousTargets = m_Spontaneous[lr_item_id(stateId, itemId)];
             
             // Iterate through the items in the closure
-            for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); it++) {
+            for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); ++it) {
                 const rule& closeRule   = *(*it)->rule();
                 const int   closeOffset = (*it)->offset();
 
@@ -308,7 +308,7 @@ void lalr_builder::complete_lookaheads() {
     set<lr_item_id> toPropagate;
     
     // Fill with all the states which do propagation
-    for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); it++) {
+    for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); ++it) {
         toPropagate.insert(it->first);
     }
     
@@ -327,7 +327,7 @@ void lalr_builder::complete_lookaheads() {
         const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
 
         // Perform propagation
-        for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); path++) {
+        for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); ++path) {
             // Propagating lookahead from the item identified by nextState to *path
             if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
                 // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
@@ -357,7 +357,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
     queue<lr1_item_container>       waitingForClosure;
     
     // Add the initial items
-    for (lalr_state::iterator lrItem = state.begin(); lrItem != state.end(); lrItem++) {
+    for (lalr_state::iterator lrItem = state.begin(); lrItem != state.end(); ++lrItem) {
         // Create an LR(1) item from the LALR machine
         const lookahead_set*    la      = state.lookahead_for(*lrItem);
         if (!la) continue;
@@ -386,7 +386,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
         rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
         
         // Add any new items to the waiting queue
-        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); it++) {
+        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); ++it) {
             if (closure.insert(**it).second) {
                 // This is a new item: add it to the list of items waiting to be processed
                 waitingForClosure.push(*it);
@@ -442,7 +442,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     generate_closure(thisState, closure, m_Grammar);
     
     // For each transition on a guarded symbol, add a guard transition to check for it
-    for (transition_set::const_iterator maybeGuard = transits.begin(); maybeGuard != transits.end(); maybeGuard++) {
+    for (transition_set::const_iterator maybeGuard = transits.begin(); maybeGuard != transits.end(); ++maybeGuard) {
         // Get the item for this transition
         const item_container&   thisItem    = maybeGuard->first;
         
@@ -454,7 +454,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // Add a shift action for each transition
-    for (transition_set::const_iterator it = transits.begin(); it != transits.end(); it++) {
+    for (transition_set::const_iterator it = transits.begin(); it != transits.end(); ++it) {
         // Get the item being shifted
         const item_container&   thisItem    = it->first;
         int                     targetState = it->second;
@@ -470,7 +470,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // For any LR items that are at the end of their rule, generate a reduce action for the appropriate symbols
-    for (lr1_item_set::iterator lrItem = closure.begin(); lrItem != closure.end(); lrItem++) {
+    for (lr1_item_set::iterator lrItem = closure.begin(); lrItem != closure.end(); ++lrItem) {
         // Ignore items that aren't at the end
         if (!(*lrItem)->at_end()) continue;
         
@@ -510,7 +510,7 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // Rewrite this list of actions according to the action rewriters
-    for (action_rewriter_list::const_iterator rewrite = m_ActionRewriters.begin(); rewrite != m_ActionRewriters.end(); rewrite++) {
+    for (action_rewriter_list::const_iterator rewrite = m_ActionRewriters.begin(); rewrite != m_ActionRewriters.end(); ++rewrite) {
         (*rewrite)->rewrite_actions(state, newSet, *this);
     }
     
@@ -557,7 +557,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
         visited.insert(nextItem);
 
         // Search through the spontaneous tables for items that generate this lookahead
-        for (propagation::const_iterator spontaneous = m_Spontaneous.begin(); spontaneous != m_Spontaneous.end(); spontaneous++) {
+        for (propagation::const_iterator spontaneous = m_Spontaneous.begin(); spontaneous != m_Spontaneous.end(); ++spontaneous) {
             // Get the lookahead for this item
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.first)->lookahead_for(spontaneous->first.second);
             
@@ -565,7 +565,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             if (!la.contains(lookaheadItem)) continue;
 
             // Search for items that target this one
-            for (set<lr_item_id>::const_iterator target = spontaneous->second.begin(); target != spontaneous->second.end(); target++) {
+            for (set<lr_item_id>::const_iterator target = spontaneous->second.begin(); target != spontaneous->second.end(); ++target) {
                 // Ignore items that do not target this one
                 if (*target != nextItem) continue;
                 
@@ -576,7 +576,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
         }
 
         // Search through the propagation tables for items that generate this lookahead
-        for (propagation::const_iterator propagate = m_Propagate.begin(); propagate != m_Propagate.end(); propagate++) {
+        for (propagation::const_iterator propagate = m_Propagate.begin(); propagate != m_Propagate.end(); ++propagate) {
             // Get the lookahead for this item
             const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.first)->lookahead_for(propagate->first.second);
             
@@ -584,7 +584,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
             if (!la.contains(lookaheadItem)) continue;
             
             // Search for items that target this one
-            for (set<lr_item_id>::const_iterator target = propagate->second.begin(); target != propagate->second.end(); target++) {
+            for (set<lr_item_id>::const_iterator target = propagate->second.begin(); target != propagate->second.end(); ++target) {
                 // Ignore items that do not target this one
                 if (*target != nextItem) continue;
                 

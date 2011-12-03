@@ -45,12 +45,12 @@ namespace dfa {
             m_Row = new int[maxSet];
             
             // Fill in the default values
-            for (int x=0; x<maxSet; x++) {
+            for (int x=0; x<maxSet; ++x) {
                 m_Row[x] = -1;
             }
             
             // Fill in the transitions
-            for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+            for (state::iterator transit = thisState.begin(); transit != thisState.end(); ++transit) {
                 m_Row[transit->symbol_set()] = transit->new_state();
             }
         }
@@ -122,7 +122,7 @@ namespace dfa {
             
             // Fill in the transitions
             int pos = 0;
-            for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+            for (state::iterator transit = thisState.begin(); transit != thisState.end(); ++transit) {
                 m_Row[pos].symbolSet    = transit->symbol_set();
                 m_Row[pos].state        = transit->new_state();
                 
@@ -203,7 +203,7 @@ namespace dfa {
             m_States = new row_type[m_MaxState];
             
             // Process the states
-            for (int stateNum=0; stateNum<m_MaxState; stateNum++) {
+            for (int stateNum=0; stateNum<m_MaxState; ++stateNum) {
                 // Fetch the next state
                 const state& thisState = dfa.get_state(stateNum);
                 
@@ -232,7 +232,7 @@ namespace dfa {
             size_t mySize = sizeof(*this);
             mySize += m_Translator.size() + sizeof(m_Translator);
             
-            for (int x=0; x<m_MaxState; x++) {
+            for (int x=0; x<m_MaxState; ++x) {
                 mySize += m_States[x].size(m_MaxSet);
             }
 

@@ -58,7 +58,7 @@ void output_stage::define_symbols() {
 	// Write out the terminal symbols that are defined in this language
 	begin_terminal_symbols(*m_LanguageStage->grammar());
 
-	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); symbolId++) {
+	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); ++symbolId) {
 		terminal_symbol(m_LanguageStage->terminals()->name_for_symbol(symbolId), symbolId);
 	}
 
@@ -67,7 +67,7 @@ void output_stage::define_symbols() {
 	// Write out the nonterminal symbols that are defined in this language
 	begin_nonterminal_symbols(*m_LanguageStage->grammar());
 
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); symbolId++) {
+	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
 		// Assume that the nonterminal IDs match up to item IDs (they should do)
 		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
 
@@ -98,9 +98,9 @@ void output_stage::define_lexer_tables() {
 	begin_lexer_symbol_map(symbols.count_sets());
 
 	// Go through all of the symbol sets
-	for (symbol_map::iterator setIt = symbols.begin(); setIt != symbols.end(); setIt++) {
+	for (symbol_map::iterator setIt = symbols.begin(); setIt != symbols.end(); ++setIt) {
 		// Go through the ranges in each set
-		for (symbol_set::iterator rangeIt = setIt->first->begin(); rangeIt != setIt->first->end(); rangeIt++) {
+		for (symbol_set::iterator rangeIt = setIt->first->begin(); rangeIt != setIt->first->end(); ++rangeIt) {
 			symbol_map(*rangeIt, setIt->second);
 		}
 	}
@@ -111,12 +111,12 @@ void output_stage::define_lexer_tables() {
 	begin_lexer_state_machine(dfa->count_states());
 
 	// Write out each state in turn
-	for (int stateId = 0; stateId < dfa->count_states(); stateId++) {
+	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
 		// Start writing out this state
 		const state& state = dfa->get_state(stateId);
 		begin_lexer_state(stateId);
 
-		for (state::iterator transit = state.begin(); transit != state.end(); transit++) {
+		for (state::iterator transit = state.begin(); transit != state.end(); ++transit) {
 			lexer_state_transition(transit->symbol_set(), transit->new_state());
 		}
 
@@ -128,7 +128,7 @@ void output_stage::define_lexer_tables() {
 	// Write out the accepting states
 	begin_lexer_accept_table();
 
-	for (int stateId = 0; stateId < dfa->count_states(); stateId++) {
+	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
 		// Get the actions for this state
 		typedef ndfa::accept_action_list accept_action_list;
 		const accept_action_list& actions = dfa->actions_for_state(stateId);
@@ -144,7 +144,7 @@ void output_stage::define_lexer_tables() {
         const accept_action* highest = *thisAction;
 
         thisAction++;
-        for (; thisAction != actions.end(); thisAction++) {
+        for (; thisAction != actions.end(); ++thisAction) {
             if ((*highest) < **thisAction) {
                 highest = *thisAction;
             }
@@ -167,7 +167,7 @@ void output_stage::define_ast_tables() {
     const grammar& gram = *m_LanguageStage->grammar();
 
     // Output the terminals
-    for (int termId = 0; termId < m_LanguageStage->terminals()->count_symbols(); termId++) {
+    for (int termId = 0; termId < m_LanguageStage->terminals()->count_symbols(); ++termId) {
     	// Get the ID for this terminal
     	terminal 	term(termId);
     	int 		symbolId = gram.identifier_for_item(term);
@@ -182,7 +182,7 @@ void output_stage::define_ast_tables() {
     map<int, rule_list> rulesForNonterminal;
     
     // Iterate through the rules
-    for (int ruleId = 0; ruleId < gram.max_rule_identifier(); ruleId++) {
+    for (int ruleId = 0; ruleId < gram.max_rule_identifier(); ++ruleId) {
         // Fetch this rule
         const rule_container& nextRule = gram.rule_with_identifier(ruleId);
         
@@ -195,17 +195,17 @@ void output_stage::define_ast_tables() {
 
 
     // Iterate through the nonterminals
-    for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); nonterminalDefn++) {
+    for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); ++nonterminalDefn) {
         // Begin this nonterminal
         begin_ast_nonterminal(nonterminalDefn->first, gram.item_with_identifier(nonterminalDefn->first));
         
         // Iterate through the rules
-        for (rule_list::const_iterator ruleDefn = nonterminalDefn->second.begin(); ruleDefn != nonterminalDefn->second.end(); ruleDefn++) {
+        for (rule_list::const_iterator ruleDefn = nonterminalDefn->second.begin(); ruleDefn != nonterminalDefn->second.end(); ++ruleDefn) {
             // Start this rule
             begin_ast_rule(gram.identifier_for_rule(*ruleDefn));
             
             // Write out the rule items
-            for (rule::iterator ruleItem = (*ruleDefn)->begin(); ruleItem != (*ruleDefn)->end(); ruleItem++) {
+            for (rule::iterator ruleItem = (*ruleDefn)->begin(); ruleItem != (*ruleDefn)->end(); ++ruleItem) {
                 if ((*ruleItem)->type() == item::terminal) {
                     // Terminal item
                     rule_item_terminal(gram.identifier_for_item(*ruleItem), (*ruleItem)->symbol(), *ruleItem);
@@ -224,7 +224,7 @@ void output_stage::define_ast_tables() {
     }
 
 	// Iterate through the symbols
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); symbolId++) {
+	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
 		// Fetch this item
 		const item_container& item = m_LanguageStage->grammar()->item_with_identifier(symbolId);
 

@@ -203,7 +203,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
     fill_follow(follow, it, gram);
     
     // Generate the closure for this item via the cache ('$' gets substituted for the follow set)
-    for (lr1_item_set::const_iterator cachedItem = cachedSet.begin(); cachedItem != cachedSet.end(); cachedItem++) {
+    for (lr1_item_set::const_iterator cachedItem = cachedSet.begin(); cachedItem != cachedSet.end(); ++cachedItem) {
         // Get the lookahead for this item
         const item_set& itemLookahead = (*cachedItem)->lookahead();
         

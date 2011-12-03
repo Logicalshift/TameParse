@@ -38,7 +38,7 @@ symbol_set::~symbol_set() {
 symbol_set& symbol_set::operator|=(const symbol_set& mergeWith) {
     // Merge each of the ranges in turn
     // TODO: this will perform a search for each range, we can take advantage of the ordering to improve performance here
-    for (symbol_store::const_iterator it = mergeWith.m_Symbols.begin(); it != mergeWith.m_Symbols.end(); it++) {
+    for (symbol_store::const_iterator it = mergeWith.m_Symbols.begin(); it != mergeWith.m_Symbols.end(); ++it) {
         operator|=(*it);
     }
     
@@ -77,7 +77,7 @@ symbol_set& symbol_set::operator|=(const symbol_range& mergeWith) {
     symbol_store::iterator  finalValue  = m_Symbols.upper_bound(mergeWith.upper());
     symbol_range            mergedRange = mergeWith;
 
-    for (symbol_store::iterator it = firstGreaterThan; it != finalValue; it++) {
+    for (symbol_store::iterator it = firstGreaterThan; it != finalValue; ++it) {
         mergedRange = mergedRange.merge(*it);
     }
     
@@ -92,7 +92,7 @@ symbol_set& symbol_set::operator|=(const symbol_range& mergeWith) {
 void symbol_set::exclude(const symbol_set& toExclude) {
     // Exclude each of the ranges in turn
     // TODO: this will perform a search for each range, we can take advantage of the ordering to improve performance here
-    for (symbol_store::const_iterator it = toExclude.m_Symbols.begin(); it != toExclude.m_Symbols.end(); it++) {
+    for (symbol_store::const_iterator it = toExclude.m_Symbols.begin(); it != toExclude.m_Symbols.end(); ++it) {
         exclude(*it);
     }
 }
@@ -153,7 +153,7 @@ void symbol_set::invert() {
     symbol_store newRanges;
     
     // Add the excluded values
-    for (symbol_store::iterator it = m_Symbols.begin(); it != m_Symbols.end(); it++) {
+    for (symbol_store::iterator it = m_Symbols.begin(); it != m_Symbols.end(); ++it) {
         // Insert a range from the last known position to the next position
         if (it->lower() != last.upper()) {
             newRanges.insert(symbol_range(last.upper(), it->lower()));
