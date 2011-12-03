@@ -52,6 +52,12 @@ namespace compiler {
     	/// \brief The item after the final definition defined in this data object
     	iterator end() const;
 
+        /// \brief The first expression defined in this data object
+        iterator begin_expr() const;
+
+        /// \brief The item after the final expression defined in this data object
+        iterator end_expr() const;
+
     	/// \brief Adds a new lexer expression to this object
     	void add_expression(const std::wstring& term, const lexer_item& newItem);
 
