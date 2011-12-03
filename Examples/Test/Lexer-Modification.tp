@@ -1,0 +1,42 @@
+language Lexer-Original {
+	lexer-symbols {
+		a = /a/
+	}
+
+	lexer {
+		a = /{a}/
+		b = /b/
+		c = /c/
+	}
+
+	grammar {
+		<syms> = a | b | c
+	}
+}
+
+test Lexer-Original {
+	<syms> 	= "a"
+			  "b"
+			  "c"
+}
+
+language Lexer-Modified : Lexer-Original {
+	lexer-symbols {
+		replace a = /d/
+	}
+
+	lexer {
+		b |= /e/
+		replace c = /f/
+	}
+}
+
+test Lexer-Modified {
+	<syms> = "d"
+		     "b"
+		     "e"
+		     "f"
+	
+	<syms> != "a"
+		      "c"
+}

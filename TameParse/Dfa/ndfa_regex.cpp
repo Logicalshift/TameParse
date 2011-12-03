@@ -485,11 +485,13 @@ std::vector<regex_error> ndfa_regex::check_regex(const symbol_string& regex) {
     vector<regex_error> errors;
 
     symbol_string::const_iterator end = regex.end();
+    position_tracker exprPos(position(0,0,0));
 
     // Iterate through the regular expression and check each character in turn
     for (symbol_string::const_iterator chr = regex.begin(); chr != regex.end(); chr++) {
-        check(chr, end, errors);
+        check(exprPos, chr, end, errors);
         if (chr == end) break;
+        exprPos.update_position(*chr);
     }
 
     // Return the result
@@ -501,7 +503,7 @@ std::vector<regex_error> ndfa_regex::check_regex(const symbol_string& regex) {
 ///
 /// Subclasses can override this to extend the grammar accepted as a regular expression.
 ///
-void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors) {
+void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors) {
     if (pos == end) return;
 
     // Iterator type
@@ -516,8 +518,9 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
             // This should deal with weird things like [(], which are valid but don't open another level of brackets
             stack<wchar_t>  brackets;
             it              bracketPos = pos;
-            regex_error::error_type erm = regex_error::missing_round_bracket;
 
+            // Pick the right error type
+            regex_error::error_type erm = regex_error::missing_round_bracket;
             if (*pos == '[') erm = regex_error::missing_square_bracket;
 
             do {
@@ -547,16 +550,19 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
                         break;
                 }
 
-                bracketPos++;
+                if (!brackets.empty()) {
+                    bracketPos++;
+                }
             } while (bracketPos != end && !brackets.empty());
 
             // Add an error if the bracket was unmatched
             if (!brackets.empty()) {
-                errors.push_back(regex_error(erm, position(-1, -1, -1)));
+                errors.push_back(regex_error(erm, exprPos.current_position()));
             }
 
             // Skip over the contents of [] sequences
             if (*pos == '[') {
+                exprPos.update_position(pos, bracketPos);
                 pos = bracketPos;
             }
             break;
@@ -565,29 +571,34 @@ void ndfa_regex::check(symbol_string::const_iterator& pos, const symbol_string::
         case '\\':
             // Skip over quoted characters
             // TODO: improve handling of \u, \x, etc
+            exprPos.update_position(*pos);
             pos++;
             break;
 
         case '{':
         {
+            // Remember the start position, for reporting any errors
+            position start = exprPos.current_position();
+
             // Compiled expression: find the closing '{'
+            exprPos.update_position(*pos);
             pos++;
-            if (pos == end) return;
 
             // Read up to the closing '}'
             symbol_string expr;
             while (pos != end && *pos != '}') {
                 expr += *pos;
+                exprPos.update_position(*pos);
                 pos++;
             }
 
             // Check for errors
             if (pos == end) {
                 // Error if there was no '}'
-                errors.push_back(regex_error(regex_error::missing_curly_bracket, position(-1, -1, -1)));
+                errors.push_back(regex_error(regex_error::missing_curly_bracket, start));
             } else if (!check_expression(expr)) {
                 // Error if the expression is invalid
-                errors.push_back(regex_error(regex_error::missing_expression, position(-1, -1, -1), expr));
+                errors.push_back(regex_error(regex_error::missing_expression, start, expr));
             }
             break;            
         }

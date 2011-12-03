@@ -585,7 +585,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
     
     if (childId == nt.id_lexer_symbols_definition) {
         // Lexer symbols block
-        lexer_block* result = new lexer_block(false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexer_block* result = new lexer_block(false, false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
         if (!get_lexer_block(result, (*child)[2])) {
             delete result;
@@ -599,7 +599,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         lexeme_container    closingCurly    = (*child)[4]->lexeme();
         bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        lexer_block* result = new lexer_block(isWeak, false, lexerKw->pos(), closingCurly->final_pos());
+        lexer_block* result = new lexer_block(isWeak, false, false, lexerKw->pos(), closingCurly->final_pos());
         
         if (!get_lexer_block(result, (*child)[3])) {
             delete result;
@@ -609,7 +609,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         return new language_unit(language_unit::unit_lexer_definition, result);
     } else if (childId == nt.id_ignore_definition) {
         // Ignore definition block
-        lexer_block* result = new lexer_block(false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
+        lexer_block* result = new lexer_block(false, false, false, (*child)[0]->lexeme()->pos(), (*child)[3]->lexeme()->final_pos());
         
         if (!get_lexer_block(result, (*child)[2])) {
             delete result;
@@ -623,7 +623,7 @@ language_unit* bootstrap::get_language_defn(const util::astnode* defn) {
         lexeme_container    closingCurly    = (*child)[4]->lexeme();
         bool                isWeak          = (*child)[0]->children().size() > 0;
         
-        lexer_block* result = new lexer_block(isWeak, false, lexerKw->pos(), closingCurly->final_pos());
+        lexer_block* result = new lexer_block(isWeak, false, false, lexerKw->pos(), closingCurly->final_pos());
         
         if (!get_lexer_block(result, (*child)[3])) {
             delete result;
@@ -688,8 +688,10 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
                                                                  lexemeIdentifier->lexeme()->content<wchar_t>(), 
                                                                  regex->lexeme()->content<wchar_t>(), 
                                                                  false, // Not supported in the bootstrap language
+                                                                 false, // Not supported in the bootstrap language
                                                                  lexemeIdentifier->lexeme()->pos(), 
-                                                                 regex->lexeme()->final_pos());
+                                                                 regex->lexeme()->final_pos(),
+                                                                 regex->lexeme()->pos());
 
             block->add_definition(newLexeme);
             return true;
@@ -712,8 +714,10 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
                                                                   false, // Not supported in the bootstrap language
+                                                                  false, // Not supported in the bootstrap language
                                                                   keywordIdentifier->lexeme()->pos(),
-                                                                  keywordIdentifier->lexeme()->final_pos());
+                                                                  keywordIdentifier->lexeme()->final_pos(),
+                                                                  keywordIdentifier->lexeme()->pos());
 
             block->add_definition(newKeyword);
             return true;
@@ -736,8 +740,10 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
                                                                   keywordIdentifier->lexeme()->content<wchar_t>(),
                                                                   defn->lexeme()->content<wchar_t>(),
                                                                   false, // Not supported in the bootstrap language
+                                                                  false, // Not supported in the bootstrap language
                                                                   keywordIdentifier->lexeme()->pos(),
-                                                                  defn->lexeme()->final_pos());
+                                                                  defn->lexeme()->final_pos(),
+                                                                  defn->lexeme()->pos());
             
             block->add_definition(newKeyword);
             return true;               // Not supported
@@ -753,8 +759,10 @@ bool bootstrap::get_lexer_block(lexer_block* block, const util::astnode* defn) {
                                                               dataItem->lexeme()->content<wchar_t>(),
                                                               dataItem->lexeme()->content<wchar_t>(),
                                                               false, // Not supported in the bootstrap language
+                                                              false, // Not supported in the bootstrap language
                                                               dataItem->lexeme()->pos(),
-                                                              dataItem->lexeme()->final_pos());
+                                                              dataItem->lexeme()->final_pos(),
+                                                              dataItem->lexeme()->pos());
         
         block->add_definition(newKeyword);
         return true;

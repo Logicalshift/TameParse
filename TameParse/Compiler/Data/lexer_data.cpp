@@ -49,3 +49,13 @@ void lexer_data::remove_expression(const std::wstring& term) {
 const lexer_data::item_list& lexer_data::get_expressions(const std::wstring& term) const {
 	return m_Expressions[term];
 }
+
+/// \brief The first expression defined in this data object
+lexer_data::iterator lexer_data::begin_expr() const {
+	return m_Expressions.begin();
+}
+
+/// \brief The item after the final expression defined in this data object
+lexer_data::iterator lexer_data::end_expr() const {
+	return m_Expressions.end();
+}

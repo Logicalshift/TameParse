@@ -32,6 +32,7 @@ typedef tameparse_language::TopLevel_Block_n                    ast_TopLevel_Blo
 typedef tameparse_language::Language_Block_n                    ast_Language_Block;
 typedef tameparse_language::Language_Definition_n               ast_Language_Definition;
 typedef tameparse_language::list_of_Language_Definition_n       list_of_Language_Definition;
+typedef tameparse_language::Lexeme_Definition_n                 ast_Lexeme_Definition;
 typedef tameparse_language::list_of_Lexeme_Definition_n         list_of_Lexeme_Definition;
 typedef tameparse_language::list_of_Keyword_Definition_n        list_of_Keyword_Definition;
 typedef tameparse_language::identifier_n                        identifier;
@@ -424,11 +425,59 @@ static language_unit* definition_for(const list_of_Nonterminal_Definition* items
     return new language_unit(gram);
 }
 
+/// \brief Adds a lexeme definition to a lexer block
+static bool add_lexeme_definition(const ast_Lexeme_Definition* defn, lexer_block* lexerBlock) {
+    // Sanity check
+    if (!defn || !lexerBlock) {
+        return false;
+    }
+
+    // Get the identifier for the new lexeme
+    const identifier* lexemeId = defn->identifier;
+    
+    // Lexeme should either be a string/character/regex or a reference
+    if (defn->one_of_regex_or_one_of_string_or_character) {
+        // Get the three alternatives
+        const ast_regex*        regex       = defn->one_of_regex_or_one_of_string_or_character->regex;
+        const ast_string*       string      = defn->one_of_regex_or_one_of_string_or_character->string_2;
+        const ast_character*    character   = defn->one_of_regex_or_one_of_string_or_character->character;
+        
+        bool                    alternate   = false;
+        bool                    replace     = defn->replace;
+        
+        if (defn->one_of__equals__or__pipe__equals_) {
+            alternate = defn->one_of__equals__or__pipe__equals_->_pipe__equals_;
+        }
+        
+        if (regex) {
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), regex->pos()));
+        } else if (string) {
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), string->pos()));
+        } else if (character) {
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), character->pos()));
+        } else {
+            // Doh, bug: fail
+            delete lexerBlock;
+            return NULL;
+        }
+
+        // Success
+        return true;
+    } else if (defn->identifier_2) {
+        // Reference (IMPLEMENT ME)
+        return false;
+    } else {
+        // Doh, bug: fail
+        return false;
+    }
+}
+
 /// \brief Interprets a keyword symbol definition block
 static language_unit* definition_for(const list_of_Keyword_Definition* items, const list_of_Lexer_Modifier* modifiers1, const list_of_Lexer_Symbols_Modifier* modifiers2, language_unit::unit_type type) {
     // Work out the modifiers
     bool isWeak             = false;
     bool isCaseInsensitive  = false;
+    bool isCaseSensitive    = false;
 
     if (modifiers1) {
         for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
@@ -436,6 +485,8 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
@@ -444,41 +495,32 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
         for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
 
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); keyword++) {
-        // Get the item for the new keyword
-        const identifier* keywordId = (*keyword)->Keyword_Definition->identifier;
-        
-        // Deal with strings/characters/regexes
-        if ((*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character) {
-            // Get the three alternatives
-            const ast_regex*        regex       = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->regex;
-            const ast_string*       string      = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->string_2;
-            const ast_character*    character   = (*keyword)->Keyword_Definition->one_of_regex_or_one_of_string_or_character->character;
-            
-            bool                    alternate   = (*keyword)->Keyword_Definition->one_of__equals__or__pipe__equals_->_pipe__equals_;
-            
-            if (regex) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, keywordId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
-            } else if (string) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, keywordId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
-            } else if (character) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, keywordId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*keyword)->pos(), (*keyword)->final_pos()));
-            } else {
-                // Doh, bug: fail
+        if ((*keyword)->Keyword_Definition->Lexeme_Definition) {
+            // Add the lexeme definition
+            if (!add_lexeme_definition((*keyword)->Keyword_Definition->Lexeme_Definition, lexerBlock)) {
+                // Doh, fail
                 delete lexerBlock;
                 return NULL;
             }
-        } else {
+        } else if ((*keyword)->Keyword_Definition->identifier) {
             // A literal keyword defined only by its identifier
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, (*keyword)->pos(), (*keyword)->final_pos()));
+            const identifier* keywordId = (*keyword)->Keyword_Definition->identifier;
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, false, (*keyword)->pos(), (*keyword)->final_pos(), keywordId->pos()));
+        } else {
+            // Unknown keyword type
+            delete lexerBlock;
+            return NULL;
         }
     }
     
@@ -491,6 +533,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     // Work out the modifiers
     bool isWeak             = false;
     bool isCaseInsensitive  = false;
+    bool isCaseSensitive    = false;
 
     if (modifiers1) {
         for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
@@ -498,6 +541,8 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
@@ -506,44 +551,20 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
         for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
+            } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
+                isCaseSensitive = true;
             }
         }
     }
 
     // Start building up the lexer block
-    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, items->pos(), items->final_pos());
+    lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
     for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); lexeme++) {
-        // Get the identifier for the new lexeme
-        const identifier* lexemeId = (*lexeme)->Lexeme_Definition->identifier;
-        
-        // Lexeme should either be a string/character/regex or a reference
-        if ((*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character) {
-            // Get the three alternatives
-            const ast_regex*        regex       = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->regex;
-            const ast_string*       string      = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->string_2;
-            const ast_character*    character   = (*lexeme)->Lexeme_Definition->one_of_regex_or_one_of_string_or_character->character;
-            
-            bool                    alternate   = (*lexeme)->Lexeme_Definition->one_of__equals__or__pipe__equals_->_pipe__equals_;
-            
-            if (regex) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
-            } else if (string) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
-            } else if (character) {
-                lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, (*lexeme)->pos(), (*lexeme)->final_pos()));
-            } else {
-                // Doh, bug: fail
-                delete lexerBlock;
-                return NULL;
-            }
-        } else if ((*lexeme)->Lexeme_Definition->identifier_2) {
-            // Reference (IMPLEMENT ME)
-            delete lexerBlock;
-            return NULL;
-        } else {
-            // Doh, bug: fail
+        // Add this definition
+        if (!add_lexeme_definition((*lexeme)->Lexeme_Definition, lexerBlock)) {
+            // Give up if it fails
             delete lexerBlock;
             return NULL;
         }

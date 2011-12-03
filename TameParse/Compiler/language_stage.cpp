@@ -22,7 +22,8 @@ using namespace compiler;
 language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage)
 : compilation_stage(console, filename)
 , m_Language(block)
-, m_Import(importStage) {
+, m_Import(importStage)
+, m_InheritsFrom(NULL) {
 }
 
 /// \brief Destructor
@@ -32,6 +33,11 @@ language_stage::~language_stage() {
         delete filename->second;
     }
     m_Filenames.clear();
+    
+    // Destroy the inherited stage
+    if (m_InheritsFrom) {
+        delete m_InheritsFrom;
+    }
 }
 
 /// \brief Removes any terminal symbols used in the specified rule from the unused list
@@ -79,11 +85,13 @@ void language_stage::compile() {
         } else {
             // Compile the language this inherits from
             console_container consCopy(cons_container());
-            language_stage inheritStage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
-            inheritStage.compile();
+            
+            if (m_InheritsFrom) delete m_InheritsFrom;
+            m_InheritsFrom = new language_stage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
+            m_InheritsFrom->compile();
 
             // Merge with this language
-            inheritStage.export_to(this);
+            m_InheritsFrom->export_to(this);
         }
     }
 #else
@@ -117,7 +125,33 @@ void language_stage::compile() {
 
         // Define these as expressions
         for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-            // TODO: check if an expression is already defined and report an error if it is
+            // Check if an expression is already defined and report an error if it is
+            if (!m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
+                if (!(*lexerItem)->add_to_definition() && !(*lexerItem)->replace_definition()) {
+                    // Symbol is already defined, and isn't set up to modify an existing symbol
+                    wstringstream msg;
+                    msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                }
+            } else {
+                if ((*lexerItem)->add_to_definition()) {
+                    // Can't use |= with a symbol that is not defined
+                    wstringstream msg;
+                    msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
+                } else if ((*lexerItem)->replace_definition()) {
+                    // Can't replace a nonexistent symbol
+                    wstringstream msg;
+                    msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
+                }
+            }
+
+            // Check if this definition should replace another
+            if ((*lexerItem)->replace_definition()) {
+                // Remove the existing expression
+                m_Lexer.remove_expression((*lexerItem)->identifier());
+            }
 
             // Action depends on the type of item
             switch ((*lexerItem)->get_type()) {
@@ -127,14 +161,14 @@ void language_stage::compile() {
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
                     // Add to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
                     // Add as a literal to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -143,7 +177,7 @@ void language_stage::compile() {
                 {
                     // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -170,8 +204,7 @@ void language_stage::compile() {
     // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
     // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
     // defined in the grammar itself (as the grammar must be processed last)
-    for (int weakness = 0; weakness < 2; weakness++)
-    {
+    for (int weakness = 0; weakness < 2; weakness++) {
         // Weak blocks have the highest priority
         bool isWeak = weakness == 0;
 
@@ -197,15 +230,31 @@ void language_stage::compile() {
                     int symId;
                     
                     if (!(*lexerItem)->add_to_definition()) {
-                        // It's an error to define the same symbol twice
-                        if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                            wstringstream msg;
-                            msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                            cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                        if (!(*lexerItem)->replace_definition()) {
+                            // It's an error to define the same symbol twice
+                            if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                                wstringstream msg;
+                                msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                            }
+                            
+                            // Add the symbol ID
+                            symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                        } else {
+                            // Replacing an existing definition
+                            symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
+
+                            if (symId < 0) {
+                                // It's an error for the symbol not to exist
+                                wstringstream msg;
+                                msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
+                            } else {
+                                // Clear the existing symbol
+                                m_TerminalDefinition.erase(symId);
+                                m_Lexer.remove_definition((*lexerItem)->identifier());
+                            }
                         }
-                        
-                        // Add the symbol ID
-                        symId = m_Terminals.add_symbol((*lexerItem)->identifier());
                     } else {
                         // Get the existing symbol ID
                         symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
@@ -224,6 +273,11 @@ void language_stage::compile() {
                             cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
                         }
                     }
+
+                    // Can't do any more if we haven't got a valid symbol ID
+                    if (symId < 0) {
+                        continue;
+                    }
                     
                     // Set the type of this symbol
                     m_TypeForTerminal[symId] = blockType;
@@ -234,10 +288,13 @@ void language_stage::compile() {
                     }
                     
                     // Store where it is defined
-                    m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    if (m_TerminalDefinition.find(symId) == m_TerminalDefinition.end()) {
+                        m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    }
 
                     // Set whether the regexes or literals we add should be case insensitive
                     bool ci = lex->is_case_insensitive();
+                    bool cs = lex->is_case_sensitive();
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
@@ -247,14 +304,14 @@ void language_stage::compile() {
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
                             // Add to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
                             // Add as a literal to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -264,7 +321,7 @@ void language_stage::compile() {
                             // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
                             wstring dequoted = process::dequote_string((*lexerItem)->definition());
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -462,6 +519,15 @@ void language_stage::report_unused_symbols() {
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
 int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     int count = 0;
+
+    // Find/create a filename for this object
+    wstring* ourFilename;
+    if (m_Filenames.find(filename()) != m_Filenames.end()) {
+        ourFilename = m_Filenames[filename()];
+    } else {
+        ourFilename = new wstring(filename());
+        m_Filenames[filename()] = ourFilename;
+    }
     
     switch (item->get_type()) {
         case ebnf_item::ebnf_guard:
@@ -497,7 +563,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, symId, language_unit::unit_keywords_definition, true));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
@@ -523,7 +589,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             int     symId   = m_Terminals.add_symbol(item->identifier());
             wstring dequote = process::dequote_string(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, symId, language_unit::unit_keywords_definition, true));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol

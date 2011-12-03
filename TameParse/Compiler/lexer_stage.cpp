@@ -85,88 +85,89 @@ namespace compiler {
             return m_UnitType == compareToLanguageAction->m_UnitType;
         }
     };
-}
 
-/// \brief Class that extends ndfa_regex to support taking expressions from a lexer_data object
-class ndfa_lexer_compiler : public ndfa_regex {
-private:
-    /// \brief Item list in a lexer data item
-    typedef lexer_data::item_list item_list;
+    /// \brief Class that extends ndfa_regex to support taking expressions from a lexer_data object
+    class ndfa_lexer_compiler : public ndfa_regex {
+    private:
+        /// \brief Item list in a lexer data item
+        typedef lexer_data::item_list item_list;
 
-    /// \brief The lexer data that should be used to compile expressions
-    const lexer_data* m_Data;
+        /// \brief The lexer data that should be used to compile expressions
+        const lexer_data* m_Data;
 
-public:
-    ndfa_lexer_compiler(const lexer_data* data)
-    : m_Data(data) { }
+    public:
+        ndfa_lexer_compiler(const lexer_data* data)
+        : m_Data(data) { }
 
-    /// \brief Compiles the value of a {} expression
-    virtual bool compile_expression(const symbol_string& expression, builder& cons) {
-        // Look up the expression in the lexer data
-        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+        /// \brief Compiles the value of a {} expression
+        virtual bool compile_expression(const symbol_string& expression, builder& cons) {
+            // Look up the expression in the lexer data
+            const item_list& items = m_Data->get_expressions(convert_syms(expression));
 
-        // Use the standard behaviour if we don't find any items
-        if (items.empty()) return ndfa_regex::compile_expression(expression, cons);
+            // Use the standard behaviour if we don't find any items
+            if (items.empty()) return ndfa_regex::compile_expression(expression, cons);
 
-        // Remember the current state of the builder
-        bool isLower = cons.make_lowercase();
-        bool isUpper = cons.make_uppercase();
+            // Remember the current state of the builder
+            bool isLower = cons.make_lowercase();
+            bool isUpper = cons.make_uppercase();
 
-        // Start a new subexpression
-        cons.push();
+            // Start a new subexpression
+            cons.push();
 
-        // The result can be any of the supplied items
-        bool first = true;
-        for (item_list::const_iterator item = items.begin(); item != items.end(); item++) {
-            // Or items together
-            if (!first) {
-                cons.begin_or();
+            // The result can be any of the supplied items
+            bool first = true;
+            for (item_list::const_iterator item = items.begin(); item != items.end(); item++) {
+                // Or items together
+                if (!first) {
+                    cons.begin_or();
+                }
+
+                // Set case sensitivity
+                if (item->case_insensitive) {
+                    cons.set_case_options(true, true);
+                } else if (item->case_sensitive) {
+                    cons.set_case_options(false, false);
+                } else {
+                    // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
+                    cons.set_case_options(isLower, isUpper);
+                }
+
+                // Add as a regular expression
+                switch (item->type) {
+                    case lexer_item::regex:
+                        add_regex(cons, convert(item->definition));
+                        break;
+
+                    case lexer_item::literal:
+                        add_literal(cons, convert(item->definition));
+                        break;
+                }
+
+                // No longer the first item
+                first = false;
             }
 
-            // Set case sensitivity
-            if (item->case_insensitive) {
-                cons.set_case_options(true, true);
-            } else {
-                // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
-                // TODO: you can specifically say 'case sensitive lexer-symbols' but we treat that as a no-op for now
-                cons.set_case_options(isLower, isUpper);
-            }
+            // Done: reset the constructor
+            cons.set_case_options(isLower, isUpper);
+            cons.pop();
 
-            // Add as 
-            switch (item->type) {
-                case lexer_item::regex:
-                    add_regex(cons, convert(item->definition));
-                    break;
-
-                case lexer_item::literal:
-                    add_literal(cons, convert(item->definition));
-                    break;
-            }
-
-            // No longer the first item
-            first = false;
+            // Found an expression
+            return true;
         }
 
-        // Done: reset the constructor
-        cons.set_case_options(isLower, isUpper);
-        cons.pop();
+        // \brief Returns true if the specified expression is valid
+        bool check_expression(const symbol_string& expression) {
+            // Look up the expression in the lexer data
+            const item_list& items = m_Data->get_expressions(convert_syms(expression));
 
-        // Found an expression
-        return true;
-    }
+            if (!items.empty()) return true;
 
-    // \brief Returns true if the specified expression is valid
-    bool check_expression(const symbol_string& expression) {
-        // Look up the expression in the lexer data
-        const item_list& items = m_Data->get_expressions(convert_syms(expression));
+            // Not a valid expression
+            return ndfa_regex::check_expression(expression);
+        }
 
-        if (!items.empty()) return true;
-
-        // Not a valid expression
-        return ndfa_regex::check_expression(expression);
-    }
-
-};
+    };
+}
 
 /// \brief Creates a new lexer compiler
 ///
@@ -194,7 +195,7 @@ lexer_stage::~lexer_stage() {
 }
 
 /// \brief Reports any errors that might have occurred in the specified regular expression
-void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const dfa::position& pos) {
+void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, const std::wstring* fn, const dfa::position& pos) {
     // Fetch the errors in the regex
     vector<regex_error> errors = ndfa->check_regex(regex);
 
@@ -224,8 +225,27 @@ void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, 
                 break;
         }
 
+        // Work out the filename
+        wstring file;
+        if (fn) {
+            file = *fn;
+        } else {
+            file = filename();
+        }
+
+        // Work out the position
+        position errorPos = pos;
+
+        if (erm->pos().line() >= 0) {
+            if (erm->pos().line() >= 1) {
+                errorPos = position(pos.offset() + erm->pos().offset() + 1, pos.line() + erm->pos().line(), erm->pos().column());
+            } else {
+                errorPos = position(pos.offset() + erm->pos().offset() + 1, pos.line(), pos.column() + erm->pos().column() + 1);                
+            }
+        }
+
         // Report the error
-        cons().report_error(error(error::sev_error, filename(), L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
+        cons().report_error(error(error::sev_error, file, L"BAD_REGULAR_EXPRESSION", msg.str(), errorPos));
     }
 }
 
@@ -259,6 +279,17 @@ void lexer_stage::compile() {
 
     ignoreBuilder.push();
 
+    // Iterate through all of the expressions defined in the language
+    for (lexer_data::iterator itemList = lex->begin_expr(); itemList != lex->end_expr(); ++itemList) {
+        // Iterate through each individual item
+        for (item_list::const_iterator item = itemList->second.begin(); item != itemList->second.end(); ++item) {
+            // Check the regular expressions for validity
+            if (item->type == lexer_item::regex) {
+                check_regex(stage0, item->definition, item->filename, item->position);
+            }
+        }
+    }
+
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
         // Iterate through the individual definitions for this item
@@ -291,7 +322,7 @@ void lexer_stage::compile() {
             switch (item->type) {
                 case lexer_item::regex:
                     // Check
-                    check_regex(stage0, item->definition, position(-1, -1, -1));
+                    check_regex(stage0, item->definition, item->filename, item->position);
 
                     // Compile
                     if (blandIgnore) {
