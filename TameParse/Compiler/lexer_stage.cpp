@@ -125,6 +125,8 @@ namespace compiler {
                 // Set case sensitivity
                 if (item->case_insensitive) {
                     cons.set_case_options(true, true);
+                } else if (item->case_sensitive) {
+                    cons.set_case_options(false, false);
                 } else {
                     // Preserve case sensitivity of the enclosing block when the symbols don't explicitly specify what to do
                     // TODO: you can specifically say 'case sensitive lexer-symbols' but we treat that as a no-op for now
