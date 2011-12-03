@@ -11,7 +11,7 @@ language ParserLanguage {
 		letter 			= /({unicode-letter}|{unicode-punctuation-dash}|{unicode-punctuation-connector})/
 		digit 			= /{unicode-number}/
 		alphanumeric 	= /({letter}|{digit})/
-		whitespace		= /{unicode-separator}|[\t\n\r]/
+		whitespace		= /{unicode-separator}|[\t]/
 		anycharacter	= /[^\n\r]/
 
 		// Characters valid in regular expressions and strings
@@ -35,7 +35,7 @@ language ParserLanguage {
 	
 	/// Ignored symbols
 	ignore {
-		newline			= /[\n\r]/
+		newline			= /[\n\r]+/
 		whitespace		= /{whitespace}+/
 		comment			= /\/\/({anycharacter}*)/
 		c-comment		= /\/\*([^*]|\*[^\/])*\*\//
@@ -116,9 +116,10 @@ language ParserLanguage {
 									| case insensitive
 		
 		<Keyword-Definition>		= identifier
-									| identifier ('=' | "|=") (regex | string | character)
+									| <Lexeme-Definition>
 		
 		<Lexeme-Definition> 		= identifier ('=' | "|=") (regex | string | character)
+									| [=> replace identifier '='] replace identifier '=' (regex | string | character)
                                     | identifier '=' identifier '.' identifier
 		
 		//

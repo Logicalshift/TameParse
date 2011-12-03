@@ -20,3 +20,7 @@ lexer_symbol_stream::~lexer_symbol_stream() { }
 void lexeme_stream::set_initial_state(int initialState) {
     // Default action is to do nothing
 }
+
+/// \brief Destructor
+lexeme_stream::~lexeme_stream() {
+}

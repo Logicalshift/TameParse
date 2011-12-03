@@ -11,9 +11,10 @@
 using namespace language;
 
 /// \brief Creates a new lexer block
-lexer_block::lexer_block(bool weak, bool caseInsensitive, position start, position end)
+lexer_block::lexer_block(bool weak, bool caseInsensitive, bool caseSensitive, position start, position end)
 : block(start, end)
 , m_Weak(weak)
+, m_CaseSensitive(caseSensitive)
 , m_CaseInsensitive(caseInsensitive) {
 }
 

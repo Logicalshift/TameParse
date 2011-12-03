@@ -6,6 +6,8 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+#include <stack>
+
 #include "TameParse/Dfa/ndfa_regex.h"
 #include "TameParse/Dfa/symbol_set.h"
 #include "TameParse/Util/unicode.h"
@@ -196,7 +198,6 @@ void ndfa_regex::define_expression(const symbol_string& name, const symbol_strin
 void ndfa_regex::define_expression_literal(const symbol_string& name, const symbol_string& value) {
     m_LiteralExpressionMap[name] = value;
 }
-
 
 ///
 /// \brief Compiles a single symbol from a regular expression
@@ -478,6 +479,132 @@ int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const sy
     }
 }
 
+/// \brief Returns a vector of the errors in the specified regular expression
+std::vector<regex_error> ndfa_regex::check_regex(const symbol_string& regex) {
+    // Create a list of errors
+    vector<regex_error> errors;
+
+    symbol_string::const_iterator end = regex.end();
+    position_tracker exprPos(position(0,0,0));
+
+    // Iterate through the regular expression and check each character in turn
+    for (symbol_string::const_iterator chr = regex.begin(); chr != regex.end(); chr++) {
+        check(exprPos, chr, end, errors);
+        if (chr == end) break;
+        exprPos.update_position(*chr);
+    }
+
+    // Return the result
+    return errors;
+}
+
+///
+/// \brief Checks a single symbol from a regular expression
+///
+/// Subclasses can override this to extend the grammar accepted as a regular expression.
+///
+void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors) {
+    if (pos == end) return;
+
+    // Iterator type
+    typedef symbol_string::const_iterator it;
+
+    // Action depends on the type of symbol
+    switch (*pos) {
+        case '(':
+        case '[':
+        {
+            // Search forwards for the matching '('
+            // This should deal with weird things like [(], which are valid but don't open another level of brackets
+            stack<wchar_t>  brackets;
+            it              bracketPos = pos;
+
+            // Pick the right error type
+            regex_error::error_type erm = regex_error::missing_round_bracket;
+            if (*pos == '[') erm = regex_error::missing_square_bracket;
+
+            do {
+                switch (*bracketPos) {
+                    case '{':
+                        if (brackets.empty() || brackets.top() == ')') {
+                            brackets.push('}');
+                        }
+                        break;
+                    case '[':
+                        if (brackets.empty() || brackets.top() == ')') {
+                            brackets.push(']');
+                        }
+                        break;
+                    case '(':
+                        if (brackets.empty() || brackets.top() == ')') {
+                            brackets.push(')');
+                        }
+                        break;
+
+                    case ')':
+                    case ']':
+                    case '}':
+                        if (!brackets.empty() && brackets.top() == *bracketPos) {
+                            brackets.pop();
+                        }
+                        break;
+                }
+
+                if (!brackets.empty()) {
+                    bracketPos++;
+                }
+            } while (bracketPos != end && !brackets.empty());
+
+            // Add an error if the bracket was unmatched
+            if (!brackets.empty()) {
+                errors.push_back(regex_error(erm, exprPos.current_position()));
+            }
+
+            // Skip over the contents of [] sequences
+            if (*pos == '[') {
+                exprPos.update_position(pos, bracketPos);
+                pos = bracketPos;
+            }
+            break;
+        }
+            
+        case '\\':
+            // Skip over quoted characters
+            // TODO: improve handling of \u, \x, etc
+            exprPos.update_position(*pos);
+            pos++;
+            break;
+
+        case '{':
+        {
+            // Remember the start position, for reporting any errors
+            position start = exprPos.current_position();
+
+            // Compiled expression: find the closing '{'
+            exprPos.update_position(*pos);
+            pos++;
+
+            // Read up to the closing '}'
+            symbol_string expr;
+            while (pos != end && *pos != '}') {
+                expr += *pos;
+                exprPos.update_position(*pos);
+                pos++;
+            }
+
+            // Check for errors
+            if (pos == end) {
+                // Error if there was no '}'
+                errors.push_back(regex_error(regex_error::missing_curly_bracket, start));
+            } else if (!check_expression(expr)) {
+                // Error if the expression is invalid
+                errors.push_back(regex_error(regex_error::missing_expression, start, expr));
+            }
+            break;            
+        }
+    }
+}
+
 ///
 /// \brief If str has the specified prefix, returns true and removes the prefix from the string
 ///
@@ -746,6 +873,22 @@ static string unicode_for_expression(const symbol_string& expression) {
 
     // Return the result
     return result;
+}
+
+/// \brief Returns true if the specified expression is valid
+bool ndfa_regex::check_expression(const symbol_string& expression) {
+    // Search the expression map
+    if (m_ExpressionMap.find(expression) != m_ExpressionMap.end()) {
+        return true;
+    }
+
+    // Check if this is a valid unicode expression
+    if (!unicode_for_expression(expression).empty()) {
+        return true;
+    }
+
+    // Not a valid expression
+    return false;
 }
 
 ///

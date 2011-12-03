@@ -56,6 +56,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/position.h \
 							  Dfa/range.h \
 							  Dfa/remapped_symbol_map.h \
+							  Dfa/regex_error.h \
 							  Dfa/state.h \
 							  Dfa/state_machine.h \
 							  Dfa/symbol_map.h \
@@ -144,6 +145,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/position.cpp \
 							  Dfa/range.cpp \
 							  Dfa/remapped_symbol_map.cpp \
+							  Dfa/regex_error.cpp \
 							  Dfa/state.cpp \
 							  Dfa/state_machine.cpp \
 							  Dfa/symbol_map.cpp \
@@ -229,6 +231,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Dfa/position.h \
 							  Dfa/range.h \
 							  Dfa/remapped_symbol_map.h \
+							  Dfa/regex_error.h \
 							  Dfa/state.h \
 							  Dfa/state_machine.h \
 							  Dfa/symbol_map.h \
