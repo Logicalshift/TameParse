@@ -125,9 +125,22 @@ void language_stage::compile() {
 
         // Define these as expressions
         for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-            // TODO: check if an expression is already defined and report an error if it is
-            // TODO: deal with adding to existing blocks
-            // TODO: check if this definition should replace another
+            // Check if an expression is already defined and report an error if it is
+            if (!m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
+                if (!(*lexerItem)->add_to_definition() && !(*lexerItem)->replace_definition()) {
+                    // Symbol is already defined, and isn't set up to modify an existing symbol
+                }
+            }
+
+            // Check if this definition should replace another
+            if ((*lexerItem)->replace_definition()) {
+                if (m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
+                    // It's an error for the expresison not to be defined already
+                }
+
+                // Remove the existing expression
+                m_Lexer.remove_expression((*lexerItem)->identifier());
+            }
 
             // Action depends on the type of item
             switch ((*lexerItem)->get_type()) {
