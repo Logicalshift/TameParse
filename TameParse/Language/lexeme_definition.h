@@ -43,6 +43,9 @@ namespace language {
         
         /// \brief True if this is an alternate definition of an existing symbol
         bool m_AddToDefinition;
+
+        /// \brief True if this is a replacement for an existing symbol
+        bool m_ReplaceDefinition;
         
         /// \brief The definition assigned to this lexeme (how it is interpreted depends on type)
         ///
@@ -54,7 +57,7 @@ namespace language {
         
     public:
         /// \brief Creates a new lexeme definition
-        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, position start, position end, position definition_pos);
+        lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, bool replaceDefinition, position start, position end, position definition_pos);
         
         /// \brief The type of this lexeme definition (determines how the definition field is interpreted)
         inline type get_type() const { return m_Type; }
@@ -64,6 +67,9 @@ namespace language {
         
         /// \brief True if this is an alternative to an existing lexer symbol definition
         inline bool add_to_definition() const { return m_AddToDefinition; }
+
+        /// \brief True if the definition should be replaced
+        inline bool replace_definition() const { return m_ReplaceDefinition; }
         
         /// \brief How the lexeme is defined
         ///

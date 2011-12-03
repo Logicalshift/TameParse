@@ -443,13 +443,14 @@ static bool add_lexeme_definition(const ast_Lexeme_Definition* defn, lexer_block
         const ast_character*    character   = defn->one_of_regex_or_one_of_string_or_character->character;
         
         bool                    alternate   = defn->one_of__equals__or__pipe__equals_->_pipe__equals_;
+        bool                    replace     = defn->replace != NULL;
         
         if (regex) {
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, defn->pos(), defn->final_pos(), regex->pos()));
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::regex, lexemeId->content<wchar_t>(), regex->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), regex->pos()));
         } else if (string) {
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, defn->pos(), defn->final_pos(), string->pos()));
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::string, lexemeId->content<wchar_t>(), string->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), string->pos()));
         } else if (character) {
-            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, defn->pos(), defn->final_pos(), character->pos()));
+            lexerBlock->add_definition(new lexeme_definition(lexeme_definition::character, lexemeId->content<wchar_t>(), character->content<wchar_t>(), alternate, replace, defn->pos(), defn->final_pos(), character->pos()));
         } else {
             // Doh, bug: fail
             delete lexerBlock;
