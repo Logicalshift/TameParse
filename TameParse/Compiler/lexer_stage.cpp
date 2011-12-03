@@ -233,18 +233,18 @@ void lexer_stage::check_regex(dfa::ndfa_regex* ndfa, const std::wstring& regex, 
         }
 
         // Work out the position
-        position errorPos;
+        position errorPos = pos;
 
         if (erm->pos().line() >= 0) {
             if (erm->pos().line() >= 1) {
-                errorPos = position(pos.offset() + erm->pos().offset(), pos.line() + erm->pos().line(), erm->pos().column());
+                errorPos = position(pos.offset() + erm->pos().offset() + 1, pos.line() + erm->pos().line(), erm->pos().column());
             } else {
-                errorPos = position(pos.offset() + erm->pos().offset(), pos.line(), pos.column() + erm->pos().column());                
+                errorPos = position(pos.offset() + erm->pos().offset() + 1, pos.line(), pos.column() + erm->pos().column() + 1);                
             }
         }
 
         // Report the error
-        cons().report_error(error(error::sev_error, file, L"BAD_REGULAR_EXPRESSION", msg.str(), pos));
+        cons().report_error(error(error::sev_error, file, L"BAD_REGULAR_EXPRESSION", msg.str(), errorPos));
     }
 }
 

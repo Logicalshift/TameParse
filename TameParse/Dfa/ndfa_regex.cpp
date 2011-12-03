@@ -518,8 +518,9 @@ void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator&
             // This should deal with weird things like [(], which are valid but don't open another level of brackets
             stack<wchar_t>  brackets;
             it              bracketPos = pos;
-            regex_error::error_type erm = regex_error::missing_round_bracket;
 
+            // Pick the right error type
+            regex_error::error_type erm = regex_error::missing_round_bracket;
             if (*pos == '[') erm = regex_error::missing_square_bracket;
 
             do {
@@ -561,6 +562,7 @@ void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator&
 
             // Skip over the contents of [] sequences
             if (*pos == '[') {
+                exprPos.update_position(pos, bracketPos);
                 pos = bracketPos;
             }
             break;
