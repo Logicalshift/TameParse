@@ -343,7 +343,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             int splitStateId    = -1;
             int numToMatch      = firstState.count_transitions();
             vector<int> toRemove;
-            curState++;
+            ++curState;
             for (; curState != thisState.end(); ++curState) {
                 // Check through the items in this state
                 const state&    originalState   = get_state(*curState);
@@ -548,14 +548,14 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
             // Move on to the next transit and/or symbol set
             if (newState == -1) {
                 // The transition applies to a later symbol set: only move the symbol set on
-                oldSymbolSet++;
+                ++oldSymbolSet;
             } else {
                 // The transition matches the symbols: move the transition on
-                transit++;
+                ++transit;
 
                 // Move the symbols on as well if the transition now has a different set
                 if (transit == thisState.end() || transit->symbol_set() != *oldSymbolSet) {
-                    oldSymbolSet++;
+                    ++oldSymbolSet;
                 }
             }
         }

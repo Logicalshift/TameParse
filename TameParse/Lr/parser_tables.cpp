@@ -90,9 +90,9 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         
         for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
             if ((*nextAction)->item()->type() == item::terminal) {
-                termCount++;
+                ++termCount;
             } else {
-                nontermCount++;
+                ++nontermCount;
             }
         }
         
@@ -129,7 +129,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
                 termActions[termPos].m_NextState        = nextState;
                 termActions[termPos].m_SymbolId         = (*nextAction)->item()->symbol();
                 
-                termPos++;
+                ++termPos;
             } else {
                 // Add a new nonterminal action
                 nontermActions[nontermPos].m_Type       = type;
@@ -140,7 +140,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
                     eogStates.push_back(stateId);
                 }
                 
-                nontermPos++;
+                ++nontermPos;
             }
         }
         

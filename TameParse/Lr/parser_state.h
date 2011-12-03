@@ -91,7 +91,7 @@ namespace lr {
     /// It is an error to call this without calling lookahead() at least once since the last call.
     ///
     template<typename I, typename A, typename T> inline void parser<I, A, T>::state::next() {
-        m_LookaheadPos++;
+        ++m_LookaheadPos;
         trim_lookahead();
     }
     
@@ -409,7 +409,7 @@ namespace lr {
                     if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) return true;
                     
                     // If not, keep looking for a stronger action
-                    act++;
+                    ++act;
                     break;
                 }
                     
@@ -612,14 +612,14 @@ namespace lr {
                 // Check if we can perform a reduction
                 if (!actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
                     // Try the next action if we can't reduce this item
-                    act++;
+                    ++act;
                     continue;
                 }
             }
             
             if (act->m_Type == lr_action::act_guard) {
                 // TODO: deal with guards on guards (maybe should never happen?)
-                act++;
+                ++act;
                 continue;
             }
             

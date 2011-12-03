@@ -119,7 +119,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
                 remaining = symbol_range(newUpper, remaining.upper());
                 
                 // Want the value after the one we just inserted
-                firstGreaterThan++;
+                ++firstGreaterThan;
                 
                 // Start again
                 continue;
@@ -129,7 +129,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             if (firstGreaterThan->first.lower() < remaining.lower()) {
                 // Split the ranges and move so that the lowest point matches
                 firstGreaterThan = split(sets, firstGreaterThan->first, remaining.lower());
-                firstGreaterThan++;
+                ++firstGreaterThan;
             }
             
             // If the current range ends beyond the end of the remaining set, then split it
@@ -144,7 +144,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             remaining = symbol_range(firstGreaterThan->first.upper(), remaining.upper());
             
             // Move on
-            firstGreaterThan++;
+            ++firstGreaterThan;
         }
     }
 }

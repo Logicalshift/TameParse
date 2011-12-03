@@ -82,7 +82,7 @@ static symbol_set convert_range(const symbol_range& range, const map_entry* map,
 			result |= symbol_range(initialChar, initialChar + numChars);
 
 			// Move on
-			curItem++;
+			++curItem;
 			lowerChar += numChars;
 		}
 	}

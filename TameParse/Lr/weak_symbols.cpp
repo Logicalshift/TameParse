@@ -224,7 +224,7 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
         int sym = (*act)->item()->symbol();
         
         // Mark this weak symbol as having an existing action
-        weakSymbols[sym]++;
+        ++weakSymbols[sym];
         
         // Push on to the set of weak actions
         weakActions.push(*act);

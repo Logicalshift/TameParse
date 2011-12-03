@@ -103,7 +103,7 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
         follow = gram.first(rule.items()[followOffset]);
         
         // Add further following items if the follow set can be empty, until we reach the end
-        followOffset++;
+        ++followOffset;
         while (followOffset < numItems && follow.contains(an_empty_item_c)) {
             // Remove the empty item
             follow.erase(an_empty_item_c);
@@ -113,7 +113,7 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
             follow.merge(newItems);
             
             // Move on to the next item
-            followOffset++;
+            ++followOffset;
         }
         
         // If the empty set is still included, remove it and add the item lookahead

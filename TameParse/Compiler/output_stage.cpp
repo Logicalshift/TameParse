@@ -143,7 +143,7 @@ void output_stage::define_lexer_tables() {
 		accept_action_list::const_iterator thisAction = actions.begin();
         const accept_action* highest = *thisAction;
 
-        thisAction++;
+        ++thisAction;
         for (; thisAction != actions.end(); ++thisAction) {
             if ((*highest) < **thisAction) {
                 highest = *thisAction;

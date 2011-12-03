@@ -394,7 +394,7 @@ std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::
 
 	for (;;) {
 		// Get the next variant
-		variant++;
+		++variant;
 
 		// Generate the variant name
 		stringstream varNameStream;
@@ -534,7 +534,7 @@ void output_cplusplus::terminal_symbol(const std::wstring& name, int identifier)
         ourName << "_" << count;
     }
 
-    m_TerminalSymbolCount[shortName]++;
+    ++m_TerminalSymbolCount[shortName];
 
     // Output a constant for this terminal
     *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
@@ -576,7 +576,7 @@ void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifi
         ourName << "_" << count;
     }
     
-    m_NonterminalSymbolCount[shortName]++;
+    ++m_NonterminalSymbolCount[shortName];
     
     // Output a constant for this terminal
     *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
@@ -697,7 +697,7 @@ void output_cplusplus::lexer_state_transition(int symbolSet, int newState) {
 	*m_SourceFile << "{ " << symbolSet << ", " << newState << " }";
 
 	// Update the lexer state position
-	m_LexerEntryPos++;
+	++m_LexerEntryPos;
 }
 
 /// \brief Finishes writing out a lexer state
@@ -833,7 +833,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 			// Move on
 			first = false;
             showingState = false;
-			count++;
+			++count;
 		}
 	}
 	output << "\n};\n";
@@ -864,7 +864,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
         pos += numActions;
         
         // Move on
-        count++;
+        ++count;
         first = false;
 	}
     
@@ -927,7 +927,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -953,7 +953,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -980,7 +980,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -1006,7 +1006,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -1315,7 +1315,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 	int 	variant = 0;
 	for (;;) {
 		// Next variant
-		variant++;
+		++variant;
 
 		// Generate the name for this variant
 		stringstream thisName;
@@ -1371,7 +1371,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 	int 	variant = 0;
 	for (;;) {
 		// Next variant
-		variant++;
+		++variant;
 
 		// Generate the name for this variant
 		stringstream thisName;
@@ -1458,7 +1458,7 @@ void output_cplusplus::end_ast_rule() {
 			if (m_CurrentRuleTypes[index].empty()) continue;
 
 			// This is a valid item
-			numValidItems++;
+			++numValidItems;
 			if (firstItem == 0xffffffff) firstItem = index;
 			lastItem = index;
 
@@ -1543,7 +1543,7 @@ void output_cplusplus::end_ast_rule() {
 			if (type.empty()) continue;
 
 			// This is a valid item
-			numValidItems++;
+			++numValidItems;
 
 			// Comma between items
 			if (!first) {

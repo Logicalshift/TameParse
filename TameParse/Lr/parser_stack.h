@@ -158,7 +158,7 @@ namespace lr {
                 for (size_t x=0; x<m_Stack.size(); ++x) {
                     if (!marks[x]) {
                         m_Stack[x].m_PreviousIndex = entry::empty;
-                        m_NumFree++;
+                        ++m_NumFree;
                     }
                 }
             }
@@ -187,13 +187,13 @@ namespace lr {
                 
                 // Find a free entry
                 while (m_Stack[m_FirstUnused].m_PreviousIndex != entry::empty) {
-                    m_FirstUnused++;
+                    ++m_FirstUnused;
                     if (m_FirstUnused >= (int) m_Stack.size()) m_FirstUnused = 0;
                 }
                 
                 // m_FirstUnused now points to an entry we can use
                 int result = m_FirstUnused;
-                m_FirstUnused++;
+                ++m_FirstUnused;
                 if (m_FirstUnused >= (int) m_Stack.size()) m_FirstUnused = 0;
                 
                 // Make this a 'head' entry

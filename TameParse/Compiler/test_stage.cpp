@@ -310,9 +310,9 @@ void test_stage::compile() {
 
         	// Add to the count of successful/failed tests
         	if (result) {
-        		passed++;
+        		++passed;
         	} else {
-        		failed++;
+        		++failed;
         	}
 
         	// Done with the parser

@@ -126,7 +126,7 @@ namespace dfa {
                 m_Row[pos].symbolSet    = transit->symbol_set();
                 m_Row[pos].state        = transit->new_state();
                 
-                pos++;
+                ++pos;
             }
             
             // Sort the entries

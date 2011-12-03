@@ -112,7 +112,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                 case lr_action::act_guard:
                 case lr_action::act_weakreduce:
                 case lr_action::act_ignore:
-                    numWeak++;
+                    ++numWeak;
                     break;
                     
                 default:

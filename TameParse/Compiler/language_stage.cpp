@@ -572,7 +572,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Symbols defined within the parser grammar count as weak symbols
             m_WeakSymbols.insert(symId);
 
-            count++;
+            ++count;
             break;
         }
             
@@ -598,7 +598,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Symbols defined within the parser count as weak symbols
             m_WeakSymbols.insert(symId);
             
-            count++;
+            ++count;
             break;
         }
             

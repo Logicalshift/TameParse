@@ -21,7 +21,7 @@ wstring process::dequote_string(const wstring& string) {
         // Deal with quoting
         if (string[pos] == '\\') {
             // Move on a character
-            pos++;
+            ++pos;
             
             // Quoted character values
             switch (string[pos]) {

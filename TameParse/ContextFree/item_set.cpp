@@ -85,7 +85,7 @@ void item_set::count_size() {
 		// Count the number of bits set in this item (Kerningham's method)
 		unsigned int bits = m_Items[item];
 		while (bits) {
-			m_Size++;
+			++m_Size;
 			bits &= bits-1;
 		}
 	}
@@ -120,7 +120,7 @@ bool item_set::insert(int itemId) {
     // Update the bit
     if ((m_Items[setId]&mask) == 0) {
     	m_Items[setId] |= mask;
-    	m_Size++;
+    	++m_Size;
     	return true;
     } else {
     	return false;
@@ -247,7 +247,7 @@ int item_set::next_item_id(int itemId) const {
 	while (set < m_MaxItem) {
 		// Move on rapidly if this set is empty
 		if (bit == 0 && m_Items[set] == 0) {
-			set++;
+			++set;
             
             // Check the first bit of the new set
             if (set < m_MaxItem && (m_Items[set]&1) != 0) {
@@ -258,13 +258,13 @@ int item_set::next_item_id(int itemId) const {
 		// Test this bit
 		else {
             // Move on to the next item
-            bit++;
+            ++bit;
             mask <<= 1;
             
             if (bit >= 0x20) {
                 mask 	= 1;
                 bit 	= 0;
-                set++;
+                ++set;
                 
                 if (set >= m_MaxItem) {
                     return set<<5;

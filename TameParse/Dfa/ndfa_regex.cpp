@@ -169,7 +169,7 @@ int ndfa_regex::add_regex(builder& cons, const symbol_string& regex) {
         
         // Move on
         if (pos != end) {
-            pos++;
+            ++pos;
         }
     }
     
@@ -286,14 +286,14 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
         case '[':
         {
             // Group of symbols
-            pos++;
+            ++pos;
             if (pos == end) return;
             
             // If the group begins '^', then we take the negative of this group
             bool negate = false;
             if (*pos == '^') {
                 negate = true;
-                pos++;
+                ++pos;
                 if (pos == end) return;
             }
             
@@ -306,18 +306,18 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
                 if (pos == end) break;
                 
                 // Check the next symbol to see if we've got a range
-                pos++;
+                ++pos;
                 if (pos == end) break;
                 
                 if (*pos == '-') {
                     // Got a range of symbols
-                    pos++;
+                    ++pos;
                     if (pos == end) break;
                     
                     // Get the final symbol in the range
                     int finalSym = symbol_for_sequence(pos, end);
                     if (pos == end) break;
-                    pos++;
+                    ++pos;
                     
                     // Ranges are inclusive
                     syms |= range<int>(initialSym, finalSym+1);
@@ -340,14 +340,14 @@ void ndfa_regex::compile(symbol_string::const_iterator& pos, const symbol_string
         case '{':
         {
             // Compiled expression: find the closing '{'
-            pos++;
+            ++pos;
             if (pos == end) return;
 
             // Read up to the closing '}'
             symbol_string expr;
             while (pos != end && *pos != '}') {
                 expr += *pos;
-                pos++;
+                ++pos;
             }
 
             // Compile this expression
@@ -373,7 +373,7 @@ static int hex(symbol_string::const_iterator& pos, const symbol_string::const_it
     for (int x=0; x<maxDigits; ++x) {
         // Get the next position
         symbol_string::const_iterator next = pos;
-        next++;
+        ++next;
         
         // Check that this is a hex character
         if (next == end) break;
@@ -405,7 +405,7 @@ static int oct(symbol_string::const_iterator& pos, const symbol_string::const_it
     for (int x=0; x<maxDigits; ++x) {
         // Get the next position
         symbol_string::const_iterator next = pos;
-        next++;
+        ++next;
         
         // Check that this is a hex character
         if (next == end) break;
@@ -441,7 +441,7 @@ int ndfa_regex::symbol_for_sequence(symbol_string::const_iterator& pos, const sy
     if (*pos != '\\') return *pos;
     
     // Move on to the character being quoted
-    pos++;
+    ++pos;
 
     // Just use '\' if we fall off the end of the expression
     if (pos == end) return '\\';
@@ -551,7 +551,7 @@ void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator&
                 }
 
                 if (!brackets.empty()) {
-                    bracketPos++;
+                    ++bracketPos;
                 }
             } while (bracketPos != end && !brackets.empty());
 
@@ -572,7 +572,7 @@ void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator&
             // Skip over quoted characters
             // TODO: improve handling of \u, \x, etc
             exprPos.update_position(*pos);
-            pos++;
+            ++pos;
             break;
 
         case '{':
@@ -582,14 +582,14 @@ void ndfa_regex::check(position_tracker& exprPos, symbol_string::const_iterator&
 
             // Compiled expression: find the closing '{'
             exprPos.update_position(*pos);
-            pos++;
+            ++pos;
 
             // Read up to the closing '}'
             symbol_string expr;
             while (pos != end && *pos != '}') {
                 expr += *pos;
                 exprPos.update_position(*pos);
-                pos++;
+                ++pos;
             }
 
             // Check for errors

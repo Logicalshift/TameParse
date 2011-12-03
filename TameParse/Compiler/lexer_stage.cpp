@@ -430,7 +430,7 @@ void lexer_stage::compile() {
         ndfa::accept_action_list::const_iterator action = acceptActions.begin();
         accept_action* highest = *action;
         
-        action++;
+        ++action;
         for (; action != acceptActions.end(); ++action) {
             if (*highest < **action) {
                 clashes[highest->symbol()].insert((*action)->symbol());

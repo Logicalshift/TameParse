@@ -54,19 +54,19 @@ namespace dfa {
         
         /// \brief Moves on by a single symbol
         inline void increment() {
-            m_Offset++;
-            m_Column++;
+            ++m_Offset;
+            ++m_Column;
         }
         
         /// \brief Increases the offset without changing the column
         inline void increment_offset() {
-            m_Offset++;
+            ++m_Offset;
         }
         
         /// \brief Adds a new line to this position
         inline void newline() {
             m_Column = 0;
-            m_Line++;
+            ++m_Line;
         }
         
         /// \brief Compares two positions

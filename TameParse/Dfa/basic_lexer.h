@@ -267,7 +267,7 @@ namespace dfa {
                     int curSym = m_Buffer[pos];
                     
                     // The position moves on here
-                    pos++;
+                    ++pos;
                     
                     // Run the state machine (use the faster 'unsafe' mode, we check the state later ourselves)
                     state = m_StateMachine.run_unsafe(state, curSym);

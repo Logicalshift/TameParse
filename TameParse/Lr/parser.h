@@ -411,7 +411,7 @@ namespace lr {
                 inline int offset() const { return m_Offset; }
                 
                 // \brief Moves on to the next symbol
-                inline void next() { m_Offset++; }
+                inline void next() { ++m_Offset; }
                 
                 /// \brief The current state of the guard lookahead parser
                 inline int current_state(state* state) const { return m_Stack.top(); }
