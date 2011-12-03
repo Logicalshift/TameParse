@@ -129,15 +129,26 @@ void language_stage::compile() {
             if (!m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
                 if (!(*lexerItem)->add_to_definition() && !(*lexerItem)->replace_definition()) {
                     // Symbol is already defined, and isn't set up to modify an existing symbol
+                    wstringstream msg;
+                    msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                }
+            } else {
+                if ((*lexerItem)->add_to_definition()) {
+                    // Can't use |= with a symbol that is not defined
+                    wstringstream msg;
+                    msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
+                } else if ((*lexerItem)->replace_definition()) {
+                    // Can't replace a nonexistent symbol
+                    wstringstream msg;
+                    msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
                 }
             }
 
             // Check if this definition should replace another
             if ((*lexerItem)->replace_definition()) {
-                if (m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
-                    // It's an error for the expresison not to be defined already
-                }
-
                 // Remove the existing expression
                 m_Lexer.remove_expression((*lexerItem)->identifier());
             }
