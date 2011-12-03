@@ -278,6 +278,17 @@ void lexer_stage::compile() {
 
     ignoreBuilder.push();
 
+    // Iterate through all of the expressions defined in the language
+    for (lexer_data::iterator itemList = lex->begin_expr(); itemList != lex->end_expr(); ++itemList) {
+        // Iterate through each individual item
+        for (item_list::const_iterator item = itemList->second.begin(); item != itemList->second.end(); ++item) {
+            // Check the regular expressions for validity
+            if (item->type == lexer_item::regex) {
+                check_regex(stage0, item->definition, item->filename, item->position);
+            }
+        }
+    }
+
     // Iterate through the definition lists for each item
     for (lexer_data::iterator itemList = lex->begin(); itemList != lex->end(); itemList++) {
         // Iterate through the individual definitions for this item
