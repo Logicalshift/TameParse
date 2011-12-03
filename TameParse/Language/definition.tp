@@ -116,7 +116,7 @@ language ParserLanguage {
 									| case insensitive
 		
 		<Keyword-Definition>		= identifier
-									| identifier ('=' | "|=") (regex | string | character)
+									| <Lexeme-Definition>
 		
 		<Lexeme-Definition> 		= identifier ('=' | "|=") (regex | string | character)
                                     | identifier '=' identifier '.' identifier

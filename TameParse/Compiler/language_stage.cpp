@@ -178,8 +178,7 @@ void language_stage::compile() {
     // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
     // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
     // defined in the grammar itself (as the grammar must be processed last)
-    for (int weakness = 0; weakness < 2; weakness++)
-    {
+    for (int weakness = 0; weakness < 2; weakness++) {
         // Weak blocks have the highest priority
         bool isWeak = weakness == 0;
 
