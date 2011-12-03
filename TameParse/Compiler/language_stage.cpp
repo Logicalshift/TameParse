@@ -126,6 +126,8 @@ void language_stage::compile() {
         // Define these as expressions
         for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
             // TODO: check if an expression is already defined and report an error if it is
+            // TODO: deal with adding to existing blocks
+            // TODO: check if this definition should replace another
 
             // Action depends on the type of item
             switch ((*lexerItem)->get_type()) {
@@ -204,15 +206,31 @@ void language_stage::compile() {
                     int symId;
                     
                     if (!(*lexerItem)->add_to_definition()) {
-                        // It's an error to define the same symbol twice
-                        if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                            wstringstream msg;
-                            msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                            cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                        if (!(*lexerItem)->replace_definition()) {
+                            // It's an error to define the same symbol twice
+                            if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                                wstringstream msg;
+                                msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                            }
+                            
+                            // Add the symbol ID
+                            symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                        } else {
+                            // Replacing an existing definition
+                            symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
+
+                            if (symId < 0) {
+                                // It's an error for the symbol not to exist
+                                wstringstream msg;
+                                msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
+                            } else {
+                                // Clear the existing symbol
+                                m_TerminalDefinition.erase(symId);
+                                m_Lexer.remove_definition((*lexerItem)->identifier());
+                            }
                         }
-                        
-                        // Add the symbol ID
-                        symId = m_Terminals.add_symbol((*lexerItem)->identifier());
                     } else {
                         // Get the existing symbol ID
                         symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
@@ -231,6 +249,11 @@ void language_stage::compile() {
                             cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
                         }
                     }
+
+                    // Can't do any more if we haven't got a valid symbol ID
+                    if (symId < 0) {
+                        continue;
+                    }
                     
                     // Set the type of this symbol
                     m_TypeForTerminal[symId] = blockType;
@@ -241,7 +264,9 @@ void language_stage::compile() {
                     }
                     
                     // Store where it is defined
-                    m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    if (m_TerminalDefinition.find(symId) == m_TerminalDefinition.end()) {
+                        m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    }
 
                     // Set whether the regexes or literals we add should be case insensitive
                     bool ci = lex->is_case_insensitive();
