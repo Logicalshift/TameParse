@@ -21,6 +21,10 @@ language LexerTests {
 	lexer {
 		plus-or-minus = /[+\-]/
 		unsigned-real = /{unsigned-real}/
+
+		foo = /(foo|forb)/
+		bar = /(bar|baz)/
+
 		joe = /{joe}/
 	}
 
@@ -30,12 +34,22 @@ language LexerTests {
 		jimfred = /{jim}{fred}/
 	}
 
+	weak lexer {
+		foobar = /(foo|bar)/
+	}
+
 	grammar {
 		<plus-or-minus> = plus-or-minus
 
 		<unsigned-real> = unsigned-real
 
 		<name> = jim | joe | fred | jimfred
+
+		<foo-bar> = foo 'x' | bar 'y'
+
+		<foo-bar-weak> = foobar 'x' | foo 'y' | bar 'z'
+
+		<foo-bar-only-weak> = foobar
 	}
 }
 
@@ -58,4 +72,17 @@ test LexerTests {
 
 	<name> !=			"FrEd"
 						"jimFrEd"
+	
+	<foo-bar> =			"foox"
+						"bary"
+						"forbx"
+						"bazy"
+	
+	<foo-bar-weak> =	"foox"
+						"barx"
+						"forby"
+						"bazz"
+
+	<foo-bar-only-weak> = "foo"
+						"bar"
 }
