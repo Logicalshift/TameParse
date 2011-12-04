@@ -229,8 +229,8 @@ void test_language_bootstrap::run_tests() {
     
     // Write out the conflicts to the standard I/O if there were any
     if (conflicts.size() > 0) {
-        for (conflict_list::const_iterator it = conflicts.begin(); it != conflicts.end(); ++it) {
-            wcerr << endl << L"===" << endl << formatter::to_string(**it, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
+        for (conflict_list::const_iterator conf = conflicts.begin(); conf != conflicts.end(); ++conf) {
+            wcerr << endl << L"===" << endl << formatter::to_string(**conf, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
         }
     }
     

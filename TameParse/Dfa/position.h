@@ -178,8 +178,8 @@ namespace dfa {
         
         /// \brief Processes a set of symbols (a class with an iterator) and updates the position
         template<typename iterator> inline void update_position(iterator begin, iterator end) {
-            for (iterator it=begin; it != end; ++it) {
-                update_position((int)(unsigned)*it);
+            for (iterator symbol=begin; symbol != end; ++symbol) {
+                update_position((int)(unsigned)*symbol);
             }
         }
     };

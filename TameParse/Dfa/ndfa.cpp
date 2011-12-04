@@ -31,14 +31,14 @@ ndfa::ndfa(const ndfa& copyFrom)
 , m_CurrentState(0)
 , m_IsDeterministic(copyFrom.m_IsDeterministic) {
     // Copy the states
-    for (state_list::const_iterator it = copyFrom.m_States->begin(); it != copyFrom.m_States->end(); ++it) {
-        m_States->push_back(new state(**it));
+    for (state_list::const_iterator copyState = copyFrom.m_States->begin(); copyState != copyFrom.m_States->end(); ++copyState) {
+        m_States->push_back(new state(**copyState));
     }
     
     // Copy the accept actions
-    for (accept_action_for_state::const_iterator it = copyFrom.m_Accept->begin(); it != copyFrom.m_Accept->end(); ++it) {
-        accept_action_list& action = (*m_Accept)[it->first];
-        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); ++actionIt) {
+    for (accept_action_for_state::const_iterator stateActions = copyFrom.m_Accept->begin(); stateActions != copyFrom.m_Accept->end(); ++stateActions) {
+        accept_action_list& action = (*m_Accept)[stateActions->first];
+        for (accept_action_list::const_iterator actionIt = stateActions->second.begin(); actionIt != stateActions->second.end(); ++actionIt) {
             action.push_back((*actionIt)->clone());
         }
     }

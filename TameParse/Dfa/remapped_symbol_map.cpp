@@ -176,13 +176,13 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     
     // Combine any ranges that map to the same symbol set
     map<new_symbol_set, symbol_set> setsForSets;
-    for (sets_for_range::iterator it = setsContainingRange.begin(); it != setsContainingRange.end(); ++it) {
-        setsForSets[it->second] |= it->first;
+    for (sets_for_range::iterator range = setsContainingRange.begin(); range != setsContainingRange.end(); ++range) {
+        setsForSets[range->second] |= range->first;
     }
     
     // Create a new set for each range we got in the previous step
-    for (map<new_symbol_set, symbol_set>::iterator it = setsForSets.begin(); it != setsForSets.end(); ++it) {
-        newSet->identifier_for_symbols(it->second, it->first);
+    for (map<new_symbol_set, symbol_set>::iterator setMapping = setsForSets.begin(); setMapping != setsForSets.end(); ++setMapping) {
+        newSet->identifier_for_symbols(setMapping->second, setMapping->first);
     }
     
     // This is the result

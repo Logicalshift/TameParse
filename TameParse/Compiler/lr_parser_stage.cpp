@@ -104,8 +104,8 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 
 			// Ignore guards that we've already warned about
 			bool warned = true;
-			for (set<item_container>::iterator it = guarded->second.begin(); it != guarded->second.end(); ++it) {
-				if (warnedGuards.find(*it) == warnedGuards.end()) {
+			for (set<item_container>::iterator clashing = guarded->second.begin(); clashing != guarded->second.end(); ++clashing) {
+				if (warnedGuards.find(*clashing) == warnedGuards.end()) {
 					// Haven't warned about this guard yet, so this is a new kind of clash
 					warned = false;
 					break;

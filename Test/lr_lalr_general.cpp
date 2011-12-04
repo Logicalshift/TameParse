@@ -43,9 +43,9 @@ static void dump(const item& it, const grammar& gram, const terminal_dictionary&
 }
 
 static void dump(const item_set& la, const grammar& gram, const terminal_dictionary& dict) {
-    for (item_set::const_iterator it = la.begin(); it != la.end(); ++it) {
+    for (item_set::const_iterator lookaheadItem = la.begin(); lookaheadItem != la.end(); ++lookaheadItem) {
         wcerr << L" ";
-        dump(**it, gram, dict);
+        dump(**lookaheadItem, gram, dict);
     }
 }
 
@@ -87,9 +87,9 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram, 
 }
 
 static void dump(const lr_action_set& actions, const grammar& gram, const terminal_dictionary& dict) {
-    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); ++it) {
+    for (lr_action_set::const_iterator act = actions.begin(); act != actions.end(); ++act) {
         wcerr << L"  ";
-        switch ((*it)->type()) {
+        switch ((*act)->type()) {
             case lr_action::act_accept:
                 wcerr << L"ACCEPT ";
                 break;
@@ -118,13 +118,13 @@ static void dump(const lr_action_set& actions, const grammar& gram, const termin
                 wcerr << L"SHIFT-STRONG ";
                 break;
         }
-        dump(*(*it)->item(), gram, dict);
+        dump(*(*act)->item(), gram, dict);
         
-        if ((*it)->type() == lr_action::act_reduce || (*it)->type() == lr_action::act_weakreduce) {
+        if ((*act)->type() == lr_action::act_reduce || (*act)->type() == lr_action::act_weakreduce) {
             wcerr << L" on ";
-            dump(*(*it)->rule(), gram, dict);
+            dump(*(*act)->rule(), gram, dict);
         } else {
-            wcerr << L" -> " << (*it)->next_state();
+            wcerr << L" -> " << (*act)->next_state();
         }
         wcerr << endl;
     }

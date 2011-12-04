@@ -73,9 +73,9 @@ void nonterminal::closure(const lr1_item& item, lr1_item_set& state, const gramm
     fill_follow(follow, item, gram);
 
     // Generate new rules for each of these, and add to the state
-    for (rule_list::const_iterator it = ntRules.begin(); it != ntRules.end(); ++it) {
+    for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); ++nextRule) {
         // Create the LR(1) item for the new item
-        lr1_item_container newItem(new lr1_item(&gram, *it, 0, follow), true);
+        lr1_item_container newItem(new lr1_item(&gram, *nextRule, 0, follow), true);
         
         // Add to the closure
         insert_closure_item(newItem, state, gram);
@@ -99,9 +99,9 @@ item_set nonterminal::first(const grammar& gram) const {
     const rule_list& rules = gram.rules_for_nonterminal(symbol());
     
     // Merge in the first set for each of the initial symbols
-    for (rule_list::const_iterator it = rules.begin(); it != rules.end(); ++it) {
+    for (rule_list::const_iterator nextRule = rules.begin(); nextRule != rules.end(); ++nextRule) {
         // Get the items for this rule
-        const item_list& ruleItems = (*it)->items();
+        const item_list& ruleItems = (*nextRule)->items();
         
         // Add the empty item if this is an empty rule
         if (ruleItems.size() == 0) {

@@ -38,8 +38,8 @@ symbol_set::~symbol_set() {
 symbol_set& symbol_set::operator|=(const symbol_set& mergeWith) {
     // Merge each of the ranges in turn
     // TODO: this will perform a search for each range, we can take advantage of the ordering to improve performance here
-    for (symbol_store::const_iterator it = mergeWith.m_Symbols.begin(); it != mergeWith.m_Symbols.end(); ++it) {
-        operator|=(*it);
+    for (symbol_store::const_iterator symRange = mergeWith.m_Symbols.begin(); symRange != mergeWith.m_Symbols.end(); ++symRange) {
+        operator|=(*symRange);
     }
     
     return *this;
@@ -73,12 +73,13 @@ symbol_set& symbol_set::operator|=(const symbol_range& mergeWith) {
     
     // There's some overlap between ranges
     
-    // Find the first item that is > the upper value
+    // Find the first item that is > the upper value (ie, the first item we don't merge with)
     symbol_store::iterator  finalValue  = m_Symbols.upper_bound(mergeWith.upper());
     symbol_range            mergedRange = mergeWith;
 
-    for (symbol_store::iterator it = firstGreaterThan; it != finalValue; ++it) {
-        mergedRange = mergedRange.merge(*it);
+    // Merge any ranges that overlap
+    for (symbol_store::iterator mergeWith = firstGreaterThan; mergeWith != finalValue; ++mergeWith) {
+        mergedRange = mergedRange.merge(*mergeWith);
     }
     
     // Replace the merged values
@@ -92,8 +93,8 @@ symbol_set& symbol_set::operator|=(const symbol_range& mergeWith) {
 void symbol_set::exclude(const symbol_set& toExclude) {
     // Exclude each of the ranges in turn
     // TODO: this will perform a search for each range, we can take advantage of the ordering to improve performance here
-    for (symbol_store::const_iterator it = toExclude.m_Symbols.begin(); it != toExclude.m_Symbols.end(); ++it) {
-        exclude(*it);
+    for (symbol_store::const_iterator excluded = toExclude.m_Symbols.begin(); excluded != toExclude.m_Symbols.end(); ++excluded) {
+        exclude(*excluded);
     }
 }
 
@@ -152,15 +153,15 @@ void symbol_set::invert() {
     symbol_range last(0,0);
     symbol_store newRanges;
     
-    // Add the excluded values
-    for (symbol_store::iterator it = m_Symbols.begin(); it != m_Symbols.end(); ++it) {
+    // Add the ranges that are excluded from this set (except for the range to the maximum symbol)
+    for (symbol_store::iterator excludedRange = m_Symbols.begin(); excludedRange != m_Symbols.end(); ++excludedRange) {
         // Insert a range from the last known position to the next position
-        if (it->lower() != last.upper()) {
-            newRanges.insert(symbol_range(last.upper(), it->lower()));
+        if (excludedRange->lower() != last.upper()) {
+            newRanges.insert(symbol_range(last.upper(), excludedRange->lower()));
         }
         
         // Update the last position
-        last = *it;
+        last = *excludedRange;
     }
     
     // Add a range from the last position to the maximum symbol number
@@ -195,8 +196,10 @@ bool symbol_set::operator==(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() != m_Symbols.size()) return false;
     
     // The contents of all of the sets must be the same
-    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
-        if (*it1 != *it2) return false;
+    for (symbol_store::const_iterator ourSymbol = m_Symbols.begin(), theirSymbol = compareTo.m_Symbols.begin(); 
+         ourSymbol != m_Symbols.end();
+         ++ourSymbol, ++theirSymbol) {
+        if (*ourSymbol != *theirSymbol) return false;
     }
     
     return true;
@@ -211,9 +214,11 @@ bool symbol_set::operator<(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
     
     // Is less than if there's a difference between any of the sets
-    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
-        if (*it1 == *it2) continue;
-        return *it1 < *it2;
+    for (symbol_store::const_iterator ourSymbol = m_Symbols.begin(), theirSymbol = compareTo.m_Symbols.begin(); 
+         ourSymbol != m_Symbols.end(); 
+         ++ourSymbol, ++theirSymbol) {
+        if (*ourSymbol == *theirSymbol) continue;
+        return *ourSymbol < *theirSymbol;
     }
 
     // Sets are the same
@@ -229,9 +234,10 @@ bool symbol_set::operator<=(const symbol_set& compareTo) const {
     if (compareTo.m_Symbols.size() < m_Symbols.size()) return false;
     
     // Is less than if there's a difference between any of the sets
-    for (symbol_store::const_iterator it1 = m_Symbols.begin(), it2 = compareTo.m_Symbols.begin(); it1 != m_Symbols.end(); ++it1, ++it2) {
-        if (*it1 == *it2) continue;
-        return *it1 < *it2;
+    for (symbol_store::const_iterator ourSymbol = m_Symbols.begin(), theirSymbol = compareTo.m_Symbols.begin();
+         ourSymbol != m_Symbols.end(); ++ourSymbol, ++theirSymbol) {
+        if (*ourSymbol == *theirSymbol) continue;
+        return *ourSymbol < *theirSymbol;
     }
     
     // Sets are the same

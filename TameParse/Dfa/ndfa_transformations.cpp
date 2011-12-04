@@ -131,8 +131,8 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         if (isEager) continue;
         
         // Generate the closures for epsilon transitions
-        for (transition_for_symbol::iterator it = statesForSymbol.begin(); it != statesForSymbol.end(); ++it) {
-            closure(it->second);
+        for (transition_for_symbol::iterator transit = statesForSymbol.begin(); transit != statesForSymbol.end(); ++transit) {
+            closure(transit->second);
         }
         
         // Generate new transitions for each symbol

@@ -120,8 +120,8 @@ rule& rule::operator<<(const item_container& item) {
 
 /// \brief Appends the production in the specified rule to this item
 rule& rule::operator<<(const rule& rule) {
-    for (iterator it = rule.begin(); it != rule.end(); ++it) {
-        operator<<(*it);
+    for (iterator sym = rule.begin(); sym != rule.end(); ++sym) {
+        operator<<(*sym);
     }
     return *this;
 }

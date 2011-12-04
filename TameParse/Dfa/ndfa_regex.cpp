@@ -45,8 +45,8 @@ symbol_string ndfa_regex::convert(const string& source) {
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (string::const_iterator it=source.begin(); it != source.end(); ++it) {
-        result += (int)(unsigned char)*it;
+    for (string::const_iterator chr=source.begin(); chr != source.end(); ++chr) {
+        result += (int)(unsigned char)*chr;
     }
     
     // This is the result
@@ -60,8 +60,8 @@ symbol_string ndfa_regex::convert(const wstring& source) {
     result.reserve(source.size());
     
     // Fill it in, treating the characters as unsigned
-    for (wstring::const_iterator it=source.begin(); it != source.end(); ++it) {
-        result += (int)(unsigned)(wchar_t)*it;
+    for (wstring::const_iterator chr=source.begin(); chr != source.end(); ++chr) {
+        result += (int)(unsigned)(wchar_t)*chr;
     }
     
     // This is the result
@@ -681,11 +681,11 @@ static inline bool match_prefix(const string& prefix, string& str) {
 static string unicode_for_expression(const symbol_string& expression) {
     // Convert to a standard string
     string expr;
-    for (symbol_string::const_iterator it = expression.begin(); it != expression.end(); ++it) {
-        if (*it > 255) {
+    for (symbol_string::const_iterator chr = expression.begin(); chr != expression.end(); ++chr) {
+        if (*chr > 255) {
             expr += '.';
         } else {
-            expr += (char) *it;
+            expr += (char) *chr;
         }
     }
 

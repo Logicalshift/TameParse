@@ -61,12 +61,12 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
     // Create a set of the identifiers of the weak terminals in the set
     set<int> weakIdentifiers;
     
-    for (item_set::const_iterator it = weak.begin(); it != weak.end(); ++it) {
+    for (item_set::const_iterator weakItem = weak.begin(); weakItem != weak.end(); ++weakItem) {
         // Only terminal symbols are returned by a NDFA
-        if ((*it)->type() != item::terminal) continue;
+        if ((*weakItem)->type() != item::terminal) continue;
         
         // Map this item
-        weakIdentifiers.insert((*it)->symbol());
+        weakIdentifiers.insert((*weakItem)->symbol());
     }
     
     // Map of weak to strong symbols
@@ -85,8 +85,8 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
         int         strongest   = 0x7fffffff;
         set<int>    usedWeak;
         
-        for (accept_actions::const_iterator it = accept.begin(); it != accept.end(); ++it) {
-            int sym = (*it)->symbol();
+        for (accept_actions::const_iterator action = accept.begin(); action != accept.end(); ++action) {
+            int sym = (*action)->symbol();
             
             // Ignore weak symbols
             if (weakIdentifiers.find(sym) != weakIdentifiers.end()) {
@@ -108,17 +108,17 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
         if (usedWeak.empty())           continue;
         
         // Map the weak symbols we found to this identifier
-        for (set<int>::iterator it = usedWeak.begin(); it != usedWeak.end(); ++it) {
-            if (weakToStrong.find(*it) == weakToStrong.end()) {
+        for (set<int>::iterator weakSymbol = usedWeak.begin(); weakSymbol != usedWeak.end(); ++weakSymbol) {
+            if (weakToStrong.find(*weakSymbol) == weakToStrong.end()) {
                 // This is the first conflict between the two symbols. Just mark out the mapping.
-                weakToStrong[*it] = strongest;
-            } else if (weakToStrong[*it] != strongest) {
+                weakToStrong[*weakSymbol] = strongest;
+            } else if (weakToStrong[*weakSymbol] != strongest) {
                 // The weak symbol is used somewhere else with a different meaning
                 // NOTE: this isn't ideal, as if there's an identical conflict somewhere else we generate more and more symbols for each conflicting
                 // state, while we only need one new symbol for each (weak, strong) pair.
                 
                 // Split the weak symbol so that we have two different meanings
-                int splitSymbolId = terminals.split(*it);
+                int splitSymbolId = terminals.split(*weakSymbol);
                 
                 // Change the accepting action for this state so that it accepts the new symbol
                 dfa.clear_accept(state);
@@ -133,10 +133,10 @@ void weak_symbols::add_symbols(ndfa& dfa, const item_set& weak, terminal_diction
     // TODO: if a weak symbol maps to several strong identifiers, it needs to be split into several symbols
     
     // Fill in the strong map for each weak symbol
-    for (map<int, int>::iterator it = weakToStrong.begin(); it != weakToStrong.end(); ++it) {
+    for (map<int, int>::iterator weakStrong = weakToStrong.begin(); weakStrong != weakToStrong.end(); ++weakStrong) {
         // Use the first strong symbol for this weak symbol
-        item_container strongTerm(new terminal(it->second), true);
-        item_container weakTerm(new terminal(it->first), true);
+        item_container strongTerm(new terminal(weakStrong->second), true);
+        item_container weakTerm(new terminal(weakStrong->first), true);
 
         item_map::iterator weakForStrong = m_StrongToWeak.find(strongTerm);
         if (weakForStrong == m_StrongToWeak.end()) {
@@ -174,12 +174,12 @@ void weak_symbols::rewrite_actions(int state, lr_action_set& actions, const lalr
     // Determine if there are any actions referring to strong symbols in this action set
     bool haveStrong = false;
     
-    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); ++it) {
+    for (lr_action_set::const_iterator act = actions.begin(); act != actions.end(); ++act) {
         // This only deals with actions on terminal items
-        if ((*it)->item()->type() != item::terminal) continue;
+        if ((*act)->item()->type() != item::terminal) continue;
         
         // See if the symbol is marked as being 'strong' and has weak symbols associated with it
-        item_map::const_iterator found = m_StrongToWeak.find((*it)->item());
+        item_map::const_iterator found = m_StrongToWeak.find((*act)->item());
         if (found != m_StrongToWeak.end() && !found->second.empty()) {
             haveStrong = true;
             break;
