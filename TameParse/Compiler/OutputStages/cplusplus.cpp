@@ -149,7 +149,7 @@ static std::locale loc;
 /// \brief Converts a string to upper case
 static string toupper(const string& s) {
 	string res = s;
-    for (string::iterator c = res.begin(); c != res.end(); c++) {
+    for (string::iterator c = res.begin(); c != res.end(); ++c) {
         *c = std::toupper(*c, loc);
     }
 	return res;
@@ -185,7 +185,7 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
 	}
 
 	stringstream res;
-	for (wstring::const_iterator wideChar = stripped.begin(); wideChar != stripped.end(); wideChar++) {
+	for (wstring::const_iterator wideChar = stripped.begin(); wideChar != stripped.end(); ++wideChar) {
 		// Just append values that are valid C++ identifiers
         wchar_t c = *wideChar;
 		if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (res.tellp() > 0 && c >= '0' && c <= '9')) {
@@ -263,7 +263,7 @@ std::string output_cplusplus::name_for_rule(const contextfree::rule_container& t
 		bool 			first = true;
 		stringstream	res;
 
-		for (size_t itemId = 0; itemId < thisRule->items().size(); itemId++) {
+		for (size_t itemId = 0; itemId < thisRule->items().size(); ++itemId) {
 			// Append divider
 			if (!first) {
 				res << "_";
@@ -300,7 +300,7 @@ std::string output_cplusplus::name_for_ebnf_item(const contextfree::ebnf& ebnfIt
 		stringstream	res;
 		bool 			first = true;
 
-		for (ebnf::rule_iterator nextRule = ebnfItem.first_rule(); nextRule != ebnfItem.last_rule(); nextRule++) {
+		for (ebnf::rule_iterator nextRule = ebnfItem.first_rule(); nextRule != ebnfItem.last_rule(); ++nextRule) {
 			// Append _or_
 			if (!first) {
 				res << "_or_";
@@ -394,7 +394,7 @@ std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::
 
 	for (;;) {
 		// Get the next variant
-		variant++;
+		++variant;
 
 		// Generate the variant name
 		stringstream varNameStream;
@@ -534,7 +534,7 @@ void output_cplusplus::terminal_symbol(const std::wstring& name, int identifier)
         ourName << "_" << count;
     }
 
-    m_TerminalSymbolCount[shortName]++;
+    ++m_TerminalSymbolCount[shortName];
 
     // Output a constant for this terminal
     *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
@@ -576,7 +576,7 @@ void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifi
         ourName << "_" << count;
     }
     
-    m_NonterminalSymbolCount[shortName]++;
+    ++m_NonterminalSymbolCount[shortName];
     
     // Output a constant for this terminal
     *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
@@ -629,7 +629,7 @@ void output_cplusplus::end_lexer_symbol_map() {
 	int* 	hcst = m_SymbolLevels->Table.to_hard_coded_table(size);
 
 	// Write it out
-	for (size_t tablePos = 0; tablePos < size; tablePos++) {
+	for (size_t tablePos = 0; tablePos < size; ++tablePos) {
 		// Add newlines
 		if ((tablePos % 10) == 0) {
 			*m_SourceFile << "\n        ";
@@ -697,7 +697,7 @@ void output_cplusplus::lexer_state_transition(int symbolSet, int newState) {
 	*m_SourceFile << "{ " << symbolSet << ", " << newState << " }";
 
 	// Update the lexer state position
-	m_LexerEntryPos++;
+	++m_LexerEntryPos;
 }
 
 /// \brief Finishes writing out a lexer state
@@ -753,7 +753,7 @@ void output_cplusplus::end_lexer_definitions() {
 
 	// Write the actual rows
 	bool first = true;
-	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end()-1; offset++) {
+	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end()-1; ++offset) {
 		// Commas between entries
 		if (!first) *m_SourceFile << ", ";
 
@@ -807,7 +807,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 	// Iterate through the states
 	bool first = true;
 	int count = 0;
-	for (int state = 0; state < tables.count_states(); state++) {
+	for (int state = 0; state < tables.count_states(); ++state) {
 		// Add the actions for this state
 		int numActions = gc(tables, state);
         
@@ -815,7 +815,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
         output << "\n\n    // State " << state << "\n    ";
 
 		// Write out each action for this state
-		for (int actionId = 0; actionId < numActions; actionId++) {
+		for (int actionId = 0; actionId < numActions; ++actionId) {
 			// Comma if this is not the first item
 			if (!first) {
 				output << ", ";
@@ -833,7 +833,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 			// Move on
 			first = false;
             showingState = false;
-			count++;
+			++count;
 		}
 	}
 	output << "\n};\n";
@@ -845,7 +845,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 	count   = 0;
     first   = true;
     
-	for (int state = 0; state < tables.count_states(); state++) {
+	for (int state = 0; state < tables.count_states(); ++state) {
         // Comma if this is not the first item
         if (!first) {
             output << ", ";
@@ -864,7 +864,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
         pos += numActions;
         
         // Move on
-        count++;
+        ++count;
         first = false;
 	}
     
@@ -911,7 +911,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     
     first   = true;
     count   = 0;
-    for (int stateId=0; stateId < tables.count_states(); stateId++) {
+    for (int stateId=0; stateId < tables.count_states(); ++stateId) {
         // Comma
         if (!first) {
             *m_SourceFile << ", ";
@@ -927,7 +927,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -937,7 +937,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     
     first   = true;
     count   = 0;
-    for (int stateId=0; stateId < tables.count_end_of_guards(); stateId++) {
+    for (int stateId=0; stateId < tables.count_end_of_guards(); ++stateId) {
         // Comma
         if (!first) {
             *m_SourceFile << ", ";
@@ -953,7 +953,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -963,7 +963,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     
     first   = true;
     count   = 0;
-    for (int ruleId=0; ruleId < tables.count_reduce_rules(); ruleId++) {
+    for (int ruleId=0; ruleId < tables.count_reduce_rules(); ++ruleId) {
         // Comma
         if (!first) {
             *m_SourceFile << ", ";
@@ -980,7 +980,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -990,7 +990,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
     
     first   = true;
     count   = 0;
-    for (int stateId=0; stateId < tables.count_weak_to_strong(); stateId++) {
+    for (int stateId=0; stateId < tables.count_weak_to_strong(); ++stateId) {
         // Comma
         if (!first) {
             *m_SourceFile << ", ";
@@ -1006,7 +1006,7 @@ void output_cplusplus::parser_tables(const lr::lalr_builder& builder, const lr::
         
         // Move on
         first = false;
-        count++;
+        ++count;
     }
     
     *m_SourceFile << "\n};\n";
@@ -1315,7 +1315,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 	int 	variant = 0;
 	for (;;) {
 		// Next variant
-		variant++;
+		++variant;
 
 		// Generate the name for this variant
 		stringstream thisName;
@@ -1371,7 +1371,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 	int 	variant = 0;
 	for (;;) {
 		// Next variant
-		variant++;
+		++variant;
 
 		// Generate the name for this variant
 		stringstream thisName;
@@ -1453,12 +1453,12 @@ void output_cplusplus::end_ast_rule() {
 		*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::" << ntClass << "::" << ntClass << "(";
 
 		first = true;
-		for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		for (size_t index = 0; index < m_CurrentRuleNames.size(); ++index) {
 			// Ignore items with an empty type
 			if (m_CurrentRuleTypes[index].empty()) continue;
 
 			// This is a valid item
-			numValidItems++;
+			++numValidItems;
 			if (firstItem == 0xffffffff) firstItem = index;
 			lastItem = index;
 
@@ -1499,7 +1499,7 @@ void output_cplusplus::end_ast_rule() {
 									<< "        dfa::position m_Position;";
 		}
 
-		for (size_t index = 0; index < m_CurrentRuleNames.size(); index++) {
+		for (size_t index = 0; index < m_CurrentRuleNames.size(); ++index) {
 			// Ignore items with an empty type
 			if (m_CurrentRuleTypes[index].empty()) continue;
 
@@ -1535,7 +1535,7 @@ void output_cplusplus::end_ast_rule() {
 		// Constructor parameters
 		first 			= true;
 		numValidItems 	= 0;
-		for (size_t index=0; index < m_CurrentRuleNames.size(); index++) {
+		for (size_t index=0; index < m_CurrentRuleNames.size(); ++index) {
 			// Get the type
 			string type = m_CurrentRuleTypes[index];
 
@@ -1543,7 +1543,7 @@ void output_cplusplus::end_ast_rule() {
 			if (type.empty()) continue;
 
 			// This is a valid item
-			numValidItems++;
+			++numValidItems;
 
 			// Comma between items
 			if (!first) {

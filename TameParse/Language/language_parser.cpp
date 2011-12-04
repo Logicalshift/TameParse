@@ -91,7 +91,7 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
     // Iterate through the test specifications and generate new test definitions
     for (ast_list_of_Test_Specification::iterator spec = defn->list_of_Test_Specification->begin();
          spec != defn->list_of_Test_Specification->end(); 
-         spec++) {
+         ++spec) {
         // Get the identifier for this test (if it has one)
         wstring identifier;
 
@@ -128,7 +128,7 @@ static test_block* definition_for(const ast_Test_Block* testBlock) {
     // Iterate through the test definitions
     for (ast_list_of_Test_Definition::iterator defn = testBlock->list_of_Test_Definition->begin();
          defn != testBlock->list_of_Test_Definition->end();
-         defn++) {
+         ++defn) {
          // Add this definition to this block
         if (!add_test_definition(result, (*defn)->Test_Definition)) {
             // Bug: couldn't get this test definition
@@ -152,7 +152,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     
     for (list_of_Simple_Ebnf_Item::iterator item = ebnfItem->list_of_Simple_Ebnf_Item->begin(); 
          item != ebnfItem->list_of_Simple_Ebnf_Item->end(); 
-         item++) {
+         ++item) {
         // Get the definition for this item
         ebnf_item* nextItem = definition_for((*item)->Simple_Ebnf_Item);
         
@@ -334,7 +334,7 @@ static production_definition* definition_for(const ast_Production* production) {
     // Iterate through the items in this production
     for (list_of_Simple_Ebnf_Item::iterator item = production->list_of_Simple_Ebnf_Item->begin();
          item != production->list_of_Simple_Ebnf_Item->end();
-         item++) {
+         ++item) {
         // Get the next EBNF item
         ebnf_item* ebnf = definition_for((*item)->Simple_Ebnf_Item);
         
@@ -386,7 +386,7 @@ static nonterminal_definition* definition_for(const ast_Nonterminal_Definition* 
     
     for (list_of__pipe__Production::iterator nextProduction = nonterminal->list_of__pipe__Production->begin(); 
          nextProduction != nonterminal->list_of__pipe__Production->end(); 
-         nextProduction++) {
+         ++nextProduction) {
         // Get the next production
         production_definition* prod = definition_for((*nextProduction)->Production);
         
@@ -410,7 +410,7 @@ static language_unit* definition_for(const list_of_Nonterminal_Definition* items
     grammar_block* gram = new grammar_block();
     
     // Iterate through the items
-    for (list_of_Nonterminal_Definition::iterator nonterminal = items->begin(); nonterminal != items->end(); nonterminal++) {
+    for (list_of_Nonterminal_Definition::iterator nonterminal = items->begin(); nonterminal != items->end(); ++nonterminal) {
         nonterminal_definition* defn = definition_for((*nonterminal)->Nonterminal_Definition);
         
         if (defn == NULL) {
@@ -480,7 +480,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     bool isCaseSensitive    = false;
 
     if (modifiers1) {
-        for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
+        for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); ++modifier) {
             if ((*modifier)->Lexer_Modifier->weak) {
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
@@ -492,7 +492,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     }
 
     if (modifiers2) {
-        for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
+        for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); ++modifier) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
             } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
@@ -505,7 +505,7 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
-    for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); keyword++) {
+    for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); ++keyword) {
         if ((*keyword)->Keyword_Definition->Lexeme_Definition) {
             // Add the lexeme definition
             if (!add_lexeme_definition((*keyword)->Keyword_Definition->Lexeme_Definition, lexerBlock)) {
@@ -536,7 +536,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     bool isCaseSensitive    = false;
 
     if (modifiers1) {
-        for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); modifier++) {
+        for (list_of_Lexer_Modifier::iterator modifier = modifiers1->begin(); modifier != modifiers1->end(); ++modifier) {
             if ((*modifier)->Lexer_Modifier->weak) {
                 isWeak = true;
             } else if ((*modifier)->Lexer_Modifier->insensitive) {
@@ -548,7 +548,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     }
 
     if (modifiers2) {
-        for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); modifier++) {
+        for (list_of_Lexer_Symbols_Modifier::iterator modifier = modifiers2->begin(); modifier != modifiers2->end(); ++modifier) {
             if ((*modifier)->Lexer_Symbols_Modifier->insensitive) {
                 isCaseInsensitive = true;
             } else if ((*modifier)->Lexer_Symbols_Modifier->sensitive) {
@@ -561,7 +561,7 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     lexer_block* lexerBlock = new lexer_block(isWeak, isCaseInsensitive, isCaseSensitive, items->pos(), items->final_pos());
     
     // Iterate through the items
-    for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); lexeme++) {
+    for (list_of_Lexeme_Definition::iterator lexeme = items->begin(); lexeme != items->end(); ++lexeme) {
         // Add this definition
         if (!add_lexeme_definition((*lexeme)->Lexeme_Definition, lexerBlock)) {
             // Give up if it fails
@@ -608,7 +608,7 @@ static language_block* definition_for(const ast_Language_Block* language) {
     // Add the language definitions
     for (list_of_Language_Definition::iterator langDefinition = language->list_of_Language_Definition->begin();
          langDefinition != language->list_of_Language_Definition->end();
-         langDefinition++) {
+         ++langDefinition) {
         // Get the next definition
         language_unit* nextUnit = definition_for((*langDefinition)->Language_Definition);
         
@@ -677,7 +677,7 @@ static definition_file* definition_for(const Parser_Language* language) {
     definition_file* file = new definition_file();
     
     // Iterate through the top-level definitions
-    for (list_of_TopLevel_Block::iterator topLevel = language->list_of_TopLevel_Block->begin(); topLevel != language->list_of_TopLevel_Block->end(); topLevel++) {
+    for (list_of_TopLevel_Block::iterator topLevel = language->list_of_TopLevel_Block->begin(); topLevel != language->list_of_TopLevel_Block->end(); ++topLevel) {
         // Get the definition for this toplevel block
         toplevel_block* newBlock = definition_for((*topLevel)->TopLevel_Block);
         

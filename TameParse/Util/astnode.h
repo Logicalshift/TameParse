@@ -54,7 +54,7 @@ namespace util {
         
         /// \brief Adds a series of children to this item
         template<typename iterator> void add_children(iterator begin, iterator end) {
-            for (iterator cur = begin; cur != end; cur++) {
+            for (iterator cur = begin; cur != end; ++cur) {
                 m_Children.push_back(*cur);
             }
         }

@@ -54,19 +54,19 @@ namespace dfa {
         
         /// \brief Moves on by a single symbol
         inline void increment() {
-            m_Offset++;
-            m_Column++;
+            ++m_Offset;
+            ++m_Column;
         }
         
         /// \brief Increases the offset without changing the column
         inline void increment_offset() {
-            m_Offset++;
+            ++m_Offset;
         }
         
         /// \brief Adds a new line to this position
         inline void newline() {
             m_Column = 0;
-            m_Line++;
+            ++m_Line;
         }
         
         /// \brief Compares two positions
@@ -178,8 +178,8 @@ namespace dfa {
         
         /// \brief Processes a set of symbols (a class with an iterator) and updates the position
         template<typename iterator> inline void update_position(iterator begin, iterator end) {
-            for (iterator it=begin; it != end; it++) {
-                update_position((int)(unsigned)*it);
+            for (iterator symbol=begin; symbol != end; ++symbol) {
+                update_position((int)(unsigned)*symbol);
             }
         }
     };

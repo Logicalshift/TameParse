@@ -21,7 +21,7 @@ test_fixture::test_fixture(std::string name)
 
 /// \brief Reports on the result of an individual test
 void test_fixture::report(std::string test_name, bool result) {
-    m_TestsRun++;
+    ++m_TestsRun;
     
     string prefix   = m_Name + "." + test_name;
     string dots     = string(60 - prefix.length(), '.');
@@ -29,14 +29,14 @@ void test_fixture::report(std::string test_name, bool result) {
     if (result) {
         cout << prefix << dots << "ok" << endl;
     } else {
-        m_TestsFailed++;
+        ++m_TestsFailed;
         cerr << prefix << dots << "FAILED" << endl;
     }
 }
 
 /// \brief Reports on the result of an individual test
 void test_fixture::report_known_failure(std::string test_name, bool result) {
-    m_TestsRun++;
+    ++m_TestsRun;
     
     string prefix   = m_Name + "." + test_name;
     string dots     = string(60 - prefix.length(), '.');

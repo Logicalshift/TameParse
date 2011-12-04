@@ -29,7 +29,7 @@ test_stage::test_stage(console_container& console, const std::wstring& filename,
 /// \brief Destructor
 test_stage::~test_stage() {
 	// Delete the lexers
-	for (lexer_map::iterator deadLexer = m_Lexers.begin(); deadLexer != m_Lexers.end(); deadLexer++) {
+	for (lexer_map::iterator deadLexer = m_Lexers.begin(); deadLexer != m_Lexers.end(); ++deadLexer) {
 		if (deadLexer->second) {
 	 		delete deadLexer->second;
 		}
@@ -37,7 +37,7 @@ test_stage::~test_stage() {
 	m_Lexers.clear();
 
 	// Delete the languages
-	for (language_map::iterator deadLanguage = m_Languages.begin(); deadLanguage != m_Languages.end(); deadLanguage++) {
+	for (language_map::iterator deadLanguage = m_Languages.begin(); deadLanguage != m_Languages.end(); ++deadLanguage) {
 	 	if (deadLanguage->second) {
 		 	delete deadLanguage->second;
 	 	}
@@ -170,7 +170,7 @@ void test_stage::compile() {
     bool firstTestSet	= true;
     bool runAnyTests 	= false;
 
-	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); defn++) {
+	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); ++defn) {
 		// Retrieve the tests for this block
 		const test_block* tests = (*defn)->test();
 
@@ -215,7 +215,7 @@ void test_stage::compile() {
         map<wstring, int> testIds;
 
         // Run the tests themselves
-        for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
+        for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); ++testDefn) {
         	// Compile a language for this nonterminal if one doesn't exist already
         	// TODO: deal with nonterminals in other languages
         	lr_parser_stage* parserStage = get_parser(tests->language(), (*testDefn)->nonterminal(), tests->start_pos());
@@ -310,9 +310,9 @@ void test_stage::compile() {
 
         	// Add to the count of successful/failed tests
         	if (result) {
-        		passed++;
+        		++passed;
         	} else {
-        		failed++;
+        		++failed;
         	}
 
         	// Done with the parser

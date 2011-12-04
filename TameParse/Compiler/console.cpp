@@ -28,7 +28,7 @@ std::string console::convert_filename(const std::wstring& filename) {
     // standard way to do it, either, which seems nearly unbelievable, sigh)
     string latin1Filename;
     
-    for (wstring::const_iterator fileChar = filename.begin(); fileChar != filename.end(); fileChar++) {
+    for (wstring::const_iterator fileChar = filename.begin(); fileChar != filename.end(); ++fileChar) {
         latin1Filename += (char) *fileChar;
     }
 
@@ -83,7 +83,7 @@ std::vector<std::wstring> console::split_path(const std::wstring& pathname) {
     // Split up this string
     vector<wstring> res;
     wstring current;
-    for (size_t x=0; x<pathname.size(); x++) {
+    for (size_t x=0; x<pathname.size(); ++x) {
         // Get the current character
         wchar_t c = pathname[x];
 

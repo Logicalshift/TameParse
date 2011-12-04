@@ -144,9 +144,9 @@ namespace dfa {
             
             // Use the highest ranked action
             accept_action* highest = *begin;
-            for (iterator it = begin; it != end; it++) {
-                if ((*highest) < **it) {
-                    highest = *it;
+            for (iterator action = begin; action != end; ++action) {
+                if ((*highest) < **action) {
+                    highest = *action;
                 }
             }
             
@@ -166,7 +166,7 @@ namespace dfa {
             m_Accept    = accept;
             
             // Create accepting action lists for each accepting state
-            for (int stateId=0; stateId<m_MaxState; stateId++) {
+            for (int stateId=0; stateId<m_MaxState; ++stateId) {
                 fill_accept(accept[stateId], dfa.actions_for_state(stateId).begin(), dfa.actions_for_state(stateId).end());
             }
         }
@@ -267,7 +267,7 @@ namespace dfa {
                     int curSym = m_Buffer[pos];
                     
                     // The position moves on here
-                    pos++;
+                    ++pos;
                     
                     // Run the state machine (use the faster 'unsafe' mode, we check the state later ourselves)
                     state = m_StateMachine.run_unsafe(state, curSym);

@@ -23,7 +23,7 @@ grammar_block::grammar_block(grammar_block& copyFrom) {
 /// \brief Destructor
 grammar_block::~grammar_block() {
     // Delete the nonterminals
-    for (nonterminal_definition_list::iterator toDelete = m_Nonterminals.begin(); toDelete != m_Nonterminals.end(); toDelete++) {
+    for (nonterminal_definition_list::iterator toDelete = m_Nonterminals.begin(); toDelete != m_Nonterminals.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Nonterminals.clear();
@@ -32,13 +32,13 @@ grammar_block::~grammar_block() {
 /// \brief Assigns the value of this grammar block
 grammar_block& grammar_block::operator=(const grammar_block& copyFrom) {
     // Delete the nonterminals
-    for (nonterminal_definition_list::iterator toDelete = m_Nonterminals.begin(); toDelete != m_Nonterminals.end(); toDelete++) {
+    for (nonterminal_definition_list::iterator toDelete = m_Nonterminals.begin(); toDelete != m_Nonterminals.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Nonterminals.clear();
     
     // Copy the nonterminals from the source
-    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); toCopy++) {
+    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); ++toCopy) {
         m_Nonterminals.push_back(new nonterminal_definition(**toCopy));
     }
     

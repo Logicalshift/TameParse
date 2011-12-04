@@ -35,7 +35,7 @@ int remapped_symbol_map::identifier_for_symbols(const symbol_set& symbols, const
     int setId = symbol_map::identifier_for_symbols(symbols);
     
     // Add the set ID as a new symbol for each of the old symbols in this set
-    for (new_symbol_set::const_iterator old = oldSymbols.begin(); old != oldSymbols.end(); old++) {
+    for (new_symbol_set::const_iterator old = oldSymbols.begin(); old != oldSymbols.end(); ++old) {
         m_OldToNew[*old].insert(setId);
     }
     
@@ -69,7 +69,7 @@ static sets_for_range::iterator split(sets_for_range& sets, symbol_range origina
 /// \brief Adds the ranges in a particular symbol set 
 static void add_set(sets_for_range& sets, const symbol_set& symbols, int identifier) {
     // Iterate through the ranges in this set
-    for (symbol_set::iterator range = symbols.begin(); range != symbols.end(); range++) {
+    for (symbol_set::iterator range = symbols.begin(); range != symbols.end(); ++range) {
         // Find the first item in the set whose lower bound is >= this range
         sets_for_range::iterator firstGreaterThan = sets.lower_bound(*range);
         
@@ -119,7 +119,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
                 remaining = symbol_range(newUpper, remaining.upper());
                 
                 // Want the value after the one we just inserted
-                firstGreaterThan++;
+                ++firstGreaterThan;
                 
                 // Start again
                 continue;
@@ -129,7 +129,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             if (firstGreaterThan->first.lower() < remaining.lower()) {
                 // Split the ranges and move so that the lowest point matches
                 firstGreaterThan = split(sets, firstGreaterThan->first, remaining.lower());
-                firstGreaterThan++;
+                ++firstGreaterThan;
             }
             
             // If the current range ends beyond the end of the remaining set, then split it
@@ -144,7 +144,7 @@ static void add_set(sets_for_range& sets, const symbol_set& symbols, int identif
             remaining = symbol_range(firstGreaterThan->first.upper(), remaining.upper());
             
             // Move on
-            firstGreaterThan++;
+            ++firstGreaterThan;
         }
     }
 }
@@ -158,7 +158,7 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     sets_for_range setsContainingRange;
     
     // Iterate through the sets in the source
-    for (symbol_map::iterator symSet = source.begin(); symSet != source.end(); symSet++) {
+    for (symbol_map::iterator symSet = source.begin(); symSet != source.end(); ++symSet) {
         // Add this into the sets containing this range
         add_set(setsContainingRange, *symSet->first, symSet->second);
     }
@@ -176,13 +176,13 @@ remapped_symbol_map* remapped_symbol_map::deduplicate(const symbol_map& source) 
     
     // Combine any ranges that map to the same symbol set
     map<new_symbol_set, symbol_set> setsForSets;
-    for (sets_for_range::iterator it = setsContainingRange.begin(); it != setsContainingRange.end(); it++) {
-        setsForSets[it->second] |= it->first;
+    for (sets_for_range::iterator range = setsContainingRange.begin(); range != setsContainingRange.end(); ++range) {
+        setsForSets[range->second] |= range->first;
     }
     
     // Create a new set for each range we got in the previous step
-    for (map<new_symbol_set, symbol_set>::iterator it = setsForSets.begin(); it != setsForSets.end(); it++) {
-        newSet->identifier_for_symbols(it->second, it->first);
+    for (map<new_symbol_set, symbol_set>::iterator setMapping = setsForSets.begin(); setMapping != setsForSets.end(); ++setMapping) {
+        newSet->identifier_for_symbols(setMapping->second, setMapping->first);
     }
     
     // This is the result
