@@ -79,13 +79,13 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
         
         // Convert all of the rules in this item
         bool first = true;
-        for (ebnf::rule_iterator it = eb->first_rule(); it != eb->last_rule(); ++it) {
+        for (ebnf::rule_iterator nextRule = eb->first_rule(); nextRule != eb->last_rule(); ++nextRule) {
             // Append the '|'
             buf << L" ";
             if (!first) buf << L"| ";
             
             // Convert the rule to a string
-            buf << to_string(**it, gram, dict, -1, false);
+            buf << to_string(**nextRule, gram, dict, -1, false);
             
             // No longer on the first item
             first = false;
@@ -155,7 +155,7 @@ wstring formatter::to_string(const rule& rule, const grammar& gram, const termin
     // Append the rest of the rule
     bool first = true;
     int pos = 0;
-    for (rule::iterator it = rule.begin(); it != rule.end(); ++it, ++pos) {
+    for (rule::iterator nextRule = rule.begin(); nextRule != rule.end(); ++nextRule, ++pos) {
         // Space separates all except the first item
         if (!first)         res << L" ";
         
@@ -163,7 +163,7 @@ wstring formatter::to_string(const rule& rule, const grammar& gram, const termin
         if (dotPos == pos)  res << L"^ ";
         
         // Append this item
-        res << to_string(**it, gram, dict);
+        res << to_string(**nextRule, gram, dict);
         first = false;
     }
     

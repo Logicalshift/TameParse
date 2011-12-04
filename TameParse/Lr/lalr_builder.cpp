@@ -87,14 +87,14 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
         if (offset >= (int) rule.items().size()) continue;
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
-        lr1_item_set newItems;
-        rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
+        lr1_item_set closureItems;
+        rule.items()[offset]->cache_closure(*nextItem, closureItems, *gram);
         
         // Add any new items to the waiting queue
-        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); ++it) {
-            if (target.insert(**it).second) {
+        for (lr1_item_set::iterator newItem = closureItems.begin(); newItem != closureItems.end(); ++newItem) {
+            if (target.insert(**newItem).second) {
                 // This is a new item: add it to the list of items waiting to be processed
-                waiting.push(*it);
+                waiting.push(*newItem);
             }
         }
     }
@@ -259,9 +259,9 @@ void lalr_builder::complete_lookaheads() {
             set<lr_item_id>& spontaneousTargets = m_Spontaneous[lr_item_id(stateId, itemId)];
             
             // Iterate through the items in the closure
-            for (lr1_item_set::iterator it = closure.begin(); it != closure.end(); ++it) {
-                const rule& closeRule   = *(*it)->rule();
-                const int   closeOffset = (*it)->offset();
+            for (lr1_item_set::iterator closureItem = closure.begin(); closureItem != closure.end(); ++closureItem) {
+                const rule& closeRule   = *(*closureItem)->rule();
+                const int   closeOffset = (*closureItem)->offset();
 
                 // Ignore this item if it's at the end
                 if (closeOffset >= (int) closeRule.items().size()) continue;
@@ -275,8 +275,8 @@ void lalr_builder::complete_lookaheads() {
                 if (targetState == transitions.end()) continue;
 
                 // Generated item
-                const item_set& lookahead       = (*it)->lookahead();
-                lr0_item        generated(**it, closeOffset+1);
+                const item_set& lookahead       = (*closureItem)->lookahead();
+                lr0_item        generated(**closureItem, closeOffset+1);
                 int             targetItemId    = m_Machine.state_with_id(targetState->second)->find_identifier(generated);
                 
                 if (targetItemId < 0) continue;
@@ -308,8 +308,8 @@ void lalr_builder::complete_lookaheads() {
     set<lr_item_id> toPropagate;
     
     // Fill with all the states which do propagation
-    for (propagation::iterator it = m_Propagate.begin(); it != m_Propagate.end(); ++it) {
-        toPropagate.insert(it->first);
+    for (propagation::iterator propagateItem = m_Propagate.begin(); propagateItem != m_Propagate.end(); ++propagateItem) {
+        toPropagate.insert(propagateItem->first);
     }
     
     // While there are still states to process, do propagation
@@ -382,14 +382,14 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
         if (offset >= (int) rule.items().size()) continue;
         
         // Get the items added by this entry. The items themselves describe how they affect a LR(0) closure
-        lr1_item_set newItems;
-        rule.items()[offset]->cache_closure(*nextItem, newItems, *gram);
+        lr1_item_set closureItems;
+        rule.items()[offset]->cache_closure(*nextItem, closureItems, *gram);
         
         // Add any new items to the waiting queue
-        for (lr1_item_set::iterator it = newItems.begin(); it != newItems.end(); ++it) {
-            if (closure.insert(**it).second) {
+        for (lr1_item_set::iterator newItem = closureItems.begin(); newItem != closureItems.end(); ++newItem) {
+            if (closure.insert(**newItem).second) {
                 // This is a new item: add it to the list of items waiting to be processed
-                waitingForClosure.push(*it);
+                waitingForClosure.push(*newItem);
             }
         }
     }
@@ -454,10 +454,10 @@ const lr_action_set& lalr_builder::actions_for_state(int state) const {
     }
     
     // Add a shift action for each transition
-    for (transition_set::const_iterator it = transits.begin(); it != transits.end(); ++it) {
+    for (transition_set::const_iterator transition = transits.begin(); transition != transits.end(); ++transition) {
         // Get the item being shifted
-        const item_container&   thisItem    = it->first;
-        int                     targetState = it->second;
+        const item_container&   thisItem    = transition->first;
+        int                     targetState = transition->second;
         
         // Add a new shift or goto action (terminals are shift actions, everything else is a goto)
         lr_action::action_type actionType = lr_action::act_goto;

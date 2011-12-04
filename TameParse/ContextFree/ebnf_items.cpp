@@ -42,8 +42,9 @@ ebnf::ebnf(const ebnf& copyFrom)
 , m_Rules(new rule_list()) {
     item_container ourselves(this, false);
     
-    for (rule_list::const_iterator it = copyFrom.m_Rules->begin(); it != copyFrom.m_Rules->end(); ++it) {
-        m_Rules->push_back(rule(**it, ourselves));
+    // Copy the rules, but change the nonterminal to this one
+    for (rule_list::const_iterator copyRule = copyFrom.m_Rules->begin(); copyRule != copyFrom.m_Rules->end(); ++copyRule) {
+        m_Rules->push_back(rule(**copyRule, ourselves));
     }
 }
 
@@ -53,8 +54,8 @@ ebnf::ebnf(const rule_list& copyFrom)
 , m_Rules(new rule_list()) {
     item_container ourselves(this, false);
 
-    for (rule_list::const_iterator it = copyFrom.begin(); it != copyFrom.end(); ++it) {
-        m_Rules->push_back(rule(**it, ourselves));
+    for (rule_list::const_iterator copyRule = copyFrom.begin(); copyRule != copyFrom.end(); ++copyRule) {
+        m_Rules->push_back(rule(**copyRule, ourselves));
     }
 }
 
@@ -330,9 +331,9 @@ item_set ebnf_alternate::first(const grammar& gram) const {
     item_set result(gram);
     
     // Iterate through all of the rules
-    for (rule_iterator it = first_rule(); it != last_rule(); ++it) {
+    for (rule_iterator nextRule = first_rule(); nextRule != last_rule(); ++nextRule) {
         // Get the rule
-        const rule& r = **it;
+        const rule& r = **nextRule;
         
         // Add items if the rule has a first item
         if (r.items().size() > 0) {

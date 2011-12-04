@@ -272,8 +272,8 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
         item_map<item_set>::type dependencies;
         
         // Iterate through all of the rules in this grammar and build up the follow set for each one
-        for (nonterminal_rule_map::const_iterator it = m_Nonterminals.begin(); it != m_Nonterminals.end(); ++it) {
-            for (rule_list::const_iterator ruleIt = it->second.begin(); ruleIt != it->second.end(); ++ruleIt) {
+        for (nonterminal_rule_map::const_iterator nextNt = m_Nonterminals.begin(); nextNt != m_Nonterminals.end(); ++nextNt) {
+            for (rule_list::const_iterator ruleIt = nextNt->second.begin(); ruleIt != nextNt->second.end(); ++ruleIt) {
                 fill_follow(**ruleIt, dependencies);
             }
         }

@@ -14,10 +14,10 @@ using namespace dfa;
 
 // True if one of the specified set of symbol set IDs maps to the specified range in the specified map
 static bool contains_range(const symbol_map& map, const remapped_symbol_map::new_symbol_set& sets, range<int> chrs) {
-    for (remapped_symbol_map::new_symbol_set::const_iterator it = sets.begin(); it != sets.end(); ++it) {
-        const symbol_set& thisSet = map[*it];
-        for (symbol_set::iterator it = thisSet.begin(); it != thisSet.end(); ++it) {
-            if (chrs == *it) {
+    for (remapped_symbol_map::new_symbol_set::const_iterator symSet = sets.begin(); symSet != sets.end(); ++symSet) {
+        const symbol_set& thisSet = map[*symSet];
+        for (symbol_set::iterator symRange = thisSet.begin(); symRange != thisSet.end(); ++symRange) {
+            if (chrs == *symRange) {
                 return true;
             }
         }
