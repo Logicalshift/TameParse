@@ -23,7 +23,7 @@ production_definition::production_definition(const production_definition& copyFr
 /// \brief Destructor
 production_definition::~production_definition() {
     // Destroy the items
-    for (ebnf_item_list::iterator toDelete = m_Items.begin(); toDelete != m_Items.end(); toDelete++) {
+    for (ebnf_item_list::iterator toDelete = m_Items.begin(); toDelete != m_Items.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Items.clear();
@@ -35,13 +35,13 @@ production_definition& production_definition::operator=(const production_definit
     if (&copyFrom == this) return *this;
 
     // Destroy the existing items
-    for (ebnf_item_list::iterator toDelete = m_Items.begin(); toDelete != m_Items.end(); toDelete++) {
+    for (ebnf_item_list::iterator toDelete = m_Items.begin(); toDelete != m_Items.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Items.clear();
     
     // Copy from the target
-    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); toCopy++) {
+    for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); ++toCopy) {
         m_Items.push_back(new ebnf_item(**toCopy));
     }
     

@@ -76,7 +76,7 @@ namespace util {
             
             /// \brief Increases the reference count
             inline void retain() const {
-                m_RefCount++;
+                ++m_RefCount;
             }
         };
         

@@ -53,12 +53,14 @@ int main (int argc, const char * argv[])
     test_language_bootstrap     bootstrap;      run(bootstrap);
     test_language_primary       primary;        run(primary);
     
+    int exitCode = 0;
     if (s_Failed > 0) {
         cerr << endl << s_Failed << "/" << s_Run << " tests failed" << endl;
+        exitCode = s_Failed;
     } else {
         cerr << endl << s_Run << " tests successful." << endl;
     }
     
-    return 0;
+    return exitCode;
 }
 

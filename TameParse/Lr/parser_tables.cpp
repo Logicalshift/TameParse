@@ -80,7 +80,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     vector<int>     eogStates;                          // The end of guard states
     
     // Build up the tables for each state
-    for (int stateId = 0; stateId < m_NumStates; stateId++) {
+    for (int stateId = 0; stateId < m_NumStates; ++stateId) {
         // Get the actions for this state
         const lr_action_set& actions = builder.actions_for_state(stateId);
         
@@ -88,11 +88,11 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         int termCount       = 0;
         int nontermCount    = 0;
         
-        for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+        for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
             if ((*nextAction)->item()->type() == item::terminal) {
-                termCount++;
+                ++termCount;
             } else {
-                nontermCount++;
+                ++nontermCount;
             }
         }
         
@@ -104,7 +104,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         int     nontermPos      = 0;                    // Current item in the nonterminal table
         
         // Fill up the actions (not in order)
-        for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+        for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
             // Get the next state
             int nextState   = (*nextAction)->next_state();
             int type        = (*nextAction)->type();
@@ -129,7 +129,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
                 termActions[termPos].m_NextState        = nextState;
                 termActions[termPos].m_SymbolId         = (*nextAction)->item()->symbol();
                 
-                termPos++;
+                ++termPos;
             } else {
                 // Add a new nonterminal action
                 nontermActions[nontermPos].m_Type       = type;
@@ -140,7 +140,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
                     eogStates.push_back(stateId);
                 }
                 
-                nontermPos++;
+                ++nontermPos;
             }
         }
         
@@ -158,7 +158,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     // Store the end of guard state table (we evaluate states in order, so this is already sorted)
     m_NumEndOfGuards    = (int) eogStates.size();
     m_EndGuardStates    = new int[m_NumEndOfGuards];
-    for (int x=0; x<m_NumEndOfGuards; x++) {
+    for (int x=0; x<m_NumEndOfGuards; ++x) {
         m_EndGuardStates[x] = eogStates[x];
     }
     
@@ -166,7 +166,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     m_NumRules  = (int)ruleIds.size();
     m_Rules     = new reduce_rule[ruleIds.size()];
     
-    for (map<int, int>::iterator ruleId = ruleIds.begin(); ruleId != ruleIds.end(); ruleId++) {
+    for (map<int, int>::iterator ruleId = ruleIds.begin(); ruleId != ruleIds.end(); ++ruleId) {
         const rule_container& rule = gram.rule_with_identifier(ruleId->first);
         
         m_Rules[ruleId->second].m_Identifier    = gram.identifier_for_item(rule->nonterminal());
@@ -182,14 +182,14 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     } else {
         // Count the number of weak symbols
         m_NumWeakToStrong   = 0;
-        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); weakForStrong++) {
+        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); ++weakForStrong) {
             m_NumWeakToStrong += weakForStrong->second.size();
         }
         
         // Fill in the table as an unordered list
         m_WeakToStrong      = new symbol_equivalent[m_NumWeakToStrong];
         int pos = 0;
-        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); weakForStrong++) {
+        for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); ++weakForStrong) {
             // Fetch the strong symbol
             const item_container& strong = weakForStrong->first;
             
@@ -249,7 +249,7 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     m_Counts                = new action_count[m_NumStates];
     
     // Copy the states
-    for (int stateId=0; stateId<m_NumStates; stateId++) {
+    for (int stateId=0; stateId<m_NumStates; ++stateId) {
         // Copy the counts
         m_Counts[stateId] = copyFrom.m_Counts[stateId];
         
@@ -258,17 +258,17 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
         m_NonterminalActions[stateId]   = new action[m_Counts[stateId].m_NumNonterms];
         
         // Copy the terminals and nonterminals
-        for (int x=0; x<m_Counts[stateId].m_NumTerms; x++) {
+        for (int x=0; x<m_Counts[stateId].m_NumTerms; ++x) {
             m_TerminalActions[stateId][x] = copyFrom.m_TerminalActions[stateId][x];
         }
-        for (int x=0; x<m_Counts[stateId].m_NumNonterms; x++) {
+        for (int x=0; x<m_Counts[stateId].m_NumNonterms; ++x) {
             m_NonterminalActions[stateId][x] = copyFrom.m_NonterminalActions[stateId][x];
         }
     }
     
     // Allocate the rule table
     m_Rules = new reduce_rule[m_NumRules];
-    for (int ruleId=0; ruleId<m_NumRules; ruleId++) {
+    for (int ruleId=0; ruleId<m_NumRules; ++ruleId) {
         m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
     }
     
@@ -277,7 +277,7 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     m_EndGuardStates    = new int[m_NumEndOfGuards];
     
     // Copy the states
-    for (int x=0; x<m_NumEndOfGuards; x++) {
+    for (int x=0; x<m_NumEndOfGuards; ++x) {
         m_EndGuardStates[x] = copyFrom.m_EndGuardStates[x];
     }
 
@@ -285,7 +285,7 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     if (copyFrom.m_WeakToStrong) {
         m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong];
 
-        for (int x=0; x<m_NumWeakToStrong; x++) {
+        for (int x=0; x<m_NumWeakToStrong; ++x) {
             m_WeakToStrong[x] = copyFrom.m_WeakToStrong[x];
         }
     } else {
@@ -306,7 +306,7 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
 parser_tables::~parser_tables() {
     if (m_DeleteTables) {
         // Destroy each entry in the parser table
-        for (int x=0; x<m_NumStates; x++) {
+        for (int x=0; x<m_NumStates; ++x) {
             delete[] m_NonterminalActions[x];
             delete[] m_TerminalActions[x];
         }
@@ -332,7 +332,7 @@ size_t parser_tables::size() const {
     total += sizeof(reduce_rule) * m_NumRules;                  // m_Rules
     
     // Add up the size of the various rule arrays
-    for (int stateId = 0; stateId < m_NumStates; stateId++) {
+    for (int stateId = 0; stateId < m_NumStates; ++stateId) {
         total += sizeof(action) * m_Counts[stateId].m_NumTerms;
         total += sizeof(action) * m_Counts[stateId].m_NumNonterms;
     }

@@ -19,7 +19,7 @@ terminal_dictionary::terminal_dictionary()
 int terminal_dictionary::add_symbol() {
     // Create a new maximum symbol
     int newSymbol = m_MaxSymbol;
-    m_MaxSymbol++;
+    ++m_MaxSymbol;
     return newSymbol;
 }
 

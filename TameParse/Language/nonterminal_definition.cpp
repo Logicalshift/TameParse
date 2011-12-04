@@ -25,7 +25,7 @@ nonterminal_definition::nonterminal_definition(const nonterminal_definition& cop
 /// \brief Destructor
 nonterminal_definition::~nonterminal_definition() {
     // Destroy the productions
-    for (production_definition_list::iterator toDelete = m_Productions.begin(); toDelete != m_Productions.end(); toDelete++) {
+    for (production_definition_list::iterator toDelete = m_Productions.begin(); toDelete != m_Productions.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Productions.clear();
@@ -37,13 +37,13 @@ nonterminal_definition& nonterminal_definition::operator=(const nonterminal_defi
     if (&copyFrom == this) return *this;
     
     // Destroy the productions
-    for (production_definition_list::iterator toDelete = m_Productions.begin(); toDelete != m_Productions.end(); toDelete++) {
+    for (production_definition_list::iterator toDelete = m_Productions.begin(); toDelete != m_Productions.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Productions.clear();
 
     // Assign the productions from the copy
-    for (nonterminal_definition::iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); toCopy++) {
+    for (nonterminal_definition::iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); ++toCopy) {
         m_Productions.push_back(new production_definition(**toCopy));
     }
     

@@ -30,7 +30,7 @@ lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring&
 , m_Parser(NULL)
 , m_Tables(NULL) {
 	// Add empty positions for each symbol
-	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+	for (size_t x=0; x<m_StartSymbols.size(); ++x) {
 		m_SymbolStartPosition.push_back(position(-1,-1,-1));
 	}
 }
@@ -46,7 +46,7 @@ lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring&
 , m_Tables(NULL) {
 	// Make all the symbols begin in the same place as this block
 	// TODO: actually record where the symbols are specified
-	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+	for (size_t x=0; x<m_StartSymbols.size(); ++x) {
 		m_SymbolStartPosition.push_back(m_StartPosition);
 	}	
 }
@@ -76,7 +76,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 	// TODO: have a way to mark guards that are permitted to be in the same state
 	
 	// Iterate through the states
-	for (int stateId = 0; stateId < builder->count_states(); stateId++) {
+	for (int stateId = 0; stateId < builder->count_states(); ++stateId) {
 		// Map of terminal symbol IDs to guard actions
 		typedef map<item_container, set<item_container> > guard_to_symbol;
 		guard_to_symbol guardForSymbol;
@@ -84,7 +84,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 		// Search for guard actions 
 		const lr_action_set& actions = builder->actions_for_state(stateId);
 
-		for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+		for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
 			// Ignore actions that are not guard actions
 			if ((*nextAction)->type() != lr_action::act_guard) continue;
 
@@ -98,14 +98,14 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 		// Warn of any guards that have conflicting actions
 		set<item_container> warnedGuards;
 
-		for (guard_to_symbol::iterator guarded = guardForSymbol.begin(); guarded != guardForSymbol.end(); guarded++) {
+		for (guard_to_symbol::iterator guarded = guardForSymbol.begin(); guarded != guardForSymbol.end(); ++guarded) {
 			// No clash if there's only one guard for this symbol
 			if (guarded->second.size() <= 1) continue;
 
 			// Ignore guards that we've already warned about
 			bool warned = true;
-			for (set<item_container>::iterator it = guarded->second.begin(); it != guarded->second.end(); it++) {
-				if (warnedGuards.find(*it) == warnedGuards.end()) {
+			for (set<item_container>::iterator clashing = guarded->second.begin(); clashing != guarded->second.end(); ++clashing) {
+				if (warnedGuards.find(*clashing) == warnedGuards.end()) {
 					// Haven't warned about this guard yet, so this is a new kind of clash
 					warned = false;
 					break;
@@ -121,12 +121,12 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 			const lalr_state_container& state = builder->machine().state_with_id(stateId);
 
 			// Iterate through the guards
-			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); clashingGuard++) {
+			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); ++clashingGuard) {
 				// Warned about this guard
 				warnedGuards.insert(*clashingGuard);
 
 				// Find all of the LR items that have a reference to this guard
-				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); lrItem++) {
+				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); ++lrItem) {
 					// Ignore at end items
 					if ((*lrItem)->at_end()) continue;
 
@@ -232,7 +232,7 @@ void lr_parser_stage::compile() {
 	// Get the nonterminal items corresponding to the start symbols
 	vector<item_container> startItems;
 
-	for (size_t startSymbolId = 0; startSymbolId < m_StartSymbols.size(); startSymbolId++) {
+	for (size_t startSymbolId = 0; startSymbolId < m_StartSymbols.size(); ++startSymbolId) {
 		// Get the symbol
 		const wstring& startSymbol = m_StartSymbols[startSymbolId];
 
@@ -260,14 +260,14 @@ void lr_parser_stage::compile() {
     ignored_symbols* ignored = new ignored_symbols();
     action_rewriter_container ignoreContainer(ignored, true);
     
-    for (set<int>::const_iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
+    for (set<int>::const_iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ++ignoredTerminalId) {
     	item_container newTerm(new terminal(*ignoredTerminalId), true);
         ignored->add_item(newTerm);
     }
 
 	// Add the initial states to the LALR builder
 	m_InitialStates.clear();
-	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); initialItem++) {
+	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); ++initialItem) {
 		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
 	}
     
@@ -299,14 +299,14 @@ void lr_parser_stage::compile() {
         shiftReduceSev = reduceReduceSev = error::sev_error;
     }
 
-	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); conflict++) {
+	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); ++conflict) {
         // We only show detail if the show-conflict-details option is set
         bool showDetail = !cons().get_option(L"show-conflict-details").empty();
         
 		// Test the type of this conflict
 		if ((*conflict)->first_shift_item() != (*conflict)->last_shift_item()) {
 			// Shift/reduce conflict: we report the 'shift' part of the conflict as the first line
-			for (lr0_item_set::const_iterator shiftItem = (*conflict)->first_shift_item(); shiftItem != (*conflict)->last_shift_item(); shiftItem++) {
+			for (lr0_item_set::const_iterator shiftItem = (*conflict)->first_shift_item(); shiftItem != (*conflict)->last_shift_item(); ++shiftItem) {
 				// Start building the message
 				wstringstream 	shiftMessage;
 				error::severity	sev = shiftReduceSev;
@@ -337,7 +337,7 @@ void lr_parser_stage::compile() {
 		}
 
 		// Display the reductions for this conflict
-		for (conflict::reduce_iterator reduceItem = (*conflict)->first_reduce_item(); reduceItem != (*conflict)->last_reduce_item(); reduceItem++) {
+		for (conflict::reduce_iterator reduceItem = (*conflict)->first_reduce_item(); reduceItem != (*conflict)->last_reduce_item(); ++reduceItem) {
 			// Start building the message
 			wstring         reduceCode      = L"DETAIL_REDUCE";
 			error::severity reductionSev    = error::sev_detail;
@@ -395,7 +395,7 @@ void lr_parser_stage::compile() {
     
     // Display some stats
     int totalActions = 0;
-    for (int stateId = 0; stateId < m_Tables->count_states(); stateId++) {
+    for (int stateId = 0; stateId < m_Tables->count_states(); ++stateId) {
         totalActions += m_Tables->count_actions_for_state(stateId);
     }
     
@@ -416,7 +416,7 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
     displayedNonterminals.insert(nonterminal);
     
     // For reduce/reduce conflicts, display the context in which the reduction can occur
-    for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); possibleState++) {
+    for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); ++possibleState) {
         // Generate a detail message for this item
         const conflict::lr_item_id& itemId = *possibleState;
         

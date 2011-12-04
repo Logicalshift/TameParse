@@ -54,7 +54,7 @@ namespace util {
         /// Generally, you should not use this constructor, it's mainly here to support pointer casting (the cast_to() function)
         inline explicit syntax_ptr(syntax_ptr_reference* ref)
         : m_Reference(ref) {
-            m_Reference->m_UsageCount++;
+            ++m_Reference->m_UsageCount;
         }
         
     public:
@@ -75,7 +75,7 @@ namespace util {
         inline syntax_ptr(const syntax_ptr<ptr_type>& copyFrom)
         : m_Reference(copyFrom.m_Reference) {
             // Increase the reference count for this object
-            m_Reference->m_UsageCount++;
+            ++m_Reference->m_UsageCount;
         }
         
         /// \brief Assignment
@@ -94,7 +94,7 @@ namespace util {
             
             // Switch to the reference in the other object
             m_Reference = assignFrom.m_Reference;
-            m_Reference->m_UsageCount++;
+            ++m_Reference->m_UsageCount;
             
             return *this;
         }

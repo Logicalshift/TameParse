@@ -81,12 +81,12 @@ bool lalr_machine::add_lookahead(int stateId, int itemId, const contextfree::ite
     item_set& la = m_States[stateId]->lookahead_for(itemId);
     
     bool result = false;
-    for (item_set::const_iterator it = newLookahead.begin(); it != newLookahead.end(); ++it) {
+    for (item_set::const_iterator lookaheadItem = newLookahead.begin(); lookaheadItem != newLookahead.end(); ++lookaheadItem) {
         // Ignore the empty item
-        if ((*it)->type() == item::empty) continue;
+        if ((*lookaheadItem)->type() == item::empty) continue;
         
         // Otherwise, carry on
-        if (la.insert(*it)) result = true;
+        if (la.insert(*lookaheadItem)) result = true;
     }
     
     return result;

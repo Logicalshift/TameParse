@@ -82,7 +82,7 @@ static symbol_set convert_range(const symbol_range& range, const map_entry* map,
 			result |= symbol_range(initialChar, initialChar + numChars);
 
 			// Move on
-			curItem++;
+			++curItem;
 			lowerChar += numChars;
 		}
 	}
@@ -95,7 +95,7 @@ symbol_set unicode::to_upper(const symbol_set& source) {
 	symbol_set result;
 
 	// Iterate through the symbols in the source
-	for (symbol_set::iterator toMap = source.begin(); toMap != source.end(); toMap++) {
+	for (symbol_set::iterator toMap = source.begin(); toMap != source.end(); ++toMap) {
 		// Map this range and merge it into the result
 		result |= convert_range(*toMap, s_UppercaseMap, s_UppercaseMapSize);
 	}
@@ -108,7 +108,7 @@ symbol_set unicode::to_lower(const symbol_set& source) {
 	symbol_set result;
 
 	// Iterate through the symbols in the source
-	for (symbol_set::iterator toMap = source.begin(); toMap != source.end(); toMap++) {
+	for (symbol_set::iterator toMap = source.begin(); toMap != source.end(); ++toMap) {
 		// Map this range and merge it into the result
 		result |= convert_range(*toMap, s_LowercaseMap, s_LowercaseMapSize);
 	}
