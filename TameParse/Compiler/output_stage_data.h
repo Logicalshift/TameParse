@@ -6,8 +6,8 @@
 //  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
-#ifndef _COMPILER_OUTPUT_STAGE_H
-#define _COMPILER_OUTPUT_STAGE_H
+#ifndef _COMPILER_OUTPUT_STAGE_DATA_H
+#define _COMPILER_OUTPUT_STAGE_DATA_H
 
 #include "Tameparse/ContextFree/item.h"
 
@@ -24,7 +24,7 @@ namespace compiler {
 			, identifier(newIdentifier) { }
 
 			/// \brief The name of this symbol
-			const std::wstring& name;
+			std::wstring name;
 
 			/// \brief The identifier of this symbol
 			int identifier;
@@ -34,19 +34,19 @@ namespace compiler {
 		/// \brief Structure representing a nonterminal symbol
 		///
 		struct nonterminal_symbol {
-			inline nonterminal_symbol(const std::wstring& newName, int newIdentifier, const contextfree::item_container& item)
+			inline nonterminal_symbol(const std::wstring& newName, int newIdentifier, const contextfree::item_container& newItem)
 			: name(newName)
 			, identifier(newIdentifier)
 			, item(newItem) { }
 
 			/// \brief The name of the nonterminal symbol
-			const std::wstring& name;
+			std::wstring name;
 
 			/// \brief The identifier assigned to it within the grammar and parser
 			int identifier;
 
 			/// \brief The context free item representing this nonterminal symbol
-			const contextfree::item_container& item;
+			contextfree::item_container item;
 		};
 	}
 }

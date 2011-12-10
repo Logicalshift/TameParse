@@ -10,6 +10,7 @@
 #define _COMPILER_OUTPUT_STAGE_H
 
 #include <string>
+#include <vector>
 
 #include "TameParse/Dfa/range.h"
 
@@ -74,11 +75,23 @@ namespace compiler {
 		typedef data::terminal_symbol 					terminal_symbol;
 		typedef data::nonterminal_symbol 				nonterminal_symbol;
 
-		typedef vector<terminal_symbol>					terminal_symbol_list;
-		typedef vector<nonterminal_symbol>				nonterminal_symbol_list;
+		typedef std::vector<terminal_symbol>			terminal_symbol_list;
+		typedef std::vector<nonterminal_symbol>			nonterminal_symbol_list;
 
 		typedef terminal_symbol_list::const_iterator	terminal_symbol_iterator;
 		typedef nonterminal_symbol_list::const_iterator	nonterminal_symbol_iterator;
+
+	private:
+		// Storage members (empty if not generated yet)
+
+		terminal_symbol_list 		m_TerminalSymbols;
+		nonterminal_symbol_list		m_NonterminalSymbols;
+
+	private:
+		// Generate storage data
+
+		void generate_terminal_symbols();
+		void generate_nonterminal_symbols();
 
 	protected:
 		// Functions that represent various steps of the output of a language.
@@ -93,25 +106,19 @@ namespace compiler {
 		/// \brief Finishing writing out output
 		virtual void end_output();
 
-		/// \brief The output stage is about to produce a list of terminal symbols
-		virtual void begin_terminal_symbols(const contextfree::grammar& gram);
+		/// \brief The first terminal symbol
+		terminal_symbol_iterator begin_terminal_symbol();
 
-		/// \brief Specifies the identifier for the terminal symbol with a given name
-		virtual void terminal_symbol(const std::wstring& name, int identifier);
+		/// \brief The symbol after the final terminal symbol
+		terminal_symbol_iterator end_terminal_symbol();
 
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_terminal_symbols();
+		/// \brief The first nonterminal symbol
+		nonterminal_symbol_iterator begin_nonterminal_symbol();
 
-		/// \brief The output stage is about to produce a list of non-terminal symbols
-		virtual void begin_nonterminal_symbols(const contextfree::grammar& gram);
-
-		/// \brief Specifies the identifier for the non-terminal symbol with a given name
-		virtual void nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item);
+		/// \brief The symbol after the final nonterminal symbol
+		nonterminal_symbol_iterator end_nonterminal_symbol();
 
 		// TODO: add 'other' symbols (EBNF items, guards, etc)
-
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_nonterminal_symbols();
 
 		/// \brief Starting to write out the lexer definitions
 		virtual void begin_lexer_definitions();

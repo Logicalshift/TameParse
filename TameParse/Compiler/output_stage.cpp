@@ -53,32 +53,7 @@ void output_stage::compile() {
 
 /// \brief Defines the symbols associated with this language
 void output_stage::define_symbols() {
-	// TODO: sanity check
-
-	// Write out the terminal symbols that are defined in this language
-	begin_terminal_symbols(*m_LanguageStage->grammar());
-
-	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); ++symbolId) {
-		terminal_symbol(m_LanguageStage->terminals()->name_for_symbol(symbolId), symbolId);
-	}
-
-	end_terminal_symbols();
-
-	// Write out the nonterminal symbols that are defined in this language
-	begin_nonterminal_symbols(*m_LanguageStage->grammar());
-
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
-		// Assume that the nonterminal IDs match up to item IDs (they should do)
-		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
-
-		// Must be an actual named nonterminal
-		if (ntItem->type() != item::nonterminal) continue;
-
-		// Output this item
-		nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId, ntItem);
-	}
-
-	end_nonterminal_symbols();
+	// TODO: remove me!
 }
 
 /// \brief Writes out the lexer tables (the symbol map and the state table)
@@ -260,34 +235,65 @@ void output_stage::end_output() {
 	// Do nothing in the default implementation
 }
 
-/// \brief The output stage is about to produce a list of terminal symbols
-void output_stage::begin_terminal_symbols(const contextfree::grammar& gram) {
-	// Do nothing in the default implementation
+/// \brief Generates the terminal symbols list
+void output_stage::generate_terminal_symbols() {
+	// Clear out the existing symbols (so we regenerate if this is called multiple times)
+	m_TerminalSymbols.clear();
+
+	// Fill in the terminal symbols
+	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); ++symbolId) {
+		m_TerminalSymbols.push_back(terminal_symbol(m_LanguageStage->terminals()->name_for_symbol(symbolId), symbolId));
+	}
 }
 
-/// \brief Specifies the identifier for the terminal symbol with a given name
-void output_stage::terminal_symbol(const std::wstring& name, int identifier) {
-	// Do nothing in the default implementation
+/// \brief Generates the nonterminal symbols list
+void output_stage::generate_nonterminal_symbols() {
+	// Clear out the existing symbols (so we regenerate if this is called multiple times)
+	m_NonterminalSymbols.clear();
+
+	// Fill in the nonterminal symbols
+	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
+		// Assume that the nonterminal IDs match up to item IDs (they should do)
+		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
+
+		// Must be an actual named nonterminal
+		if (ntItem->type() != item::nonterminal) continue;
+
+		// Output this item
+		m_NonterminalSymbols.push_back(nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId, ntItem));
+	}
 }
 
-/// \brief Finished writing out the terminal symbols
-void output_stage::end_terminal_symbols() {
-	// Do nothing in the default implementation
+/// \brief The first terminal symbol
+output_stage::terminal_symbol_iterator output_stage::begin_terminal_symbol() {
+	// Generate the terminal symbols if they don't already exist (or, as an edge case, if they exist but there aren't any)
+	if (m_TerminalSymbols.empty()) generate_terminal_symbols();
+
+	return m_TerminalSymbols.begin();
 }
 
-/// \brief The output stage is about to produce a list of non-terminal symbols
-void output_stage::begin_nonterminal_symbols(const contextfree::grammar& gram) {
-	// Do nothing in the default implementation
+/// \brief The symbol after the final terminal symbol
+output_stage::terminal_symbol_iterator output_stage::end_terminal_symbol() {
+	// Generate the terminal symbols if they don't already exist (or, as an edge case, if they exist but there aren't any)
+	if (m_TerminalSymbols.empty()) generate_terminal_symbols();
+
+	return m_TerminalSymbols.end();
 }
 
-/// \brief Specifies the identifier for the non-terminal symbol with a given name
-void output_stage::nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item) {
-	// Do nothing in the default implementation
+/// \brief The first nonterminal symbol
+output_stage::nonterminal_symbol_iterator output_stage::begin_nonterminal_symbol() {
+	// Generate the terminal symbols if they don't already exist (or, as an edge case, if they exist but there aren't any)
+	if (m_NonterminalSymbols.empty()) generate_nonterminal_symbols();
+
+	return m_NonterminalSymbols.begin();
 }
 
-/// \brief Finished writing out the terminal symbols
-void output_stage::end_nonterminal_symbols() {
-	// Do nothing in the default implementation
+/// \brief The symbol after the final nonterminal symbol
+output_stage::nonterminal_symbol_iterator output_stage::end_nonterminal_symbol() {
+	// Generate the terminal symbols if they don't already exist (or, as an edge case, if they exist but there aren't any)
+	if (m_NonterminalSymbols.empty()) generate_nonterminal_symbols();
+
+	return m_NonterminalSymbols.end();
 }
 
 /// \brief Starting to write out the lexer definitions
