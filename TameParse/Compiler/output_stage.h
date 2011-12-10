@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 29/08/2011.
-//  Copyright 2011 _Andrew Hunter_. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_OUTPUT_STAGE_H
@@ -67,6 +67,18 @@ namespace compiler {
 
 		/// \brief Writes out the AST tables
 		virtual void define_ast_tables();
+
+	protected:
+		// Data structures used by this stage
+
+		typedef data::terminal_symbol 					terminal_symbol;
+		typedef data::nonterminal_symbol 				nonterminal_symbol;
+
+		typedef vector<terminal_symbol>					terminal_symbol_list;
+		typedef vector<nonterminal_symbol>				nonterminal_symbol_list;
+
+		typedef terminal_symbol_list::const_iterator	terminal_symbol_iterator;
+		typedef nonterminal_symbol_list::const_iterator	nonterminal_symbol_iterator;
 
 	protected:
 		// Functions that represent various steps of the output of a language.
