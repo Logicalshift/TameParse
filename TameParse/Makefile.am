@@ -30,6 +30,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/lexer_stage.h \
 							  Compiler/lr_parser_stage.h \
 							  Compiler/output_stage.h \
+							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
@@ -205,6 +206,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/lexer_stage.h \
 							  Compiler/lr_parser_stage.h \
 							  Compiler/output_stage.h \
+							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \

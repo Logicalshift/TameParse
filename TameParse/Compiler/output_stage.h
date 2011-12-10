@@ -19,6 +19,7 @@
 #include "TameParse/Lr/lalr_builder.h"
 #include "TameParse/Lr/parser_tables.h"
 
+#include "TameParse/Compiler/output_stage_data.h"
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/language_stage.h"
 #include "TameParse/Compiler/lr_parser_stage.h"
