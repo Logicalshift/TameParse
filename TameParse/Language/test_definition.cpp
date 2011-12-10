@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 18/10/2011.
-//  Copyright (c) 2011 _Andrew Hunter_. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Language/test_definition.h"
