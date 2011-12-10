@@ -742,7 +742,7 @@ void output_cplusplus::source_lexer_state_machine() {
 	*m_SourceFile << "\nstatic const int s_AcceptingStates[] = {\n        ";
 
 	// Iterate through the action table
-	for (lexer_state_action_iterator act = begin_lexer_state_action(); act != end_lexer_state_action(); act++) {
+	for (lexer_state_action_iterator act = begin_lexer_state_action(); act != end_lexer_state_action(); ++act) {
 		// Separator
 		if (act->stateId > 0) {
 			*m_SourceFile << ", ";
