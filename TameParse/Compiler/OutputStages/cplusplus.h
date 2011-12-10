@@ -37,18 +37,6 @@ namespace compiler {
 		/// \brief The header file
 		std::ostream* m_HeaderFile;
 
-        /// \brief The symbol table built up from the symbols supplied to this object
-        dfa::symbol_table<wchar_t>* m_SymbolLevels;
-
-        /// \brief Current lexer entry position
-        int m_LexerEntryPos;
-
-        /// \brief The state that's being written out by the lexer
-        int m_LexerCurrentState;
-
-        /// \brief Maps lexer states to their offset in the state machine table
-        std::vector<int> m_StateToEntryOffset;
-
         /// \brief Maps item IDs to their class identifiers
         std::map<int, std::string> m_ClassNameForItem;
 
@@ -143,6 +131,18 @@ namespace compiler {
 		/// \brief Writes out definitions for the nonterminal symbols to the header file
 		void header_nonterminal_symbols();
 
+		/// \brief Writes the symbol map definitions to the header
+		void header_symbol_map();
+
+		/// \brief Writes the symbol map definitions to the source file
+		void source_symbol_map();
+
+		/// \brief Writes out the header items for the lexer state machine
+		void header_lexer_state_machine();
+
+		/// \brief Writes out the source code for the lexer state machine
+		void source_lexer_state_machine();
+
 	protected:
 		// Functions that represent various steps of the output of a language.
 		// These are intended to make it easy to write out a file in the specified language.
@@ -159,44 +159,8 @@ namespace compiler {
 		/// \brief Defines the symbols associated with this language
 		virtual void define_symbols();
 
-		/// \brief Starting to write out the symbol map for the lexer
-		virtual void begin_lexer_symbol_map(int maxSetId);
-
-		/// \brief Specifies that a given range of symbols maps to a particular identifier
-		virtual void symbol_map(const dfa::range<int>& symbolRange, int identifier);
-		
-		/// \brief Finishing writing out the symbol map for the lexer
-		virtual void end_lexer_symbol_map();
-
-		/// \brief About to begin writing out the lexer tables
-		virtual void begin_lexer_state_machine(int numStates);
-
-		/// \brief Starting to write out the transitions for a given state
-		virtual void begin_lexer_state(int stateId);
-
-		/// \brief Adds a transition for the current state
-		virtual void lexer_state_transition(int symbolSet, int newState);
-
-		/// \brief Finishes writing out a lexer state
-		virtual void end_lexer_state();
-
-		/// \brief Finished writing out the lexer table
-		virtual void end_lexer_state_machine();
-
-		/// \brief About to write out the list of accepting states for a lexer
-		virtual void begin_lexer_accept_table();
-
-		/// \brief The specified state is not an accepting state
-		virtual void nonaccepting_state(int stateId);
-
-		/// \brief The specified state is an accepting state
-		virtual void accepting_state(int stateId, int acceptSymbolId);
-
-		/// \brief Finished the lexer acceptance table
-		virtual void end_lexer_accept_table();
-
-		/// \brief Finished all of the lexer definitions
-		virtual void end_lexer_definitions();
+		/// \brief Defines the symbols associated with this language
+		virtual void define_lexer_tables();
 
 		/// \brief Starting to write out the definitions associated with the parser
 		virtual void begin_parser_definitions();

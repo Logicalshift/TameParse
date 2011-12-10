@@ -29,7 +29,6 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_Namespace(namespaceName)
 , m_SourceFile(NULL)
 , m_HeaderFile(NULL)
-, m_SymbolLevels(NULL)
 , m_NtForwardDeclarations(NULL)
 , m_NtClassDefinitions(NULL)
 , m_ShiftDefinitions(NULL)
@@ -134,7 +133,6 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 output_cplusplus::~output_cplusplus() {
 	if (m_SourceFile) 				delete m_SourceFile;
 	if (m_HeaderFile) 				delete m_HeaderFile;
-	if (m_SymbolLevels) 			delete m_SymbolLevels;
 	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
 	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
 	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
@@ -522,7 +520,7 @@ void output_cplusplus::header_terminal_symbols() {
    	map<string, int> terminalSymbolCount;
     
     // Output the terminal symbols
-    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); term++) {
+    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
         // Get the short name
 	    string       shortName = get_identifier(term->name);
 	    
@@ -560,7 +558,7 @@ void output_cplusplus::header_nonterminal_symbols() {
     map<string, int> nonterminalSymbolCount;
 
     // Write out the nonterminal definitions
-    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); nonterm++) {
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
         // Get the short name
 	    string       shortName = get_identifier(nonterm->name);
 	    
@@ -599,41 +597,35 @@ void output_cplusplus::define_symbols() {
 //  			 Lexer generation
 // 				==================
 
-/// \brief Starting to write out the symbol map for the lexer
-void output_cplusplus::begin_lexer_symbol_map(int maxSetId) {
-	// TODO: support symbol maps for alphabets other than wchar_t
+/// \brief Writes the symbol map definitions to the header
+void output_cplusplus::header_symbol_map() {
+	// Add the name of the symbols we'll define to the list of used class names
+	m_UsedClassNames.insert("number_of_symbol_sets");
 
-    // Add to the list of used class names
-    m_UsedClassNames.insert("number_of_symbol_sets");
-
-	// Write out the number of symbol sets
+	// Write out the number of symbol sets to the header file
 	*m_HeaderFile << "\npublic:\n";
-	*m_HeaderFile << "    static const int number_of_symbol_sets = " << maxSetId << ";\n";
+	*m_HeaderFile << "    static const int number_of_symbol_sets = " << count_lexer_symbol_sets() << ";\n";
+}
 
+/// \brief Writes the symbol map definitions to the source file
+void output_cplusplus::source_symbol_map() {
 	// Include the hard-coded symbol table in the source file
 	*m_SourceFile << "\n#include \"TameParse/Dfa/hard_coded_symbol_table.h\"\n";
 
-	// Begin building the symbol levels object
-	if (m_SymbolLevels) {
-		delete m_SymbolLevels;
+	// Build up a symbol table from the symbol sets
+	symbol_table<wchar_t> symbolLevels;
+
+	// Iterate through the symbol ranges
+	for (symbol_map_iterator symbolMap = begin_symbol_map(); symbolMap != end_symbol_map(); ++symbolMap) {
+		symbolLevels.add_range(symbolMap->symbolRange, symbolMap->identifier);
 	}
-	m_SymbolLevels = new symbol_table<wchar_t>();
-}
 
-/// \brief Specifies that a given range of symbols maps to a particular identifier
-void output_cplusplus::symbol_map(const dfa::range<int>& symbolRange, int identifier) {
-	// Just add to the symbol levels
-	m_SymbolLevels->add_range(symbolRange, identifier);
-}
-
-/// \brief Finishing writing out the symbol map for the lexer
-void output_cplusplus::end_lexer_symbol_map() {
-	// Begin writing out the symbol map table
+	// Convert to a hard coded table and write out
 	*m_SourceFile << "\nstatic const int s_SymbolMapTable[] = {";
 
 	// Convert to a hard-coded table
 	size_t	size;
-	int* 	hcst = m_SymbolLevels->Table.to_hard_coded_table(size);
+	int* 	hcst = symbolLevels.Table.to_hard_coded_table(size);
 
 	// Write it out
 	for (size_t tablePos = 0; tablePos < size; ++tablePos) {
@@ -659,14 +651,20 @@ void output_cplusplus::end_lexer_symbol_map() {
     *m_SourceFile << "\nstatic const dfa::hard_coded_symbol_table<wchar_t, 2> s_SymbolMap(s_SymbolMapTable);\n";
 }
 
-/// \brief About to begin writing out the lexer tables
-void output_cplusplus::begin_lexer_state_machine(int numStates) {
+/// \brief Writes out the header items for the lexer state machine
+void output_cplusplus::header_lexer_state_machine() {
 	// Write out the number of states to the header file
-	*m_HeaderFile << "\n        static const int number_of_lexer_states = " << numStates << ";\n";
+	*m_HeaderFile << "\n        static const int number_of_lexer_states = " << count_lexer_states() << ";\n";
+	*m_HeaderFile << "\npublic:\n";
+	*m_HeaderFile << "    static const dfa::lexer lexer;\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("number_of_lexer_states");
+    m_UsedClassNames.insert("lexer");
+}
 
+/// \brief Writes out the source code for the lexer state machine
+void output_cplusplus::source_lexer_state_machine() {
 	// Need to include the state machine class
 	*m_SourceFile << "\n#include \"TameParse/Dfa/state_machine.h\"\n";
 
@@ -674,93 +672,59 @@ void output_cplusplus::begin_lexer_state_machine(int numStates) {
 	// TODO: support table styles other than 'compact' (the flat table is faster for all character types and more compact for some lexer types)
 	*m_SourceFile << "\nstatic const dfa::state_machine_compact_table<false>::entry s_LexerStateMachine[] = {\n";
 
-	// Reset the 
-	m_LexerEntryPos = 0;
-}
+	// Set the current position
+	int entryPos = 0;
 
-/// \brief Starting to write out the transitions for a given state
-void output_cplusplus::begin_lexer_state(int stateId) {
-	// Write out a comment
-	*m_SourceFile << "\n\n        // State " << stateId << "\n        ";
+	// Entry offset for each state
+	vector<int> stateToEntryOffset;
+	stateToEntryOffset.push_back(entryPos);
 
-	// Remember the current state
-	m_LexerCurrentState = stateId;
+	// Current state ID (initially -1)
+	int stateId = -1;
 
-	// Record its position
-	m_StateToEntryOffset.push_back(m_LexerEntryPos);
-}
+	// Iterate through all of the transitions
+	for (lexer_state_transition_iterator transit = begin_lexer_state_transition(); transit != end_lexer_state_transition(); ++transit) {
+		// Deal with changes to the current state
+		if (transit->stateIdentifier != stateId) {
+			// Update the current state ID
+			stateId = transit->stateIdentifier;
 
-/// \brief Adds a transition for the current state
-void output_cplusplus::lexer_state_transition(int symbolSet, int newState) {
-	// Write out a separator
-	if (m_LexerEntryPos > 0) {
-		*m_SourceFile << ", ";
-		if ((m_LexerEntryPos%10) == 0) {
-			*m_SourceFile << "\n        ";
+			// Write out entry offsets
+			while (stateId >= (int)stateToEntryOffset.size()) {
+				stateToEntryOffset.push_back(entryPos);
+			}
+
+			// Write out comments
+			*m_SourceFile << "\n\n        // State " << stateId << "\n        ";
 		}
+
+		// Write out some formatting
+		if (entryPos > 0) {
+			*m_SourceFile << ", ";
+			if ((entryPos%10) == 0) {
+				*m_SourceFile << "\n        ";
+			}
+		}
+
+		// Write out this transition
+		*m_SourceFile << "{ " << transit->symbolSet << ", " << transit->newState << " }";
+
+		// Update the lexer state position
+		++entryPos;
 	}
 
-	// Write out this transition
-	*m_SourceFile << "{ " << symbolSet << ", " << newState << " }";
-
-	// Update the lexer state position
-	++m_LexerEntryPos;
-}
-
-/// \brief Finishes writing out a lexer state
-void output_cplusplus::end_lexer_state() {
-	// Nothing to do
-}
-
-/// \brief Finished writing out the lexer table
-void output_cplusplus::end_lexer_state_machine() {
 	// Finish off the table
 	*m_SourceFile << "\n    };\n";
-}
 
-/// \brief About to write out the list of accepting states for a lexer
-void output_cplusplus::begin_lexer_accept_table() {
-	// Start the accepting action tables
-	*m_SourceFile << "\nstatic const int s_AcceptingStates[] = {\n        ";
-}
-
-/// \brief The specified state is not an accepting state
-void output_cplusplus::nonaccepting_state(int stateId) {
-	if (stateId > 0) {
-		*m_SourceFile << ", ";
-	}
-
-	// Non-accepting states get -1 as the action
-	*m_SourceFile << "-1";
-}
-
-/// \brief The specified state is an accepting state
-void output_cplusplus::accepting_state(int stateId, int acceptSymbolId) {
-	if (stateId > 0) {
-		*m_SourceFile << ", ";
-	}
-
-	// Write out the action for this state
-	*m_SourceFile << acceptSymbolId;
-}
-
-/// \brief Finished the lexer acceptance table
-void output_cplusplus::end_lexer_accept_table() {
-	// Finish up the acceptance table
-	*m_SourceFile << "\n    };\n";
-}
-
-/// \brief Finished all of the lexer definitions
-void output_cplusplus::end_lexer_definitions() {
 	// Add a final state to point to the end of the array
-	m_StateToEntryOffset.push_back(m_LexerEntryPos);
+	stateToEntryOffset.push_back(entryPos);
 
 	// Write out the rows table
-	*m_SourceFile << "\nstatic const dfa::state_machine_compact_table<false>::entry* s_LexerStates[" << m_StateToEntryOffset.size()-1 << "] = {\n        ";
+	*m_SourceFile << "\nstatic const dfa::state_machine_compact_table<false>::entry* s_LexerStates[" << stateToEntryOffset.size()-1 << "] = {\n        ";
 
 	// Write the actual rows
 	bool first = true;
-	for (vector<int>::iterator offset = m_StateToEntryOffset.begin(); offset != m_StateToEntryOffset.end()-1; ++offset) {
+	for (vector<int>::iterator offset = stateToEntryOffset.begin(); offset != stateToEntryOffset.end()-1; ++offset) {
 		// Commas between entries
 		if (!first) *m_SourceFile << ", ";
 
@@ -771,26 +735,51 @@ void output_cplusplus::end_lexer_definitions() {
 		first = false;
 	}
 
+	// Finish off the table
+	*m_SourceFile << "\n    };\n";
+
+	// Write out the table of state actions
+	*m_SourceFile << "\nstatic const int s_AcceptingStates[] = {\n        ";
+
+	// Iterate through the action table
+	for (lexer_state_action_iterator act = begin_lexer_state_action(); act != end_lexer_state_action(); act++) {
+		// Separator
+		if (act->stateId > 0) {
+			*m_SourceFile << ", ";
+		}
+
+		if (act->accepting) {
+			// Write out the action for this state
+			*m_SourceFile << act->acceptSymbolId;
+		} else {
+			// Non-accepting states get -1 as the action
+			*m_SourceFile << "-1";
+		}
+	}
+
+	// Finish up the acceptance table
 	*m_SourceFile << "\n    };\n";
 
 	// Create a state machine
 	*m_SourceFile << "\ntypedef dfa::state_machine_tables<wchar_t, dfa::hard_coded_symbol_table<wchar_t, 2> > lexer_state_machine;\n";
-	*m_SourceFile << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << m_StateToEntryOffset.size()-1 << ");\n";
+	*m_SourceFile << "static const lexer_state_machine s_StateMachine(s_SymbolMap, s_LexerStates, " << stateToEntryOffset.size()-1 << ");\n";
 
 	// Create the lexer itself
 	*m_SourceFile << "\ntypedef dfa::dfa_lexer_base<const lexer_state_machine&, 0, 0, false, const lexer_state_machine&> lexer_definition;\n";
-	*m_SourceFile << "static lexer_definition s_LexerDefinition(s_StateMachine, " << m_StateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
+	*m_SourceFile << "static lexer_definition s_LexerDefinition(s_StateMachine, " << stateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
 
 	// Finally, the lexer class itself
-	*m_HeaderFile << "\npublic:\n";
-	*m_HeaderFile << "    static const dfa::lexer lexer;\n";
-
 	*m_SourceFile << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
-
-    // Add to the list of used class names
-    m_UsedClassNames.insert("lexer");
 }
 
+/// \brief Defines the symbols associated with this language
+void output_cplusplus::define_lexer_tables() {
+	header_symbol_map();
+	header_lexer_state_machine();
+
+	source_symbol_map();
+	source_lexer_state_machine();
+}
 
 // 				===================
 //  			 Parser generation
