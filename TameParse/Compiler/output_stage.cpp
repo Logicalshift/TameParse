@@ -58,81 +58,7 @@ void output_stage::define_symbols() {
 
 /// \brief Writes out the lexer tables (the symbol map and the state table)
 void output_stage::define_lexer_tables() {
-	// TODO: sanity check
-
-	// Get the lexer DFA
-	const ndfa* dfa = m_LexerStage->dfa();
-
-	// Get the symbol table
-	const class symbol_map& symbols = dfa->symbols();
-
-	// Starting to write lexer definitions
-	begin_lexer_definitions();
-
-	// Write to the result
-	begin_lexer_symbol_map(symbols.count_sets());
-
-	// Go through all of the symbol sets
-	for (symbol_map::iterator setIt = symbols.begin(); setIt != symbols.end(); ++setIt) {
-		// Go through the ranges in each set
-		for (symbol_set::iterator rangeIt = setIt->first->begin(); rangeIt != setIt->first->end(); ++rangeIt) {
-			symbol_map(*rangeIt, setIt->second);
-		}
-	}
-
-	end_lexer_symbol_map();
-
-	// Start writing out the DFA
-	begin_lexer_state_machine(dfa->count_states());
-
-	// Write out each state in turn
-	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
-		// Start writing out this state
-		const state& state = dfa->get_state(stateId);
-		begin_lexer_state(stateId);
-
-		for (state::iterator transit = state.begin(); transit != state.end(); ++transit) {
-			lexer_state_transition(transit->symbol_set(), transit->new_state());
-		}
-
-		end_lexer_state();
-	}
-
-	end_lexer_state_machine();
-
-	// Write out the accepting states
-	begin_lexer_accept_table();
-
-	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
-		// Get the actions for this state
-		typedef ndfa::accept_action_list accept_action_list;
-		const accept_action_list& actions = dfa->actions_for_state(stateId);
-
-		// Nothing to do if there are no actions for this state
-		if (actions.begin() == actions.end()) {
-			nonaccepting_state(stateId);
-			continue;
-		}
-
-		// Write out the highest action
-		accept_action_list::const_iterator thisAction = actions.begin();
-        const accept_action* highest = *thisAction;
-
-        ++thisAction;
-        for (; thisAction != actions.end(); ++thisAction) {
-            if ((*highest) < **thisAction) {
-                highest = *thisAction;
-            }
-        }
-
-        // Write out this action
-        accepting_state(stateId, highest->symbol());
-	}
-
-	end_lexer_accept_table();
-
-	// Finished the lexer
-	end_lexer_definitions();
+	// TODO: remove me!
 }
 
 /// \brief Writes out the AST tables
@@ -296,74 +222,114 @@ output_stage::nonterminal_symbol_iterator output_stage::end_nonterminal_symbol()
 	return m_NonterminalSymbols.end();
 }
 
-/// \brief Starting to write out the lexer definitions
-void output_stage::begin_lexer_definitions() {
-	// Do nothing in the default implementation
+/// \brief Generates the lexer symbol map
+void output_stage::generate_lexer_symbol_map() {
+	// Clear out the symbol map
+	m_LexerSymbolMap.clear();
+
+	// Get the symbol map
+	const dfa::symbol_map& symbols = m_LexerStage->dfa()->symbols();
+
+	// Go through all of the symbol sets
+	for (dfa::symbol_map::iterator setIt = symbols.begin(); setIt != symbols.end(); ++setIt) {
+		// Go through the ranges in each set
+		for (symbol_set::iterator rangeIt = setIt->first->begin(); rangeIt != setIt->first->end(); ++rangeIt) {
+			m_LexerSymbolMap.push_back(symbol_map(*rangeIt, setIt->second));
+		}
+	}
 }
 
-/// \brief Starting to write out the symbol map for the lexer
-void output_stage::begin_lexer_symbol_map(int maxSetId) {
-	// Do nothing in the default implementation
+void output_stage::generate_lexer_transitions() {
+	// Clear the transitions
+	m_LexerTransitions.clear();
+
+	// Get the DFA
+	const ndfa* dfa = m_LexerStage->dfa();
+
+	// Write out each state in turn
+	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
+		// Start writing out this state
+		const state& state = dfa->get_state(stateId);
+
+		for (state::iterator transit = state.begin(); transit != state.end(); ++transit) {
+			m_LexerTransitions.push_back(lexer_state_transition(stateId, transit->symbol_set(), transit->new_state()));
+		}
+	}
 }
 
-/// \brief Specifies that a given range of symbols maps to a particular identifier
-void output_stage::symbol_map(const dfa::range<int>& symbolRange, int identifier) {
-	// Do nothing in the default implementation
-}
-		
-/// \brief Finishing writing out the symbol map for the lexer
-void output_stage::end_lexer_symbol_map() {
-	// Do nothing in the default implementation
+void output_stage::generate_lexer_actions() {
+	// Clear the actions
+	m_LexerActions.clear();
+
+	// Get the DFA
+	const ndfa* dfa = m_LexerStage->dfa();
+
+	// Write out the actions for each state
+	for (int stateId = 0; stateId < dfa->count_states(); ++stateId) {
+		// Get the actions for this state
+		typedef ndfa::accept_action_list accept_action_list;
+		const accept_action_list& actions = dfa->actions_for_state(stateId);
+
+		// Nothing to do if there are no actions for this state
+		if (actions.begin() == actions.end()) {
+			m_LexerActions.push_back(lexer_state_action(stateId, false, -1));
+			continue;
+		}
+
+		// Write out the highest action
+		accept_action_list::const_iterator thisAction = actions.begin();
+        const accept_action* highest = *thisAction;
+
+        ++thisAction;
+        for (; thisAction != actions.end(); ++thisAction) {
+            if ((*highest) < **thisAction) {
+                highest = *thisAction;
+            }
+        }
+
+        // Write out this action
+        m_LexerActions.push_back(lexer_state_action(stateId, true, highest->symbol()));
+	}
 }
 
-/// \brief About to begin writing out the lexer tables
-void output_stage::begin_lexer_state_machine(int numStates) {
-	// Do nothing in the default implementation
+/// \brief The first item in the symbol map
+output_stage::symbol_map_iterator output_stage::begin_symbol_map() {
+	if (m_LexerSymbolMap.empty()) generate_lexer_symbol_map();
+	return m_LexerSymbolMap.begin();
 }
 
-/// \brief Starting to write out the transitions for a given state
-void output_stage::begin_lexer_state(int stateId) {
-	// Do nothing in the default implementation
+/// \brief The item after the final item in the symbol map
+output_stage::symbol_map_iterator output_stage::end_symbol_map() {
+	if (m_LexerSymbolMap.empty()) generate_lexer_symbol_map();
+	return m_LexerSymbolMap.end();
 }
 
-/// \brief Adds a transition for the current state
-void output_stage::lexer_state_transition(int symbolSet, int newState) {
-	// Do nothing in the default implementation
+/// \brief The first lexer state transition
+///
+/// Lexer state transitions are returned in sorted order (by state, then by symbol set ID)
+output_stage::lexer_state_transition_iterator output_stage::begin_lexer_state_transition() {
+	if (m_LexerTransitions.empty()) generate_lexer_transitions();
+	return m_LexerTransitions.begin();
 }
 
-/// \brief Finishes writing out a lexer state
-void output_stage::end_lexer_state() {
-	// Do nothing in the default implementation
+/// \brief The final lexer state transition
+output_stage::lexer_state_transition_iterator output_stage::end_lexer_state_transition() {
+	if (m_LexerTransitions.empty()) generate_lexer_transitions();
+	return m_LexerTransitions.end();
 }
 
-/// \brief Finished writing out the lexer table
-void output_stage::end_lexer_state_machine() {
-	// Do nothing in the default implementation
+/// \brief The first lexer state action
+///
+/// Actions are returned ordered by state
+output_stage::lexer_state_action_iterator output_stage::begin_lexer_state_action() {
+	if (m_LexerActions.empty()) generate_lexer_actions();
+	return m_LexerActions.begin();
 }
 
-/// \brief About to write out the list of accepting states for a lexer
-void output_stage::begin_lexer_accept_table() {
-	// Do nothing in the default implementation
-}
-
-/// \brief The specified state is not an accepting state
-void output_stage::nonaccepting_state(int stateId) {
-	// Do nothing in the default implementation
-}
-
-/// \brief The specified state is an accepting state
-void output_stage::accepting_state(int stateId, int acceptSymbolId) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Finished the lexer acceptance table
-void output_stage::end_lexer_accept_table() {
-	// Do nothing in the default implementation
-}
-
-/// \brief Starting to write out the lexer definitions
-void output_stage::end_lexer_definitions() {
-	// Do nothing in the default implementation
+/// \brief The final lexer state action
+output_stage::lexer_state_action_iterator output_stage::end_lexer_state_action() {
+	if (m_LexerActions.empty()) generate_lexer_actions();
+	return m_LexerActions.end();
 }
 
 /// \brief Starting to write out the definitions associated with the parser
