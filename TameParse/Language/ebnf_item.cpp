@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 24/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 _Andrew Hunter_. All rights reserved.
 //
 
 #include "TameParse/Language/ebnf_item.h"
