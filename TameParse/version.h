@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 24/09/2011.
-//  Copyright 2011 _Andrew Hunter_. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _TAMEPARSE_VERSION_H
