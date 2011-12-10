@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 25/06/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 _Andrew Hunter_. All rights reserved.
 //
 
 #include "lr_weaksymbols.h"

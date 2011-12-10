@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 25/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 _Andrew Hunter_. All rights reserved.
 //
 
 #ifndef _LANGUAGE_PARSER_BLOCK_H
