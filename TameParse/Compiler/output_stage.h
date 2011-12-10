@@ -106,6 +106,9 @@ namespace compiler {
 		/// \brief Finishing writing out output
 		virtual void end_output();
 
+		/// \brief The grammar for the language that should be written
+		inline const contextfree::grammar& gram() { return *m_LanguageStage->grammar(); }
+
 		/// \brief The first terminal symbol
 		terminal_symbol_iterator begin_terminal_symbol();
 

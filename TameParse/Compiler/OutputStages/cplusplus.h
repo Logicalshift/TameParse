@@ -36,12 +36,6 @@ namespace compiler {
 
 		/// \brief The header file
 		std::ostream* m_HeaderFile;
-        
-        /// \brief Number of times a terminal symbol with a particular name has been used
-        std::map<std::string, int> m_TerminalSymbolCount;
-        
-        /// \brief Number of times a nonterminal symbol with a particular name has been used
-        std::map<std::string, int> m_NonterminalSymbolCount;
 
         /// \brief The symbol table built up from the symbols supplied to this object
         dfa::symbol_table<wchar_t>* m_SymbolLevels;
@@ -142,6 +136,13 @@ namespace compiler {
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);
 
+	private:
+		/// \brief Writes out the terminal symbols definitions to the header file
+		void header_terminal_symbols();
+
+		/// \brief Writes out definitions for the nonterminal symbols to the header file
+		void header_nonterminal_symbols();
+
 	protected:
 		// Functions that represent various steps of the output of a language.
 		// These are intended to make it easy to write out a file in the specified language.
@@ -155,23 +156,8 @@ namespace compiler {
 		/// \brief Finishing writing out output
 		virtual void end_output();
 
-		/// \brief The output stage is about to produce a list of terminal symbols
-		virtual void begin_terminal_symbols(const contextfree::grammar& gram);
-
-		/// \brief Specifies the identifier for the terminal symbol with a given name
-		virtual void terminal_symbol(const std::wstring& name, int identifier);
-
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_terminal_symbols();
-
-		/// \brief The output stage is about to produce a list of non-terminal symbols
-		virtual void begin_nonterminal_symbols(const contextfree::grammar& gram);
-
-		/// \brief Specifies the identifier for the non-terminal symbol with a given name
-		virtual void nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item);
-
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_nonterminal_symbols();
+		/// \brief Defines the symbols associated with this language
+		virtual void define_symbols();
 
 		/// \brief Starting to write out the symbol map for the lexer
 		virtual void begin_lexer_symbol_map(int maxSetId);

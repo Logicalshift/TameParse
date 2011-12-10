@@ -508,8 +508,8 @@ void output_cplusplus::end_output() {
 //  			 Symbols
 // 				=========
 
-/// \brief The output stage is about to produce a list of terminal symbols
-void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) {
+/// \brief Writes out the terminal symbols definitions to the header file
+void output_cplusplus::header_terminal_symbols() {
     // Create a public class to contain the list of terminal identifiers
     *m_HeaderFile << "\npublic:\n";
     *m_HeaderFile << "    class t {\n";
@@ -517,76 +517,83 @@ void output_cplusplus::begin_terminal_symbols(const contextfree::grammar& gram) 
 
     // Add to the list of used class names
     m_UsedClassNames.insert("t");
-}
+        
+    /// \brief Number of times a terminal symbol with a particular name has been used
+   	map<string, int> terminalSymbolCount;
+    
+    // Output the terminal symbols
+    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); term++) {
+        // Get the short name
+	    string       shortName = get_identifier(term->name);
+	    
+	    // Choose a unique name (gets a bit weird if we chose a unique name that later clashes)
+	    stringstream ourName;
+	    
+	    ourName << shortName;
+	    int count = terminalSymbolCount[shortName];
+	    
+	    while (terminalSymbolCount[ourName.str()] > 0) {
+	        ourName << "_" << count;
+	    }
 
-/// \brief Specifies the identifier for the terminal symbol with a given name
-void output_cplusplus::terminal_symbol(const std::wstring& name, int identifier) {
-    // Get the short name
-    string       shortName = get_identifier(name);
-    
-    // Choose a unique name (gets a bit weird if we chose a unique name that later clashes)
-    stringstream ourName;
-    
-    ourName << shortName;
-    int count = m_TerminalSymbolCount[shortName];
-    
-    while (m_TerminalSymbolCount[ourName.str()] > 0) {
-        ourName << "_" << count;
+	    ++terminalSymbolCount[shortName];
+
+	    // Output a constant for this terminal
+	    *m_HeaderFile << "        static const int " << ourName.str() << " = " << term->identifier << ";\n";
     }
 
-    ++m_TerminalSymbolCount[shortName];
-
-    // Output a constant for this terminal
-    *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
-}
-
-/// \brief Finished writing out the terminal symbols
-void output_cplusplus::end_terminal_symbols() {
+    // Done
     *m_HeaderFile << "    };\n";
 }
 
-/// \brief The output stage is about to produce a list of non-terminal symbols
-void output_cplusplus::begin_nonterminal_symbols(const contextfree::grammar& gram) {
-    // Create a public class to contain the list of nonterminal identifiers
+/// \brief Writes out definitions for the nonterminal symbols to the header file
+void output_cplusplus::header_nonterminal_symbols() {
+	// Create a public class to contain the list of nonterminal identifiers
     *m_HeaderFile << "\npublic:\n";
     *m_HeaderFile << "    class nt {\n";
     *m_HeaderFile << "    public:\n";
 
     // Add to the list of used class names
     m_UsedClassNames.insert("nt");
-}
+        
+    // Number of times a nonterminal symbol with a particular name has been used
+    map<string, int> nonterminalSymbolCount;
 
-/// \brief Specifies the identifier for the non-terminal symbol with a given name
-void output_cplusplus::nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item) {
-    // Get the short name
-    string       shortName = get_identifier(name);
-    
-    if (name.empty()) {
-        // Some nonterminals don't have a name
-        shortName = "_unnamed";
+    // Write out the nonterminal definitions
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); nonterm++) {
+        // Get the short name
+	    string       shortName = get_identifier(nonterm->name);
+	    
+	    if (nonterm->name.empty()) {
+	        // Some nonterminals don't have a name
+	        shortName = "_unnamed";
+	    }
+	    
+	    // Choose a unique name (gets a bit weird if we chose a unique name that later clashes)
+	    stringstream ourName;
+	    
+	    ourName << shortName;
+	    int count = nonterminalSymbolCount[shortName];
+	    
+	    while (nonterminalSymbolCount[ourName.str()] > 0) {
+	        ourName << "_" << count;
+	    }
+	    
+	    ++nonterminalSymbolCount[shortName];
+	    
+	    // Output a constant for this terminal
+	    *m_HeaderFile << "        static const int " << ourName.str() << " = " << nonterm->identifier << ";\n";
     }
-    
-    // Choose a unique name (gets a bit weird if we chose a unique name that later clashes)
-    stringstream ourName;
-    
-    ourName << shortName;
-    int count = m_NonterminalSymbolCount[shortName];
-    
-    while (m_NonterminalSymbolCount[ourName.str()] > 0) {
-        ourName << "_" << count;
-    }
-    
-    ++m_NonterminalSymbolCount[shortName];
-    
-    // Output a constant for this terminal
-    *m_HeaderFile << "        static const int " << ourName.str() << " = " << identifier << ";\n";
-}
 
-/// \brief Finished writing out the terminal symbols
-void output_cplusplus::end_nonterminal_symbols() {
+    // Done
     *m_HeaderFile << "    };\n";
 }
 
+/// \brief Defines the symbols associated with this language
+void output_cplusplus::define_symbols() {
+	header_terminal_symbols();
+	header_nonterminal_symbols();
+}
 
 // 				==================
 //  			 Lexer generation
