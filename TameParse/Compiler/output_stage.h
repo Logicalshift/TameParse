@@ -191,11 +191,8 @@ namespace compiler {
 		/// \brief The parser tables built by the parser generator
 		inline const lr::parser_tables& get_parser_tables() { return *m_ParserStage->get_tables(); }
 
-		/// \brief The first rule for the nonterminal with the specified identifier
-		ast_rule_item_iterator begin_rule(int nonterminalId);
-
-		/// \brief The rule after the final rule for the nonterminal with the specified identifier
-		ast_rule_item_iterator end_rule(int nonterminalId);
+		/// \brief Returns the AST definition for the specified nonterminal
+		const ast_nonterminal& get_ast_nonterminal(int nonterminalId);
 	};
 }
 

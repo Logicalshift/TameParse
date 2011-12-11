@@ -340,8 +340,7 @@ output_stage::lexer_state_action_iterator output_stage::end_lexer_state_action()
 
 /// \brief Generates the rules for each nonterminal
 void output_stage::generate_ast_rules() {
-    // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
-    // contain any rules that are implicitly generated)
+    // Maps nonterminals to their corresponding rules
     map<int, rule_list> rulesForNonterminal;
 
     int maxNtId = -1;
@@ -380,25 +379,20 @@ void output_stage::generate_ast_rules() {
 
     		// Fill in the items for this rule
     		for (rule::iterator ruleItem = (*nextRule)->begin(); ruleItem != (*nextRule)->end(); ++ruleItem) {
-    			
+    			ruleList.push_back(ast_rule_item((*ruleItem)->type() == item::terminal, (*ruleItem)->symbol(), *ruleItem));
     		}
     	}
     }
 }
 
-/// \brief Rule item list indicating 'no rules', used as a placeholder
-static output_stage::ast_rule_item_list s_NoRules;
+/// \brief Placeholder nonterminal used when there are no rules
+static output_stage::ast_nonterminal s_NoNonterminal;
 
-/// \brief The first rule for the nonterminal with the specified identifier
-output_stage::ast_rule_item_iterator output_stage::begin_rule(int nonterminalId) {
+/// \brief Returns the AST definition for the specified nonterminal
+const output_stage::ast_nonterminal& output_stage::get_ast_nonterminal(int nonterminalId) {
 	if (m_RulesForNonterminal.empty()) generate_ast_rules();
-	if (nonterminalId < 0 || nonterminalId >= (int)m_RulesForNonterminal.size()) return s_NoRules.begin();
-	return m_RulesForNonterminal[nonterminalId].begin();
-}
 
-/// \brief The final rule for the nonterminal with the specified identifier
-output_stage::ast_rule_item_iterator output_stage::end_rule(int nonterminalId) {
-	if (m_RulesForNonterminal.empty()) generate_ast_rules();
-	if (nonterminalId < 0 || nonterminalId >= (int)m_RulesForNonterminal.size()) return s_NoRules.end();
-	return m_RulesForNonterminal[nonterminalId].end();
+	if (nonterminalId < 0 || nonterminalId >= m_RulesForNonterminal.size()) return s_NoNonterminal;
+
+	return m_RulesForNonterminal[nonterminalId];
 }
