@@ -610,6 +610,9 @@ void output_cplusplus::header_nonterminal_symbols() {
 
     // Write out the nonterminal definitions
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Only deal with the named nonterminals (ignore nonterminals generated for EBNF items, etc)
+    	if (nonterm->item->type() != item::nonterminal) continue;
+
         // Get the short name
 	    string       shortName = get_identifier(nonterm->name);
 	    

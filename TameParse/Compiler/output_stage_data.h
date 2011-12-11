@@ -9,6 +9,9 @@
 #ifndef _COMPILER_OUTPUT_STAGE_DATA_H
 #define _COMPILER_OUTPUT_STAGE_DATA_H
 
+#include <vector>
+#include <map>
+
 #include "Tameparse/ContextFree/item.h"
 
 namespace compiler {
@@ -106,34 +109,14 @@ namespace compiler {
 		};
 
 		///
-		/// \brief Represents the definition of a symbol in the AST
-		///
-		struct ast_symbol {
-			inline ast_symbol(int newSymbolId, const contextfree::item_container& newItem)
-			: symbolId(newSymbolId)
-			, item(newItem) {
-			}
-
-			/// \brief For a terminal symbol, this is the ID of the lexer symbol that matches this symbol. For a nonterminal symbol, this is the ID of the nonterminal within the grammar.
-			int symbolId;
-
-			/// \brief The item definition for this terminal
-			contextfree::item_container item;
-		};
-
-		///
 		/// \brief Represents an item in a rule
 		///
 		struct ast_rule_item {
-			inline ast_rule_item(int newNonterminalId, bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem)
-			: nonterminalId(newNonterminalId)
-			, isTerminal(newIsTerminal)
+			inline ast_rule_item(bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem)
+			: isTerminal(newIsTerminal)
 			, symbolId(newSymbolId)
 			, item(newItem) {
 			}
-
-			/// \brief The ID of the nonterminal that this rule belongs to
-			int nonterminalId;
 
 			/// \brief True if this is a terminal item
 			bool isTerminal;
@@ -143,6 +126,23 @@ namespace compiler {
 
 			/// \brief The item defined at this position in the rule
 			contextfree::item_container item;
+		};
+
+		/// \brief List of rule items
+		typedef std::vector<ast_rule_item> ast_rule_item_list;
+
+		/// \brief The rules within an nonterminal (maps rule IDs to items)
+		typedef std::map<int, ast_rule_item_list> ast_nonterminal_rules;
+
+		///
+		/// \brief Definition of a nonterminal within the AST
+		///
+		struct ast_nonterminal {
+			/// \brief Identifier for this nonterminal
+			int nonterminalId;
+
+			/// \brief The rules for this nonterminal
+			ast_nonterminal_rules rules;
 		};
 	}
 }

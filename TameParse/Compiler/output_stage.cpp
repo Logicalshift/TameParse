@@ -63,6 +63,7 @@ void output_stage::define_lexer_tables() {
 
 /// \brief Writes out the AST tables
 void output_stage::define_ast_tables() {
+#if 0
 	// Start the tables
 	begin_ast_definitions(*m_LanguageStage->grammar(), *m_LanguageStage->terminals());
     const grammar& gram = *m_LanguageStage->grammar();
@@ -93,7 +94,6 @@ void output_stage::define_ast_tables() {
         // Append to the list
         rulesForNonterminal[nonterminalId].push_back(nextRule);
     }
-
 
     // Iterate through the nonterminals
     for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); ++nonterminalDefn) {
@@ -137,6 +137,7 @@ void output_stage::define_ast_tables() {
 
 	// Finished
 	end_ast_definitions();
+#endif
 }
 
 /// \brief Writes out the parser tables
@@ -153,6 +154,10 @@ void output_stage::begin_output() {
 void output_stage::end_output() {
 	// Do nothing in the default implementation
 }
+
+// =========
+//  Symbols
+// =========
 
 /// \brief Generates the terminal symbols list
 void output_stage::generate_terminal_symbols() {
@@ -175,8 +180,8 @@ void output_stage::generate_nonterminal_symbols() {
 		// Assume that the nonterminal IDs match up to item IDs (they should do)
 		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
 
-		// Must be an actual named nonterminal
-		if (ntItem->type() != item::nonterminal) continue;
+		// Must be a nonterminal
+		if (ntItem->type() == item::terminal) continue;
 
 		// Output this item
 		m_NonterminalSymbols.push_back(nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId, ntItem));
@@ -214,6 +219,10 @@ output_stage::nonterminal_symbol_iterator output_stage::end_nonterminal_symbol()
 
 	return m_NonterminalSymbols.end();
 }
+
+// =======
+//  Lexer
+// =======
 
 /// \brief Generates the lexer symbol map
 void output_stage::generate_lexer_symbol_map() {
@@ -325,56 +334,71 @@ output_stage::lexer_state_action_iterator output_stage::end_lexer_state_action()
 	return m_LexerActions.end();
 }
 
-/// \brief Starting to write the AST definitions for a particular terminal symbol
-void output_stage::begin_ast_terminal(int identifier, const contextfree::item_container& item) {
-	// Do nothing in the default implementation
+// =====
+//  AST
+// =====
+
+/// \brief Generates the rules for each nonterminal
+void output_stage::generate_ast_rules() {
+    // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
+    // contain any rules that are implicitly generated)
+    map<int, rule_list> rulesForNonterminal;
+
+    int maxNtId = -1;
+    
+    // Iterate through the rules
+    for (int ruleId = 0; ruleId < gram().max_rule_identifier(); ++ruleId) {
+        // Fetch this rule
+        const rule_container& nextRule = gram().rule_with_identifier(ruleId);
+        
+        // Get the nonterminal ID
+        int nonterminalId = gram().identifier_for_item(nextRule->nonterminal());
+        if (nonterminalId > maxNtId) maxNtId = nonterminalId;
+        
+        // Append to the list
+        rulesForNonterminal[nonterminalId].push_back(nextRule);
+    }
+
+    // Allocate space for the rules
+    m_RulesForNonterminal.clear();
+    m_RulesForNonterminal.resize(maxNtId+1);
+
+    // Append the rules to the list
+    for (int nonterminalId = 0; nonterminalId <= maxNtId; ++nonterminalId) {
+    	// Fetch the nonterminal this corresponds to
+    	ast_nonterminal& thisNt = m_RulesForNonterminal[nonterminalId];
+
+    	// Set it up
+    	thisNt.nonterminalId = nonterminalId;
+
+    	for (rule_list::iterator nextRule = rulesForNonterminal[nonterminalId].begin(); nextRule != rulesForNonterminal[nonterminalId].end(); ++nextRule) {
+    		// Get the identifier for this rule
+    		int ruleId = gram().identifier_for_rule(*nextRule);
+
+    		// Get the list for this rule
+    		ast_rule_item_list& ruleList = thisNt.rules[ruleId];
+
+    		// Fill in the items for this rule
+    		for (rule::iterator ruleItem = (*nextRule)->begin(); ruleItem != (*nextRule)->end(); ++ruleItem) {
+    			
+    		}
+    	}
+    }
 }
 
-/// \brief Finished writing the definitions for a terminal
-void output_stage::end_ast_terminal() {
-	// Do nothing in the default implementation
+/// \brief Rule item list indicating 'no rules', used as a placeholder
+static output_stage::ast_rule_item_list s_NoRules;
+
+/// \brief The first rule for the nonterminal with the specified identifier
+output_stage::ast_rule_item_iterator output_stage::begin_rule(int nonterminalId) {
+	if (m_RulesForNonterminal.empty()) generate_ast_rules();
+	if (nonterminalId < 0 || nonterminalId >= (int)m_RulesForNonterminal.size()) return s_NoRules.begin();
+	return m_RulesForNonterminal[nonterminalId].begin();
 }
 
-/// \brief Starting to write out the definitions associated with the AST
-void output_stage::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& dict) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Starting to write the AST definitions for the specified nonterminal
-void output_stage::begin_ast_nonterminal(int identifier, const contextfree::item_container& item) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Starting to write out a rule in the current nonterminal
-void output_stage::begin_ast_rule(int identifier) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Writes out an individual item in the current rule (a nonterminal)
-void output_stage::rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Writes out an individual item in the current rule (a terminal)
-///
-/// Note the distinction between the item ID, which is part of the grammar, and the
-/// symbol ID (which is part of the lexer and is the same as the value passed to 
-/// terminal_symbol)
-void output_stage::rule_item_terminal(int terminalItemId, int terminalSymbolId, const item_container& item) {
-	// Do nothing in the default implementation
-}
-
-/// \brief Finished writing out 
-void output_stage::end_ast_rule() {
-	// Do nothing in the default implementation
-}
-
-/// \brief Finished writing the definitions for a nonterminal
-void output_stage::end_ast_nonterminal() {
-	// Do nothing in the default implementation
-}
-
-/// \brief Finished writing out the AST information
-void output_stage::end_ast_definitions() {
-	// Do nothing in the default implementation
+/// \brief The final rule for the nonterminal with the specified identifier
+output_stage::ast_rule_item_iterator output_stage::end_rule(int nonterminalId) {
+	if (m_RulesForNonterminal.empty()) generate_ast_rules();
+	if (nonterminalId < 0 || nonterminalId >= (int)m_RulesForNonterminal.size()) return s_NoRules.end();
+	return m_RulesForNonterminal[nonterminalId].end();
 }
