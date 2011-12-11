@@ -104,6 +104,46 @@ namespace compiler {
 			/// \brief The ID of the symbol that has been matched by the lexer (if this is an accepting state)
 			int acceptSymbolId;
 		};
+
+		///
+		/// \brief Represents the definition of a symbol in the AST
+		///
+		struct ast_symbol {
+			inline ast_symbol(int newSymbolId, const contextfree::item_container& newItem)
+			: symbolId(newSymbolId)
+			, item(newItem) {
+			}
+
+			/// \brief For a terminal symbol, this is the ID of the lexer symbol that matches this symbol. For a nonterminal symbol, this is the ID of the nonterminal within the grammar.
+			int symbolId;
+
+			/// \brief The item definition for this terminal
+			contextfree::item_container item;
+		};
+
+		///
+		/// \brief Represents an item in a rule
+		///
+		struct ast_rule_item {
+			inline ast_rule_item(int newNonterminalId, bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem)
+			: nonterminalId(newNonterminalId)
+			, isTerminal(newIsTerminal)
+			, symbolId(newSymbolId)
+			, item(newItem) {
+			}
+
+			/// \brief The ID of the nonterminal that this rule belongs to
+			int nonterminalId;
+
+			/// \brief True if this is a terminal item
+			bool isTerminal;
+
+			/// \brief The identifier for this symbol
+			int symbolId;
+
+			/// \brief The item defined at this position in the rule
+			contextfree::item_container item;
+		};
 	}
 }
 

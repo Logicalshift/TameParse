@@ -130,6 +130,9 @@ namespace compiler {
 		/// \brief The grammar for the language that should be written
 		inline const contextfree::grammar& gram() { return *m_LanguageStage->grammar(); }
 
+		/// \brief The dictionary of terminal items
+		inline const contextfree::terminal_dictionary& terminals() { return *m_LanguageStage->terminals(); }
+
 		/// \brief The first terminal symbol
 		terminal_symbol_iterator begin_terminal_symbol();
 
