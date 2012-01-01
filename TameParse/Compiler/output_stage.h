@@ -125,6 +125,16 @@ namespace compiler {
 		void generate_ast_rules();
 
 	protected:
+		/// \brief Returns a name for a grammar rule
+		std::wstring name_for_rule(const contextfree::rule_container& thisRule);
+
+		/// \brief Gets a string name that can be used to represent a specific grammar item
+		std::wstring name_for_ebnf_item(const contextfree::ebnf& item);
+
+		/// \brief Gets a string name that can be used to represent a specific grammar item
+		std::wstring name_for_item(const contextfree::item_container& item);
+
+	protected:
 		// Functions that represent various steps of the output of a language.
 		// These are intended to make it easy to write out a file in the specified language.
 		// They do nothing in this base class (but they are not abstract)

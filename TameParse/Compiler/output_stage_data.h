@@ -31,6 +31,9 @@ namespace compiler {
 
 			/// \brief The identifier of this symbol
 			int identifier;
+
+			/// \brief The context free item representing this terminal symbol
+			contextfree::item_container item;
 		};
 
 		///
@@ -112,10 +115,11 @@ namespace compiler {
 		/// \brief Represents an item in a rule
 		///
 		struct ast_rule_item {
-			inline ast_rule_item(bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem)
+			inline ast_rule_item(bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem, const std::wstring& newUniqueName)
 			: isTerminal(newIsTerminal)
 			, symbolId(newSymbolId)
-			, item(newItem) {
+			, item(newItem)
+			, uniqueName(newUniqueName) {
 			}
 
 			/// \brief True if this is a terminal item
@@ -123,6 +127,13 @@ namespace compiler {
 
 			/// \brief The identifier for this symbol
 			int symbolId;
+
+			/// \brief A unique name within the rule for this item (based on the name of the item itself)
+			///
+			/// Item names are re-used within a nonterminal but not within a rule, so
+			/// if a rule contains the same item multiple times, each usage can be uniquely
+			/// addressed.
+			std::wstring uniqueName;
 
 			/// \brief The item defined at this position in the rule
 			contextfree::item_container item;

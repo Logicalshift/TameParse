@@ -6,6 +6,9 @@
 //  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
+#include <string>
+#include <sstream>
+
 #include "TameParse/Compiler/output_stage.h"
 
 using namespace std;
@@ -63,81 +66,7 @@ void output_stage::define_lexer_tables() {
 
 /// \brief Writes out the AST tables
 void output_stage::define_ast_tables() {
-#if 0
-	// Start the tables
-	begin_ast_definitions(*m_LanguageStage->grammar(), *m_LanguageStage->terminals());
-    const grammar& gram = *m_LanguageStage->grammar();
-
-    // Output the terminals
-    for (int termId = 0; termId < m_LanguageStage->terminals()->count_symbols(); ++termId) {
-    	// Get the ID for this terminal
-    	terminal 	term(termId);
-    	int 		symbolId = gram.identifier_for_item(term);
-
-    	// Write it out
-    	begin_ast_terminal(symbolId, term);
-    	end_ast_terminal();
-	}
-    
-    // Maps nonterminals to rules (this list is built up separately as the nonterminals within the grammar won't
-    // contain any rules that are implicitly generated)
-    map<int, rule_list> rulesForNonterminal;
-    
-    // Iterate through the rules
-    for (int ruleId = 0; ruleId < gram.max_rule_identifier(); ++ruleId) {
-        // Fetch this rule
-        const rule_container& nextRule = gram.rule_with_identifier(ruleId);
-        
-        // Get the nonterminal ID
-        int nonterminalId = gram.identifier_for_item(nextRule->nonterminal());
-        
-        // Append to the list
-        rulesForNonterminal[nonterminalId].push_back(nextRule);
-    }
-
-    // Iterate through the nonterminals
-    for (map<int, rule_list>::iterator nonterminalDefn = rulesForNonterminal.begin(); nonterminalDefn != rulesForNonterminal.end(); ++nonterminalDefn) {
-        // Begin this nonterminal
-        begin_ast_nonterminal(nonterminalDefn->first, gram.item_with_identifier(nonterminalDefn->first));
-        
-        // Iterate through the rules
-        for (rule_list::const_iterator ruleDefn = nonterminalDefn->second.begin(); ruleDefn != nonterminalDefn->second.end(); ++ruleDefn) {
-            // Start this rule
-            begin_ast_rule(gram.identifier_for_rule(*ruleDefn));
-            
-            // Write out the rule items
-            for (rule::iterator ruleItem = (*ruleDefn)->begin(); ruleItem != (*ruleDefn)->end(); ++ruleItem) {
-                if ((*ruleItem)->type() == item::terminal) {
-                    // Terminal item
-                    rule_item_terminal(gram.identifier_for_item(*ruleItem), (*ruleItem)->symbol(), *ruleItem);
-                } else {
-                    // Nonterminal item
-                    rule_item_nonterminal(gram.identifier_for_item(*ruleItem), *ruleItem);
-                }
-            }
-            
-            // Finished this rule
-            end_ast_rule();
-        }
-        
-        // Finished this nonterminal
-        end_ast_nonterminal();
-    }
-
-	// Iterate through the symbols
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
-		// Fetch this item
-		const item_container& item = m_LanguageStage->grammar()->item_with_identifier(symbolId);
-
-		// Ignore terminal items
-		if (item->type() == item::terminal) continue;
-
-		// TODO: write out the items
-	}
-
-	// Finished
-	end_ast_definitions();
-#endif
+	// TODO: remove me!
 }
 
 /// \brief Writes out the parser tables
@@ -338,6 +267,129 @@ output_stage::lexer_state_action_iterator output_stage::end_lexer_state_action()
 //  AST
 // =====
 
+/// \brief Returns a name for a grammar rule
+wstring output_stage::name_for_rule(const contextfree::rule_container& thisRule) {
+	// Zero-length rules are called 'empty'
+	if (thisRule->items().size() == 0) {
+		return L"empty";
+	}
+
+	// Short rules are just named after the items
+	else if (thisRule->items().size() <= 3) {
+		bool 			first = true;
+		wstringstream	res;
+
+		for (size_t itemId = 0; itemId < thisRule->items().size(); ++itemId) {
+			// Append divider
+			if (!first) {
+				res << L"_";
+			}
+
+			// Append this item
+			res << name_for_item(thisRule->items()[itemId]);
+
+			// No longer first
+			first = false;
+		}
+
+		return res.str();
+	}
+
+	// Other rules are named after the first item and _etc
+	else {
+		return name_for_item(thisRule->items()[0]) + L"_etc";		
+	}
+}
+
+/// \brief Returns a name for an EBNF item
+wstring output_stage::name_for_ebnf_item(const contextfree::ebnf& ebnfItem) {
+	// Work out the number of rules in this item
+	size_t numRules = ebnfItem.count_rules();
+
+	// Items with no rules are just called 'empty'
+	if (numRules == 0) {
+		return L"empty";
+	}
+
+	// Items with rules are called 'x' or 'y' or 'z' etc
+	else {
+		wstringstream	res;
+		bool 			first = true;
+
+		for (ebnf::rule_iterator nextRule = ebnfItem.first_rule(); nextRule != ebnfItem.last_rule(); ++nextRule) {
+			// Append _or_
+			if (!first) {
+				res << L"_or_";
+			}
+
+			// Append the name for this rule
+			res << name_for_rule(*nextRule);
+			
+			// Move on
+			first = false;
+		}
+
+		// Convert to a string
+		return res.str();
+	}
+}
+
+/// \brief Gets a string name that can be used to represent a specific grammar item
+wstring output_stage::name_for_item(const contextfree::item_container& it) {
+	// Start building up the result
+	wstringstream res;
+
+	// Action depends on the kind of item
+	switch (it->type()) {
+	case item::empty:
+		res << L"epsilon";
+		break;
+
+	case item::eoi:
+		res << L"end_of_input";
+		break;
+
+	case item::eog:
+		res << L"end_of_guard";
+		break;
+
+	case item::terminal:
+		res << terminals().name_for_symbol(it->symbol());
+		break;
+
+	case item::nonterminal:
+		res << gram().name_for_nonterminal(it->symbol());
+		break;
+
+	case item::optional:
+		res << L"optional_" << name_for_ebnf_item((const ebnf&)*it);
+		break;
+
+	case item::repeat:
+	case item::repeat_zero_or_one:
+		res << L"list_of_" << name_for_ebnf_item((const ebnf&)*it);
+		break;
+
+	case item::alternative:
+		res << L"one_of_" << name_for_ebnf_item((const ebnf&)*it);
+		break;
+
+	default:
+		// Unknown type of item
+		res << L"unknown_item";
+		break;
+	}
+
+	// Don't allow 0-length item names
+	wstring name = res.str();
+	if (name.empty()) {
+		name = L"item";
+	}
+
+	// Return the result
+	return name;	
+}
+
 /// \brief Generates the rules for each nonterminal
 void output_stage::generate_ast_rules() {
     // Maps nonterminals to their corresponding rules
@@ -370,16 +422,41 @@ void output_stage::generate_ast_rules() {
     	// Set it up
     	thisNt.nonterminalId = nonterminalId;
 
+    	/// Names that have been used within this rule
+    	set<wstring> usedNames;
+
     	for (rule_list::iterator nextRule = rulesForNonterminal[nonterminalId].begin(); nextRule != rulesForNonterminal[nonterminalId].end(); ++nextRule) {
     		// Get the identifier for this rule
     		int ruleId = gram().identifier_for_rule(*nextRule);
 
-    		// Get the list for this rule
+    		// Get the list for this rule (which will be empty at this point)
     		ast_rule_item_list& ruleList = thisNt.rules[ruleId];
 
     		// Fill in the items for this rule
     		for (rule::iterator ruleItem = (*nextRule)->begin(); ruleItem != (*nextRule)->end(); ++ruleItem) {
-    			ruleList.push_back(ast_rule_item((*ruleItem)->type() == item::terminal, (*ruleItem)->symbol(), *ruleItem));
+    			// Generate a unique name for this item within this rule; by default it is the same as the item name
+    			wstring baseName 	= name_for_item(*ruleItem);
+
+    			// Use the base name as the default name
+    			wstring uniqueName	= baseName;
+    			int 	offset 		= 1;
+
+    			while (usedNames.find(uniqueName) != usedNames.end()) {
+    				// Append _2, etc if this name has already been encountered in this rule
+    				offset++;
+
+    				// Generate a new unique name
+    				wstringstream newUnique;
+    				newUnique << baseName << L"_" << offset;
+
+    				uniqueName = newUnique.str();
+    			}
+
+    			// Remember the unique name
+    			usedNames.insert(uniqueName);
+
+    			// Add a new item for this rule
+    			ruleList.push_back(ast_rule_item((*ruleItem)->type() == item::terminal, (*ruleItem)->symbol(), *ruleItem, uniqueName));
     		}
     	}
     }

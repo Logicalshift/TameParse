@@ -28,13 +28,7 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_ClassName(className)
 , m_Namespace(namespaceName)
 , m_SourceFile(NULL)
-, m_HeaderFile(NULL)
-, m_NtForwardDeclarations(NULL)
-, m_NtClassDefinitions(NULL)
-, m_ShiftDefinitions(NULL)
-, m_ReduceDefinitions(NULL)
-, m_PosDefinitions(NULL)
-, m_FinalPosDefinitions(NULL) {
+, m_HeaderFile(NULL) {
 	// Keywords (ANSI-C)
 	m_ReservedWords.insert("auto");
 	m_ReservedWords.insert("break");
@@ -184,12 +178,6 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 output_cplusplus::~output_cplusplus() {
 	if (m_SourceFile) 				delete m_SourceFile;
 	if (m_HeaderFile) 				delete m_HeaderFile;
-	if (m_NtForwardDeclarations)	delete m_NtForwardDeclarations;
-	if (m_NtClassDefinitions)		delete m_NtClassDefinitions;
-	if (m_ShiftDefinitions)			delete m_ShiftDefinitions;
-	if (m_ReduceDefinitions)		delete m_ReduceDefinitions;
-	if (m_PosDefinitions)			delete m_PosDefinitions;
-	if (m_FinalPosDefinitions)		delete m_FinalPosDefinitions;
 }
 
 /// \brief The current locale
@@ -300,131 +288,6 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
     return res.str();
 }
 
-/// \brief Returns a valid C++ name for a grammar rule
-std::string output_cplusplus::name_for_rule(const contextfree::rule_container& thisRule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
-	// Zero-length rules are called 'empty'
-	if (thisRule->items().size() == 0) {
-		return "empty";
-	}
-
-	// Short rules are just named after the items
-	else if (thisRule->items().size() <= 3) {
-		bool 			first = true;
-		stringstream	res;
-
-		for (size_t itemId = 0; itemId < thisRule->items().size(); ++itemId) {
-			// Append divider
-			if (!first) {
-				res << "_";
-			}
-
-			// Append this item
-			res << name_for_item(thisRule->items()[itemId], gram, terminals);
-
-			// No longer first
-			first = false;
-		}
-
-		return res.str();
-	}
-
-	// Other rules are named after the first item and _etc
-	else {
-		return name_for_item(thisRule->items()[0], gram, terminals) + "_etc";		
-	}
-}
-
-/// \brief Returns a valid C++ name for an EBNF item
-std::string output_cplusplus::name_for_ebnf_item(const contextfree::ebnf& ebnfItem, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
-	// Work out the number of rules in this item
-	size_t numRules = ebnfItem.count_rules();
-
-	// Items with no rules are just called 'empty'
-	if (numRules == 0) {
-		return "empty";
-	}
-
-	// Items with rules are called 'x' or 'y' or 'z' etc
-	else {
-		stringstream	res;
-		bool 			first = true;
-
-		for (ebnf::rule_iterator nextRule = ebnfItem.first_rule(); nextRule != ebnfItem.last_rule(); ++nextRule) {
-			// Append _or_
-			if (!first) {
-				res << "_or_";
-			}
-
-			// Append the name for this rule
-			res << name_for_rule(*nextRule, gram, terminals);
-			
-			// Move on
-			first = false;
-		}
-
-		// Convert to a string
-		return res.str();
-	}
-}
-
-/// \brief Returns a valid C++ name for the specified item
-///
-/// This can be treated as a base name for getting names for nonterminals with particular identifiers
-std::string output_cplusplus::name_for_item(const contextfree::item_container& it, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
-	// Start building up the result
-	stringstream res;
-
-	// Action depends on the kind of item
-	switch (it->type()) {
-	case item::empty:
-		res << "epsilon";
-		break;
-
-	case item::eoi:
-		res << "end_of_input";
-		break;
-
-	case item::eog:
-		res << "end_of_guard";
-		break;
-
-	case item::terminal:
-		res << get_identifier(terminals.name_for_symbol(it->symbol()));
-		break;
-
-	case item::nonterminal:
-		res << get_identifier(gram.name_for_nonterminal(it->symbol()));
-		break;
-
-	case item::optional:
-		res << "optional_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
-		break;
-
-	case item::repeat:
-	case item::repeat_zero_or_one:
-		res << "list_of_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
-		break;
-
-	case item::alternative:
-		res << "one_of_" << name_for_ebnf_item((const ebnf&)*it, gram, terminals);
-		break;
-
-	default:
-		// Unknown type of item
-		res << "unknown_item";
-		break;
-	}
-
-	// Don't allow 0-length item names
-	string name = res.str();
-	if (name.empty()) {
-		name = "item";
-	}
-
-	// Return the result
-	return name;
-}
-
 /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
 std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
 	// Try to find an existing name for this nonterminal
@@ -435,7 +298,7 @@ std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::
 	}
 
 	// Get the base name for this item
-	string baseName = name_for_item(item, gram, terminals);
+	string baseName = get_identifier(name_for_item(item));
 	if (baseName.size() == 0) baseName = "unknown";
 
 	// Find a unique name that we can assign to this item
@@ -1091,6 +954,343 @@ void output_cplusplus::source_parser_tables() {
 //  			 AST generation
 // 				================
 
+/// \brief Writes out the forward declarations for the classes that represent items in the grammar
+void output_cplusplus::header_ast_forward_declarations() {
+	// Write out the AST syntax base class
+	*m_HeaderFile 	<< "\n"
+					<< "public:\n"
+					<< "    class syntax_node {\n"
+					<< "    public:\n"
+					<< "        virtual ~syntax_node();\n"
+					<< "        virtual std::wstring to_string();\n"
+					<< "        virtual dfa::position pos() const;\n"
+					<< "        virtual dfa::position final_pos() const;\n"
+					<< "    };\n";
+
+	// Create a class that will represent a terminal item
+	*m_HeaderFile	<< "\n"
+					<< "    class terminal : public syntax_node {\n"
+					<< "    private:\n"
+					<< "        dfa::lexeme_container m_Lexeme;\n"
+					<< "\n"
+					<< "    public:\n"
+					<< "        terminal(const dfa::lexeme_container& lexeme);\n"
+					<< "\n"
+					<< "        inline const dfa::lexeme_container& get_lexeme() const { return m_Lexeme; }\n"
+					<< "\n"
+					<< "        template<class symbol_type> inline std::basic_string<symbol_type> content() const { return m_Lexeme->content<symbol_type>(); }\n"
+					<< "\n"
+					<< "        virtual dfa::position pos() const;\n"
+					<< "\n"
+					<< "        virtual dfa::position final_pos() const;\n"
+					<< "    };\n";
+	
+	// Iterate through the terminals
+    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
+    	// Get the name for this terminal
+		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+
+		// Turn into a type name
+		name += s_TypeSuffix;
+
+		// Write out a forward declaration for this item
+		*m_HeaderFile << "\n    class " << name << ";\n";
+    }
+	
+	// Iterate through the nonterminals
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+		// Get the name for this nonterminal
+		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Turn into a type name
+		ntName += s_TypeSuffix;
+
+		// Repeating items have a content and a vector node
+		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+			*m_HeaderFile	<< "\n    class " << ntName << ";\n";
+		}
+
+		// Guards have no definitions written for them, but all other item kinds just have a field for each entry in a rule
+		else if (nonterm->item->type() != item::guard) {
+			// Write out a forward declaration for this item
+			*m_HeaderFile << "\n    class " << ntName << ";\n";
+		}
+    }
+}
+
+/// \brief Writes out the class declarations for the classes that represent AST items
+void output_cplusplus::header_ast_class_declarations() {
+	// Write out the definitions for the terminals
+    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
+    	// Get the name for this terminal
+		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+
+		// Turn into a type name
+		name += s_TypeSuffix;
+
+		// Declare a class for this item
+		*m_HeaderFile << "\n    class " << name << " : public terminal {\n";
+		*m_HeaderFile << "    public:\n";
+		*m_HeaderFile << "        " << name << "(const dfa::lexeme_container& lex) : terminal(lex) { }\n";
+		*m_HeaderFile << "    };\n";
+    }
+
+	// Iterate through the nonterminals
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Guards have no definitions written out for them
+    	if (nonterm->item->type() == item::guard) {
+    		continue;
+    	}
+
+		// Get the name for this nonterminal
+		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Turn into a type name
+		ntName += s_TypeSuffix;
+
+		// Begin a class declaration for this item
+		bool repeatingItem = false;
+
+		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+			repeatingItem = true;
+			*m_HeaderFile << "\n    class " << ntName << "_content : public syntax_node {\n";		
+		} else {
+			// Write out a forward declaration for this item
+			*m_HeaderFile << "\n    class " << ntName << " : public syntax_node {\n";
+		}
+
+		// Write out the pos/final_pos definitions
+		if (nonterm->item->type() != item::guard) {
+			*m_HeaderFile 	<< "    private:\n"
+								 	<< "        int m_Rule;\n"
+								 	<< "\n"
+								 	<< "    public:\n"
+								 	<< "        virtual dfa::position pos() const;\n"
+								 	<< "        virtual dfa::position final_pos() const;\n";
+		}
+
+		// Get the definition for this item
+		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
+
+		// The names of the variables that are defined for this rule
+		set<string> definedVariables;
+
+		// Iterate through the rules
+		for (ast_nonterminal_rules::const_iterator ruleDefn = ntDefn.rules.begin(); ruleDefn != ntDefn.rules.end(); ++ruleDefn) {
+			int ruleIdentifier = ruleDefn->first;
+
+			// Start appending the private values for this class
+			*m_HeaderFile << "\n    private:\n";
+			*m_HeaderFile << "        // Rule " << ruleIdentifier << "\n";
+
+			// Iterate through the items in this rule
+			bool validItems = false;
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+				// Guard items don't get variables
+				if (ruleItem->item->type() == item::guard) continue;
+
+				// The EBNF repeat item doesn't get its own variable within a content item
+				if (repeatingItem && ruleItem->item->type() == nonterm->item->type() && gram().identifier_for_item(ruleDefn->second[0].item) == nonterm->identifier) {
+					// In these rules, the repeating item has an empty name
+					// These are the only items that can be empty, so this is how we identify the repeating item
+					// when generating reductions
+					continue;
+				}
+
+				// There is at least one valid item in this rule
+				validItems = true;
+
+				// Add a variable definition for this rule item if this nonterminal doesn't already have one
+				string varName = get_identifier(ruleItem->uniqueName);
+
+				if (definedVariables.find(varName) == definedVariables.end()) {
+					// Get the type name for this variable
+					string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+
+					// Add a variable declaration
+					*m_HeaderFile << "        const util::syntax_ptr<" << typeName << s_TypeSuffix << "> " << varName << ";\n";
+				} else {
+					*m_HeaderFile << "        // " << varName << " declared in another rule\n";
+				}
+			}
+
+			// If there are no valid items then we need to declare a position field
+			if (!validItems) {
+				// Presumably there's only one of these
+				*m_HeaderFile << "        dfa::position m_Position;";
+			}
+
+			// Declare the constructor for this rule if necessary
+			bool declareConstructor = true;
+
+			// The EBNF closures only need a single constructor, as we flatten them into vectors
+			if (nonterm->item->type() == item::repeat) {
+				// Only declare a constructor for the initial rule
+				if (ruleDefn->second[0].item->type() == item::repeat && gram().identifier_for_item(ruleDefn->second[0].item) == nonterm->identifier) {
+					// This is the repeating rule
+					declareConstructor = false;
+				}
+			}
+
+			else if (nonterm->item->type() == item::repeat_zero_or_one) {
+				// Only declare a constructor for the non-empty rule
+				if (ruleDefn->second.empty()) {
+					declareConstructor = false;
+				}
+			}
+
+			// Declare a constructor for this rule
+			if (declareConstructor) {
+				*m_HeaderFile 	<< "\n    public:\n"
+								<< "        " << ntName << "(";
+				
+				// Iterate through the items in this rule
+				bool	first = true;
+				int 	index = 0;
+				for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+					// Ignore guards
+					if (ruleItem->item->type() == item::guard) continue;
+
+					// Get the variable name and type for this item 
+					string varName 	= get_identifier(ruleItem->uniqueName);
+					string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+
+					// Add to the list of parameters
+					if (!first) {
+						*m_HeaderFile << ", ";
+					}
+
+					// Declare as a reference to the syntax pointer
+					*m_HeaderFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">&" << typeName << "_" << index;
+
+					// No longer the first rule
+					first = false;
+					index++;
+				}
+
+				// If there were no valid items, then we need to add a position to this constructor
+				if (!validItems) {
+					*m_HeaderFile << "const dfa::position& pos";
+				}
+
+				*m_HeaderFile << ");\n";
+			}
+		}
+
+		// Finish up with the destructor
+		*m_HeaderFile 	<< "\n    public:\n"
+						<< "        virtual ~" << ntName << "();\n"
+						<< "    };\n";
+	}
+}
+
+/// \brief Writes out the implementations of the AST classes to the source file
+void output_cplusplus::source_ast_class_definitions() {
+	// Write out the definition of a terminal symbol
+	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() const { return m_Lexeme->final_pos(); }\n";
+
+	// Write out the position and final position definitions for each nonterminal symbol
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+		// Get the name for this nonterminal
+		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Fetch the declaration for this nonterminal
+		const ast_nonterminal& astNt = get_ast_nonterminal(nonterm->identifier);
+
+		// Sdet a flag as to whether or not this is a repeating (closure) item
+		bool repeatingItem = false;
+		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+			repeatingItem = true;
+		}
+
+		// Write out the initial position definitions
+		*m_SourceFile 	<< "\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::pos() const {\n"
+						<< "    switch (m_Rule) {";
+		
+		// The container of the initial position depends on which rule was matched
+		for (ast_nonterminal_rules::const_iterator ruleDefn = astNt.rules.begin(); ruleDefn != astNt.rules.end(); ++ruleDefn) {
+			// In case we get this rule...
+			*m_SourceFile << "\n    case " << ruleDefn->first << ":\n";
+
+			// Iterate through the items in the rule to find the first one that has a variable declared
+			bool foundValid = false;
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+				// Guard items don't get variables
+				if (ruleItem->item->type() == item::guard) continue;
+
+				// Neither does the 'repeat' item of a * or + closure
+				if (repeatingItem && ruleItem->item->type() == nonterm->item->type() && ruleItem->item->symbol() == nonterm->item->symbol()) {
+					continue;
+				}
+
+				// This item has a variable, so we can return its first position as the position of this item
+				foundValid = true;
+				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName) << "->pos();\n";
+
+				// Only write out a single position item
+				break;
+			}
+
+			// If the item doesn't have a position then return the contents of the m_Position variable
+			if (!foundValid) {
+				*m_SourceFile << "        return m_Position;\n";
+			}
+		}
+		
+		// Default is an unknown position (should never happen if the parser works correctly)
+		*m_SourceFile	<< "\n"
+						<< "    default:\n"
+						<< "        return dfa::position(-1, -1, -1);\n"
+						<< "    }\n"
+						<< "}\n";
+
+		// ... and the final position definitions
+		*m_SourceFile	<< "\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::final_pos() const {\n"
+						<< "    switch (m_Rule) {";
+
+		// The container of the final position depends on which rule was matched
+		for (ast_nonterminal_rules::const_iterator ruleDefn = astNt.rules.begin(); ruleDefn != astNt.rules.end(); ++ruleDefn) {
+			// In case we get this rule...
+			*m_SourceFile << "\n    case " << ruleDefn->first << ":\n";
+
+			// Iterate through the items in the rule to find the last one that has a variable declared
+			bool foundValid = false;
+			for (ast_rule_item_list::const_reverse_iterator ruleItem = ruleDefn->second.rbegin(); ruleItem != ruleDefn->second.rend(); ruleItem++) {
+				// Guard items don't get variables
+				if (ruleItem->item->type() == item::guard) continue;
+
+				// Neither does the 'repeat' item of a * or + closure
+				if (repeatingItem && ruleItem->item->type() == nonterm->item->type() && ruleItem->item->symbol() == nonterm->item->symbol()) {
+					continue;
+				}
+
+				// This item has a variable, so we can return its final position as the position of this item
+				foundValid = true;
+				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName) << "->final_pos();\n";
+
+				// Only write out a single position item
+				break;
+			}
+
+			// If the item doesn't have a position then return the contents of the m_Position variable
+			if (!foundValid) {
+				*m_SourceFile << "        return m_Position;\n";
+			}
+		}
+
+		// Default is an unknown position
+		*m_SourceFile	<< "\n"
+						<< "    default:\n"
+						<< "        return dfa::position(-1, -1, -1);\n"
+						<< "    }\n"
+						<< "}\n";
+    }
+}
+
 /// \brief Starting to write out the definitions associated with the AST
 void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals) {
 	// Remember the terminals and the grammar
@@ -1191,7 +1391,7 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 
 /// \brief Starting to write the AST definitions for a particular terminal symbol
 void output_cplusplus::begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item) {
-	// Get the name for this nonterminal
+	// Get the name for this terminal
 	string name = name_for_nonterminal(itemIdentifier, item, *m_Grammar, *m_Terminals);
 	name += s_TypeSuffix;
 	m_CurrentNonterminal = name;

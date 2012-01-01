@@ -40,61 +40,11 @@ namespace compiler {
         /// \brief Maps item IDs to their class identifiers
         std::map<int, std::string> m_ClassNameForItem;
 
-        /// \brief The last grammar supplied to this object
-        const contextfree::grammar* m_Grammar;
-
-        /// \brief The last terminal dictionary supplied to this object
-        const contextfree::terminal_dictionary* m_Terminals;
-
         /// \brief Reserved words and keywords
         std::set<std::string> m_ReservedWords;
 
         /// \brief The used class (and other identifier) names for the class (which should not be re-used)
         std::set<std::string> m_UsedClassNames;
-
-        /// \brief Within a single rule, the used names for the various items
-        std::set<std::string> m_UsedRuleItems;
-
-        /// \brief Within a nonterminal, the used names for the various items
-        std::set<std::string> m_UsedNtItems;
-
-        /// \brief Name of the current nonterminal class that's being defined
-        std::string m_CurrentNonterminal;
-
-        /// \brief Identifier of the nonterminal that's currently being defined
-        int m_CurrentNonterminalId;
-
-        /// \brief The kind of the current nonterminal
-        contextfree::item::kind m_CurrentNonterminalKind;
-
-        /// \brief Identifier for the rule that's currently being defined
-        int m_CurrentRuleId;
-
-        /// \brief The item names for each of the items in the current rule
-        std::vector<std::string> m_CurrentRuleNames;
-
-        /// \brief The type names for each of the items in the current rule
-        std::vector<std::string> m_CurrentRuleTypes;
-
-        /// \brief Stringstream used to build up the forward declarations for the nonterminal classes
-        ///
-        /// C++ is hopeless and can't clear items, so we have to use tedious pointers
-        std::stringstream* m_NtForwardDeclarations;
-
-        /// \brief Stringstream used to build up the declarations of the classes that contain the nonterminal definitions themselves
-        std::stringstream* m_NtClassDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the parser shift actions
-        std::stringstream* m_ShiftDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the parser reduce actions
-        std::stringstream* m_ReduceDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the pos() function
-        std::stringstream* m_PosDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the final_pos() function
-        std::stringstream* m_FinalPosDefinitions;
 
 	public:
 		/// \brief Creates a new output stage
@@ -106,17 +56,6 @@ namespace compiler {
 	protected:
 		/// \brief Returns a valid C++ identifier for the specified symbol name
 		virtual std::string get_identifier(const std::wstring& name);
-
-		/// \brief Returns a valid C++ name for a grammar rule
-		virtual std::string name_for_rule(const contextfree::rule_container& rule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
-
-		/// \brief Returns a valid C++ name for an EBNF item
-		virtual std::string name_for_ebnf_item(const contextfree::ebnf& ebnfItem, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
-        
-        /// \brief Returns a valid C++ name for the specified item
-        ///
-        /// This can be treated as a base name for getting names for nonterminals with particular identifiers
-        virtual std::string name_for_item(const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
 
         /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
         virtual std::string name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
@@ -148,6 +87,15 @@ namespace compiler {
 
 		/// \brief Writes out the source code for the parser tables
 		void source_parser_tables();
+
+		/// \brief Writes out the forward declarations for the classes that represent nonterminals
+		void header_ast_forward_declarations();
+
+		/// \brief Writes out the declarations for the classes that represent the AST
+		void header_ast_class_declarations();
+
+		/// \brief Writes out the implementations of the AST classes to the source file
+		void source_ast_class_definitions();
 
 	protected:
 		// Functions that represent various steps of the output of a language.
