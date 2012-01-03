@@ -957,6 +957,17 @@ void output_cplusplus::source_parser_tables() {
 //  			 AST generation
 // 				================
 
+/// \brief Writes out the AST tables
+void output_cplusplus::define_ast_tables() {
+	header_ast_forward_declarations();
+	header_ast_class_declarations();
+	header_parser_actions();
+
+	source_ast_class_definitions();
+	source_shift_actions();
+	source_reduce_actions();
+}
+
 /// \brief Writes out the forward declarations for the classes that represent items in the grammar
 void output_cplusplus::header_ast_forward_declarations() {
 	// Write out the AST syntax base class
@@ -1672,6 +1683,8 @@ void output_cplusplus::source_reduce_actions() {
 					<< "}\n";
 }
 
+#if 0
+
 /// \brief Starting to write out the definitions associated with the AST
 void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals) {
 	// Remember the terminals and the grammar
@@ -2318,3 +2331,5 @@ void output_cplusplus::end_ast_definitions() {
 	
 	*m_SourceFile 	<< "\nconst " << className << "::ast_parser_type " << className << "::ast_parser(&lr_tables, false);\n";
 }
+
+#endif

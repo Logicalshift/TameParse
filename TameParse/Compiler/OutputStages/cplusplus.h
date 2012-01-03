@@ -127,41 +127,10 @@ namespace compiler {
 
 		/// \brief Defines the parser tables for this language
 		virtual void define_parser_tables();
-        
-		/// \brief Starting to write out the definitions associated with the AST
-		virtual void begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals);
 
-		/// \brief Starting to write the AST definitions for a particular terminal symbol
-		virtual void begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item);
-
-		/// \brief Finished writing the definitions for a terminal
-		virtual void end_ast_terminal();
-        
-		/// \brief Starting to write the AST definitions for the specified nonterminal
-		virtual void begin_ast_nonterminal(int identifier, const contextfree::item_container& item);
-        
-		/// \brief Starting to write out a rule in the current nonterminal
-		virtual void begin_ast_rule(int identifier);
-        
-		/// \brief Writes out an individual item in the current rule (a nonterminal)
-		virtual void rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item);
-        
-        /// \brief Writes out an individual item in the current rule (a terminal)
-        ///
-        /// Note the distinction between the item ID, which is part of the grammar, and the
-        /// symbol ID (which is part of the lexer and is the same as the value passed to 
-        /// terminal_symbol)
-        virtual void rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item);
-        
-		/// \brief Finished writing out 
-		virtual void end_ast_rule();
-        
-		/// \brief Finished writing the definitions for a nonterminal
-		virtual void end_ast_nonterminal();
-        
-		/// \brief Finished writing out the AST information
-		virtual void end_ast_definitions();
-	};
+		/// \brief Writes out the AST tables
+		virtual void define_ast_tables();
+   	};
 }
 
 #endif
