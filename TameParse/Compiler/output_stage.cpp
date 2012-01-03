@@ -429,6 +429,10 @@ void output_stage::generate_ast_rules() {
     		// Get the identifier for this rule
     		int ruleId = gram().identifier_for_rule(*nextRule);
 
+    		// Get information about the type of nonterminal that this rule is for
+    		item::kind 	nonterminalType = (*nextRule)->nonterminal()->type();
+    		bool 		isRepeating 	= nonterminalType == item::repeat || nonterminalType == item::repeat_zero_or_one;
+
     		// Get the list for this rule (which will be empty at this point)
     		ast_rule_item_list& ruleList = thisNt.rules[ruleId];
 
@@ -455,8 +459,14 @@ void output_stage::generate_ast_rules() {
     			// Remember the unique name
     			usedNames.insert(uniqueName);
 
+    			// Set the 'EBNF repetition' flag
+    			bool isEbnfRepeat = false;
+    			if (isRepeating && ruleItem == (*nextRule)->begin() && (**ruleItem) == *(*nextRule)->nonterminal()) {
+    				isEbnfRepeat = true;
+    			}
+
     			// Add a new item for this rule
-    			ruleList.push_back(ast_rule_item((*ruleItem)->type() == item::terminal, (*ruleItem)->symbol(), *ruleItem, uniqueName));
+    			ruleList.push_back(ast_rule_item((*ruleItem)->type() == item::terminal, (*ruleItem)->symbol(), *ruleItem, uniqueName, isEbnfRepeat));
     		}
     	}
     }

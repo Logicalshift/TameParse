@@ -115,15 +115,21 @@ namespace compiler {
 		/// \brief Represents an item in a rule
 		///
 		struct ast_rule_item {
-			inline ast_rule_item(bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem, const std::wstring& newUniqueName)
+			inline ast_rule_item(bool newIsTerminal, int newSymbolId, const contextfree::item_container& newItem, const std::wstring& newUniqueName, bool newIsRepetition)
 			: isTerminal(newIsTerminal)
 			, symbolId(newSymbolId)
 			, item(newItem)
-			, uniqueName(newUniqueName) {
+			, uniqueName(newUniqueName)
+			, isEbnfRepetition(newIsRepetition) {
 			}
 
 			/// \brief True if this is a terminal item
 			bool isTerminal;
+
+			/// \brief True if this item is the item representing a repetition in an EBNF closure
+			/// 
+			/// This can be true for rules for nonterminals of kind item::repeat or item::repeat_zero_or_one.
+			bool isEbnfRepetition;
 
 			/// \brief The identifier for this symbol
 			int symbolId;
