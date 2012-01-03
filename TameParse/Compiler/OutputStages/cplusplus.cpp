@@ -21,6 +21,9 @@ using namespace compiler;
 /// \brief A suffix used to distinguish node types from the variables that reference them
 static const string s_TypeSuffix = "_n";
 
+/// \brief A suffix used for classes that represent the content of repeating EBNF items (classes for the * or + closures)
+static const string s_ContentSuffix = "_content";
+
 /// \brief Creates a new output stage
 output_cplusplus::output_cplusplus(console_container& console, const std::wstring& filename, lexer_stage* lexer, language_stage* language, lr_parser_stage* parser, const std::wstring& filenamePrefix, const std::wstring& className, const std::wstring& namespaceName)
 : output_stage(console, filename, lexer, language, parser)
@@ -1045,7 +1048,7 @@ void output_cplusplus::header_ast_class_declarations() {
 		// Get the name for this nonterminal
 		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
 
-		// Turn into a type name
+		// Append the type suffix
 		ntName += s_TypeSuffix;
 
 		// Begin a class declaration for this item
@@ -1053,7 +1056,7 @@ void output_cplusplus::header_ast_class_declarations() {
 
 		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
 			repeatingItem = true;
-			*m_HeaderFile << "\n    class " << ntName << "_content : public syntax_node {\n";		
+			*m_HeaderFile << "\n    class " << ntName << s_ContentSuffix << " : public syntax_node {\n";		
 		} else {
 			// Write out a forward declaration for this item
 			*m_HeaderFile << "\n    class " << ntName << " : public syntax_node {\n";
@@ -1080,17 +1083,17 @@ void output_cplusplus::header_ast_class_declarations() {
 			int ruleIdentifier = ruleDefn->first;
 
 			// Start appending the private values for this class
-			*m_HeaderFile << "\n    private:\n";
+			*m_HeaderFile << "\n    public:\n";
 			*m_HeaderFile << "        // Rule " << ruleIdentifier << "\n";
 
-			// Iterate through the items in this rule
+			// Iterate through the items in this rule to create the variables used to store them
 			bool validItems = false;
 			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
 				// Guard items don't get variables
 				if (ruleItem->item->type() == item::guard) continue;
 
 				// The EBNF repeat item doesn't get its own variable within a content item
-				if (repeatingItem && ruleItem->item->type() == nonterm->item->type() && gram().identifier_for_item(ruleDefn->second[0].item) == nonterm->identifier) {
+				if (ruleItem->isEbnfRepetition) {
 					// In these rules, the repeating item has an empty name
 					// These are the only items that can be empty, so this is how we identify the repeating item
 					// when generating reductions
@@ -1126,14 +1129,16 @@ void output_cplusplus::header_ast_class_declarations() {
 			// The EBNF closures only need a single constructor, as we flatten them into vectors
 			if (nonterm->item->type() == item::repeat) {
 				// Only declare a constructor for the initial rule
-				if (ruleDefn->second[0].item->type() == item::repeat && gram().identifier_for_item(ruleDefn->second[0].item) == nonterm->identifier) {
+				// (Generated rules are an initial rule and a repeating rule)
+				if (ruleDefn->second[0].isEbnfRepetition) {
 					// This is the repeating rule
 					declareConstructor = false;
 				}
 			}
 
 			else if (nonterm->item->type() == item::repeat_zero_or_one) {
-				// Only declare a constructor for the non-empty rule
+				// Only declare a constructor for the non-empty rule for '*' closures
+				// (Generated rules are an empty rule and a repeating rule)
 				if (ruleDefn->second.empty()) {
 					declareConstructor = false;
 				}
@@ -1150,6 +1155,9 @@ void output_cplusplus::header_ast_class_declarations() {
 				for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
 					// Ignore guards
 					if (ruleItem->item->type() == item::guard) continue;
+
+					// Ignore repetitions
+					if (ruleItem->isEbnfRepetition) continue;
 
 					// Get the variable name and type for this item 
 					string varName 	= get_identifier(ruleItem->uniqueName);
@@ -1181,6 +1189,34 @@ void output_cplusplus::header_ast_class_declarations() {
 		*m_HeaderFile 	<< "\n    public:\n"
 						<< "        virtual ~" << ntName << "();\n"
 						<< "    };\n";
+
+		// For repeating classes, also declare the container class
+		if (repeatingItem) {
+			*m_HeaderFile	<< "\n"
+							<< "    class " << ntName << " : public syntax_node {\n"
+							<< "    public:\n"
+							<< "        typedef util::syntax_ptr<class " << ntName << s_ContentSuffix << "> node_type;\n"
+							<< "        typedef std::vector<node_type> data_type;\n"
+							<< "        typedef data_type::const_iterator iterator;\n"
+							<< "\n"
+							<< "    private:\n"
+							<< "        data_type m_Data;\n"
+							<< "        dfa::position m_Position;\n"
+							<< "\n"
+							<< "    public:\n"
+							<< "        inline operator const data_type&() const { return m_Data; }\n"
+							<< "        inline const " << ntName << s_ContentSuffix << "* operator[](size_t index) const { return m_Data[index].item(); }\n"
+							<< "        inline const size_t size() const { return m_Data.size(); }\n"
+							<< "        inline iterator begin() const { return m_Data.begin(); }\n"
+							<< "        inline iterator end() const { return m_Data.end(); }\n"
+							<< "\n"
+							<< "        inline void add_child(const node_type& newChild) { m_Data.push_back(newChild); }\n"
+							<< "        inline void set_position(const dfa::position& newPos) { m_Position = newPos; }\n"
+							<< "\n"
+							<< "        virtual dfa::position pos() const;\n"
+							<< "        virtual dfa::position final_pos() const;\n"
+							<< "    };\n";
+		}
 	}
 }
 
@@ -1191,10 +1227,129 @@ void output_cplusplus::source_ast_class_definitions() {
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() const { return m_Lexeme->final_pos(); }\n";
 
+	// Write out the constructors for each nonterminal symbol
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Get the definition for this nonterminal
+		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
+
+		// Get the name for this nonterminal
+		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Append the type suffix
+		ntName += s_TypeSuffix;
+
+		// ... and the content suffix if this is a repeating item
+		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+			ntName += s_ContentSuffix;
+		}
+
+		// Write out a constructor for each rule for this nonterminal
+		for (ast_nonterminal_rules::const_iterator ruleDefn = ntDefn.rules.begin(); ruleDefn != ntDefn.rules.end(); ++ruleDefn) {
+			// Decide if we need to declare a constructor for this rule
+			// The EBNF closures only need a single constructor, as we flatten them into vectors
+			if (nonterm->item->type() == item::repeat) {
+				// Only declare a constructor for the initial rule
+				// (Generated rules are an initial rule and a repeating rule)
+				if (ruleDefn->second[0].isEbnfRepetition) {
+					// This is the repeating rule: we only declare the constructor for the other rule
+					continue;
+				}
+			}
+
+			else if (nonterm->item->type() == item::repeat_zero_or_one) {
+				// Only declare a constructor for the non-empty rule for '*' closures
+				// (Generated rules are an empty rule and a repeating rule)
+				if (ruleDefn->second.empty()) {
+					// This is the empty rule: we only declare a constructor for the 'full' rule
+					continue;
+				}
+			}
+
+			// Write out the declaration for this constructor
+			*m_SourceFile << "\n// Rule " << ruleDefn->first << "\n";
+			*m_SourceFile << get_identifier(m_ClassName) << "::" << ntName << "::" << ntName << "(";
+
+			// Generate the parameters for the constructor by iterating through the items in the rule
+			bool	first = true;
+			int 	index = 0;
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+				// Ignore guards
+				if (ruleItem->item->type() == item::guard) continue;
+
+				// Ignore repetitions
+				if (ruleItem->isEbnfRepetition) continue;
+
+				// Get the variable name and type for this item 
+				string varName 	= get_identifier(ruleItem->uniqueName);
+				string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+
+				// Add to the list of parameters
+				if (!first) {
+					*m_HeaderFile << ", ";
+				}
+
+				// Declare as a reference to the syntax pointer
+				*m_SourceFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">&" << typeName << "_" << index;
+
+				// No longer the first rule
+				first = false;
+				index++;
+			}
+
+			// If there were no valid items, then we need to add a position to this constructor
+			if (index == 0) {
+				*m_SourceFile << "const dfa::position& pos";
+			}
+
+			*m_SourceFile << ")\n";
+
+			// Write out the initializers
+			*m_SourceFile << ": m_Rule(m_CurrentRuleId)";
+
+			// Empty rules need to fill in the position field
+			if (index == 0) {
+				*m_SourceFile << "\n, m_Position(pos)";
+			}
+
+			// Fill in the initialisers from the rule
+			index = 0;
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+				// Ignore guards
+				if (ruleItem->item->type() == item::guard) continue;
+
+				// Ignore repetitions
+				if (ruleItem->isEbnfRepetition) continue;
+
+				// Get the variable name and type for this item 
+				string varName 	= get_identifier(ruleItem->uniqueName);
+				string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+
+				// Add to the list of parameters
+				if (!first) {
+					*m_HeaderFile << ", ";
+				}
+
+				// Declare as a reference to the syntax pointer
+				*m_SourceFile 	<< "\n"
+								<< ", " << varName << "(" << typeName << "_" << index << ")";
+
+				// Index moves on
+				index++;
+			}
+
+			// Write out the body of the constructor
+			*m_SourceFile	<< " {\n"
+							<< "}\n";
+		}
+    }
+
 	// Write out the position and final position definitions for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
 		// Get the name for this nonterminal
 		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Append the type suffix
+		ntName += s_TypeSuffix;
 
 		// Fetch the declaration for this nonterminal
 		const ast_nonterminal& astNt = get_ast_nonterminal(nonterm->identifier);
@@ -1207,7 +1362,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 		// Write out the initial position definitions
 		*m_SourceFile 	<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << (repeatingItem?s_ContentSuffix:"") << "::pos() const {\n"
 						<< "    switch (m_Rule) {";
 		
 		// The container of the initial position depends on which rule was matched
@@ -1249,7 +1404,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 		// ... and the final position definitions
 		*m_SourceFile	<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::final_pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << (repeatingItem?s_ContentSuffix:"")  << "::final_pos() const {\n"
 						<< "    switch (m_Rule) {";
 
 		// The container of the final position depends on which rule was matched
@@ -1288,6 +1443,20 @@ void output_cplusplus::source_ast_class_definitions() {
 						<< "        return dfa::position(-1, -1, -1);\n"
 						<< "    }\n"
 						<< "}\n";
+
+		// Write out the pos/final_pos items for the container class for repeating items
+		if (repeatingItem) {
+			*m_SourceFile			<< "\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::pos() const {\n"
+						<< "    if (m_Data.empty()) return m_Position;\n"
+						<< "    return m_Data.front()->pos();\n"
+						<< "}\n"
+						<< "\n"
+						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::final_pos() const {\n"
+						<< "    if (m_Data.empty()) return m_Position;\n"
+						<< "    return m_Data.back()->final_pos();\n"
+						<< "}\n";
+		}
     }
 }
 
