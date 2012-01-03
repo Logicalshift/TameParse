@@ -1088,7 +1088,7 @@ void output_cplusplus::header_ast_class_declarations() {
 
 			// Iterate through the items in this rule to create the variables used to store them
 			bool validItems = false;
-			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ++ruleItem) {
 				// Guard items don't get variables
 				if (ruleItem->item->type() == item::guard) continue;
 
@@ -1152,7 +1152,7 @@ void output_cplusplus::header_ast_class_declarations() {
 				// Iterate through the items in this rule
 				bool	first = true;
 				int 	index = 0;
-				for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+				for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ++ruleItem) {
 					// Ignore guards
 					if (ruleItem->item->type() == item::guard) continue;
 
@@ -1272,7 +1272,7 @@ void output_cplusplus::source_ast_class_definitions() {
 			// Generate the parameters for the constructor by iterating through the items in the rule
 			bool	first = true;
 			int 	index = 0;
-			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ++ruleItem) {
 				// Ignore guards
 				if (ruleItem->item->type() == item::guard) continue;
 
@@ -1313,7 +1313,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 			// Fill in the initialisers from the rule
 			index = 0;
-			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ++ruleItem) {
 				// Ignore guards
 				if (ruleItem->item->type() == item::guard) continue;
 
@@ -1372,7 +1372,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 			// Iterate through the items in the rule to find the first one that has a variable declared
 			bool foundValid = false;
-			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ruleItem++) {
+			for (ast_rule_item_list::const_iterator ruleItem = ruleDefn->second.begin(); ruleItem != ruleDefn->second.end(); ++ruleItem) {
 				// Guard items don't get variables
 				if (ruleItem->item->type() == item::guard) continue;
 
@@ -1414,7 +1414,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 			// Iterate through the items in the rule to find the last one that has a variable declared
 			bool foundValid = false;
-			for (ast_rule_item_list::const_reverse_iterator ruleItem = ruleDefn->second.rbegin(); ruleItem != ruleDefn->second.rend(); ruleItem++) {
+			for (ast_rule_item_list::const_reverse_iterator ruleItem = ruleDefn->second.rbegin(); ruleItem != ruleDefn->second.rend(); ++ruleItem) {
 				// Guard items don't get variables
 				if (ruleItem->item->type() == item::guard) continue;
 
@@ -1497,7 +1497,6 @@ void output_cplusplus::header_parser_actions() {
 
 /// \brief Writes out the shift actions to the source file
 void output_cplusplus::source_shift_actions() {
-		// Output the shift function
 	string className = get_identifier(m_ClassName);
 
 	// Declare the shift function
@@ -1527,7 +1526,150 @@ void output_cplusplus::source_shift_actions() {
 
 /// \brief Writes out the reduce actions to the source file
 void output_cplusplus::source_reduce_actions() {
-	
+	string className = get_identifier(m_ClassName);
+
+	// Declare the reduce function
+	*m_SourceFile 	<< "\n"
+					<< className << "::parser_actions::node " << className << "::parser_actions::reduce(int nonterminal, int rule, const reduce_list& reduce, const dfa::position& lookaheadPosition) {\n"
+					<< "    switch (rule) {";
+
+	// Iterate through the nonterminals
+    for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Get the definition for this nonterminal
+		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
+
+		// Get the name for this nonterminal
+		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+
+		// Append the type suffix
+		ntName += s_TypeSuffix;
+
+		// Get the name of the content class
+		string ntContentClass = ntName;
+
+		// ... and the content suffix if this is a repeating item
+		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+			ntContentClass += s_ContentSuffix;
+		}
+
+		// Write out a constructor for each rule for this nonterminal
+		for (ast_nonterminal_rules::const_iterator ruleDefn = ntDefn.rules.begin(); ruleDefn != ntDefn.rules.end(); ++ruleDefn) {
+			// Begin a new case statement for this rule
+			*m_SourceFile	<< "\n    case " << ruleDefn->first << ":\n"
+							<< "    {";
+
+			// TODO: we have the rules for this in three separate places now: factor into a function
+			bool hasConstructor = true;
+			bool repeating 		= false;
+
+			// The EBNF closures only need a single constructor, as we flatten them into vectors
+			if (nonterm->item->type() == item::repeat) {
+				// Only declare a constructor for the initial rule
+				// (Generated rules are an initial rule and a repeating rule)
+				repeating = true;
+				if (ruleDefn->second[0].isEbnfRepetition) {
+					// This is the repeating rule: we only declare the constructor for the other rule
+					hasConstructor = false;
+				}
+			}
+
+			else if (nonterm->item->type() == item::repeat_zero_or_one) {
+				// Only declare a constructor for the non-empty rule for '*' closures
+				// (Generated rules are an empty rule and a repeating rule)
+				repeating = true;
+				if (ruleDefn->second.empty()) {
+					// This is the empty rule: we only declare a constructor for the 'full' rule
+					hasConstructor = false;
+				}
+			}
+
+			// Construct the content item for any item with a constructor, or all of the items for a repeating item
+			if (hasConstructor || nonterm->item->type() == item::repeat) {
+				if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
+					// For repeating items, we construct the content into a variable
+					*m_SourceFile << "        util::syntax_ptr<class " << ntContentClass << "> content(new " << ntContentClass << "(";
+				} else {
+					// For non-repeating items, just return the item directly
+					*m_SourceFile << "        return node(new " << ntContentClass << "(";
+				}
+
+				// Generate the constructor parameters
+				bool first = true;
+				for (size_t index = 0; index < ruleDefn->second.size(); index++) {
+					// Get the item at this index
+					const ast_rule_item& ruleItem = ruleDefn->second[index];
+
+					// Guard items are ignored
+					if (ruleItem.item->type() == item::guard) continue;
+
+					// ... as are repetition items
+					if (ruleItem.isEbnfRepetition) continue;
+
+					// Other items are put into the constructor
+					string typeName = name_for_nonterminal(ruleItem.symbolId, ruleItem.item, gram(), terminals());
+
+					// Add commas to separate the values
+					if (!first) {
+						*m_SourceFile << ", ";
+					}
+					first = false;
+
+					// The reduce list is passed in in reverse
+					size_t reduceIndex = ruleDefn->second.size() - index - 1;
+
+					// Cast to the type
+					*m_SourceFile  << "reduce[" << reduceIndex << "].cast_to<" << typeName << ">()";
+				}
+
+				// If there aren't any valid items, then pass in the lookahead position (these items will take a position parameter)
+				if (first) {
+					*m_SourceFile << "lookaheadPosition";
+				}
+
+				*m_SourceFile << "));\n";
+			}
+
+			// For repeating items either create or retrieve the node
+			if (repeating) {
+				// The constructor is delcared for the item that contains the repetition
+				if (!hasConstructor && nonterm->item->type() == item::repeat_zero_or_one) {
+					// This is the empty rule in a zero-or-more repetition: create an empty item
+					*m_SourceFile << "        return node(new " << ntName << "());\n";
+				} else {
+					// Get the node where the definition is being built up
+					*m_SourceFile << "        util::syntax_ptr<class " << ntName << "> list(";
+
+					// If the first item is a repetition then use that, otherwise create a new item
+					if (!ruleDefn->second.empty() && ruleDefn->second[0].isEbnfRepetition) {
+						// The first item is the repetition
+						*m_SourceFile << "reduce[" << ruleDefn->second.size()-1 << "].cast_to<" << ntName << ">());\n";
+					} else {
+						// Need to create a new item
+						*m_SourceFile << "new " << ntName << "());\n";
+
+						// Set the position (hideous const cast, sigh)
+						*m_SourceFile << "        const_cast<" << ntName << "*>(list.item())->set_position(lookaheadPosition);\n";
+					}
+
+					// Add the content as a child item
+					// Hideous const cast :-(
+					*m_SourceFile << "        const_cast<" << ntName << "*>(list.item())->add_child(content);\n";
+
+					// Cast to a node and return
+					*m_SourceFile << "        return list.cast_to<syntax_node>();\n";
+				}
+			}
+
+			// Finished this case definition
+			*m_SourceFile << "    }\n";
+		}
+	}
+
+	// Default action is to generate an empty node	
+	*m_SourceFile	<< "\n    default:\n"
+					<< "        return node();\n"
+					<< "    }\n"
+					<< "}\n";
 }
 
 /// \brief Starting to write out the definitions associated with the AST
