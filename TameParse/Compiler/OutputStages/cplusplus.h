@@ -97,6 +97,15 @@ namespace compiler {
 		/// \brief Writes out the implementations of the AST classes to the source file
 		void source_ast_class_definitions();
 
+		/// \brief Writes out the parser actions to the header file
+		void header_parser_actions();
+
+		/// \brief Writes out the shift actions to the source file
+		void source_shift_actions();
+
+		/// \brief Writes out the reduce actions to the source file
+		void source_reduce_actions();
+
 	protected:
 		// Functions that represent various steps of the output of a language.
 		// These are intended to make it easy to write out a file in the specified language.

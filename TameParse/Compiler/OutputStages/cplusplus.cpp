@@ -1460,6 +1460,76 @@ void output_cplusplus::source_ast_class_definitions() {
     }
 }
 
+/// \brief Writes out the parser actions to the header file
+void output_cplusplus::header_parser_actions() {
+	// Declare the parser actions class
+	*m_HeaderFile 	<< "\n"
+					<< "    class parser_actions {\n"
+					<< "    public:\n"
+					<< "        typedef util::syntax_ptr<syntax_node> node;\n"
+					<< "        typedef lr::parser<node, parser_actions> parser;\n"
+					<< "        typedef parser::reduce_list reduce_list;\n"
+					<< "\n"
+					<< "    private:\n"
+					<< "        dfa::lexeme_stream* m_Stream;\n"
+					<< "\n"
+					<< "        parser_actions(parser_actions& noCopying);\n"
+					<< "        parser_actions& operator=(const parser_actions& noCopying);\n"
+					<< "\n"
+					<< "    public:\n"
+					<< "        parser_actions(dfa::lexeme_stream* stream)\n"
+					<< "        : m_Stream(stream) { }\n"
+					<< "\n"
+					<< "        ~parser_actions() {\n"
+					<< "        }\n"
+					<< "\n"
+					<< "        inline dfa::lexeme* read() {\n"
+					<< "            dfa::lexeme* result = NULL;\n"
+					<< "            (*m_Stream) >> result;\n"
+					<< "            return result;\n"
+					<< "        }\n"
+					<< "\n"
+					<< "        node shift(const dfa::lexeme_container& lexeme);\n"
+					<< "\n"
+					<< "        node reduce(int nonterminal, int rule, const reduce_list& reduce, const dfa::position& lookaheadPosition);\n"
+					<< "    };\n";
+}
+
+/// \brief Writes out the shift actions to the source file
+void output_cplusplus::source_shift_actions() {
+		// Output the shift function
+	string className = get_identifier(m_ClassName);
+
+	// Declare the shift function
+	*m_SourceFile 	<< "\n" 
+					<< className << "::parser_actions::node " << className << "::parser_actions::shift(const dfa::lexeme_container& lexeme) {\n"
+					<< "    switch (lexeme->matched()) {";
+	
+	// Generate a shift action for each terminal symbol
+    for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
+    	// Get the name for this terminal
+		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+
+		// Turn into a type name
+		name += s_TypeSuffix;
+
+		// Declare a shift action for this symbol
+		*m_SourceFile	<< "\n    case " << term->identifier << ": // " << get_identifier(terminals().name_for_symbol(term->identifier)) << "\n"
+						<< "        return node(new " << name << "(lexeme));\n";
+    }
+					
+	// Default actions is to create an empty node
+	*m_SourceFile	<< "\n    default:\n"
+					<< "        return node(new terminal(lexeme));\n"
+					<< "    }\n"
+					<< "}\n";
+}
+
+/// \brief Writes out the reduce actions to the source file
+void output_cplusplus::source_reduce_actions() {
+	
+}
+
 /// \brief Starting to write out the definitions associated with the AST
 void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals) {
 	// Remember the terminals and the grammar
