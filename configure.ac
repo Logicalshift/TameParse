@@ -38,5 +38,6 @@ AC_CONFIG_FILES([Makefile
                  parsetool/Makefile
                  Examples/Makefile
                  Examples/Test/Makefile
+                 TextEditors/Makefile
                  doxy/Makefile])
 AC_OUTPUT
