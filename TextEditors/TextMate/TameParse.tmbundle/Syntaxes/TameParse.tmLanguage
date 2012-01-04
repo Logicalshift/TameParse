@@ -316,7 +316,7 @@
 					<key>match</key>
 					<string>&lt;[^&gt;]*&gt;</string>
 					<key>name</key>
-					<string>entity.name.function.nonterminal.tameparse</string>
+					<string>support.constant.nonterminal</string>
 				</dict>
 			</array>
 		</dict>
