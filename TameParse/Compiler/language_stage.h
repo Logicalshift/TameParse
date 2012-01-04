@@ -106,7 +106,7 @@ namespace compiler {
         flat_rule_attribute_map m_FlatAttributesForRules;
 
         /// \brief Maps rules to their corresponding attributes
-        rule_attribute_map m_AttributesForRules;
+        mutable rule_attribute_map m_AttributesForRules;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
@@ -174,6 +174,9 @@ namespace compiler {
 
         /// \brief The symbols that are usually ignored but occasionally have syntactic meaning
         inline const std::set<int>* used_ignored_symbols() const            { return &m_UsedIgnoredSymbols; }
+
+        /// \brief Returns the name supplied as an attribute for an item in a specific rule
+        const std::wstring& name_for_rule_item(int ruleId, size_t index) const;
         
         /// \brief The position in the file where the terminal symbol with the given ID was defined
         inline dfa::position terminal_definition_pos(int id) const {

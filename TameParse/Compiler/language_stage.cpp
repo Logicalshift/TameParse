@@ -495,11 +495,6 @@ void language_stage::compile() {
         }
     }
 
-    // Fill in the attributes for each rule
-    for (flat_rule_attribute_map::iterator rulePair = m_FlatAttributesForRules.begin(); rulePair != m_FlatAttributesForRules.end(); rulePair++) {
-        m_AttributesForRules[rulePair->first->identifier(m_Grammar)] = rulePair->second;
-    }
-
     // Display a summary of what the grammar and lexer contains if we're in verbose mode
     wostream& summary = cons().verbose_stream();
     
@@ -510,6 +505,17 @@ void language_stage::compile() {
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
 }
 
+/// \brief Returns the name supplied as an attribute for an item in a specific rule
+const std::wstring& language_stage::name_for_rule_item(int ruleId, size_t index) const {
+    if (m_AttributesForRules.empty()) {
+        // Fill in the attributes for each rule
+        for (flat_rule_attribute_map::const_iterator rulePair = m_FlatAttributesForRules.begin(); rulePair != m_FlatAttributesForRules.end(); rulePair++) {
+            m_AttributesForRules[m_Grammar.identifier_for_rule(rulePair->first)] = rulePair->second;
+        }
+    }
+
+    return m_AttributesForRules[ruleId][index];
+}
 
 /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
 void language_stage::report_unused_symbols() {
