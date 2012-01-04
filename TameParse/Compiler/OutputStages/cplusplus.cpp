@@ -1579,7 +1579,7 @@ void output_cplusplus::source_reduce_actions() {
 		for (ast_nonterminal_rules::const_iterator ruleDefn = ntDefn.rules.begin(); ruleDefn != ntDefn.rules.end(); ++ruleDefn) {
 			// Begin a new case statement for this rule
 			*m_SourceFile	<< "\n    case " << ruleDefn->first << ":\n"
-							<< "    {";
+							<< "    {\n";
 
 			// TODO: we have the rules for this in three separate places now: factor into a function
 			bool hasConstructor = true;
@@ -1604,6 +1604,11 @@ void output_cplusplus::source_reduce_actions() {
 					// This is the empty rule: we only declare a constructor for the 'full' rule
 					hasConstructor = false;
 				}
+			}
+
+			else if (nonterm->item->type() == item::guard) {
+				// Guard items are always ignored
+				hasConstructor = false;
 			}
 
 			// Construct the content item for any item with a constructor, or all of the items for a repeating item
