@@ -97,7 +97,7 @@ namespace compiler {
         symbol_map m_FirstNonterminalUsage;
 
         /// \brief Maps rule IDs to their corresponding attributes
-        rule_attribute_map m_AttributesForRules;
+        std::vector<std::pair<contextfree::rule_container, rule_attribute_list> > m_AttributesForRules;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
