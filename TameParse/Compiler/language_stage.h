@@ -46,6 +46,12 @@ namespace compiler {
         
         /// \brief Maps a symbol ID to the language block and file where it is defined
         typedef std::map<int, block_file> symbol_map;
+
+        /// \brief A list of names for each item in a rule (called rule_semantics as this may be extended in a future version to support semantics other than just the names of the items within a rule)
+        typedef std::vector<std::wstring> rule_attribute_list;
+
+        /// \brief Maps rules to vectors representing the name for each item
+        typedef std::map<int, rule_attribute_list> rule_attribute_map;
         
     private:
         /// \brief The language block that this will compile
@@ -90,6 +96,9 @@ namespace compiler {
         /// \brief Maps nonterminal IDs to the point where they were first used
         symbol_map m_FirstNonterminalUsage;
 
+        /// \brief Maps rule IDs to their corresponding attributes
+        rule_attribute_map m_AttributesForRules;
+
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
         /// This is used to avoid relentlessly copying the filename alongside the blocks.
@@ -122,6 +131,9 @@ namespace compiler {
         /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
         /// to be missing from the terminal dictionary.
         void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
+
+        /// \brief Compiles the semantic attributes for a rule
+        void compile_rule_attributes(rule_attribute_list& rule, language::ebnf_item* item, std::wstring* ourFilename);
 
         /// \brief In a final pass, process the symbols in a particular rule
         ///

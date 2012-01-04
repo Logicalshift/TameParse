@@ -660,6 +660,10 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             ebnf_optional* newItem = new ebnf_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
+            // Compile the attributes for the new rule
+            rule_attribute_list& ruleAttributes = m_AttributesForRules[newItem->get_rule()->identifier(m_Grammar)];
+            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
+
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -679,6 +683,10 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into a repeating item
             ebnf_repeating* newItem = new ebnf_repeating();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+
+            // Compile the attributes for the new rule
+            rule_attribute_list& ruleAttributes = m_AttributesForRules[newItem->get_rule()->identifier(m_Grammar)];
+            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
 
             // Create the item container
             item_container newContainer(newItem, true);
@@ -700,6 +708,10 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             ebnf_repeating_optional* newItem = new ebnf_repeating_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
+            // Compile the attributes for the new rule
+            rule_attribute_list& ruleAttributes = m_AttributesForRules[newItem->get_rule()->identifier(m_Grammar)];
+            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
+
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -719,6 +731,10 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into a guard item
             guard* newItem = new guard();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+
+            // Compile the attributes for the new rule
+            rule_attribute_list& ruleAttributes = m_AttributesForRules[newItem->get_rule()->identifier(m_Grammar)];
+            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
             
             // Append to the rule
             item_container container(newItem, true);
@@ -739,12 +755,23 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         {
             // Compile into an alternate item
             ebnf_alternate* newItem = new ebnf_alternate();
+
+            // Get the left and right-hand side rules
+            rule_container lhsRule = newItem->get_rule();
+            rule_container rhsRule = newItem->add_rule();
             
             // Left-hand side
-            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+            compile_item(*lhsRule, (*item)[0], ourFilename);
             
             // Right-hand side
-            compile_item(*newItem->add_rule(), (*item)[1], ourFilename);
+            compile_item(*rhsRule, (*item)[1], ourFilename);
+
+            // Compile the attributes for the new rules
+            rule_attribute_list& lhsAttributes = m_AttributesForRules[lhsRule->identifier(m_Grammar)];
+            compile_rule_attributes(lhsAttributes, (*item)[0], ourFilename);
+
+            rule_attribute_list& rhsAttributes = m_AttributesForRules[rhsRule->identifier(m_Grammar)];
+            compile_rule_attributes(rhsAttributes, (*item)[1], ourFilename);
 
             // Create the item container
             item_container newContainer(newItem, true);
@@ -763,6 +790,35 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         default:
             // Unknown item type
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
+            break;
+    }
+}
+
+/// \brief Compiles the semantic attributes for a rule
+void language_stage::compile_rule_attributes(rule_attribute_list& attributes, language::ebnf_item* item, std::wstring* ourFilename) {
+    // Sanity check
+    if (!item) return;
+
+    switch (item->get_type()) {
+        case ebnf_item::ebnf_terminal:
+        case ebnf_item::ebnf_terminal_character:
+        case ebnf_item::ebnf_terminal_string:
+        case ebnf_item::ebnf_nonterminal:
+        case ebnf_item::ebnf_guard:
+        case ebnf_item::ebnf_repeat_one:
+        case ebnf_item::ebnf_repeat_zero:
+        case ebnf_item::ebnf_alternative:
+        case ebnf_item::ebnf_optional:
+            // These all create a single item in the rule, so just copy in any name that might be added
+            attributes.push_back(item->name());
+            break;
+
+        case ebnf_item::ebnf_parenthesized:
+            // Recursively add the contents of this item
+            // TODO: could improve this by supporting named parenthesized items, maybe
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
+                compile_rule_attributes(attributes, *childItem, ourFilename);
+            }
             break;
     }
 }
