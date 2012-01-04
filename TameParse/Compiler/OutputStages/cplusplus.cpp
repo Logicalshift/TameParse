@@ -981,6 +981,8 @@ void output_cplusplus::define_ast_tables() {
 	header_parser_actions();
 
 	source_ast_class_definitions();
+	source_ast_class_constructors();
+	source_ast_position_functions();
 	source_shift_actions();
 	source_reduce_actions();
 
@@ -1274,7 +1276,10 @@ void output_cplusplus::source_ast_class_definitions() {
 	*m_SourceFile << "\n" << get_identifier(m_ClassName, false) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName, false) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName, false) << "::terminal::final_pos() const { return m_Lexeme->final_pos(); }\n";
+}
 
+/// \brief Writes out the constructors for each nonterminal symbol
+void output_cplusplus::source_ast_class_constructors() {
 	// Write out the constructors for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
     	// Guards have no definitions written out for them
@@ -1393,7 +1398,11 @@ void output_cplusplus::source_ast_class_definitions() {
 		// Write out a destructor for this nonterminal
 		*m_SourceFile << "\n" << get_identifier(m_ClassName, false) << "::" << ntName << "::~" << ntName << "() { }\n";
     }
+}
 
+
+/// \brief Writes out the functions for getting the file positions of each symbol
+void output_cplusplus::source_ast_position_functions() {
 	// Write out the position and final position definitions for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
     	// Guards have no definitions written out for them

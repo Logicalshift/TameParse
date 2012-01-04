@@ -55,7 +55,7 @@ namespace compiler {
 
 	protected:
 		/// \brief Returns a valid C++ identifier for the specified symbol name
-		virtual std::string get_identifier(const std::wstring& name, bool allowReserved = false);
+		virtual std::string get_identifier(const std::wstring& name, bool allowReserved);
 
         /// \brief Retrieves or assigns a class name for an item with the specified ID
         virtual std::string class_name_for_item(const contextfree::item_container& item);
@@ -102,6 +102,12 @@ namespace compiler {
 
 		/// \brief Writes out the implementations of the AST classes to the source file
 		void source_ast_class_definitions();
+
+		/// \brief Writes out the constructors for each nonterminal symbol
+		void source_ast_class_constructors();
+
+		/// \brief Writes out the functions for getting the file positions of each symbol
+		void source_ast_position_functions();
 
 		/// \brief Writes out the parser actions to the header file
 		void header_parser_actions();
