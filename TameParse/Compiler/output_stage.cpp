@@ -334,6 +334,27 @@ wstring output_stage::name_for_ebnf_item(const contextfree::ebnf& ebnfItem) {
 	}
 }
 
+/// \brief Strips quote characters from a symbol name
+static wstring strip(const wstring& symbolName) {
+	// Must have at least one quoted character
+	if (symbolName.size() < 3) {
+		return symbolName;
+	}
+
+	// Quotes are '<>', '"' and '''
+	wchar_t firstChar 	= symbolName[0];
+	wchar_t lastChar	= symbolName[symbolName.size()-1];
+
+	if ((firstChar == L'<' && lastChar == L'>')
+		|| (firstChar == L'"' && lastChar == L'"')
+		|| (firstChar == L'\'' && lastChar == L'\'')) {
+		return symbolName.substr(1, symbolName.size()-2);
+	}
+
+	// Default is to pass the name through untouched
+	return symbolName;
+}
+
 /// \brief Gets a string name that can be used to represent a specific grammar item
 wstring output_stage::name_for_item(const contextfree::item_container& it) {
 	// Start building up the result
@@ -354,11 +375,11 @@ wstring output_stage::name_for_item(const contextfree::item_container& it) {
 		break;
 
 	case item::terminal:
-		res << terminals().name_for_symbol(it->symbol());
+		res << strip(terminals().name_for_symbol(it->symbol()));
 		break;
 
 	case item::nonterminal:
-		res << gram().name_for_nonterminal(it->symbol());
+		res << strip(gram().name_for_nonterminal(it->symbol()));
 		break;
 
 	case item::optional:
