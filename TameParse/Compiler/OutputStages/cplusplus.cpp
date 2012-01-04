@@ -291,10 +291,13 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
     return res.str();
 }
 
-/// \brief Retrieves or assigns a name for a nonterminal with the specified ID
-std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals) {
+/// \brief Retrieves or assigns a class name for an item with the specified ID
+std::string output_cplusplus::class_name_for_item(const contextfree::item_container& item) {
+	// Get the item identifier from the grammar
+	int identifier = gram().identifier_for_item(item);
+
 	// Try to find an existing name for this nonterminal
-	map<int, string>::const_iterator found = m_ClassNameForItem.find(ntId);
+	map<int, string>::const_iterator found = m_ClassNameForItem.find(identifier);
 	if (found != m_ClassNameForItem.end()) {
 		// Use the found definition if it exists
 		return found->second;
@@ -325,7 +328,7 @@ std::string output_cplusplus::name_for_nonterminal(int ntId, const contextfree::
 			// This is the name we shall use
 
 			// Set as the name for this nonterminal, and mark as used
-			m_ClassNameForItem[ntId] = varName;
+			m_ClassNameForItem[identifier] = varName;
 			m_UsedClassNames.insert(varName);
 
 			// Return as the result
@@ -1002,7 +1005,7 @@ void output_cplusplus::header_ast_forward_declarations() {
 	// Iterate through the terminals
     for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
     	// Get the name for this terminal
-		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+		string name = class_name_for_item(term->item);
 
 		// Turn into a type name
 		name += s_TypeSuffix;
@@ -1014,7 +1017,7 @@ void output_cplusplus::header_ast_forward_declarations() {
 	// Iterate through the nonterminals
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
 		// Get the name for this nonterminal
-		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+		string ntName = class_name_for_item(nonterm->item);
 
 		// Turn into a type name
 		ntName += s_TypeSuffix;
@@ -1037,7 +1040,7 @@ void output_cplusplus::header_ast_class_declarations() {
 	// Write out the definitions for the terminals
     for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
     	// Get the name for this terminal
-		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+		string name = class_name_for_item(term->item);
 
 		// Turn into a type name
 		name += s_TypeSuffix;
@@ -1057,7 +1060,7 @@ void output_cplusplus::header_ast_class_declarations() {
     	}
 
 		// Get the name for this nonterminal
-		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+		string ntName = class_name_for_item(nonterm->item);
 
 		// Append the type suffix
 		ntName += s_TypeSuffix;
@@ -1119,7 +1122,7 @@ void output_cplusplus::header_ast_class_declarations() {
 
 				if (definedVariables.find(varName) == definedVariables.end()) {
 					// Get the type name for this variable
-					string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+					string typeName = class_name_for_item(ruleItem->item);
 
 					// Add a variable declaration
 					*m_HeaderFile << "        const util::syntax_ptr<" << typeName << s_TypeSuffix << "> " << varName << ";\n";
@@ -1172,7 +1175,7 @@ void output_cplusplus::header_ast_class_declarations() {
 
 					// Get the variable name and type for this item 
 					string varName 	= get_identifier(ruleItem->uniqueName);
-					string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+					string typeName = class_name_for_item(ruleItem->item);
 
 					// Add to the list of parameters
 					if (!first) {
@@ -1180,7 +1183,7 @@ void output_cplusplus::header_ast_class_declarations() {
 					}
 
 					// Declare as a reference to the syntax pointer
-					*m_HeaderFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">&" << typeName << "_" << index;
+					*m_HeaderFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">& " << typeName << "_" << index;
 
 					// No longer the first rule
 					first = false;
@@ -1244,7 +1247,7 @@ void output_cplusplus::source_ast_class_definitions() {
 		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
 
 		// Get the name for this nonterminal
-		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+		string ntName = class_name_for_item(nonterm->item);
 
 		// Append the type suffix
 		ntName += s_TypeSuffix;
@@ -1292,7 +1295,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// Get the variable name and type for this item 
 				string varName 	= get_identifier(ruleItem->uniqueName);
-				string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+				string typeName = class_name_for_item(ruleItem->item);
 
 				// Add to the list of parameters
 				if (!first) {
@@ -1300,7 +1303,7 @@ void output_cplusplus::source_ast_class_definitions() {
 				}
 
 				// Declare as a reference to the syntax pointer
-				*m_SourceFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">&" << typeName << "_" << index;
+				*m_SourceFile << "const util::syntax_ptr<class " << typeName << s_TypeSuffix << ">& " << typeName << "_" << index;
 
 				// No longer the first rule
 				first = false;
@@ -1333,7 +1336,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// Get the variable name and type for this item 
 				string varName 	= get_identifier(ruleItem->uniqueName);
-				string typeName = name_for_nonterminal(ruleItem->symbolId, ruleItem->item, gram(), terminals());
+				string typeName = class_name_for_item(ruleItem->item);
 
 				// Add to the list of parameters
 				if (!first) {
@@ -1357,7 +1360,7 @@ void output_cplusplus::source_ast_class_definitions() {
 	// Write out the position and final position definitions for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
 		// Get the name for this nonterminal
-		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+		string ntName = class_name_for_item(nonterm->item);
 
 		// Append the type suffix
 		ntName += s_TypeSuffix;
@@ -1518,7 +1521,7 @@ void output_cplusplus::source_shift_actions() {
 	// Generate a shift action for each terminal symbol
     for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
     	// Get the name for this terminal
-		string name = name_for_nonterminal(term->identifier, term->item, gram(), terminals());
+		string name = class_name_for_item(term->item);
 
 		// Turn into a type name
 		name += s_TypeSuffix;
@@ -1550,7 +1553,7 @@ void output_cplusplus::source_reduce_actions() {
 		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
 
 		// Get the name for this nonterminal
-		string ntName = name_for_nonterminal(nonterm->identifier, nonterm->item, gram(), terminals());
+		string ntName = class_name_for_item(nonterm->item);
 
 		// Append the type suffix
 		ntName += s_TypeSuffix;
@@ -1617,7 +1620,7 @@ void output_cplusplus::source_reduce_actions() {
 					if (ruleItem.isEbnfRepetition) continue;
 
 					// Other items are put into the constructor
-					string typeName = name_for_nonterminal(ruleItem.symbolId, ruleItem.item, gram(), terminals());
+					string typeName = class_name_for_item(ruleItem.item);
 
 					// Add commas to separate the values
 					if (!first) {
@@ -1786,7 +1789,7 @@ void output_cplusplus::begin_ast_definitions(const contextfree::grammar& grammar
 /// \brief Starting to write the AST definitions for a particular terminal symbol
 void output_cplusplus::begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item) {
 	// Get the name for this terminal
-	string name = name_for_nonterminal(itemIdentifier, item, *m_Grammar, *m_Terminals);
+	string name = class_name_for_item(itemIdentifier, item, *m_Grammar, *m_Terminals);
 	name += s_TypeSuffix;
 	m_CurrentNonterminal = name;
 
@@ -1822,7 +1825,7 @@ void output_cplusplus::begin_ast_nonterminal(int identifier, const contextfree::
 	m_FinalPosDefinitions 	= new stringstream();
 
 	// Get the name for this nonterminal
-	string ntName = name_for_nonterminal(identifier, item, *m_Grammar, *m_Terminals);
+	string ntName = class_name_for_item(identifier, item, *m_Grammar, *m_Terminals);
 	ntName += s_TypeSuffix;
 	m_CurrentNonterminal = ntName;
 
@@ -1902,7 +1905,7 @@ void output_cplusplus::rule_item_nonterminal(int nonterminalId, const contextfre
 
 	// Generate a name for this item
 	// TODO: would be nice to be able to specify aliases in the grammar
-	string baseName = name_for_nonterminal(nonterminalId, item, *m_Grammar, *m_Terminals);
+	string baseName = class_name_for_item(nonterminalId, item, *m_Grammar, *m_Terminals);
 
 	// Uniquify it
 	string 	itemName;
@@ -1958,7 +1961,7 @@ void output_cplusplus::rule_item_terminal(int terminalItemId, int terminalSymbol
 
 	// Generate a name for this item
 	// TODO: would be nice to be able to specify aliases in the grammar
-	string baseName = name_for_nonterminal(terminalItemId, item, *m_Grammar, *m_Terminals);
+	string baseName = class_name_for_item(terminalItemId, item, *m_Grammar, *m_Terminals);
 
 	// Uniquify it
 	string 	itemName;

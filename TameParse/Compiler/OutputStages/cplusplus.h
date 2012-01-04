@@ -57,8 +57,8 @@ namespace compiler {
 		/// \brief Returns a valid C++ identifier for the specified symbol name
 		virtual std::string get_identifier(const std::wstring& name);
 
-        /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
-        virtual std::string name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
+        /// \brief Retrieves or assigns a class name for an item with the specified ID
+        virtual std::string class_name_for_item(const contextfree::item_container& item);
 
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);
