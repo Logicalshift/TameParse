@@ -143,7 +143,7 @@ language ParserLanguage {
 									| <Simple-Ebnf-Item> '*' <Semantic-Specification>?
 									| <Simple-Ebnf-Item> '+' <Semantic-Specification>?
 									| <Simple-Ebnf-Item> '?' <Semantic-Specification>?
-									| '(' <Ebnf-Item> ')'
+									| '(' <Ebnf-Item> ')' <Semantic-Specification>?
 
 		<Guard>						= "[=>" <Ebnf-Item> ']'
 

@@ -51,7 +51,6 @@ const std::string& bootstrap::get_default_language_definition() {
     return result;
 }
 
-
 #else
 
 // Declare a string containing the language definition
@@ -117,6 +116,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.dot               = add_terminal(languageNdfa, L"'.'", L"\\.");
     t.pipe              = add_terminal(languageNdfa, L"'|'", L"\\|");
     t.openguard         = add_terminal(languageNdfa, L"\"[=>\"", L"\\[=>");
+    t.opensquare        = add_terminal(languageNdfa, L"'['", L"\\[");
     t.closesquare       = add_terminal(languageNdfa, L"']'", L"\\]");
     
     // The lexical constructs
@@ -151,6 +151,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.id_dot            = t.dot         ->symbol();
     t.id_pipe           = t.pipe        ->symbol();
     t.id_openguard      = t.openguard   ->symbol();
+    t.id_opensquare     = t.opensquare  ->symbol();
     t.id_closesquare    = t.closesquare ->symbol();
     t.id_identifier     = t.identifier  ->symbol();
     t.id_nonterminal    = t.nonterminal ->symbol();
@@ -202,6 +203,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.basic_terminal               = result->get_nonterminal(L"Basic-Terminal");
     nt.parser_block                 = result->get_nonterminal(L"Parser-Block");
     nt.parser_startsymbol           = result->get_nonterminal(L"Parser-StartSymbol");
+    nt.item_name                    = result->get_nonterminal(L"Item-Name");
 
 	// Store the IDs for these nonterminals
 	nt.id_parser_language         	= nt.parser_language         ->symbol();
@@ -226,6 +228,7 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.id_basic_terminal            = nt.basic_terminal          ->symbol();
     nt.id_parser_block              = nt.parser_block            ->symbol();
     nt.id_parser_startsymbol        = nt.parser_startsymbol      ->symbol();
+    nt.id_item_name                 = nt.item_name               ->symbol();
     
     // Generate productions
     ebnf_repeating_optional listToplevel;
@@ -277,12 +280,14 @@ contextfree::grammar* bootstrap::create_grammar() {
     ebnf_repeating_optional orProductionList;
     ebnf_repeating_optional ebnfItemList;
     ebnf_repeating_optional simpleEbnfItemList;
+    ebnf_optional           optionalItemName;
     guard                   productionGuard;
-    
+
     (*nonterminalDefinitionList.get_rule()) << nt.nonterminal_definition;
     (*orProductionList.get_rule()) << t.pipe << nt.production;
     (*ebnfItemList.get_rule()) << nt.ebnf_item;
     (*simpleEbnfItemList.get_rule()) << nt.simple_ebnf_item;
+    (*optionalItemName.get_rule()) << nt.item_name;
     
     (*productionGuard.get_rule()) << t.nonterminal << t.equals;
     
@@ -290,6 +295,9 @@ contextfree::grammar* bootstrap::create_grammar() {
     
     ((*result) += L"Nonterminal-Definition") << productionGuard << t.nonterminal << t.equals << nt.production << orProductionList;
     // (Not supporting the inheritance forms of these in the bootstrap language)
+
+    // Named items
+    ((*result) += L"Item-Name") << t.opensquare << t.identifier << t.closesquare;
     
     // Productions
     ((*result) += L"Production") << simpleEbnfItemList;
@@ -297,11 +305,11 @@ contextfree::grammar* bootstrap::create_grammar() {
     ((*result) += L"Ebnf-Item") << simpleEbnfItemList;
     ((*result) += L"Ebnf-Item") << simpleEbnfItemList << t.pipe << nt.ebnf_item;
     
-    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal;
-    ((*result) += L"Simple-Ebnf-Item") << nt.terminal;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus;
-    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question;
+    ((*result) += L"Simple-Ebnf-Item") << nt.nonterminal << optionalItemName;
+    ((*result) += L"Simple-Ebnf-Item") << nt.terminal << optionalItemName;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.star << optionalItemName;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.plus << optionalItemName;
+    ((*result) += L"Simple-Ebnf-Item") << nt.simple_ebnf_item << t.question << optionalItemName;
     ((*result) += L"Simple-Ebnf-Item") << t.openparen << nt.ebnf_item << t.closeparen;
     ((*result) += L"Simple-Ebnf-Item") << nt.guard;
     
@@ -879,7 +887,7 @@ bool bootstrap::get_ebnf_list(production_definition* defn, const util::astnode* 
     }
     
     // Process the RHS of the definition
-    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1]);
+    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1], NULL);
     if (newItem == NULL) {
         return false;
     }
@@ -909,7 +917,7 @@ bool bootstrap::get_ebnf_list(ebnf_item* defn, const util::astnode* ebnf_item_li
     }
     
     // Process the RHS of the definition
-    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1]);
+    ebnf_item* newItem = get_ebnf_item((*ebnf_item_list)[1], NULL);
     if (newItem == NULL) {
         return false;
     }
@@ -919,16 +927,27 @@ bool bootstrap::get_ebnf_list(ebnf_item* defn, const util::astnode* ebnf_item_li
     return true;
 }
 
-ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
+ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astnode* optionalItemName) {
     // Sanity check
     if (ebnf == NULL) return NULL;
+
+    // The name of this item (empty by default)
+    wstring name;
+
+    // Get the name from the optional item name if it was passed in
+    if (optionalItemName) {
+        // If this has children, then we matched the item: the format is '[ identifier ]', so retrieve the content of the identifier lexeme
+        if (optionalItemName->children().size() == 1) {
+            name = (*(*optionalItemName)[0])[1]->lexeme()->content<wchar_t>();
+        }
+    }
     
     // Action depends on the type of this node
     int nodeType = ebnf->item_identifier();
     
     if (nodeType == nt.id_ebnf_item) {
         // First item is always a simple item list
-        ebnf_item* leftHandSide = new ebnf_item(ebnf_item::ebnf_parenthesized);
+        ebnf_item* leftHandSide = new ebnf_item(ebnf_item::ebnf_parenthesized, name);
         
         if (!get_ebnf_list(leftHandSide, (*ebnf)[0])) {
             delete leftHandSide;
@@ -938,7 +957,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
         // Might be of the form (a | b)
         if (ebnf->children().size() == 3) {
             // An alternative item
-            ebnf_item* alternative = get_ebnf_item((*ebnf)[2]);
+            ebnf_item* alternative = get_ebnf_item((*ebnf)[2], NULL);
             
             if (alternative == NULL) {
                 delete leftHandSide;
@@ -946,7 +965,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
             }
             
             // Generate the final result
-            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative);
+            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative, name);
             newItem->add_child(leftHandSide);
             newItem->add_child(alternative);
             
@@ -960,13 +979,17 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
     else if (nodeType == nt.id_simple_ebnf_item) {
         // Might be a simple nonterminal, terminal, one of the various closures, a parenthesized list or a guard
         if (ebnf->children().size() == 1) {
-            // Nonterminal, terminal or guard
-            return get_ebnf_item((*ebnf)[0]);
+            return get_ebnf_item((*ebnf)[0], NULL);
+        } 
+
+        else if (ebnf->children().size() == 2) {
+            // Nonterminal or terminal or guard
+            return get_ebnf_item((*ebnf)[0], (*ebnf)[1]);
         } 
         
-        else if (ebnf->children().size() == 2) {
+        else if (ebnf->children().size() == 3 && (!(*ebnf)[0]->lexeme() || (*ebnf)[0]->lexeme()->matched() != t.id_openparen)) {
             // Closure of some variety
-            ebnf_item* closedItem = get_ebnf_item((*ebnf)[0]);
+            ebnf_item* closedItem = get_ebnf_item((*ebnf)[0], (*ebnf)[2]);
             
             if (closedItem == NULL) {
                 return NULL;
@@ -977,17 +1000,17 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
 
             if (closureSymbol == t.id_star) {
                 // 0 or more (Kleene star)
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_zero);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_zero, name);
                 newItem->add_child(closedItem);
                 return newItem;
             } else if (closureSymbol == t.id_plus) {
                 // 1 or more
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_one);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_one, name);
                 newItem->add_child(closedItem);
                 return newItem;
             } else if (closureSymbol == t.id_question) {
                 // 0 or 1
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_optional);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_optional, name);
                 newItem->add_child(closedItem);
                 return newItem;
             } else {
@@ -1000,7 +1023,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
         else if (ebnf->children().size() == 3) {
             // Parenthesized list
             // Just contains an EBNF item: process that separately
-            return get_ebnf_item((*ebnf)[1]);
+            return get_ebnf_item((*ebnf)[1], NULL);
         }
         
         else {
@@ -1012,12 +1035,12 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
     else if (nodeType == nt.id_nonterminal) {
         // Just a nonterminal
         lexeme_container nt = (*ebnf)[0]->lexeme();
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", nt->content<wchar_t>(), nt->pos(), nt->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", nt->content<wchar_t>(), name, nt->pos(), nt->final_pos());
     }
     
     else if (nodeType == nt.id_terminal) {
         // Can only contain a basic_terminal
-        return get_ebnf_item((*ebnf)[0]);
+        return get_ebnf_item((*ebnf)[0], optionalItemName);
     }
     
     else if (nodeType == nt.id_basic_terminal) {
@@ -1037,13 +1060,13 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf) {
         }
         
         lexeme_container term = terminal->lexeme();
-        return new ebnf_item(itemType, L"", term->content<wchar_t>(), term->pos(), term->final_pos());
+        return new ebnf_item(itemType, L"", term->content<wchar_t>(), name, term->pos(), term->final_pos());
     }
     
     else if (nodeType == nt.id_guard) {
         // Guard (of the form [=> ebnf_item ]
-        ebnf_item* newItem      = new ebnf_item(ebnf_item::ebnf_guard);
-        ebnf_item* guardContent = get_ebnf_item((*ebnf)[1]);
+        ebnf_item* newItem      = new ebnf_item(ebnf_item::ebnf_guard, name);
+        ebnf_item* guardContent = get_ebnf_item((*ebnf)[1], NULL);
         
         if (guardContent == NULL) {
             delete newItem;
