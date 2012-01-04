@@ -52,6 +52,12 @@ namespace compiler {
 
         /// \brief Maps rules to vectors representing the name for each item
         typedef std::map<int, rule_attribute_list> rule_attribute_map;
+
+        /// \brief Maps a rule to its attributes
+        typedef std::pair<contextfree::rule_container, rule_attribute_list> rule_attribute_pair;
+
+        /// \brief List of attributes for particular rules
+        typedef std::vector<rule_attribute_pair> flat_rule_attribute_map;
         
     private:
         /// \brief The language block that this will compile
@@ -97,7 +103,7 @@ namespace compiler {
         symbol_map m_FirstNonterminalUsage;
 
         /// \brief Maps rule IDs to their corresponding attributes
-        std::vector<std::pair<contextfree::rule_container, rule_attribute_list> > m_FlatAttributesForRules;
+        flat_rule_attribute_map m_FlatAttributesForRules;
 
         /// \brief Maps rules to their corresponding attributes
         rule_attribute_map m_AttributesForRules;

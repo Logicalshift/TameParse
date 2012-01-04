@@ -495,6 +495,11 @@ void language_stage::compile() {
         }
     }
 
+    // Fill in the attributes for each rule
+    for (flat_rule_attribute_map::iterator rulePair = m_FlatAttributesForRules.begin(); rulePair != m_FlatAttributesForRules.end(); rulePair++) {
+        m_AttributesForRules[rulePair->first->identifier(m_Grammar)] = rulePair->second;
+    }
+
     // Display a summary of what the grammar and lexer contains if we're in verbose mode
     wostream& summary = cons().verbose_stream();
     
