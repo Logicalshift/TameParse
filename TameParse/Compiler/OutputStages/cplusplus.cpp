@@ -1303,7 +1303,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// Add to the list of parameters
 				if (!first) {
-					*m_HeaderFile << ", ";
+					*m_SourceFile << ", ";
 				}
 
 				// Declare as a reference to the syntax pointer
@@ -1322,7 +1322,7 @@ void output_cplusplus::source_ast_class_definitions() {
 			*m_SourceFile << ")\n";
 
 			// Write out the initializers
-			*m_SourceFile << ": m_Rule(m_CurrentRuleId)";
+			*m_SourceFile << ": m_Rule(" << ruleDefn->first << ")";
 
 			// Empty rules need to fill in the position field
 			if (index == 0) {
@@ -1344,7 +1344,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// Add to the list of parameters
 				if (!first) {
-					*m_HeaderFile << ", ";
+					*m_SourceFile << ", ";
 				}
 
 				// Declare as a reference to the syntax pointer
