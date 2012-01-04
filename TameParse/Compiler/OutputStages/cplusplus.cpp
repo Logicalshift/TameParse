@@ -1065,15 +1065,19 @@ void output_cplusplus::header_ast_class_declarations() {
 		// Append the type suffix
 		ntName += s_TypeSuffix;
 
+		// The class name for the content class for this item
+		string ntContentClass = ntName;
+
 		// Begin a class declaration for this item
 		bool repeatingItem = false;
 
 		if (nonterm->item->type() == item::repeat || nonterm->item->type() == item::repeat_zero_or_one) {
 			repeatingItem = true;
-			*m_HeaderFile << "\n    class " << ntName << s_ContentSuffix << " : public syntax_node {\n";		
+			ntContentClass += s_ContentSuffix;
+			*m_HeaderFile << "\n    class " << ntContentClass << " : public syntax_node {\n";		
 		} else {
 			// Write out a forward declaration for this item
-			*m_HeaderFile << "\n    class " << ntName << " : public syntax_node {\n";
+			*m_HeaderFile << "\n    class " << ntContentClass << " : public syntax_node {\n";
 		}
 
 		// Write out the pos/final_pos definitions
@@ -1161,7 +1165,7 @@ void output_cplusplus::header_ast_class_declarations() {
 			// Declare a constructor for this rule
 			if (declareConstructor) {
 				*m_HeaderFile 	<< "\n    public:\n"
-								<< "        " << ntName << "(";
+								<< "        " << ntContentClass << "(";
 				
 				// Iterate through the items in this rule
 				bool	first = true;
@@ -1201,7 +1205,7 @@ void output_cplusplus::header_ast_class_declarations() {
 
 		// Finish up with the destructor
 		*m_HeaderFile 	<< "\n    public:\n"
-						<< "        virtual ~" << ntName << "();\n"
+						<< "        virtual ~" << ntContentClass << "();\n"
 						<< "    };\n";
 
 		// For repeating classes, also declare the container class
