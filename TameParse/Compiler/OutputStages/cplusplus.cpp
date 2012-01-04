@@ -1155,6 +1155,9 @@ void output_cplusplus::header_ast_class_declarations() {
 
 					// Add a variable declaration
 					*m_HeaderFile << "        const util::syntax_ptr<" << typeName << s_TypeSuffix << "> " << varName << ";\n";
+
+					// This item is now defined for this class
+					definedVariables.insert(varName);
 				} else {
 					*m_HeaderFile << "        // " << varName << " declared in another rule\n";
 				}

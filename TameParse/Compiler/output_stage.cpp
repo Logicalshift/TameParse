@@ -449,9 +449,6 @@ void output_stage::generate_ast_rules() {
     	// Set it up
     	thisNt.nonterminalId = nonterminalId;
 
-    	/// Names that have been used within this rule
-    	set<wstring> usedNames;
-
     	for (rule_list::iterator nextRule = rulesForNonterminal[nonterminalId].begin(); nextRule != rulesForNonterminal[nonterminalId].end(); ++nextRule) {
     		// Get the identifier for this rule
     		int ruleId = gram().identifier_for_rule(*nextRule);
@@ -462,6 +459,9 @@ void output_stage::generate_ast_rules() {
 
     		// Get the list for this rule (which will be empty at this point)
     		ast_rule_item_list& ruleList = thisNt.rules[ruleId];
+
+		    /// Names that have been used within this rule
+		    set<wstring> usedNames;
 
     		// Fill in the items for this rule
     		for (rule::iterator ruleItem = (*nextRule)->begin(); ruleItem != (*nextRule)->end(); ++ruleItem) {
