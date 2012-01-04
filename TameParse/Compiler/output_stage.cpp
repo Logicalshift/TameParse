@@ -94,8 +94,8 @@ void output_stage::generate_terminal_symbols() {
 	m_TerminalSymbols.clear();
 
 	// Fill in the terminal symbols
-	for (int symbolId = 0; symbolId < m_LanguageStage->terminals()->count_symbols(); ++symbolId) {
-		m_TerminalSymbols.push_back(terminal_symbol(m_LanguageStage->terminals()->name_for_symbol(symbolId), symbolId));
+	for (int symbolId = 0; symbolId < terminals().count_symbols(); ++symbolId) {
+		m_TerminalSymbols.push_back(terminal_symbol(terminals().name_for_symbol(symbolId), symbolId));
 	}
 }
 
@@ -105,15 +105,15 @@ void output_stage::generate_nonterminal_symbols() {
 	m_NonterminalSymbols.clear();
 
 	// Fill in the nonterminal symbols
-	for (int symbolId = 0; symbolId < m_LanguageStage->grammar()->max_item_identifier(); ++symbolId) {
+	for (int symbolId = 0; symbolId < gram().max_item_identifier(); ++symbolId) {
 		// Assume that the nonterminal IDs match up to item IDs (they should do)
-		item_container ntItem = m_LanguageStage->grammar()->item_with_identifier(symbolId);
+		item_container ntItem = gram().item_with_identifier(symbolId);
 
 		// Must be a nonterminal
 		if (ntItem->type() == item::terminal) continue;
 
 		// Output this item
-		m_NonterminalSymbols.push_back(nonterminal_symbol(m_LanguageStage->grammar()->name_for_nonterminal(symbolId), symbolId, ntItem));
+		m_NonterminalSymbols.push_back(nonterminal_symbol(gram().name_for_nonterminal(symbolId), symbolId, ntItem));
 	}
 }
 
