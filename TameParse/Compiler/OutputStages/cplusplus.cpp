@@ -1247,6 +1247,11 @@ void output_cplusplus::source_ast_class_definitions() {
 
 	// Write out the constructors for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Guards have no definitions written out for them
+    	if (nonterm->item->type() == item::guard) {
+    		continue;
+    	}
+
     	// Get the definition for this nonterminal
 		const ast_nonterminal& ntDefn = get_ast_nonterminal(nonterm->identifier);
 
@@ -1358,6 +1363,11 @@ void output_cplusplus::source_ast_class_definitions() {
 
 	// Write out the position and final position definitions for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
+    	// Guards have no definitions written out for them
+    	if (nonterm->item->type() == item::guard) {
+    		continue;
+    	}
+
 		// Get the name for this nonterminal
 		string ntName = class_name_for_item(nonterm->item);
 
@@ -1631,7 +1641,7 @@ void output_cplusplus::source_reduce_actions() {
 					size_t reduceIndex = ruleDefn->second.size() - index - 1;
 
 					// Cast to the type
-					*m_SourceFile  << "reduce[" << reduceIndex << "].cast_to<" << typeName << ">()";
+					*m_SourceFile  << "reduce[" << reduceIndex << "].cast_to<" << typeName << s_TypeSuffix << ">()";
 				}
 
 				// If there aren't any valid items, then pass in the lookahead position (these items will take a position parameter)
