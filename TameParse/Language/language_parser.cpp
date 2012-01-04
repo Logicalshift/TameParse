@@ -168,7 +168,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
         } else {
             if (!parenthesized) {
                 // Add parentheses around the result
-                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnfItem->pos(), ebnfItem->final_pos());
+                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
                 paren->add_child(result);
                 paren->add_child(nextItem);
                 result          = paren;
@@ -182,7 +182,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     
     // If the result is empty, replace with an empty parenthesized item
     if (!result) {
-        result = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnfItem->pos(), ebnfItem->final_pos());
+        result = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
     }
     
     // Create an alternate if one is supplied
@@ -197,7 +197,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
         }
         
         // Create the new result item
-        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, ebnfItem->pos(), ebnfItem->final_pos());
+        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, L"", ebnfItem->pos(), ebnfItem->final_pos());
         
         alternate->add_child(result);
         alternate->add_child(alternative);
@@ -223,7 +223,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, simpleItem->pos(), simpleItem->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, L"", simpleItem->pos(), simpleItem->final_pos());
     }
     
     else if (simpleItem->Terminal) {
@@ -259,7 +259,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, simpleItem->pos(), simpleItem->final_pos());        
+        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, L"", simpleItem->pos(), simpleItem->final_pos());        
     }
     
     else if (simpleItem->Guard) {
@@ -272,7 +272,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Turn into a guard item
-        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard);
+        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, L"");
         guardItem->add_child(internalItem);
         
         return guardItem;
@@ -286,7 +286,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, L"", simpleItem->pos(), simpleItem->final_pos());
         result->add_child(starredItem);
         return result;
     }
@@ -299,7 +299,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, L"", simpleItem->pos(), simpleItem->final_pos());
         result->add_child(plusItem);
         return result;
     }
@@ -312,7 +312,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, L"", simpleItem->pos(), simpleItem->final_pos());
         result->add_child(optionalItem);
         return result;        
     }
