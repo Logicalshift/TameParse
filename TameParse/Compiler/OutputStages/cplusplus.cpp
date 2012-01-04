@@ -1342,11 +1342,6 @@ void output_cplusplus::source_ast_class_definitions() {
 				string varName 	= get_identifier(ruleItem->uniqueName);
 				string typeName = class_name_for_item(ruleItem->item);
 
-				// Add to the list of parameters
-				if (!first) {
-					*m_SourceFile << ", ";
-				}
-
 				// Declare as a reference to the syntax pointer
 				*m_SourceFile 	<< "\n"
 								<< ", " << varName << "(" << typeName << "_" << index << ")";
