@@ -37,7 +37,7 @@ typedef tameparse_language::list_of_Lexeme_Definition_n         list_of_Lexeme_D
 typedef tameparse_language::list_of_Keyword_Definition_n        list_of_Keyword_Definition;
 typedef tameparse_language::identifier_n                        identifier;
 typedef tameparse_language::regex_n                             ast_regex;
-typedef tameparse_language::string_2_n                          ast_string;
+typedef tameparse_language::string_n                            ast_string;
 typedef tameparse_language::character_n                         ast_character;
 typedef tameparse_language::list_of_Nonterminal_Definition_n    list_of_Nonterminal_Definition;
 typedef tameparse_language::list_of__pipe__Production_n         list_of__pipe__Production;
