@@ -411,6 +411,12 @@ wstring output_stage::name_for_item(const contextfree::item_container& it) {
 	return name;	
 }
 
+/// \brief Returns true if the specified name should be considered 'valid'
+bool output_stage::name_is_valid(const std::wstring& name) {
+	// Only empty names are invalid by default
+	return !name.empty();
+}
+
 /// \brief Generates the rules for each nonterminal
 void output_stage::generate_ast_rules() {
     // Maps nonterminals to their corresponding rules
@@ -466,8 +472,8 @@ void output_stage::generate_ast_rules() {
     			wstring uniqueName	= baseName;
     			int 	offset 		= 1;
 
-    			while (usedNames.find(uniqueName) != usedNames.end()) {
-    				// Append _2, etc if this name has already been encountered in this rule
+    			while (usedNames.find(uniqueName) != usedNames.end() || !name_is_valid(uniqueName)) {
+    				// Append _2, etc if this name has already been encountered in this rule or is invalid
     				offset++;
 
     				// Generate a new unique name

@@ -55,13 +55,19 @@ namespace compiler {
 
 	protected:
 		/// \brief Returns a valid C++ identifier for the specified symbol name
-		virtual std::string get_identifier(const std::wstring& name);
+		virtual std::string get_identifier(const std::wstring& name, bool allowReserved = false);
 
         /// \brief Retrieves or assigns a class name for an item with the specified ID
         virtual std::string class_name_for_item(const contextfree::item_container& item);
 
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);
+
+		/// \brief Returns true if the specified name should be considered 'valid'
+		///
+		/// This is used when generating unique names for rules (and may be used in
+		/// other places where a unique name is required)
+		virtual bool name_is_valid(const std::wstring& name);
 
 	private:
 		/// \brief Writes out the terminal symbols definitions to the header file

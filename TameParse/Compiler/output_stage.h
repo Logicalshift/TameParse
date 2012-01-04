@@ -134,6 +134,12 @@ namespace compiler {
 		/// \brief Gets a string name that can be used to represent a specific grammar item
 		std::wstring name_for_item(const contextfree::item_container& item);
 
+		/// \brief Returns true if the specified name should be considered 'valid'
+		///
+		/// This is used when generating unique names for rules (and may be used in
+		/// other places where a unique name is required)
+		virtual bool name_is_valid(const std::wstring& name);
+
 	protected:
 		// Functions that represent various steps of the output of a language.
 		// These are intended to make it easy to write out a file in the specified language.

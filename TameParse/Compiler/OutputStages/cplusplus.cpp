@@ -126,55 +126,55 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 	m_ReservedWords.insert("xor_eq");
 
 	// Standard set of reserved class names
-	m_UsedClassNames.insert("terminal");
-	m_UsedClassNames.insert("parser_actions");
+	m_ReservedWords.insert("terminal");
+	m_ReservedWords.insert("parser_actions");
 
 	// Some other classes we don't want to create clashes for to avoid confusion.
-	m_UsedClassNames.insert("parser");
-	m_UsedClassNames.insert("lexer");
-	m_UsedClassNames.insert("lexeme");
-	m_UsedClassNames.insert("rule");
-	m_UsedClassNames.insert("nonterminal");
-	m_UsedClassNames.insert("reduce_list");
-	m_UsedClassNames.insert("syntax_node");
-	m_UsedClassNames.insert("node");
-	m_UsedClassNames.insert("content");
+	m_ReservedWords.insert("parser");
+	m_ReservedWords.insert("lexer");
+	m_ReservedWords.insert("lexeme");
+	m_ReservedWords.insert("rule");
+	m_ReservedWords.insert("nonterminal");
+	m_ReservedWords.insert("reduce_list");
+	m_ReservedWords.insert("syntax_node");
+	m_ReservedWords.insert("node");
+	m_ReservedWords.insert("content");
 
 	// Mainly stuff from the std namespace
-	m_UsedClassNames.insert("string");
-	m_UsedClassNames.insert("wstring");
-	m_UsedClassNames.insert("vector");
-	m_UsedClassNames.insert("deque");
-	m_UsedClassNames.insert("list");
-	m_UsedClassNames.insert("stack");
-	m_UsedClassNames.insert("queue");
-	m_UsedClassNames.insert("priority_queue");
-	m_UsedClassNames.insert("set");
-	m_UsedClassNames.insert("multiset");
-	m_UsedClassNames.insert("map");
-	m_UsedClassNames.insert("multimap");
-	m_UsedClassNames.insert("bitset");
-	m_UsedClassNames.insert("ios_base");
-	m_UsedClassNames.insert("ios");
-	m_UsedClassNames.insert("istream");
-	m_UsedClassNames.insert("ostream");
-	m_UsedClassNames.insert("ifstream");
-	m_UsedClassNames.insert("ofstream");
-	m_UsedClassNames.insert("fstream");
-	m_UsedClassNames.insert("istringstream");
-	m_UsedClassNames.insert("ostringstream");
-	m_UsedClassNames.insert("stringstream");
-	m_UsedClassNames.insert("streambuf");
-	m_UsedClassNames.insert("filebuf");
-	m_UsedClassNames.insert("stringbuf");
-	m_UsedClassNames.insert("cin");
-	m_UsedClassNames.insert("cout");
-	m_UsedClassNames.insert("cerr");
-	m_UsedClassNames.insert("clog");
-	m_UsedClassNames.insert("wcin");
-	m_UsedClassNames.insert("wcout");
-	m_UsedClassNames.insert("wcerr");
-	m_UsedClassNames.insert("wclog");	
+	m_ReservedWords.insert("string");
+	m_ReservedWords.insert("wstring");
+	m_ReservedWords.insert("vector");
+	m_ReservedWords.insert("deque");
+	m_ReservedWords.insert("list");
+	m_ReservedWords.insert("stack");
+	m_ReservedWords.insert("queue");
+	m_ReservedWords.insert("priority_queue");
+	m_ReservedWords.insert("set");
+	m_ReservedWords.insert("multiset");
+	m_ReservedWords.insert("map");
+	m_ReservedWords.insert("multimap");
+	m_ReservedWords.insert("bitset");
+	m_ReservedWords.insert("ios_base");
+	m_ReservedWords.insert("ios");
+	m_ReservedWords.insert("istream");
+	m_ReservedWords.insert("ostream");
+	m_ReservedWords.insert("ifstream");
+	m_ReservedWords.insert("ofstream");
+	m_ReservedWords.insert("fstream");
+	m_ReservedWords.insert("istringstream");
+	m_ReservedWords.insert("ostringstream");
+	m_ReservedWords.insert("stringstream");
+	m_ReservedWords.insert("streambuf");
+	m_ReservedWords.insert("filebuf");
+	m_ReservedWords.insert("stringbuf");
+	m_ReservedWords.insert("cin");
+	m_ReservedWords.insert("cout");
+	m_ReservedWords.insert("cerr");
+	m_ReservedWords.insert("clog");
+	m_ReservedWords.insert("wcin");
+	m_ReservedWords.insert("wcout");
+	m_ReservedWords.insert("wcerr");
+	m_ReservedWords.insert("wclog");	
 }
 
 /// \brief Destructor
@@ -201,7 +201,7 @@ static string toupper(const string& s) {
 // 				===================
 
 /// \brief Returns a valid C++ identifier for the specified symbol name
-std::string output_cplusplus::get_identifier(const std::wstring& name) {
+std::string output_cplusplus::get_identifier(const std::wstring& name, bool allowReserved) {
 	// Empty string if the name is empty
 	if (name.size() == 0) return "_";
 
@@ -283,7 +283,7 @@ std::string output_cplusplus::get_identifier(const std::wstring& name) {
 	}
 
 	// Ensure that this doesn't match any reserved words
-	while (m_ReservedWords.find(res.str()) != m_ReservedWords.end()) {
+	while (!allowReserved && m_ReservedWords.find(res.str()) != m_ReservedWords.end()) {
 		res << "_";
 	}
     
@@ -304,7 +304,7 @@ std::string output_cplusplus::class_name_for_item(const contextfree::item_contai
 	}
 
 	// Get the base name for this item
-	string baseName = get_identifier(name_for_item(item));
+	string baseName = get_identifier(name_for_item(item), true);
 	if (baseName.size() == 0) baseName = "unknown";
 
 	// Find a unique name that we can assign to this item
@@ -323,7 +323,7 @@ std::string output_cplusplus::class_name_for_item(const contextfree::item_contai
 
 		string varName = varNameStream.str();
 
-		// See if this name has already been used
+		// See if this name has already been used or is reserved
 		if (m_UsedClassNames.find(varName) == m_UsedClassNames.end()) {
 			// This is the name we shall use
 
@@ -339,6 +339,20 @@ std::string output_cplusplus::class_name_for_item(const contextfree::item_contai
 	}
 }
 
+/// \brief Returns true if the specified name should be considered 'valid'
+bool output_cplusplus::name_is_valid(const std::wstring& name) {
+	// Empty names are invalid
+	if (name.empty()) return false;
+
+	// Names whose identifiers map to a reserved word are invalid
+	string asIdentifier = get_identifier(name, true);
+	if (m_ReservedWords.find(asIdentifier) != m_ReservedWords.end()) {
+		return false;
+	}
+
+	// All other names are valid
+	return true;
+}
 
 // 				================
 //  			 General output
@@ -383,8 +397,8 @@ void output_cplusplus::begin_output() {
 	write_header(headerFilename, m_HeaderFile);
 
 	// Write out the boilerplate at the start of the header (declare the class)
-	*m_HeaderFile << "#ifndef TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
-	*m_HeaderFile << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix)) << "\n";
+	*m_HeaderFile << "#ifndef TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix, true)) << "\n";
+	*m_HeaderFile << "#define TAMEPARSE_PARSER_" << toupper(get_identifier(m_FilenamePrefix, true)) << "\n";
     *m_HeaderFile << "\n";
 
     *m_HeaderFile << "#include \"TameParse/Util/syntax_ptr.h\"\n";
@@ -394,18 +408,18 @@ void output_cplusplus::begin_output() {
     *m_HeaderFile << "\n";
     
     if (!m_Namespace.empty()) {
-        *m_HeaderFile << "namespace " << get_identifier(m_Namespace) << " {\n";
+        *m_HeaderFile << "namespace " << get_identifier(m_Namespace, false) << " {\n";
     }
-    *m_HeaderFile << "class " << get_identifier(m_ClassName) << " {\n";
+    *m_HeaderFile << "class " << get_identifier(m_ClassName, false) << " {\n";
 
     // Add to the list of used class names
-    m_UsedClassNames.insert(get_identifier(m_ClassName));
+    m_UsedClassNames.insert(get_identifier(m_ClassName, false));
     
     // Write out the boilerplate at the start of the source file (include the header)
     *m_SourceFile << "#include \"" << cons().convert_filename(headerFilename) << "\"\n";
 
     if (!m_Namespace.empty()) {
-        *m_SourceFile << "using namespace " << get_identifier(m_Namespace) << ";\n";
+        *m_SourceFile << "using namespace " << get_identifier(m_Namespace, false) << ";\n";
     }
 }
 
@@ -442,7 +456,7 @@ void output_cplusplus::header_terminal_symbols() {
     // Output the terminal symbols
     for (terminal_symbol_iterator term = begin_terminal_symbol(); term != end_terminal_symbol(); ++term) {
         // Get the short name
-	    string       shortName = get_identifier(term->name);
+	    string       shortName = get_identifier(term->name, false);
 	    
 	    // Choose a unique name (gets a bit weird if we chose a unique name that later clashes)
 	    stringstream ourName;
@@ -483,7 +497,7 @@ void output_cplusplus::header_nonterminal_symbols() {
     	if (nonterm->item->type() != item::nonterminal) continue;
 
         // Get the short name
-	    string       shortName = get_identifier(nonterm->name);
+	    string       shortName = get_identifier(nonterm->name, false);
 	    
 	    if (nonterm->name.empty()) {
 	        // Some nonterminals don't have a name
@@ -692,7 +706,7 @@ void output_cplusplus::source_lexer_state_machine() {
 	*m_SourceFile << "static lexer_definition s_LexerDefinition(s_StateMachine, " << stateToEntryOffset.size()-1 << ", s_AcceptingStates);\n";
 
 	// Finally, the lexer class itself
-	*m_SourceFile << "\nconst dfa::lexer " << get_identifier(m_ClassName) << "::lexer(&s_LexerDefinition, false);\n";
+	*m_SourceFile << "\nconst dfa::lexer " << get_identifier(m_ClassName, false) << "::lexer(&s_LexerDefinition, false);\n";
 }
 
 /// \brief Defines the symbols associated with this language
@@ -943,7 +957,7 @@ void output_cplusplus::source_parser_tables() {
     *m_SourceFile << "\n};\n";
     
     // Generate the parser tables
-	*m_SourceFile 	<< "\nconst lr::parser_tables " << get_identifier(m_ClassName) << "::lr_tables(" 
+	*m_SourceFile 	<< "\nconst lr::parser_tables " << get_identifier(m_ClassName, false) << "::lr_tables(" 
 					<< tables.count_states() << ", " << tables.end_of_input() << ", " 
 					<< tables.end_of_guard() 
 					<< ", s_TerminalActions, s_NonterminalActions, s_ActionCounts, s_EndGuardStates, " 
@@ -976,7 +990,7 @@ void output_cplusplus::define_ast_tables() {
 					<< "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n"
     				<< "    static const ast_parser_type ast_parser;\n";
 	
-	*m_SourceFile 	<< "\nconst " << get_identifier(m_ClassName) << "::ast_parser_type " << get_identifier(m_ClassName) << "::ast_parser(&lr_tables, false);\n";
+	*m_SourceFile 	<< "\nconst " << get_identifier(m_ClassName, false) << "::ast_parser_type " << get_identifier(m_ClassName, false) << "::ast_parser(&lr_tables, false);\n";
 }
 
 /// \brief Writes out the forward declarations for the classes that represent items in the grammar
@@ -1054,10 +1068,11 @@ void output_cplusplus::header_ast_class_declarations() {
 		name += s_TypeSuffix;
 
 		// Declare a class for this item
-		*m_HeaderFile << "\n    class " << name << " : public terminal {\n";
-		*m_HeaderFile << "    public:\n";
-		*m_HeaderFile << "        " << name << "(const dfa::lexeme_container& lex) : terminal(lex) { }\n";
-		*m_HeaderFile << "    };\n";
+		*m_HeaderFile 	<< "\n    // " << get_identifier(terminals().name_for_symbol(term->identifier), true) << "\n"
+						<< "    class " << name << " : public terminal {\n"
+						<< "    public:\n"
+						<< "        " << name << "(const dfa::lexeme_container& lex) : terminal(lex) { }\n"
+						<< "    };\n";
     }
 
 	// Iterate through the nonterminals
@@ -1130,7 +1145,7 @@ void output_cplusplus::header_ast_class_declarations() {
 				validItems = true;
 
 				// Add a variable definition for this rule item if this nonterminal doesn't already have one
-				string varName = get_identifier(ruleItem->uniqueName);
+				string varName = get_identifier(ruleItem->uniqueName, false);
 
 				if (definedVariables.find(varName) == definedVariables.end()) {
 					// Get the type name for this variable
@@ -1186,7 +1201,7 @@ void output_cplusplus::header_ast_class_declarations() {
 					if (ruleItem->isEbnfRepetition) continue;
 
 					// Get the variable name and type for this item 
-					string varName 	= get_identifier(ruleItem->uniqueName);
+					string varName 	= get_identifier(ruleItem->uniqueName, false);
 					string typeName = class_name_for_item(ruleItem->item);
 
 					// Add to the list of parameters
@@ -1249,9 +1264,9 @@ void output_cplusplus::header_ast_class_declarations() {
 /// \brief Writes out the implementations of the AST classes to the source file
 void output_cplusplus::source_ast_class_definitions() {
 	// Write out the definition of a terminal symbol
-	*m_SourceFile << "\n" << get_identifier(m_ClassName) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
-	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
-	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName) << "::terminal::final_pos() const { return m_Lexeme->final_pos(); }\n";
+	*m_SourceFile << "\n" << get_identifier(m_ClassName, false) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName, false) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
+	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName, false) << "::terminal::final_pos() const { return m_Lexeme->final_pos(); }\n";
 
 	// Write out the constructors for each nonterminal symbol
     for (nonterminal_symbol_iterator nonterm = begin_nonterminal_symbol(); nonterm != end_nonterminal_symbol(); ++nonterm) {
@@ -1298,7 +1313,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 			// Write out the declaration for this constructor
 			*m_SourceFile << "\n// Rule " << ruleDefn->first << "\n";
-			*m_SourceFile << get_identifier(m_ClassName) << "::" << ntName << "::" << ntName << "(";
+			*m_SourceFile << get_identifier(m_ClassName, false) << "::" << ntName << "::" << ntName << "(";
 
 			// Generate the parameters for the constructor by iterating through the items in the rule
 			bool	first = true;
@@ -1311,7 +1326,7 @@ void output_cplusplus::source_ast_class_definitions() {
 				if (ruleItem->isEbnfRepetition) continue;
 
 				// Get the variable name and type for this item 
-				string varName 	= get_identifier(ruleItem->uniqueName);
+				string varName 	= get_identifier(ruleItem->uniqueName, false);
 				string typeName = class_name_for_item(ruleItem->item);
 
 				// Add to the list of parameters
@@ -1352,7 +1367,7 @@ void output_cplusplus::source_ast_class_definitions() {
 				if (ruleItem->isEbnfRepetition) continue;
 
 				// Get the variable name and type for this item 
-				string varName 	= get_identifier(ruleItem->uniqueName);
+				string varName 	= get_identifier(ruleItem->uniqueName, false);
 				string typeName = class_name_for_item(ruleItem->item);
 
 				// Declare as a reference to the syntax pointer
@@ -1393,7 +1408,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 		// Write out the initial position definitions
 		*m_SourceFile 	<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << (repeatingItem?s_ContentSuffix:"") << "::pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName, false) << "::" << ntName << (repeatingItem?s_ContentSuffix:"") << "::pos() const {\n"
 						<< "    switch (m_Rule) {";
 		
 		// The container of the initial position depends on which rule was matched
@@ -1414,7 +1429,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// This item has a variable, so we can return its first position as the position of this item
 				foundValid = true;
-				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName) << "->pos();\n";
+				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName, false) << "->pos();\n";
 
 				// Only write out a single position item
 				break;
@@ -1435,7 +1450,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 		// ... and the final position definitions
 		*m_SourceFile	<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << (repeatingItem?s_ContentSuffix:"")  << "::final_pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName, false) << "::" << ntName << (repeatingItem?s_ContentSuffix:"")  << "::final_pos() const {\n"
 						<< "    switch (m_Rule) {";
 
 		// The container of the final position depends on which rule was matched
@@ -1456,7 +1471,7 @@ void output_cplusplus::source_ast_class_definitions() {
 
 				// This item has a variable, so we can return its final position as the position of this item
 				foundValid = true;
-				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName) << "->final_pos();\n";
+				*m_SourceFile << "        return " << get_identifier(ruleItem->uniqueName, false) << "->final_pos();\n";
 
 				// Only write out a single position item
 				break;
@@ -1478,12 +1493,12 @@ void output_cplusplus::source_ast_class_definitions() {
 		// Write out the pos/final_pos items for the container class for repeating items
 		if (repeatingItem) {
 			*m_SourceFile			<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName, false) << "::" << ntName << "::pos() const {\n"
 						<< "    if (m_Data.empty()) return m_Position;\n"
 						<< "    return m_Data.front()->pos();\n"
 						<< "}\n"
 						<< "\n"
-						<< "dfa::position " << get_identifier(m_ClassName) << "::" << ntName << "::final_pos() const {\n"
+						<< "dfa::position " << get_identifier(m_ClassName, false) << "::" << ntName << "::final_pos() const {\n"
 						<< "    if (m_Data.empty()) return m_Position;\n"
 						<< "    return m_Data.back()->final_pos();\n"
 						<< "}\n";
@@ -1528,7 +1543,7 @@ void output_cplusplus::header_parser_actions() {
 
 /// \brief Writes out the shift actions to the source file
 void output_cplusplus::source_shift_actions() {
-	string className = get_identifier(m_ClassName);
+	string className = get_identifier(m_ClassName, false);
 
 	// Declare the shift function
 	*m_SourceFile 	<< "\n" 
@@ -1544,7 +1559,7 @@ void output_cplusplus::source_shift_actions() {
 		name += s_TypeSuffix;
 
 		// Declare a shift action for this symbol
-		*m_SourceFile	<< "\n    case " << term->identifier << ": // " << get_identifier(terminals().name_for_symbol(term->identifier)) << "\n"
+		*m_SourceFile	<< "\n    case " << term->identifier << ": // " << get_identifier(terminals().name_for_symbol(term->identifier), true) << "\n"
 						<< "        return node(new " << name << "(lexeme));\n";
     }
 					
@@ -1557,7 +1572,7 @@ void output_cplusplus::source_shift_actions() {
 
 /// \brief Writes out the reduce actions to the source file
 void output_cplusplus::source_reduce_actions() {
-	string className = get_identifier(m_ClassName);
+	string className = get_identifier(m_ClassName, false);
 
 	// Declare the reduce function
 	*m_SourceFile 	<< "\n"
