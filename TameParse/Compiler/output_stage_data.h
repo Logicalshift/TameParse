@@ -22,9 +22,10 @@ namespace compiler {
 		///
 		struct terminal_symbol {
 			/// \brief Constructs a new terminal symbol
-			inline terminal_symbol(const std::wstring& newName, int newIdentifier)
+			inline terminal_symbol(const std::wstring& newName, int newIdentifier, const contextfree::item_container& newItem)
 			: name(newName)
-			, identifier(newIdentifier) { }
+			, identifier(newIdentifier)
+			, item(newItem) { }
 
 			/// \brief The name of this symbol
 			std::wstring name;

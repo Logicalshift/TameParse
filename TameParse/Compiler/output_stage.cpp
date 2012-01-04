@@ -95,7 +95,7 @@ void output_stage::generate_terminal_symbols() {
 
 	// Fill in the terminal symbols
 	for (int symbolId = 0; symbolId < terminals().count_symbols(); ++symbolId) {
-		m_TerminalSymbols.push_back(terminal_symbol(terminals().name_for_symbol(symbolId), symbolId));
+		m_TerminalSymbols.push_back(terminal_symbol(terminals().name_for_symbol(symbolId), symbolId, terminal(symbolId)));
 	}
 }
 
