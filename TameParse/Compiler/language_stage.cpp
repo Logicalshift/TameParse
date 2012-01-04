@@ -412,7 +412,16 @@ void language_stage::compile() {
                     // Compile each item in turn and append them to the rule
                     compile_item(*newRule, *ebnfItem, ourFilename);
                 }
+
+                // Compile the attributes for this rule
+                m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newRule, rule_attribute_list()));
+                rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
                 
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
+                    // Compile each item in turn and append them to the rule
+                    compile_rule_attributes(ruleAttributes, *ebnfItem, ourFilename);
+                }
+
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
                 
@@ -661,8 +670,8 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
             // Compile the attributes for the new rule
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
+            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
 
             // Create the item container
@@ -686,8 +695,8 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
             // Compile the attributes for the new rule
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
+            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
 
             // Create the item container
@@ -711,8 +720,8 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
             // Compile the attributes for the new rule
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
+            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
 
             // Create the item container
@@ -736,8 +745,8 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
             // Compile the attributes for the new rule
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
+            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
             
             // Append to the rule
@@ -771,12 +780,12 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             compile_item(*rhsRule, (*item)[1], ourFilename);
 
             // Compile the attributes for the new rules
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(lhsRule, rule_attribute_list()));
-            rule_attribute_list& lhsAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(lhsRule, rule_attribute_list()));
+            rule_attribute_list& lhsAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(lhsAttributes, (*item)[0], ourFilename);
 
-            m_AttributesForRules.push_back(pair<rule_container, rule_attribute_list>(rhsRule, rule_attribute_list()));
-            rule_attribute_list& rhsAttributes = m_AttributesForRules.back().second;
+            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(rhsRule, rule_attribute_list()));
+            rule_attribute_list& rhsAttributes = m_FlatAttributesForRules.back().second;
             compile_rule_attributes(rhsAttributes, (*item)[1], ourFilename);
 
             // Create the item container
