@@ -969,6 +969,14 @@ void output_cplusplus::define_ast_tables() {
 	source_ast_class_definitions();
 	source_shift_actions();
 	source_reduce_actions();
+
+	// Output the parser definition
+    *m_HeaderFile 	<< "\npublic:\n"
+    				<< "    typedef util::syntax_ptr<syntax_node> syntax_node_container;\n"
+					<< "    typedef lr::parser<syntax_node_container, parser_actions> ast_parser_type;\n"
+    				<< "    static const ast_parser_type ast_parser;\n";
+	
+	*m_SourceFile 	<< "\nconst " << get_identifier(m_ClassName) << "::ast_parser_type " << get_identifier(m_ClassName) << "::ast_parser(&lr_tables, false);\n";
 }
 
 /// \brief Writes out the forward declarations for the classes that represent items in the grammar
