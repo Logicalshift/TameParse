@@ -1263,6 +1263,13 @@ void output_cplusplus::header_ast_class_declarations() {
 
 /// \brief Writes out the implementations of the AST classes to the source file
 void output_cplusplus::source_ast_class_definitions() {
+	// Write out the declarations for the syntax node
+	*m_SourceFile 	<< "\n"
+					<< get_identifier(m_ClassName, false) << "::syntax_node::~syntax_node() { }\n"
+					<< "std::wstring " << get_identifier(m_ClassName, false) << "::syntax_node::to_string() { return L\"syntax_node\"; }\n"
+					<< "dfa::position " << get_identifier(m_ClassName, false) << "::syntax_node::pos() const { return dfa::position(-1, -1, -1); }\n"
+					<< "dfa::position " << get_identifier(m_ClassName, false) << "::syntax_node::final_pos() const { return dfa::position(-1, -1, -1); }\n";
+
 	// Write out the definition of a terminal symbol
 	*m_SourceFile << "\n" << get_identifier(m_ClassName, false) << "::terminal::terminal(const dfa::lexeme_container& lexeme) : m_Lexeme(lexeme) { }\n";
 	*m_SourceFile << "\ndfa::position " << get_identifier(m_ClassName, false) << "::terminal::pos() const { return m_Lexeme->pos(); }\n";
@@ -1382,6 +1389,9 @@ void output_cplusplus::source_ast_class_definitions() {
 			*m_SourceFile	<< " {\n"
 							<< "}\n";
 		}
+
+		// Write out a destructor for this nonterminal
+		*m_SourceFile << "\n" << get_identifier(m_ClassName, false) << "::" << ntName << "::~" << ntName << "() { }\n";
     }
 
 	// Write out the position and final position definitions for each nonterminal symbol
