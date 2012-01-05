@@ -62,8 +62,8 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
     wstring nonterminalLanguage;
     wstring nonterminalName;
 
-    if (defn->Nonterminal->identifier) {
-        nonterminalLanguage = defn->Nonterminal->identifier->content<wchar_t>();
+    if (defn->Nonterminal->source_language) {
+        nonterminalLanguage = defn->Nonterminal->source_language->content<wchar_t>();
     }
 
     nonterminalName = defn->Nonterminal->nonterminal_2->content<wchar_t>();
@@ -116,18 +116,18 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
 /// \brief Converts a test block into a test_block
 static test_block* definition_for(const ast_Test_Block* testBlock) {
     // Sanity check
-    if (!testBlock->identifier)                 return NULL;
-    if (!testBlock->list_of_Test_Definition)    return NULL;
+    if (!testBlock->language_name)  return NULL;
+    if (!testBlock->tests)          return NULL;
 
     // Get the identifier for this block
-    wstring identifier = testBlock->identifier->content<wchar_t>();
+    wstring languageName = testBlock->language_name->content<wchar_t>();
 
     // Create the result
-    test_block* result = new test_block(identifier, testBlock->pos(), testBlock->final_pos());
+    test_block* result = new test_block(languageName, testBlock->pos(), testBlock->final_pos());
 
     // Iterate through the test definitions
-    for (ast_list_of_Test_Definition::iterator defn = testBlock->list_of_Test_Definition->begin();
-         defn != testBlock->list_of_Test_Definition->end();
+    for (ast_list_of_Test_Definition::iterator defn = testBlock->tests->begin();
+         defn != testBlock->tests->end();
          ++defn) {
          // Add this definition to this block
         if (!add_test_definition(result, (*defn)->Test_Definition)) {
@@ -150,8 +150,8 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     bool        parenthesized   = false;            // True when parenthesized
     ebnf_item*  result          = NULL;
     
-    for (list_of_Simple_Ebnf_Item::iterator item = ebnfItem->list_of_Simple_Ebnf_Item->begin(); 
-         item != ebnfItem->list_of_Simple_Ebnf_Item->end(); 
+    for (list_of_Simple_Ebnf_Item::iterator item = ebnfItem->items->begin(); 
+         item != ebnfItem->items->end(); 
          ++item) {
         // Get the definition for this item
         ebnf_item* nextItem = definition_for((*item)->Simple_Ebnf_Item);
@@ -186,9 +186,9 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     }
     
     // Create an alternate if one is supplied
-    if (ebnfItem->Ebnf_Item) {
+    if (ebnfItem->or_item) {
         // Get the alternative item
-        ebnf_item* alternative = definition_for(ebnfItem->Ebnf_Item);
+        ebnf_item* alternative = definition_for(ebnfItem->or_item);
         
         if (alternative == NULL) {
             // Bug
@@ -218,8 +218,8 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         wstring ntIdentifier = simpleItem->Nonterminal->nonterminal_2->content<wchar_t>();
         
         // Get the source identifier if it exists
-        if (simpleItem->Nonterminal->identifier) {
-            sourceIdentifier = simpleItem->Nonterminal->identifier->content<wchar_t>();
+        if (simpleItem->Nonterminal->source_language) {
+            sourceIdentifier = simpleItem->Nonterminal->source_language->content<wchar_t>();
         }
         
         // Create the item
@@ -233,9 +233,9 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         wstring         termIdentifier;
         
         // Get the terminal data
-        if (simpleItem->Terminal->Basic_Terminal->identifier) {
+        if (simpleItem->Terminal->Basic_Terminal->lexeme_name) {
             terminalType    = ebnf_item::ebnf_terminal;
-            termIdentifier  = simpleItem->Terminal->Basic_Terminal->identifier->content<wchar_t>();
+            termIdentifier  = simpleItem->Terminal->Basic_Terminal->lexeme_name->content<wchar_t>();
         }
         
         else if (simpleItem->Terminal->Basic_Terminal->string_2) {
@@ -254,8 +254,8 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Get the source identifier if it exists
-        if (simpleItem->Terminal->identifier) {
-            sourceIdentifier = simpleItem->Terminal->identifier->content<wchar_t>();
+        if (simpleItem->Terminal->source_language) {
+            sourceIdentifier = simpleItem->Terminal->source_language->content<wchar_t>();
         }
         
         // Create the item
@@ -332,8 +332,8 @@ static production_definition* definition_for(const ast_Production* production) {
     production_definition* defn = new production_definition(production->pos(), production->final_pos());
     
     // Iterate through the items in this production
-    for (list_of_Simple_Ebnf_Item::iterator item = production->list_of_Simple_Ebnf_Item->begin();
-         item != production->list_of_Simple_Ebnf_Item->end();
+    for (list_of_Simple_Ebnf_Item::iterator item = production->items->begin();
+         item != production->items->end();
          ++item) {
         // Get the next EBNF item
         ebnf_item* ebnf = definition_for((*item)->Simple_Ebnf_Item);
@@ -433,7 +433,7 @@ static bool add_lexeme_definition(const ast_Lexeme_Definition* defn, lexer_block
     }
 
     // Get the identifier for the new lexeme
-    const identifier* lexemeId = defn->identifier;
+    const identifier* lexemeId = defn->name;
     
     // Lexeme should either be a string/character/regex or a reference
     if (defn->one_of_regex_or_one_of_string_or_character) {
@@ -463,7 +463,7 @@ static bool add_lexeme_definition(const ast_Lexeme_Definition* defn, lexer_block
 
         // Success
         return true;
-    } else if (defn->identifier_2) {
+    } else if (defn->source_language) {
         // Reference (IMPLEMENT ME)
         return false;
     } else {
@@ -506,16 +506,16 @@ static language_unit* definition_for(const list_of_Keyword_Definition* items, co
     
     // Iterate through the items
     for (list_of_Keyword_Definition::iterator keyword = items->begin(); keyword != items->end(); ++keyword) {
-        if ((*keyword)->Keyword_Definition->Lexeme_Definition) {
+        if ((*keyword)->Keyword_Definition->lexeme_2) {
             // Add the lexeme definition
-            if (!add_lexeme_definition((*keyword)->Keyword_Definition->Lexeme_Definition, lexerBlock)) {
+            if (!add_lexeme_definition((*keyword)->Keyword_Definition->lexeme_2, lexerBlock)) {
                 // Doh, fail
                 delete lexerBlock;
                 return NULL;
             }
-        } else if ((*keyword)->Keyword_Definition->identifier) {
+        } else if ((*keyword)->Keyword_Definition->literal) {
             // A literal keyword defined only by its identifier
-            const identifier* keywordId = (*keyword)->Keyword_Definition->identifier;
+            const identifier* keywordId = (*keyword)->Keyword_Definition->literal;
             lexerBlock->add_definition(new lexeme_definition(lexeme_definition::literal, keywordId->content<wchar_t>(), keywordId->content<wchar_t>(), false, false, (*keyword)->pos(), (*keyword)->final_pos(), keywordId->pos()));
         } else {
             // Unknown keyword type
@@ -579,15 +579,15 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
     
     // Most of the lexer type nodes are very similar, except for the node type
     if (defn->Lexer_Symbols_Definition) {
-        return definition_for(defn->Lexer_Symbols_Definition->list_of_Lexeme_Definition, NULL, defn->Lexer_Symbols_Definition->list_of_Lexer_Symbols_Modifier, language_unit::unit_lexer_symbols);
+        return definition_for(defn->Lexer_Symbols_Definition->definitions, NULL, defn->Lexer_Symbols_Definition->modifiers, language_unit::unit_lexer_symbols);
     } else if (defn->Lexer_Definition) {
-        return definition_for(defn->Lexer_Definition->list_of_Lexeme_Definition, defn->Lexer_Definition->list_of_Lexer_Modifier, NULL, language_unit::unit_lexer_definition);
+        return definition_for(defn->Lexer_Definition->definitions, defn->Lexer_Definition->modifiers, NULL, language_unit::unit_lexer_definition);
     } else if (defn->Ignore_Definition) {
-        return definition_for(defn->Ignore_Definition->list_of_Keyword_Definition, NULL, NULL, language_unit::unit_ignore_definition);
+        return definition_for(defn->Ignore_Definition->definitions, NULL, NULL, language_unit::unit_ignore_definition);
     } else if (defn->Keywords_Definition) {
-        return definition_for(defn->Keywords_Definition->list_of_Keyword_Definition, defn->Keywords_Definition->list_of_Lexer_Modifier, NULL, language_unit::unit_keywords_definition);
+        return definition_for(defn->Keywords_Definition->definitions, defn->Keywords_Definition->modifiers, NULL, language_unit::unit_keywords_definition);
     } else if (defn->Grammar_Definition) {
-        return definition_for(defn->Grammar_Definition->list_of_Nonterminal_Definition);
+        return definition_for(defn->Grammar_Definition->nonterminals);
     }
     
     return NULL;
@@ -596,13 +596,13 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
 /// \brief Interprets a language block
 static language_block* definition_for(const ast_Language_Block* language) {
     // Create the language block
-    language_block* result = new language_block(language->identifier->content<wchar_t>(), language->pos(), language->final_pos());
+    language_block* result = new language_block(language->name->content<wchar_t>(), language->pos(), language->final_pos());
     
     // Deal with the inherits block, if it exists
     if (language->optional_Language_Inherits->Language_Inherits) {
         // Add the first identifier
         // For the moment, we can only inherit from one language at a time
-        result->add_inherits(language->optional_Language_Inherits->Language_Inherits->identifier->content<wchar_t>());
+        result->add_inherits(language->optional_Language_Inherits->Language_Inherits->inherit_from->content<wchar_t>());
     }
     
     // Add the language definitions
@@ -647,7 +647,7 @@ static toplevel_block* definition_for(const ast_TopLevel_Block* toplevel) {
     // Import block
     else if (toplevel->Import_Block) {
         // Fairly simple to convert
-        return new toplevel_block(new import_block(process::dequote_string(toplevel->Import_Block->string_2->content<wchar_t>()), toplevel->pos(), toplevel->final_pos()));
+        return new toplevel_block(new import_block(process::dequote_string(toplevel->Import_Block->filename->content<wchar_t>()), toplevel->pos(), toplevel->final_pos()));
     }
 
     // Test block

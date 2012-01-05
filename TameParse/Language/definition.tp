@@ -177,7 +177,7 @@ language ParserLanguage {
 		// Test definition block
 		//
 
-		<Test-Block>				= test identifier[language-name] '{' <Test-Definition>* '}'
+		<Test-Block>				= test identifier[language-name] '{' <Test-Definition>*[tests] '}'
 
 		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>+
 									| <Nonterminal> "!=" <Test-Specification>+
