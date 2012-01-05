@@ -466,7 +466,13 @@ void output_stage::generate_ast_rules() {
     		// Fill in the items for this rule
     		for (rule::iterator ruleItem = (*nextRule)->begin(); ruleItem != (*nextRule)->end(); ++ruleItem) {
     			// Generate a unique name for this item within this rule; by default it is the same as the item name
-    			wstring baseName 	= name_for_item(*ruleItem);
+    			int		itemKey 	= (*nextRule)->get_key(ruleItem);
+    			wstring baseName	= m_LanguageStage->name_for_rule_item_key(itemKey);
+    			
+    			// Name the item after its type if there is no associated name
+    			if (baseName.empty()) {
+    				baseName = name_for_item(*ruleItem);
+    			}
 
     			// Use the base name as the default name
     			wstring uniqueName	= baseName;
