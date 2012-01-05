@@ -989,10 +989,15 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
         
         else if (ebnf->children().size() == 3 && (!(*ebnf)[0]->lexeme() || (*ebnf)[0]->lexeme()->matched() != t.id_openparen)) {
             // Closure of some variety
-            ebnf_item* closedItem = get_ebnf_item((*ebnf)[0], (*ebnf)[2]);
+            ebnf_item* closedItem = get_ebnf_item((*ebnf)[0], NULL);
             
             if (closedItem == NULL) {
                 return NULL;
+            }
+
+            // Get the name from the optional item name if it was passed in
+            if ((*ebnf)[2]->children().size() == 1) {
+                name = (*(*(*ebnf)[2])[0])[1]->lexeme()->content<wchar_t>();
             }
             
             // Closure depends on the following symbol
