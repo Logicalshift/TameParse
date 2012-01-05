@@ -23,7 +23,8 @@ language_stage::language_stage(console_container& console, const std::wstring& f
 : compilation_stage(console, filename)
 , m_Language(block)
 , m_Import(importStage)
-, m_InheritsFrom(NULL) {
+, m_InheritsFrom(NULL)
+, m_NextRuleItemKey(1) {
 }
 
 /// \brief Destructor
@@ -413,15 +414,6 @@ void language_stage::compile() {
                     compile_item(*newRule, *ebnfItem, ourFilename);
                 }
 
-                // Compile the attributes for this rule
-                m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newRule, rule_attribute_list()));
-                rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
-                
-                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
-                    // Compile each item in turn and append them to the rule
-                    compile_rule_attributes(ruleAttributes, *ebnfItem, ourFilename);
-                }
-
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
                 
@@ -503,18 +495,6 @@ void language_stage::compile() {
     summary << L"          ... which are implicitly defined: " << implicitCount << endl;
     summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
-}
-
-/// \brief Returns the name supplied as an attribute for an item in a specific rule
-const std::wstring& language_stage::name_for_rule_item(int ruleId, size_t index) const {
-    if (m_AttributesForRules.empty()) {
-        // Fill in the attributes for each rule
-        for (flat_rule_attribute_map::const_iterator rulePair = m_FlatAttributesForRules.begin(); rulePair != m_FlatAttributesForRules.end(); rulePair++) {
-            m_AttributesForRules[m_Grammar.identifier_for_rule(rulePair->first)] = rulePair->second;
-        }
-    }
-
-    return m_AttributesForRules[ruleId][index];
 }
 
 /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
@@ -631,6 +611,20 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     return count;
 }
 
+/// \brief Attaches attributes to the last item in the specified rule
+void language_stage::append_attribute(contextfree::rule& target, const std::wstring& name) {
+    // Nothing to do if this item has no attributes
+    if (name.empty()) return;
+
+    // Get a new key value
+    int thisKey = m_NextRuleItemKey++;
+
+    // Set the key for the final item in the rule
+    target.set_key(target.items().size()-1, thisKey);
+
+    // Associate the attributes with the key
+    m_AttributesForRuleItemKeys[thisKey] = name;
+}
 
 /// \brief Compiles an EBNF item from the language into a context-free grammar item
 ///
@@ -647,6 +641,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -662,6 +657,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Return a new nonterminal item
             rule << item_container(new nonterminal(nonterminalId), true);
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -680,11 +676,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             ebnf_optional* newItem = new ebnf_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
-            // Compile the attributes for the new rule
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
-
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -696,6 +687,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -705,11 +697,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             ebnf_repeating* newItem = new ebnf_repeating();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
-            // Compile the attributes for the new rule
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
-
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -721,6 +708,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
 
@@ -730,11 +718,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             ebnf_repeating_optional* newItem = new ebnf_repeating_optional();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
 
-            // Compile the attributes for the new rule
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
-
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -746,6 +729,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -754,15 +738,11 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Compile into a guard item
             guard* newItem = new guard();
             compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
-
-            // Compile the attributes for the new rule
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(newItem->get_rule(), rule_attribute_list()));
-            rule_attribute_list& ruleAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(ruleAttributes, (*item)[0], ourFilename);
             
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
+            append_attribute(rule, item->name());
 
             // Store as the first usage of this nonterminal if it exists
             int nonterminalId = m_Grammar.identifier_for_item(container);
@@ -790,15 +770,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Right-hand side
             compile_item(*rhsRule, (*item)[1], ourFilename);
 
-            // Compile the attributes for the new rules
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(lhsRule, rule_attribute_list()));
-            rule_attribute_list& lhsAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(lhsAttributes, (*item)[0], ourFilename);
-
-            m_FlatAttributesForRules.push_back(pair<rule_container, rule_attribute_list>(rhsRule, rule_attribute_list()));
-            rule_attribute_list& rhsAttributes = m_FlatAttributesForRules.back().second;
-            compile_rule_attributes(rhsAttributes, (*item)[1], ourFilename);
-
             // Create the item container
             item_container newContainer(newItem, true);
 
@@ -810,6 +781,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
 
@@ -820,33 +792,23 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
     }
 }
 
-/// \brief Compiles the semantic attributes for a rule
-void language_stage::compile_rule_attributes(rule_attribute_list& attributes, language::ebnf_item* item, std::wstring* ourFilename) {
-    // Sanity check
-    if (!item) return;
+/// \brief Returns the name attribute associated with the rule item key of the specified value
+///
+/// You can use rule::get_key to get the key for a particular rule item.
+const std::wstring& language_stage::name_for_rule_item_key(int ruleItemKey) const {
+    static wstring emptyString;
 
-    switch (item->get_type()) {
-        case ebnf_item::ebnf_terminal:
-        case ebnf_item::ebnf_terminal_character:
-        case ebnf_item::ebnf_terminal_string:
-        case ebnf_item::ebnf_nonterminal:
-        case ebnf_item::ebnf_guard:
-        case ebnf_item::ebnf_repeat_one:
-        case ebnf_item::ebnf_repeat_zero:
-        case ebnf_item::ebnf_alternative:
-        case ebnf_item::ebnf_optional:
-            // These all create a single item in the rule, so just copy in any name that might be added
-            attributes.push_back(item->name());
-            break;
+    // Keys <= 0 are always the empty string
+    if (ruleItemKey <= 0) return emptyString;
 
-        case ebnf_item::ebnf_parenthesized:
-            // Recursively add the contents of this item
-            // TODO: could improve this by supporting named parenthesized items, maybe
-            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
-                compile_rule_attributes(attributes, *childItem, ourFilename);
-            }
-            break;
-    }
+    // Try to fetch the value for this key
+    rule_attribute_map::const_iterator found = m_AttributesForRuleItemKeys.find(ruleItemKey);
+
+    // Empty string if not found
+    if (found == m_AttributesForRuleItemKeys.end()) return emptyString;
+
+    // Return the found name
+    return found->second;
 }
 
 /// \brief Copies a general symbol/filename block to another

@@ -47,17 +47,11 @@ namespace compiler {
         /// \brief Maps a symbol ID to the language block and file where it is defined
         typedef std::map<int, block_file> symbol_map;
 
-        /// \brief A list of names for each item in a rule (called rule_semantics as this may be extended in a future version to support semantics other than just the names of the items within a rule)
-        typedef std::vector<std::wstring> rule_attribute_list;
+        /// \brief Type of an attribute associated with a rule item key
+        typedef std::wstring rule_attribute;
 
-        /// \brief Maps rules to vectors representing the name for each item
-        typedef std::map<int, rule_attribute_list> rule_attribute_map;
-
-        /// \brief Maps a rule to its attributes
-        typedef std::pair<contextfree::rule_container, rule_attribute_list> rule_attribute_pair;
-
-        /// \brief List of attributes for particular rules
-        typedef std::vector<rule_attribute_pair> flat_rule_attribute_map;
+        /// \brief Maps rule item keys to the associated attributes
+        typedef std::map<int, rule_attribute> rule_attribute_map;
         
     private:
         /// \brief The language block that this will compile
@@ -102,11 +96,11 @@ namespace compiler {
         /// \brief Maps nonterminal IDs to the point where they were first used
         symbol_map m_FirstNonterminalUsage;
 
-        /// \brief Maps rule IDs to their corresponding attributes
-        flat_rule_attribute_map m_FlatAttributesForRules;
-
         /// \brief Maps rules to their corresponding attributes
-        mutable rule_attribute_map m_AttributesForRules;
+        rule_attribute_map m_AttributesForRuleItemKeys;
+
+        /// \brief The next rule item key to assign
+        int m_NextRuleItemKey;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
@@ -141,8 +135,8 @@ namespace compiler {
         /// to be missing from the terminal dictionary.
         void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
 
-        /// \brief Compiles the semantic attributes for a rule
-        void compile_rule_attributes(rule_attribute_list& rule, language::ebnf_item* item, std::wstring* ourFilename);
+        /// \brief Attaches attributes to the last item in the specified rule
+        void append_attribute(contextfree::rule& target, const std::wstring& name);
 
         /// \brief In a final pass, process the symbols in a particular rule
         ///
@@ -174,9 +168,6 @@ namespace compiler {
 
         /// \brief The symbols that are usually ignored but occasionally have syntactic meaning
         inline const std::set<int>* used_ignored_symbols() const            { return &m_UsedIgnoredSymbols; }
-
-        /// \brief Returns the name supplied as an attribute for an item in a specific rule
-        const std::wstring& name_for_rule_item(int ruleId, size_t index) const;
         
         /// \brief The position in the file where the terminal symbol with the given ID was defined
         inline dfa::position terminal_definition_pos(int id) const {
@@ -184,6 +175,11 @@ namespace compiler {
             if (found == m_TerminalDefinition.end() || !found->second.first) return dfa::position(-1, -1, -1);
             return found->second.first->start_pos();
         }
+
+        /// \brief Returns the name attribute associated with the rule item key of the specified value
+        ///
+        /// You can use rule::get_key to get the key for a particular rule item.
+        const std::wstring& name_for_rule_item_key(int ruleItemKey) const;
 
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {
