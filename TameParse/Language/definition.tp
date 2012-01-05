@@ -161,9 +161,7 @@ language ParserLanguage {
 		// Semantics
 		//
 
-		<Semantic-Specification>	= '[' <Semantic-Item> (',' <Semantic-Item>)* ']'
-
-		<Semantic-Item>				= identifier[name]
+		<Semantic-Specification>	= '[' identifier[name] ']'
 
 		//
 		// The parser declaration block

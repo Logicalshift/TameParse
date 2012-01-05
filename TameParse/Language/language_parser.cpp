@@ -145,7 +145,7 @@ static test_block* definition_for(const ast_Test_Block* testBlock) {
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
 
 /// \brief Converts a full EBNF item into an ebnf_item object
-static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
+static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& name) {
     // Stick the items together
     bool        parenthesized   = false;            // True when parenthesized
     ebnf_item*  result          = NULL;
@@ -188,7 +188,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
     // Create an alternate if one is supplied
     if (ebnfItem->or_item) {
         // Get the alternative item
-        ebnf_item* alternative = definition_for(ebnfItem->or_item);
+        ebnf_item* alternative = definition_for(ebnfItem->or_item, L"");
         
         if (alternative == NULL) {
             // Bug
@@ -197,7 +197,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
         }
         
         // Create the new result item
-        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, L"", ebnfItem->pos(), ebnfItem->final_pos());
+        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, name, ebnfItem->pos(), ebnfItem->final_pos());
         
         alternate->add_child(result);
         alternate->add_child(alternative);
@@ -211,6 +211,13 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem) {
 
 /// \brief Converts a simple EBNF item into an ebnf_item object
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
+    // Work out the semantics for this item (names only in the current revision)
+    wstring name;
+
+    if (simpleItem->optional_Semantic_Specification->Semantic_Specification) {
+        name = simpleItem->optional_Semantic_Specification->Semantic_Specification->name->content<wchar_t>();
+    }
+
     // Item depends on the content
     if (simpleItem->Nonterminal) {
         // Get the basic identifier
@@ -223,7 +230,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, L"", simpleItem->pos(), simpleItem->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, name, simpleItem->pos(), simpleItem->final_pos());
     }
     
     else if (simpleItem->Terminal) {
@@ -259,12 +266,12 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, L"", simpleItem->pos(), simpleItem->final_pos());        
+        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, name, simpleItem->pos(), simpleItem->final_pos());        
     }
     
     else if (simpleItem->Guard) {
         // Get the internal item
-        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item);
+        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item, L"");
         
         if (!internalItem) {
             // Bug
@@ -272,7 +279,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Turn into a guard item
-        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, L"");
+        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, name);
         guardItem->add_child(internalItem);
         
         return guardItem;
@@ -286,7 +293,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, L"", simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, name, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(starredItem);
         return result;
     }
@@ -299,7 +306,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, L"", simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, name, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(plusItem);
         return result;
     }
@@ -312,14 +319,14 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, L"", simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, name, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(optionalItem);
         return result;        
     }
     
     else if (simpleItem->_openparen_) {
         // Item of the form (X)
-        return definition_for(simpleItem->Ebnf_Item);
+        return definition_for(simpleItem->Ebnf_Item, name);
     }
     
     // Unknown type of item
