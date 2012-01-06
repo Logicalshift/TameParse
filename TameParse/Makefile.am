@@ -66,7 +66,6 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/symbol_translator.h \
 							  Dfa/transition.h \
 							  Language/block.h \
-							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
 							  Language/ebnf_item_attributes.h \
@@ -156,7 +155,6 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/symbol_translator.cpp \
 							  Dfa/transition.cpp \
 							  Language/block.cpp \
-							  Language/bootstrap.cpp \
 							  Language/definition_file.cpp \
 							  Language/ebnf_item.cpp \
 							  Language/ebnf_item_attributes.cpp \
@@ -244,7 +242,6 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Dfa/symbol_translator.h \
 							  Dfa/transition.h \
 							  Language/block.h \
-							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
 							  Language/ebnf_item_attributes.h \
