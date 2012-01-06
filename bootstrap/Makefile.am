@@ -55,6 +55,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/bootstrap.cpp \
 					  ../TameParse/Language/definition_file.cpp \
 					  ../TameParse/Language/ebnf_item.cpp \
+					  ../TameParse/Language/ebnf_item_attributes.cpp \
 					  ../TameParse/Language/formatter.cpp \
 					  ../TameParse/Language/grammar_block.cpp \
 					  ../TameParse/Language/import_block.cpp \

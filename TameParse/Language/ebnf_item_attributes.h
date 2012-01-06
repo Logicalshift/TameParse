@@ -39,6 +39,13 @@ namespace language {
 
 		/// \brief The action to take when this item is part of a shift/reduce conflict
 		conflict_action conflict_action;
+
+	public:
+		/// \brief Creates an empty attributes object
+		ebnf_item_attributes();
+
+		/// \brief Creates an attribute for an object with just a name
+		explicit ebnf_item_attributes(std::wstring& name);
 	};
 }
 

@@ -24,6 +24,9 @@ using namespace contextfree;
 using namespace lr;
 using namespace language;
 
+/// \brief Redefinition of ebnf_item_attributes to abbreviate it a bit
+typedef ebnf_item_attributes attributes;
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -947,7 +950,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
     
     if (nodeType == nt.id_ebnf_item) {
         // First item is always a simple item list
-        ebnf_item* leftHandSide = new ebnf_item(ebnf_item::ebnf_parenthesized, name);
+        ebnf_item* leftHandSide = new ebnf_item(ebnf_item::ebnf_parenthesized, attributes(name));
         
         if (!get_ebnf_list(leftHandSide, (*ebnf)[0])) {
             delete leftHandSide;
@@ -965,7 +968,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
             }
             
             // Generate the final result
-            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative, name);
+            ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_alternative, attributes(name));
             newItem->add_child(leftHandSide);
             newItem->add_child(alternative);
             
@@ -1005,17 +1008,17 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
 
             if (closureSymbol == t.id_star) {
                 // 0 or more (Kleene star)
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_zero, name);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_zero, attributes(name));
                 newItem->add_child(closedItem);
                 return newItem;
             } else if (closureSymbol == t.id_plus) {
                 // 1 or more
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_one, name);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_repeat_one, attributes(name));
                 newItem->add_child(closedItem);
                 return newItem;
             } else if (closureSymbol == t.id_question) {
                 // 0 or 1
-                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_optional, name);
+                ebnf_item* newItem = new ebnf_item(ebnf_item::ebnf_optional, attributes(name));
                 newItem->add_child(closedItem);
                 return newItem;
             } else {
@@ -1040,7 +1043,7 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
     else if (nodeType == nt.id_nonterminal) {
         // Just a nonterminal
         lexeme_container nt = (*ebnf)[0]->lexeme();
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", nt->content<wchar_t>(), name, nt->pos(), nt->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, L"", nt->content<wchar_t>(), attributes(name), nt->pos(), nt->final_pos());
     }
     
     else if (nodeType == nt.id_terminal) {
@@ -1065,12 +1068,12 @@ ebnf_item* bootstrap::get_ebnf_item(const util::astnode* ebnf, const util::astno
         }
         
         lexeme_container term = terminal->lexeme();
-        return new ebnf_item(itemType, L"", term->content<wchar_t>(), name, term->pos(), term->final_pos());
+        return new ebnf_item(itemType, L"", term->content<wchar_t>(), attributes(name), term->pos(), term->final_pos());
     }
     
     else if (nodeType == nt.id_guard) {
         // Guard (of the form [=> ebnf_item ]
-        ebnf_item* newItem      = new ebnf_item(ebnf_item::ebnf_guard, name);
+        ebnf_item* newItem      = new ebnf_item(ebnf_item::ebnf_guard, attributes(name));
         ebnf_item* guardContent = get_ebnf_item((*ebnf)[1], NULL);
         
         if (guardContent == NULL) {
