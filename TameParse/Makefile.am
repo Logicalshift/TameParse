@@ -69,6 +69,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
+							  Language/ebnf_item_attributes.h \
 							  Language/formatter.h \
 							  Language/grammar_block.h \
 							  Language/import_block.h \
@@ -158,6 +159,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/bootstrap.cpp \
 							  Language/definition_file.cpp \
 							  Language/ebnf_item.cpp \
+							  Language/ebnf_item_attributes.cpp \
 							  Language/formatter.cpp \
 							  Language/grammar_block.cpp \
 							  Language/import_block.cpp \
@@ -245,6 +247,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
+							  Language/ebnf_item_attributes.h \
 							  Language/formatter.h \
 							  Language/grammar_block.h \
 							  Language/import_block.h \

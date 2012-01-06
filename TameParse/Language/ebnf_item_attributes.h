@@ -21,7 +21,7 @@ namespace language {
 		/// \brief The possible actions to take on an item when it is part of a shift/reduce conflict
 		enum conflict_action {
 			/// \brief No action specified (report a shift/reduce conflict as a warning)
-			conflict_notspecified;
+			conflict_notspecified,
 
 			/// \brief Shift the symbol
 			conflict_shift,
