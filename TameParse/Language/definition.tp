@@ -165,7 +165,7 @@ language ParserLanguage {
 		// Semantics
 		//
 
-		<Semantic-Specification>	= '[' <Sematic-Item>[first-item] (',' <Semantic-Item>)*[more-items] ']'
+		<Semantic-Specification>	= '[' <Semantic-Item>[first-item] (',' <Semantic-Item>)*[more-items] ']'
 
 		<Semantic-Item>				= identifier[name]
 									| conflict '=' shift
