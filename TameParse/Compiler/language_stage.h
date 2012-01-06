@@ -16,6 +16,7 @@
 #include "TameParse/ContextFree/terminal_dictionary.h"
 #include "TameParse/Language/language_block.h"
 #include "TameParse/Language/language_unit.h"
+#include "TameParse/Language/ebnf_item_attributes.h"
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/Data/lexer_data.h"
 
@@ -48,10 +49,10 @@ namespace compiler {
         typedef std::map<int, block_file> symbol_map;
 
         /// \brief Type of an attribute associated with a rule item key
-        typedef std::wstring rule_attribute;
+        typedef language::ebnf_item_attributes rule_attributes;
 
         /// \brief Maps rule item keys to the associated attributes
-        typedef std::map<int, rule_attribute> rule_attribute_map;
+        typedef std::map<int, rule_attributes> rule_attribute_map;
         
     private:
         /// \brief The language block that this will compile
@@ -136,7 +137,7 @@ namespace compiler {
         void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
 
         /// \brief Attaches attributes to the last item in the specified rule
-        void append_attribute(contextfree::rule& target, const std::wstring& name);
+        void append_attribute(contextfree::rule& target, const rule_attributes& attributes);
 
         /// \brief In a final pass, process the symbols in a particular rule
         ///
@@ -179,7 +180,7 @@ namespace compiler {
         /// \brief Returns the name attribute associated with the rule item key of the specified value
         ///
         /// You can use rule::get_key to get the key for a particular rule item.
-        const std::wstring& name_for_rule_item_key(int ruleItemKey) const;
+        const rule_attributes& attributes_for_rule_item_key(int ruleItemKey) const;
 
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {

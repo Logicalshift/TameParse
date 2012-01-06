@@ -612,9 +612,11 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
 }
 
 /// \brief Attaches attributes to the last item in the specified rule
-void language_stage::append_attribute(contextfree::rule& target, const std::wstring& name) {
+void language_stage::append_attribute(contextfree::rule& target, const rule_attributes& attr) {
     // Nothing to do if this item has no attributes
-    if (name.empty()) return;
+    if (attr.name.empty() && attr.conflict_action == rule_attributes::conflict_notspecified) {
+        return;
+    }
 
     // Get a new key value
     int thisKey = m_NextRuleItemKey++;
@@ -623,7 +625,7 @@ void language_stage::append_attribute(contextfree::rule& target, const std::wstr
     target.set_key(target.items().size()-1, thisKey);
 
     // Associate the attributes with the key
-    m_AttributesForRuleItemKeys[thisKey] = name;
+    m_AttributesForRuleItemKeys[thisKey] = attr;
 }
 
 /// \brief Compiles an EBNF item from the language into a context-free grammar item
@@ -641,7 +643,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -657,7 +659,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Return a new nonterminal item
             rule << item_container(new nonterminal(nonterminalId), true);
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -687,7 +689,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -708,7 +710,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
 
@@ -729,7 +731,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -742,7 +744,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
 
             // Store as the first usage of this nonterminal if it exists
             int nonterminalId = m_Grammar.identifier_for_item(container);
@@ -781,7 +783,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
-            append_attribute(rule, item->name());
+            append_attribute(rule, item->attributes());
             break;
         }
 
@@ -795,17 +797,17 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
 /// \brief Returns the name attribute associated with the rule item key of the specified value
 ///
 /// You can use rule::get_key to get the key for a particular rule item.
-const std::wstring& language_stage::name_for_rule_item_key(int ruleItemKey) const {
-    static wstring emptyString;
+const language_stage::rule_attributes& language_stage::attributes_for_rule_item_key(int ruleItemKey) const {
+    static rule_attributes emptyAttributes;
 
     // Keys <= 0 are always the empty string
-    if (ruleItemKey <= 0) return emptyString;
+    if (ruleItemKey <= 0) return emptyAttributes;
 
     // Try to fetch the value for this key
     rule_attribute_map::const_iterator found = m_AttributesForRuleItemKeys.find(ruleItemKey);
 
     // Empty string if not found
-    if (found == m_AttributesForRuleItemKeys.end()) return emptyString;
+    if (found == m_AttributesForRuleItemKeys.end()) return emptyAttributes;
 
     // Return the found name
     return found->second;

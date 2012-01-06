@@ -121,9 +121,6 @@ namespace language {
         inline const std::wstring& identifier() const { return m_Identifier; }
 
         /// \brief The name for this item, or the empty string if it is not named
-        inline const std::wstring& name() const { return m_Attributes.name; }
-
-        /// \brief The name for this item, or the empty string if it is not named
         inline const ebnf_item_attributes& attributes() const { return m_Attributes; }
         
         /// \brief The first child item for this item
