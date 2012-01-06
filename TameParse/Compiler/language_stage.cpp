@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -23,7 +23,8 @@ language_stage::language_stage(console_container& console, const std::wstring& f
 : compilation_stage(console, filename)
 , m_Language(block)
 , m_Import(importStage)
-, m_InheritsFrom(NULL) {
+, m_InheritsFrom(NULL)
+, m_NextRuleItemKey(1) {
 }
 
 /// \brief Destructor
@@ -412,7 +413,7 @@ void language_stage::compile() {
                     // Compile each item in turn and append them to the rule
                     compile_item(*newRule, *ebnfItem, ourFilename);
                 }
-                
+
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
                 
@@ -495,7 +496,6 @@ void language_stage::compile() {
     summary << L"          ... which are ignored:            " << (int)m_IgnoredSymbols.size() << endl;
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
 }
-
 
 /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
 void language_stage::report_unused_symbols() {
@@ -611,6 +611,20 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     return count;
 }
 
+/// \brief Attaches attributes to the last item in the specified rule
+void language_stage::append_attribute(contextfree::rule& target, const std::wstring& name) {
+    // Nothing to do if this item has no attributes
+    if (name.empty()) return;
+
+    // Get a new key value
+    int thisKey = m_NextRuleItemKey++;
+
+    // Set the key for the final item in the rule
+    target.set_key(target.items().size()-1, thisKey);
+
+    // Associate the attributes with the key
+    m_AttributesForRuleItemKeys[thisKey] = name;
+}
 
 /// \brief Compiles an EBNF item from the language into a context-free grammar item
 ///
@@ -627,6 +641,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -642,6 +657,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Return a new nonterminal item
             rule << item_container(new nonterminal(nonterminalId), true);
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -671,6 +687,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -691,6 +708,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
 
@@ -711,6 +729,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
             
@@ -723,6 +742,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
+            append_attribute(rule, item->name());
 
             // Store as the first usage of this nonterminal if it exists
             int nonterminalId = m_Grammar.identifier_for_item(container);
@@ -739,12 +759,16 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         {
             // Compile into an alternate item
             ebnf_alternate* newItem = new ebnf_alternate();
+
+            // Get the left and right-hand side rules
+            rule_container lhsRule = newItem->get_rule();
+            rule_container rhsRule = newItem->add_rule();
             
             // Left-hand side
-            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+            compile_item(*lhsRule, (*item)[0], ourFilename);
             
             // Right-hand side
-            compile_item(*newItem->add_rule(), (*item)[1], ourFilename);
+            compile_item(*rhsRule, (*item)[1], ourFilename);
 
             // Create the item container
             item_container newContainer(newItem, true);
@@ -757,6 +781,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->name());
             break;
         }
 
@@ -765,6 +790,25 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
             break;
     }
+}
+
+/// \brief Returns the name attribute associated with the rule item key of the specified value
+///
+/// You can use rule::get_key to get the key for a particular rule item.
+const std::wstring& language_stage::name_for_rule_item_key(int ruleItemKey) const {
+    static wstring emptyString;
+
+    // Keys <= 0 are always the empty string
+    if (ruleItemKey <= 0) return emptyString;
+
+    // Try to fetch the value for this key
+    rule_attribute_map::const_iterator found = m_AttributesForRuleItemKeys.find(ruleItemKey);
+
+    // Empty string if not found
+    if (found == m_AttributesForRuleItemKeys.end()) return emptyString;
+
+    // Return the found name
+    return found->second;
 }
 
 /// \brief Copies a general symbol/filename block to another

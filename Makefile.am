@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS 	= foreign
 ACLOCAL_AMFLAGS		= -I m4
-SUBDIRS 			= bootstrap TameParse Test parsetool Examples doxy
+SUBDIRS 			= bootstrap TameParse Test parsetool Examples TextEditors doxy
 
 EXTRA_DIST			= TameParseLib/Parse-Prefix.pch \
 					  TameParseLib/TameParseLibProj.xcconfig \

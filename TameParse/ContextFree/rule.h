@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <set>
@@ -48,6 +48,9 @@ namespace contextfree {
         
         /// \brief The items that make up this rule
         item_list m_Items;
+
+        /// \brief Keys associated with each item
+        std::vector<int> m_ItemKeys;
         
     private:
         /// \brief The last grammar that identifier() was called for (or NULL)
@@ -80,6 +83,25 @@ namespace contextfree {
         
         /// \brief Iterator class for inspecting the items that make up this rule
         typedef item_list::const_iterator iterator;
+
+        /// \brief Retrieves the key associated with the item at the specified index
+        ///
+        /// Each item in a rule has an associated key which can be used to retrieve
+        /// information associated with it. Keys are set to 0 by default.
+        int get_key(size_t offset) const;
+
+        /// \brief Sets the key associated with the item at the specified index
+        void set_key(size_t offset, int key);
+
+        /// \brief Retrieves the key associated with an iterator
+        inline int get_key(iterator offset) const {
+            return get_key(offset - begin());
+        }
+
+        /// \brief Sets the key at a position specified by an iterator
+        inline void set_key(iterator offset, int key) {
+            set_key(offset - begin(), key);
+        }
         
         /// \brief The nonterminal that this rule reduces to
         ///
@@ -96,6 +118,9 @@ namespace contextfree {
         inline iterator end() const { return m_Items.end(); }
         
         /// \brief Orders this rule relative to another
+        ///
+        /// Keys aren't currently used in the ordering (rules which differ only by
+        /// the keys associated with their items will be identical according to this)
         bool operator<(const rule& compareTo) const;
         
         /// \brief Orders this rule relative to another by comparing only the items. Returns less than 0 if this is less than compareTo, greater than 0 if this is greater than compareTo, and 0 if this is equal

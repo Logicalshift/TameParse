@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 10/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <string>
@@ -102,17 +102,17 @@ void test_language_primary::run_tests() {
     report("MatchIdentifier2", test_lex("some-identifier", tameparse_language::lexer, tameparse_language::t::identifier));
     report("MatchIdentifier3", test_lex("id128", tameparse_language::lexer, tameparse_language::t::identifier));
     report("MatchIdentifier4", test_lex("identifier", tameparse_language::lexer, tameparse_language::t::identifier));
-    report("MatchNonterminal1", test_lex("<nonterminal>", tameparse_language::lexer, tameparse_language::t::nonterminal));
+    report("MatchNonterminal1", test_lex("<nonterminal>", tameparse_language::lexer, tameparse_language::t::nonterminal_));
     report("MatchRegex1", test_lex("/regex/", tameparse_language::lexer, tameparse_language::t::regex));
     report("MatchRegex2", test_lex("/\\//", tameparse_language::lexer, tameparse_language::t::regex));
-    report("MatchString1", test_lex("\"string\"", tameparse_language::lexer, tameparse_language::t::string));
-    report("MatchString2", test_lex("\"str\\\"ing\"", tameparse_language::lexer, tameparse_language::t::string));
+    report("MatchString1", test_lex("\"string\"", tameparse_language::lexer, tameparse_language::t::string_));
+    report("MatchString2", test_lex("\"str\\\"ing\"", tameparse_language::lexer, tameparse_language::t::string_));
     report("MatchCharacter1", test_lex("'c'", tameparse_language::lexer, tameparse_language::t::character));
     report("MatchCharacter2", test_lex("'\\n'", tameparse_language::lexer, tameparse_language::t::character));
     
     report("MatchLanguage", test_lex("language", tameparse_language::lexer, tameparse_language::t::language));
     report("MatchGrammar", test_lex("grammar", tameparse_language::lexer, tameparse_language::t::grammar));
-    report("MatchLexer", test_lex("lexer", tameparse_language::lexer, tameparse_language::t::lexer));
+    report("MatchLexer", test_lex("lexer", tameparse_language::lexer, tameparse_language::t::lexer_));
     report("MatchLexerSymbols", test_lex("lexer-symbols", tameparse_language::lexer, tameparse_language::t::lexer_symbols));
     report("MatchWeak", test_lex("weak", tameparse_language::lexer, tameparse_language::t::weak));
     report("MatchIgnore", test_lex("ignore", tameparse_language::lexer, tameparse_language::t::ignore));

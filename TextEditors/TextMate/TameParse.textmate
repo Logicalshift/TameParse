@@ -1,0 +1,152 @@
+{	scopeName = 'source.tameparse';
+	fileTypes = ( 'tp' );
+	foldingStartMarker = '/\*\*|\{\s*$';
+	foldingStopMarker = '\*\*/|^\s*\}';
+	patterns = (
+	    { include = '#comments'; },
+	    { include = '#tokens'; },
+	    { include = '#strings'; },
+	    
+	    {   name = 'meta.block.language.tameparse';
+	        begin = '(language)';
+	        end = '}';
+	        beginCaptures = {
+	            1 = { name = 'keyword.control.language.tameparse'; };
+	        };
+	        patterns = (
+        	    { include = '#comments'; },
+        	    { include = '#strings'; },
+        	    
+        	    {   name = 'keyword.other.modifier.lexer.tameparse';
+        	        match = '(weak|case|sensitive|insensitive)';
+        	    },
+
+        		{	name = 'meta.block.language.lexer.tameparse';
+        			begin = '(lexer-symbols|lexer|keywords|ignore)';
+        			end = '}';
+        			beginCaptures = {
+        				1 = { name = 'keyword.control.lexer.tameparse'; };
+        			};
+        			patterns = (
+                	    { include = '#comments'; },
+                	    { include = '#strings'; },
+        			);
+        		},
+	            
+        		{	name = 'meta.block.language.grammar.tameparse';
+        			begin = '(grammar)';
+        			end = '}';
+        			beginCaptures = {
+        				1 = { name = 'keyword.control.grammar.tameparse'; };
+        			};
+        			patterns = (
+                	    { include = '#comments'; },
+                	    { include = '#tokens'; },
+                	    { include = '#strings'; },
+                	    
+                	    {   name = 'support.other.guard';
+                	        begin = "\[=>";
+                	        end = ']';
+
+                			patterns = (
+                        	    { include = '#comments'; },
+                        	    { include = '#tokens'; },
+                        	    { include = '#strings'; },
+                    	    );
+                	    }
+        			);
+        		},
+	        );
+        },
+            
+	    {   name = 'keyword.control.import.tameparse'; 
+	        match = 'import';
+	    },
+	    
+	    {   name = 'meta.block.test.tameparse';
+	        begin = '(test)';
+	        end = '}';
+	        beginCaptures = { 1 = { name = 'keyword.control.test.tameparse'; }; };
+
+			patterns = (
+        	    { include = '#comments'; },
+        	    { include = '#tokens'; },
+        	    { include = '#strings'; },
+        	    
+        	    {   name = 'keyword.operator.from.tameparse';
+        	        match = 'from'; 
+        	    },
+    	    );
+	    },
+	    {   name = 'meta.block.parser.tameparse'; 
+	        begin = '(parser)';
+	        end = '}';
+	        beginCaptures = { 1 = { name = 'keyword.control.parser.tameparse'; }; };
+
+			patterns = (
+        	    { include = '#comments'; },
+        	    { include = '#tokens'; },
+        	    { include = '#strings'; },
+    	    );
+	    },
+	);
+	repository = {
+    	comments = {
+    	    patterns = (
+        		{	name = 'comment.block.tameparse';
+        			begin = '/\*';
+        			end = '\*/';
+        		},
+        		{	name = 'comment.line.tameparse';
+        			begin = '//';
+        			end = '$\n?';
+        		},
+	        );
+    	};
+    	strings = {
+    	    patterns = (
+        		{	name = 'string.quoted.double.tameparse';
+        			begin = '"';
+        			end = '"';
+        			patterns = (
+        				{	name = 'constant.character.escape.tameparse';
+        					match = '\\.';
+        				},
+        			);
+        		},
+        		{	name = 'string.quoted.single.tameparse';
+        			begin = "'";
+        			end = "'";
+        			patterns = (
+        				{	name = 'constant.character.escape.untitled';
+        					match = '\\.';
+        				},
+        			);
+        		},
+        		{	name = 'string.regexp.tameparse';
+        			begin = "/";
+        			end = "/";
+        			patterns = (
+        				{	name = 'constant.character.escape.untitled';
+        					match = '\\.';
+        				},
+        			);
+        		},
+		    );
+    	};
+    	keywords = {
+    	    patterns = (
+        		{	name = 'keyword.control.tameparse';
+        			match = '\b(language|import|lexer-symbols|lexer|ignore|weak|keywords|replace|parser|test|form|case|sensitive|insensitive|from)\b';
+        		},
+		    );
+    	};
+    	tokens = {
+    	    patterns = (
+        		{	name = 'support.constant.nonterminal';
+        			match = '<[^>]*>';
+        		},
+		    );
+    	};
+    };
+}

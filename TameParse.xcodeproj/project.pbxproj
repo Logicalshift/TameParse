@@ -475,6 +475,7 @@
 		4B9804031412789D00B5F857 /* tameparse_language.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tameparse_language.h; sourceTree = BUILT_PRODUCTS_DIR; };
 		4BA9169D147BB9F4001A0C4B /* regex_error.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regex_error.cpp; sourceTree = "<group>"; };
 		4BA9169E147BB9F4001A0C4B /* regex_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regex_error.h; sourceTree = "<group>"; };
+		4BAD0E061493C6300047829B /* output_stage_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = output_stage_data.h; sourceTree = "<group>"; };
 		4BADD6C0146E9A20008209EC /* lexer_data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lexer_data.cpp; sourceTree = "<group>"; };
 		4BADD6C3146E9A2A008209EC /* lexer_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_data.h; sourceTree = "<group>"; };
 		4BADD6C5146EC2FD008209EC /* lexer_item.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lexer_item.h; sourceTree = "<group>"; };
@@ -783,6 +784,7 @@
 				4BCF835B14090D7A003CB7CB /* lr_parser_stage.h */,
 				4BC47966140BD34100C2F189 /* output_stage.cpp */,
 				4BC47967140BD34100C2F189 /* output_stage.h */,
+				4BAD0E061493C6300047829B /* output_stage_data.h */,
 				4B79D0E1142E6F3F00D778BC /* parser_stage.cpp */,
 				4B79D0E4142E6F4A00D778BC /* parser_stage.h */,
 				4B79D0E5142F336400D778BC /* import_stage.cpp */,

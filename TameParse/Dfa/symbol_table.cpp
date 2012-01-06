@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 28/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Dfa/symbol_table.h"

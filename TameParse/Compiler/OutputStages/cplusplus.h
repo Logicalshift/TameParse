@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 29/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_OUTPUT_CPLUSPLUS_H
@@ -36,83 +36,15 @@ namespace compiler {
 
 		/// \brief The header file
 		std::ostream* m_HeaderFile;
-        
-        /// \brief Number of times a terminal symbol with a particular name has been used
-        std::map<std::string, int> m_TerminalSymbolCount;
-        
-        /// \brief Number of times a nonterminal symbol with a particular name has been used
-        std::map<std::string, int> m_NonterminalSymbolCount;
-
-        /// \brief The symbol table built up from the symbols supplied to this object
-        dfa::symbol_table<wchar_t>* m_SymbolLevels;
-
-        /// \brief Current lexer entry position
-        int m_LexerEntryPos;
-
-        /// \brief The state that's being written out by the lexer
-        int m_LexerCurrentState;
-
-        /// \brief Maps lexer states to their offset in the state machine table
-        std::vector<int> m_StateToEntryOffset;
 
         /// \brief Maps item IDs to their class identifiers
         std::map<int, std::string> m_ClassNameForItem;
-
-        /// \brief The last grammar supplied to this object
-        const contextfree::grammar* m_Grammar;
-
-        /// \brief The last terminal dictionary supplied to this object
-        const contextfree::terminal_dictionary* m_Terminals;
 
         /// \brief Reserved words and keywords
         std::set<std::string> m_ReservedWords;
 
         /// \brief The used class (and other identifier) names for the class (which should not be re-used)
         std::set<std::string> m_UsedClassNames;
-
-        /// \brief Within a single rule, the used names for the various items
-        std::set<std::string> m_UsedRuleItems;
-
-        /// \brief Within a nonterminal, the used names for the various items
-        std::set<std::string> m_UsedNtItems;
-
-        /// \brief Name of the current nonterminal class that's being defined
-        std::string m_CurrentNonterminal;
-
-        /// \brief Identifier of the nonterminal that's currently being defined
-        int m_CurrentNonterminalId;
-
-        /// \brief The kind of the current nonterminal
-        contextfree::item::kind m_CurrentNonterminalKind;
-
-        /// \brief Identifier for the rule that's currently being defined
-        int m_CurrentRuleId;
-
-        /// \brief The item names for each of the items in the current rule
-        std::vector<std::string> m_CurrentRuleNames;
-
-        /// \brief The type names for each of the items in the current rule
-        std::vector<std::string> m_CurrentRuleTypes;
-
-        /// \brief Stringstream used to build up the forward declarations for the nonterminal classes
-        ///
-        /// C++ is hopeless and can't clear items, so we have to use tedious pointers
-        std::stringstream* m_NtForwardDeclarations;
-
-        /// \brief Stringstream used to build up the declarations of the classes that contain the nonterminal definitions themselves
-        std::stringstream* m_NtClassDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the parser shift actions
-        std::stringstream* m_ShiftDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the parser reduce actions
-        std::stringstream* m_ReduceDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the pos() function
-        std::stringstream* m_PosDefinitions;
-
-        /// \brief String stream used to build up the switch statement used to declare the final_pos() function
-        std::stringstream* m_FinalPosDefinitions;
 
 	public:
 		/// \brief Creates a new output stage
@@ -123,24 +55,68 @@ namespace compiler {
 
 	protected:
 		/// \brief Returns a valid C++ identifier for the specified symbol name
-		virtual std::string get_identifier(const std::wstring& name);
+		virtual std::string get_identifier(const std::wstring& name, bool allowReserved);
 
-		/// \brief Returns a valid C++ name for a grammar rule
-		virtual std::string name_for_rule(const contextfree::rule_container& rule, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
-
-		/// \brief Returns a valid C++ name for an EBNF item
-		virtual std::string name_for_ebnf_item(const contextfree::ebnf& ebnfItem, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
-        
-        /// \brief Returns a valid C++ name for the specified item
-        ///
-        /// This can be treated as a base name for getting names for nonterminals with particular identifiers
-        virtual std::string name_for_item(const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
-
-        /// \brief Retrieves or assigns a name for a nonterminal with the specified ID
-        virtual std::string name_for_nonterminal(int ntId, const contextfree::item_container& item, const contextfree::grammar& gram, const contextfree::terminal_dictionary& terminals);
+        /// \brief Retrieves or assigns a class name for an item with the specified ID
+        virtual std::string class_name_for_item(const contextfree::item_container& item);
 
 		/// \brief Writes out a header to the specified file
 		virtual void write_header(const std::wstring& filename, std::ostream* target);
+
+		/// \brief Returns true if the specified name should be considered 'valid'
+		///
+		/// This is used when generating unique names for rules (and may be used in
+		/// other places where a unique name is required)
+		virtual bool name_is_valid(const std::wstring& name);
+
+	private:
+		/// \brief Writes out the terminal symbols definitions to the header file
+		void header_terminal_symbols();
+
+		/// \brief Writes out definitions for the nonterminal symbols to the header file
+		void header_nonterminal_symbols();
+
+		/// \brief Writes the symbol map definitions to the header
+		void header_symbol_map();
+
+		/// \brief Writes the symbol map definitions to the source file
+		void source_symbol_map();
+
+		/// \brief Writes out the header items for the lexer state machine
+		void header_lexer_state_machine();
+
+		/// \brief Writes out the source code for the lexer state machine
+		void source_lexer_state_machine();
+
+		/// \brief Writes out the header items for the parser tables
+		void header_parser_tables();
+
+		/// \brief Writes out the source code for the parser tables
+		void source_parser_tables();
+
+		/// \brief Writes out the forward declarations for the classes that represent nonterminals
+		void header_ast_forward_declarations();
+
+		/// \brief Writes out the declarations for the classes that represent the AST
+		void header_ast_class_declarations();
+
+		/// \brief Writes out the implementations of the AST classes to the source file
+		void source_ast_class_definitions();
+
+		/// \brief Writes out the constructors for each nonterminal symbol
+		void source_ast_class_constructors();
+
+		/// \brief Writes out the functions for getting the file positions of each symbol
+		void source_ast_position_functions();
+
+		/// \brief Writes out the parser actions to the header file
+		void header_parser_actions();
+
+		/// \brief Writes out the shift actions to the source file
+		void source_shift_actions();
+
+		/// \brief Writes out the reduce actions to the source file
+		void source_reduce_actions();
 
 	protected:
 		// Functions that represent various steps of the output of a language.
@@ -155,106 +131,18 @@ namespace compiler {
 		/// \brief Finishing writing out output
 		virtual void end_output();
 
-		/// \brief The output stage is about to produce a list of terminal symbols
-		virtual void begin_terminal_symbols(const contextfree::grammar& gram);
+		/// \brief Defines the symbols associated with this language
+		virtual void define_symbols();
 
-		/// \brief Specifies the identifier for the terminal symbol with a given name
-		virtual void terminal_symbol(const std::wstring& name, int identifier);
+		/// \brief Defines the symbols associated with this language
+		virtual void define_lexer_tables();
 
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_terminal_symbols();
+		/// \brief Defines the parser tables for this language
+		virtual void define_parser_tables();
 
-		/// \brief The output stage is about to produce a list of non-terminal symbols
-		virtual void begin_nonterminal_symbols(const contextfree::grammar& gram);
-
-		/// \brief Specifies the identifier for the non-terminal symbol with a given name
-		virtual void nonterminal_symbol(const std::wstring& name, int identifier, const contextfree::item_container& item);
-
-		/// \brief Finished writing out the terminal symbols
-		virtual void end_nonterminal_symbols();
-
-		/// \brief Starting to write out the symbol map for the lexer
-		virtual void begin_lexer_symbol_map(int maxSetId);
-
-		/// \brief Specifies that a given range of symbols maps to a particular identifier
-		virtual void symbol_map(const dfa::range<int>& symbolRange, int identifier);
-		
-		/// \brief Finishing writing out the symbol map for the lexer
-		virtual void end_lexer_symbol_map();
-
-		/// \brief About to begin writing out the lexer tables
-		virtual void begin_lexer_state_machine(int numStates);
-
-		/// \brief Starting to write out the transitions for a given state
-		virtual void begin_lexer_state(int stateId);
-
-		/// \brief Adds a transition for the current state
-		virtual void lexer_state_transition(int symbolSet, int newState);
-
-		/// \brief Finishes writing out a lexer state
-		virtual void end_lexer_state();
-
-		/// \brief Finished writing out the lexer table
-		virtual void end_lexer_state_machine();
-
-		/// \brief About to write out the list of accepting states for a lexer
-		virtual void begin_lexer_accept_table();
-
-		/// \brief The specified state is not an accepting state
-		virtual void nonaccepting_state(int stateId);
-
-		/// \brief The specified state is an accepting state
-		virtual void accepting_state(int stateId, int acceptSymbolId);
-
-		/// \brief Finished the lexer acceptance table
-		virtual void end_lexer_accept_table();
-
-		/// \brief Finished all of the lexer definitions
-		virtual void end_lexer_definitions();
-
-		/// \brief Starting to write out the definitions associated with the parser
-		virtual void begin_parser_definitions();
-
-		/// \brief Supplies the parser tables generated by the compiler
-		virtual void parser_tables(const lr::lalr_builder& builder, const lr::parser_tables& tables);
-
-		/// \brief Finished the parser definitions
-		virtual void end_parser_definitions();
-        
-		/// \brief Starting to write out the definitions associated with the AST
-		virtual void begin_ast_definitions(const contextfree::grammar& grammar, const contextfree::terminal_dictionary& terminals);
-
-		/// \brief Starting to write the AST definitions for a particular terminal symbol
-		virtual void begin_ast_terminal(int itemIdentifier, const contextfree::item_container& item);
-
-		/// \brief Finished writing the definitions for a terminal
-		virtual void end_ast_terminal();
-        
-		/// \brief Starting to write the AST definitions for the specified nonterminal
-		virtual void begin_ast_nonterminal(int identifier, const contextfree::item_container& item);
-        
-		/// \brief Starting to write out a rule in the current nonterminal
-		virtual void begin_ast_rule(int identifier);
-        
-		/// \brief Writes out an individual item in the current rule (a nonterminal)
-		virtual void rule_item_nonterminal(int nonterminalId, const contextfree::item_container& item);
-        
-        /// \brief Writes out an individual item in the current rule (a terminal)
-        ///
-        /// Note the distinction between the item ID, which is part of the grammar, and the
-        /// symbol ID (which is part of the lexer and is the same as the value passed to 
-        /// terminal_symbol)
-        virtual void rule_item_terminal(int terminalItemId, int terminalSymbolId, const contextfree::item_container& item);
-        
-		/// \brief Finished writing out 
-		virtual void end_ast_rule();
-        
-		/// \brief Finished writing the definitions for a nonterminal
-		virtual void end_ast_nonterminal();
-        
-		/// \brief Finished writing out the AST information
-		virtual void end_ast_definitions();
-	};
+		/// \brief Writes out the AST tables
+		virtual void define_ast_tables();
+   	};
 }
 
 #endif

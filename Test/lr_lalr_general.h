@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 02/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "test_fixture.h"
