@@ -169,15 +169,15 @@ language Ansi-C {
 		<Unambiguous-Cast-Follow>		= <Simple-Type-Specifier>											// int, void, etc
 										| <Type-Qualifier>													// const, volatile
 										| identifier (<Simple-Type-Specifier> | <Type-Qualifier>)			// foo const etc
-										| identifier <Abstract-Declarator>? ')' ("++" <Unary-Expression> | "--" <Unary-Expression> | '&' | '*' | '~' | '!' | sizeof | identifier | <Constant>)
+										| identifier <Abstract-Declarator>? ')' ("++" <Unary-Expression> | "--" <Unary-Expression> | '&' | '~' | '!' | sizeof | identifier | <Constant>)
 
 		//
-		// (x)+1, (x)-1 and (x)(y) are all ambiguous and might be a cast or something else
+		// (x)+1, (x)-1, (x)*a and (x)(y) are all ambiguous and might be a cast or something else
 		// depending on the type of x
 		//
 		<Ambiguous-Cast>				= '(' [=> <Ambiguous-Cast-Follow>] <Type-Name> ')'
 
-		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '-' | '(' <Expression> ')')
+		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '*' | '-' | '(' <Expression> ')')
 			
 		<Multiplicative-Expression>		= <Cast-Expression>
 										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
@@ -425,4 +425,13 @@ test Ansi-C {
 				printf(\"Hello, world\");
 			}
 		")
+	
+	///
+	/// Cast expressions
+	///
+	<Cast-Expression> = 	"(a) b"
+							"(a)+b"
+							"(a)-b"
+							"(a)*b"
+							"(a)(b)"
 }
