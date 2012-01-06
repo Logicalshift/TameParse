@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 24/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LANGUAGE_EBNF_ITEM_H
@@ -77,6 +77,9 @@ namespace language {
         /// For a string or a character, this will be the (quoted) string or character that should be matched at this point.
         /// For guards and the various EBNF items, this will be empty
         std::wstring m_Identifier;
+
+        /// \brief The name assigned to this item, or the empty string if it has no name
+        std::wstring m_Name;
         
         /// \brief For guard and EBNF items, these are the items that they are made up of
         ///
@@ -85,10 +88,10 @@ namespace language {
         
     public:
         /// \brief Creates an EBNF item (sourceIdentifier.identifier)
-        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, position start, position end);
+        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const std::wstring& name, position start, position end);
 
         /// \brief Creates an EBNF item which doesn't specify a symbol
-        ebnf_item(type typ, position start = position(), position end = position());
+        ebnf_item(type typ, const std::wstring& name, position start = position(), position end = position());
         
         /// \brief Creates an EBNF item by copying an existing one
         ebnf_item(const ebnf_item& copyFrom);
@@ -115,6 +118,9 @@ namespace language {
         /// For a string or a character, this will be the (quoted) string or character that should be matched at this point.
         /// For guards and the various EBNF items, this will be empty
         inline const std::wstring& identifier() const { return m_Identifier; }
+
+        /// \brief The name for this item, or the empty string if it is not named
+        inline const std::wstring& name() const { return m_Name; }
         
         /// \brief The first child item for this item
         inline iterator begin() const { return m_ChildItems.begin(); }

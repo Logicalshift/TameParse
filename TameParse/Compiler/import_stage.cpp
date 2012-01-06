@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 25/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <stack>
@@ -42,7 +42,7 @@ void import_stage::compile() {
 	set<wstring>		imported;
 
 	// Iterate through the definitions
-	for (map<wstring, definition_file_container>::iterator defn = m_DefinitionForFile.begin(); defn != m_DefinitionForFile.end(); defn++) {
+	for (map<wstring, definition_file_container>::iterator defn = m_DefinitionForFile.begin(); defn != m_DefinitionForFile.end(); ++defn) {
 		// Add to the list to be processed
 		toImport.push(*defn);
 		imported.insert(cons().real_path(defn->first));
@@ -58,7 +58,7 @@ void import_stage::compile() {
 		if (!nextFile.second.item()) continue;
         
         // Look for import statements
-        for (definition_file::iterator defn = nextFile.second->begin(); defn != nextFile.second->end(); defn++) {
+        for (definition_file::iterator defn = nextFile.second->begin(); defn != nextFile.second->end(); ++defn) {
             if ((*defn)->import()) {
                 // Is an import block: get the filename
                 wstring importFile 	= (*defn)->import()->import_filename();

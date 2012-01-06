@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 19/03/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Dfa/symbol_map.h"
@@ -74,14 +74,14 @@ const symbol_set& symbol_map::operator[](int identifier) const {
 /// \brief Testing method: (inefficiently) iterates through the symbols in this map and returns true if there are any duplicate symbols
 bool symbol_map::has_duplicates() const {
     // Iterate through all of the symbols in the map
-    for (symbol_map::iterator checkSet = begin(); checkSet != end(); checkSet++) {
+    for (symbol_map::iterator checkSet = begin(); checkSet != end(); ++checkSet) {
         // Iterate through all of the ranges in this set
-        for (symbol_set::iterator checkRange = checkSet->first->begin(); checkRange != checkSet->first->end(); checkRange++) {
+        for (symbol_set::iterator checkRange = checkSet->first->begin(); checkRange != checkSet->first->end(); ++checkRange) {
             // Check these against each other set (which isn't the same as this one)
-            for (symbol_map::iterator againstSet = begin(); againstSet != end(); againstSet++) {
+            for (symbol_map::iterator againstSet = begin(); againstSet != end(); ++againstSet) {
                 if (againstSet == checkSet) continue;
                 
-                for (symbol_set::iterator againstRange = againstSet->first->begin(); againstRange != againstSet->first->end(); againstRange++) {
+                for (symbol_set::iterator againstRange = againstSet->first->begin(); againstRange != againstSet->first->end(); ++againstRange) {
                     // Must not overlap
                     if (againstRange->overlaps(*checkRange)) return true;
                 }

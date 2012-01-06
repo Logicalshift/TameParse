@@ -30,10 +30,13 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/lexer_stage.h \
 							  Compiler/lr_parser_stage.h \
 							  Compiler/output_stage.h \
-							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
+							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/Data/lexer_data.h \
+							  Compiler/Data/lexer_item.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -54,6 +57,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/position.h \
 							  Dfa/range.h \
 							  Dfa/remapped_symbol_map.h \
+							  Dfa/regex_error.h \
 							  Dfa/state.h \
 							  Dfa/state_machine.h \
 							  Dfa/symbol_map.h \
@@ -115,10 +119,12 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/lexer_stage.cpp \
 							  Compiler/lr_parser_stage.cpp \
 							  Compiler/output_stage.cpp \
-							  Compiler/OutputStages/cplusplus.cpp \
 							  Compiler/parser_stage.cpp \
 							  Compiler/std_console.cpp \
 							  Compiler/test_stage.cpp \
+							  Compiler/OutputStages/cplusplus.cpp \
+							  Compiler/Data/lexer_data.cpp \
+							  Compiler/Data/lexer_item.cpp \
 							  ContextFree/ebnf_items.cpp \
 							  ContextFree/grammar.cpp \
 							  ContextFree/guard.cpp \
@@ -140,6 +146,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/position.cpp \
 							  Dfa/range.cpp \
 							  Dfa/remapped_symbol_map.cpp \
+							  Dfa/regex_error.cpp \
 							  Dfa/state.cpp \
 							  Dfa/state_machine.cpp \
 							  Dfa/symbol_map.cpp \
@@ -199,10 +206,13 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/lexer_stage.h \
 							  Compiler/lr_parser_stage.h \
 							  Compiler/output_stage.h \
-							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
+							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/Data/lexer_data.h \
+							  Compiler/Data/lexer_item.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -223,6 +233,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Dfa/position.h \
 							  Dfa/range.h \
 							  Dfa/remapped_symbol_map.h \
+							  Dfa/regex_error.h \
 							  Dfa/state.h \
 							  Dfa/state_machine.h \
 							  Dfa/symbol_map.h \

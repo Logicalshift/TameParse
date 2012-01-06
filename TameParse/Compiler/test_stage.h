@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 22/10/2011.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_TEST_STAGE_H

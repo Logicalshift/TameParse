@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 13/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_PARSER_H
@@ -303,7 +303,7 @@ namespace lr {
                     
                     // Pop items from the stack, and create an item for them by calling the actions
                     reduce_list items;
-                    for (int x=0; x < rule.m_Length; x++) {
+                    for (int x=0; x < rule.m_Length; ++x) {
                         items.push_back(state->m_Stack->item);
                         state->m_Stack.pop();
                     }
@@ -328,7 +328,7 @@ namespace lr {
                     // Get the goto action for this nonterminal
                     for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
-                         gotoAct++) {
+                         ++gotoAct) {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
@@ -411,7 +411,7 @@ namespace lr {
                 inline int offset() const { return m_Offset; }
                 
                 // \brief Moves on to the next symbol
-                inline void next() { m_Offset++; }
+                inline void next() { ++m_Offset; }
                 
                 /// \brief The current state of the guard lookahead parser
                 inline int current_state(state* state) const { return m_Stack.top(); }
@@ -431,7 +431,7 @@ namespace lr {
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
                     // Pop items from the stack, and create an item for them by calling the actions
-                    for (int x=0; x < rule.m_Length; x++) {
+                    for (int x=0; x < rule.m_Length; ++x) {
                         m_Stack.pop();
                     }
                     
@@ -441,7 +441,7 @@ namespace lr {
                     // Get the goto action for this nonterminal
                     for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
-                         gotoAct++) {
+                         ++gotoAct) {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)

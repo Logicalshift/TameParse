@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 28/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _DFA_SYMBOL_TABLE_H
@@ -51,7 +51,7 @@ namespace dfa {
             if (copyFrom.Symbols) {
                 Symbols = new next_level*[c_MaxIndex];
                 
-                for (int x=0; x<c_MaxIndex; x++) {
+                for (int x=0; x<c_MaxIndex; ++x) {
                     if (copyFrom.Symbols[x]) {
                         Symbols[x] = new next_level(*copyFrom.Symbols[x]);
                     } else {
@@ -64,7 +64,7 @@ namespace dfa {
         /// \brief Destructor
         ~symbol_level() {
             if (Symbols) {
-                for (int x=0; x<c_MaxIndex; x++) {
+                for (int x=0; x<c_MaxIndex; ++x) {
                     if (Symbols[x]) delete Symbols[x];
                 }
                 delete[] Symbols;
@@ -102,13 +102,13 @@ namespace dfa {
             // Create the symbol set if needed
             if (!Symbols) {
                 Symbols = new next_level*[c_MaxIndex];
-                for (int index=0; index < c_MaxIndex; index++) {
+                for (int index=0; index < c_MaxIndex; ++index) {
                     Symbols[index] = NULL;
                 }
             }
             
             // Otherwise, create new entries (if needed) and add the range there as well
-            for (int index = startIndex; index <= endIndex; index++) {
+            for (int index = startIndex; index <= endIndex; ++index) {
                 // Create a new entry if needed
                 if (!Symbols[index]) Symbols[index] = new next_level();
                 
@@ -131,7 +131,7 @@ namespace dfa {
             size_t mySize = sizeof(symbol_level<next_level, mask, shift>);
             if (Symbols) {
                 mySize += sizeof(next_level*[c_MaxIndex]);
-                for (int index=0; index<c_MaxIndex; index++) {
+                for (int index=0; index<c_MaxIndex; ++index) {
                     if (Symbols[index]) mySize += Symbols[index]->size();
                 }
             }
@@ -158,7 +158,7 @@ namespace dfa {
             int highestUsed = 0;
             int totalSize   = 0;
 
-            for (int subtableId = 0; subtableId < c_MaxIndex; subtableId++) {
+            for (int subtableId = 0; subtableId < c_MaxIndex; ++subtableId) {
                 // Add a null table if no symbols are defined for this set
                 if (!Symbols[subtableId]) {
                     subTables[subtableId] = NULL;
@@ -189,7 +189,7 @@ namespace dfa {
             newTable[1] = lowestUsed | (highestUsed << 8);
 
             // Fill in the table list (and delete the subtables as we go)
-            for (int subtableId = lowestUsed; subtableId < highestUsed; subtableId++) {
+            for (int subtableId = lowestUsed; subtableId < highestUsed; ++subtableId) {
                 // Position for this table offset
                 int pos = 2 + (subtableId - lowestUsed);
 
@@ -267,11 +267,11 @@ namespace dfa {
             // Create the symbol array if needed
             if (!Symbols) {
                 Symbols = new int[c_MaxIndex];
-                for (int index=0; index< c_MaxIndex; index++) Symbols[index] = symbol_set::null;
+                for (int index=0; index< c_MaxIndex; ++index) Symbols[index] = symbol_set::null;
             }
             
             // Fill in the symbols between these indexes
-            for (int index=startIndex; index < endIndex; index++) {
+            for (int index=startIndex; index < endIndex; ++index) {
                 Symbols[index] = symbol;
             }
         }
@@ -307,7 +307,7 @@ namespace dfa {
             int lowestUsed  = c_MaxIndex;
             int highestUsed = 0;
 
-            for (int symbolId = 0; symbolId < c_MaxIndex; symbolId++) {
+            for (int symbolId = 0; symbolId < c_MaxIndex; ++symbolId) {
                 // Counts as not used if the symbol is the same as the default symbol
                 if (Symbols[symbolId] == DefaultSymbol) {
                     continue;
@@ -327,7 +327,7 @@ namespace dfa {
             newTable[1] = lowestUsed | (highestUsed << 8);
 
             // Fill in the symbols
-            for (int symbolId = lowestUsed; symbolId < highestUsed; symbolId++) {
+            for (int symbolId = lowestUsed; symbolId < highestUsed; ++symbolId) {
                 // Position for this table offset
                 int pos = 2 + (symbolId - lowestUsed);
 

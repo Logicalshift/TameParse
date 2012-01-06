@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 21/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Lr/ignored_symbols.h"
@@ -46,7 +46,7 @@ void ignored_symbols::rewrite_actions(int state, lr_action_set& actions, const l
     // Make a note of any ignored symbols that are used in shift actions, and also change any reduce actions
     // that reference an ignored symbol to a weak reduce action
     item_set usedIgnored;
-    for (lr_action_set::const_iterator action = actions.begin(); action != actions.end(); action++) {
+    for (lr_action_set::const_iterator action = actions.begin(); action != actions.end(); ++action) {
         switch ((*action)->type()) {
             case lr_action::act_reduce:
                 if (m_IgnoredItems.find((*action)->item()) != m_IgnoredItems.end()) {
@@ -86,7 +86,7 @@ void ignored_symbols::rewrite_actions(int state, lr_action_set& actions, const l
     }
     
     // Add 'ignore' actions for any unused ignored item
-    for (item_set::const_iterator ignored = m_IgnoredItems.begin(); ignored != m_IgnoredItems.end(); ignored++) {
+    for (item_set::const_iterator ignored = m_IgnoredItems.begin(); ignored != m_IgnoredItems.end(); ++ignored) {
         if (usedIgnored.find(*ignored) == usedIgnored.end()) {
             // Create a new ignored action
             lr_action newIgnored(lr_action::act_ignore, *ignored, state);

@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/ContextFree/item.h"
@@ -103,7 +103,7 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
         follow = gram.first(rule.items()[followOffset]);
         
         // Add further following items if the follow set can be empty, until we reach the end
-        followOffset++;
+        ++followOffset;
         while (followOffset < numItems && follow.contains(an_empty_item_c)) {
             // Remove the empty item
             follow.erase(an_empty_item_c);
@@ -113,7 +113,7 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
             follow.merge(newItems);
             
             // Move on to the next item
-            followOffset++;
+            ++followOffset;
         }
         
         // If the empty set is still included, remove it and add the item lookahead
@@ -203,7 +203,7 @@ void item::cache_closure(const lr::lr1_item& it, lr::lr1_item_set& state, const 
     fill_follow(follow, it, gram);
     
     // Generate the closure for this item via the cache ('$' gets substituted for the follow set)
-    for (lr1_item_set::const_iterator cachedItem = cachedSet.begin(); cachedItem != cachedSet.end(); cachedItem++) {
+    for (lr1_item_set::const_iterator cachedItem = cachedSet.begin(); cachedItem != cachedSet.end(); ++cachedItem) {
         // Get the lookahead for this item
         const item_set& itemLookahead = (*cachedItem)->lookahead();
         

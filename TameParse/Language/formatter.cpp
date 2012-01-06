@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -79,13 +79,13 @@ wstring formatter::to_string(const contextfree::item& it, const grammar& gram, c
         
         // Convert all of the rules in this item
         bool first = true;
-        for (ebnf::rule_iterator it = eb->first_rule(); it != eb->last_rule(); it++) {
+        for (ebnf::rule_iterator nextRule = eb->first_rule(); nextRule != eb->last_rule(); ++nextRule) {
             // Append the '|'
             buf << L" ";
             if (!first) buf << L"| ";
             
             // Convert the rule to a string
-            buf << to_string(**it, gram, dict, -1, false);
+            buf << to_string(**nextRule, gram, dict, -1, false);
             
             // No longer on the first item
             first = false;
@@ -155,7 +155,7 @@ wstring formatter::to_string(const rule& rule, const grammar& gram, const termin
     // Append the rest of the rule
     bool first = true;
     int pos = 0;
-    for (rule::iterator it = rule.begin(); it != rule.end(); it++, pos++) {
+    for (rule::iterator nextRule = rule.begin(); nextRule != rule.end(); ++nextRule, ++pos) {
         // Space separates all except the first item
         if (!first)         res << L" ";
         
@@ -163,7 +163,7 @@ wstring formatter::to_string(const rule& rule, const grammar& gram, const termin
         if (dotPos == pos)  res << L"^ ";
         
         // Append this item
-        res << to_string(**it, gram, dict);
+        res << to_string(**nextRule, gram, dict);
         first = false;
     }
     
@@ -186,7 +186,7 @@ wstring formatter::to_string(const grammar& gram, const terminal_dictionary& dic
     bool addedNewline = true;
 
     // Iterate through the nonterminals in this grammar
-    for (int ntId = 0; ntId < gram.max_item_identifier(); ntId++) {
+    for (int ntId = 0; ntId < gram.max_item_identifier(); ++ntId) {
         // Add a newline between nonterminals
         if (!addedNewline) {
             res << endl;
@@ -197,7 +197,7 @@ wstring formatter::to_string(const grammar& gram, const terminal_dictionary& dic
         const rule_list& rules = gram.rules_for_nonterminal(ntId);
         
         // Add them to the result
-        for (rule_list::const_iterator rule = rules.begin(); rule != rules.end(); rule++) {
+        for (rule_list::const_iterator rule = rules.begin(); rule != rules.end(); ++rule) {
             res << to_string(**rule, gram, dict, -1, true) << endl;
             addedNewline = false;
         }
@@ -253,7 +253,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
     // Output all of the items and their lookahead
     bool first = true;
     
-    for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+    for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); ++nextItem) {
         // Insert newlines
         if (!first) {
             res << endl;
@@ -299,7 +299,7 @@ std::wstring formatter::to_string(const lr::lalr_state& state,  const contextfre
         lalr_builder::generate_closure(state, closure, &gram);
         
         // Write them out
-        for (lr1_item_set::iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
+        for (lr1_item_set::iterator nextItem = closure.begin(); nextItem != closure.end(); ++nextItem) {
             // Newline between items
             if (!first) {
                 res << endl;
@@ -387,7 +387,7 @@ std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contex
     bool first = true;
     
     // Iterate through the states
-    for (lalr_machine::state_iterator nextState = machine.first_state(); nextState != machine.last_state(); nextState++) {
+    for (lalr_machine::state_iterator nextState = machine.first_state(); nextState != machine.last_state(); ++nextState) {
         if (!first) res << endl << endl;
         
         // Write out the state
@@ -400,7 +400,7 @@ std::wstring formatter::to_string(const lr::lalr_machine& machine,  const contex
         
         if (!transitions.empty()) {
             res << endl;
-            for (transition_set::const_iterator transit = transitions.begin(); transit != transitions.end(); transit++) {
+            for (transition_set::const_iterator transit = transitions.begin(); transit != transitions.end(); ++transit) {
                 res << endl << to_string(*transit->first, gram, dict) << L" -> " << transit->second;
             }
         }
@@ -419,7 +419,7 @@ std::wstring formatter::to_string(const lr::lalr_builder& builder, const context
     bool first = true;
     
     // Iterate through the states
-    for (lalr_machine::state_iterator nextState = builder.machine().first_state(); nextState != builder.machine().last_state(); nextState++) {
+    for (lalr_machine::state_iterator nextState = builder.machine().first_state(); nextState != builder.machine().last_state(); ++nextState) {
         if (!first) res << endl << endl;
         
         // Write out the state
@@ -431,7 +431,7 @@ std::wstring formatter::to_string(const lr::lalr_builder& builder, const context
         
         if (!actions.empty()) {
             res << endl;
-            for (lr_action_set::const_iterator action = actions.begin(); action != actions.end(); action++) {
+            for (lr_action_set::const_iterator action = actions.begin(); action != actions.end(); ++action) {
                 res << endl << to_string(**action, gram, dict);
             }
         }
@@ -466,7 +466,7 @@ wstring formatter::to_string(const conflict& conf, const grammar& gram, const te
     
     // Write out the shift actions, if there are any
     bool first = true;
-    for (lr0_item_set::const_iterator shiftItem = conf.first_shift_item(); shiftItem != conf.last_shift_item(); shiftItem++) {
+    for (lr0_item_set::const_iterator shiftItem = conf.first_shift_item(); shiftItem != conf.last_shift_item(); ++shiftItem) {
         // Indicate these are shift items if this is the first
         res << endl;
         if (first) {
@@ -487,7 +487,7 @@ wstring formatter::to_string(const conflict& conf, const grammar& gram, const te
         res << endl << L"  Reduce:";
     }
     
-    for (conflict::reduce_iterator reduceItem = conf.first_reduce_item(); reduceItem != conf.last_reduce_item(); reduceItem++) {
+    for (conflict::reduce_iterator reduceItem = conf.first_reduce_item(); reduceItem != conf.last_reduce_item(); ++reduceItem) {
         // Write out the item that's being reduced
         res << endl;
         res << L"    " << to_string(*reduceItem->first, gram, dict);
@@ -519,7 +519,7 @@ std::wstring formatter::to_string(const util::astnode& node, const contextfree::
     }
     
     // Write out the children for this node
-    for (astnode::node_list::const_iterator child = node.children().begin(); child != node.children().end(); child++) {
+    for (astnode::node_list::const_iterator child = node.children().begin(); child != node.children().end(); ++child) {
         // Get the conversion for this child
         wstring childString = to_string(**child, gram, dict);
         
@@ -528,7 +528,7 @@ std::wstring formatter::to_string(const util::astnode& node, const contextfree::
         
         // Append to the result (indenting as we go)
         res << endl << L"+- ";
-        for (wstring::iterator nextChar = childString.begin(); nextChar != childString.end(); nextChar++) {
+        for (wstring::iterator nextChar = childString.begin(); nextChar != childString.end(); ++nextChar) {
             res << *nextChar;
             if (*nextChar == L'\n') {
                 if (moreChildren) {

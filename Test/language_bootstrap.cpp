@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <string>
@@ -35,7 +35,7 @@ static bool test_lex(string phrase, const lexer& lex, int expectedSymbol, const 
     
     bool result = true;
     if (match->content().size() != phrase.size()) {
-        for (size_t x=0; x<match->content().size(); x++) {
+        for (size_t x=0; x<match->content().size(); ++x) {
             cerr << (char)match->content()[x];
         }
         cerr << endl;
@@ -84,7 +84,7 @@ void test_language_bootstrap::run_tests() {
     bool idAndAnything  = false;
     bool idAndEquals    = false;
     
-    for (int stateId = 0; stateId < bsDfa->count_states(); stateId++) {
+    for (int stateId = 0; stateId < bsDfa->count_states(); ++stateId) {
         typedef ndfa::accept_action_list aal;
         
         const aal& actions = bsDfa->actions_for_state(stateId);
@@ -95,7 +95,7 @@ void test_language_bootstrap::run_tests() {
         bool hasLexer       = false;
         bool hasEquals      = false;
         
-        for (aal::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+        for (aal::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
             if ((*nextAction)->symbol() == icIdentifier->symbol())  hasId = true;
             if ((*nextAction)->symbol() == icLanguage->symbol())    hasLanguage = true;
             if ((*nextAction)->symbol() == icLexer->symbol())       hasLexer = true;
@@ -153,6 +153,7 @@ void test_language_bootstrap::run_tests() {
     report("MatchWeak", test_lex("weak", bs.get_lexer(), bs.get_terminal_items().weak->symbol(), bs.get_terminals()));
     report("MatchIgnore", test_lex("ignore", bs.get_lexer(), bs.get_terminal_items().ignore->symbol(), bs.get_terminals()));
     report("MatchKeywords", test_lex("keywords", bs.get_lexer(), bs.get_terminal_items().keywords->symbol(), bs.get_terminals()));
+    
     report("MatchWhitespace", test_lex("  ", bs.get_lexer(), bs.get_terminal_items().whitespace->symbol(), bs.get_terminals()));
     report("MatchNewline", test_lex("\n", bs.get_lexer(), bs.get_terminal_items().newline->symbol(), bs.get_terminals()));
     report("MatchComment", test_lex("// Comment", bs.get_lexer(), bs.get_terminal_items().comment->symbol(), bs.get_terminals()));
@@ -161,9 +162,9 @@ void test_language_bootstrap::run_tests() {
     map<int, rule_container>    usedIdentifiers;
     bool        allUnique = true;
     
-    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ntId++) {
+    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ++ntId) {
         const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
-        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
+        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); ++nextRule) {
             int identifier = (*nextRule)->identifier(bs.get_grammar());
             
             if (usedIdentifiers.find(identifier) != usedIdentifiers.end()) {
@@ -186,9 +187,9 @@ void test_language_bootstrap::run_tests() {
     
     // Hrm, still got an issue, maybe some rules don't compare equal with themselves?
     bool equality = true;
-    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ntId++) {
+    for (int ntId = 0; ntId < bs.get_grammar().max_item_identifier(); ++ntId) {
         const rule_list& ntRules = bs.get_grammar().rules_for_nonterminal(ntId);
-        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); nextRule++) {
+        for (rule_list::const_iterator nextRule = ntRules.begin(); nextRule != ntRules.end(); ++nextRule) {
             if (!nextRule->operator==(**nextRule)) {
                 equality = false;
                 
@@ -201,9 +202,9 @@ void test_language_bootstrap::run_tests() {
                 wcerr << L"Less than fail: " << formatter::to_string(**nextRule, bs.get_grammar(), bs.get_terminals()) << endl;
             }
             
-            for (int ntId2 = 0; ntId2 < bs.get_grammar().max_item_identifier(); ntId2++) {
+            for (int ntId2 = 0; ntId2 < bs.get_grammar().max_item_identifier(); ++ntId2) {
                 const rule_list& nt2Rules = bs.get_grammar().rules_for_nonterminal(ntId);
-                for (rule_list::const_iterator nextRule2 = nt2Rules.begin(); nextRule2 != ntRules.end(); nextRule2++) {
+                for (rule_list::const_iterator nextRule2 = nt2Rules.begin(); nextRule2 != ntRules.end(); ++nextRule2) {
                     // Ignore the existing rule
                     if (nextRule2 == nextRule) continue;
                     
@@ -228,8 +229,8 @@ void test_language_bootstrap::run_tests() {
     
     // Write out the conflicts to the standard I/O if there were any
     if (conflicts.size() > 0) {
-        for (conflict_list::const_iterator it = conflicts.begin(); it != conflicts.end(); it++) {
-            wcerr << endl << L"===" << endl << formatter::to_string(**it, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
+        for (conflict_list::const_iterator conf = conflicts.begin(); conf != conflicts.end(); ++conf) {
+            wcerr << endl << L"===" << endl << formatter::to_string(**conf, bs.get_grammar(), bs.get_terminals()) << endl << L"===" << endl;
         }
     }
     

@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 01/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_LR_STATE_H
@@ -97,7 +97,7 @@ namespace lr {
             // Two sets are equal if their items are the same, but identifiers are allowed to be different
             for (typename item_list::const_iterator ours = m_ItemList.begin(), theirs = compareTo.m_ItemList.begin(); 
                  ours != m_ItemList.end() && theirs != compareTo.m_ItemList.end(); 
-                 ours++, theirs++) {
+                 ++ours, ++theirs) {
                 // Not equal if either greater than or less that this item,
                 if (less_than(*ours, *theirs) || less_than(*theirs, *ours)) return false;
             }
@@ -114,7 +114,7 @@ namespace lr {
 
             for (typename item_list::const_iterator ours = m_ItemList.begin(), theirs = compareTo.m_ItemList.begin(); 
                  ours != m_ItemList.end() && theirs != compareTo.m_ItemList.end();
-                 ours++, theirs++) {
+                 ++ours, ++theirs) {
                 // Not equal if either greater than or less that this item,
                 if (less_than(*ours, *theirs)) return true;
                 if (less_than(*theirs, *ours)) return false;

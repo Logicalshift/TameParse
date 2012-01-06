@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 17/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LANGUAGE_LANGUAGE_UNIT_H
@@ -24,12 +24,6 @@ namespace language {
             
             /// \brief A lexer symbols block (symbols that can be re-used when defining the lexer, but which don't actually produce terminal symbols)
             unit_lexer_symbols,
-            
-            /// \brief The weak keyword symbols definition
-            unit_weak_keywords_definition,
-            
-            /// \brief The weak symbols definition
-            unit_weak_lexer_definition,
             
             /// \brief The keyword symbols definition
             unit_keywords_definition,
@@ -53,7 +47,7 @@ namespace language {
         
         /// \brief If this is a grammar block, this will be non-NULL
         grammar_block* m_Grammar;
-        
+
     public:
         /// \brief Defines this as a lexical lanuguage unit
         language_unit(unit_type type, lexer_block* lexer);
@@ -98,22 +92,6 @@ namespace language {
         /// \brief If this is a ignored symbols definition block, this will return the lexer block that defines its content (otherwise null)
         inline lexer_block* ignore_definition() const {
             if (m_Type == unit_ignore_definition)
-                return m_LexerBlock;
-            else
-                return NULL;
-        }
-        
-        /// \brief If this is a weak keywords block, this will return the lexer block that defines its content (otherwise null)
-        inline lexer_block* weak_keywords_definition() const {
-            if (m_Type == unit_weak_keywords_definition)
-                return m_LexerBlock;
-            else
-                return NULL;
-        }
-        
-        /// \brief If this is a weak symbols block, this will return the lexer block that defines its content (otherwise null)
-        inline lexer_block* weak_lexer_definition() const {
-            if (m_Type == unit_weak_lexer_definition)
                 return m_LexerBlock;
             else
                 return NULL;

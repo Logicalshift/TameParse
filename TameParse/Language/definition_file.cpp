@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 17/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Language/definition_file.h"
@@ -26,7 +26,7 @@ definition_file& definition_file::operator=(const definition_file& copyFrom) {
     if (&copyFrom == this) return *this;
     
     // Iterate through the blocks in this file
-    for (block_list::iterator deleteBlock = m_Blocks.begin(); deleteBlock != m_Blocks.end(); deleteBlock++) {
+    for (block_list::iterator deleteBlock = m_Blocks.begin(); deleteBlock != m_Blocks.end(); ++deleteBlock) {
         delete *deleteBlock;
     }
     m_Blocks.clear();
@@ -36,7 +36,7 @@ definition_file& definition_file::operator=(const definition_file& copyFrom) {
     set_end_pos(position());
     
     // Copy the blocks from the source
-    for (iterator copyBlock = copyFrom.begin(); copyBlock != copyFrom.end(); copyBlock++) {
+    for (iterator copyBlock = copyFrom.begin(); copyBlock != copyFrom.end(); ++copyBlock) {
         add(new toplevel_block(**copyBlock));
     }
     
@@ -46,7 +46,7 @@ definition_file& definition_file::operator=(const definition_file& copyFrom) {
 /// \brief Destroys this definition file object
 definition_file::~definition_file() {
     // Iterate through the blocks in this file and delete them
-    for (block_list::iterator deleteBlock = m_Blocks.begin(); deleteBlock != m_Blocks.end(); deleteBlock++) {
+    for (block_list::iterator deleteBlock = m_Blocks.begin(); deleteBlock != m_Blocks.end(); ++deleteBlock) {
         delete *deleteBlock;
     }
     m_Blocks.clear();

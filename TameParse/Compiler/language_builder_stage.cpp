@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 25/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Compiler/language_builder_stage.h"
@@ -21,8 +21,8 @@ language_builder_stage::language_builder_stage(console_container& console, const
 /// \brief Destructor
 language_builder_stage::~language_builder_stage() {
 	// Delete the language stages
-	for (language_map::iterator it = m_Languages.begin(); it != m_Languages.end(); it++) {
-		delete it->second;
+	for (language_map::iterator language = m_Languages.begin(); language != m_Languages.end(); ++language) {
+		delete language->second;
 	}
 
 	// Finished with the languages
@@ -41,7 +41,7 @@ void language_builder_stage::compile() {
 	console_container consContainer(cons_container());
 
 	// Run through all of the language blocks in the import stage
-	for (import_stage::language_iterator language = m_ImportStage->begin_language(); language != m_ImportStage->end_language(); language++) {
+	for (import_stage::language_iterator language = m_ImportStage->begin_language(); language != m_ImportStage->end_language(); ++language) {
 		// Fetch the parts of this name
 		std::wstring            languageName        = language->first;
 		const language_block*   languageBlock       = language->second;

@@ -3,7 +3,7 @@
 //  parsetool
 //
 //  Created by Andrew Hunter on 24/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/TameParse.h"
@@ -109,9 +109,9 @@ int main (int argc, const char * argv[])
             int languageCount = 0;
             
             // Find all of the language blocks
-            for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); defnBlock++) {
+            for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); ++defnBlock) {
                 if ((*defnBlock)->language()) {
-                    languageCount++;
+                    ++languageCount;
                     if (languageCount > 1) {
                         // Multiple languages: can't infer one
                         buildLanguageName.clear();
@@ -152,6 +152,9 @@ int main (int argc, const char * argv[])
             console.report_error(error(error::sev_error, console.input_file(), L"MISSING_TARGET_LANGUAGE", msg.str(), parseBlockPosition));
             return error::sev_error;
         }
+        
+        // Report any unused symbols in the language
+        compileLanguageStage->report_unused_symbols();
         
         // Infer the start symbols if there are none
         if (startSymbols.empty()) {

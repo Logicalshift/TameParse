@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 01/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Lr/lalr_state.h"
@@ -18,16 +18,16 @@ lalr_state::lalr_state() {
 /// \brief Copies this state
 lalr_state::lalr_state(const lalr_state& copyFrom)
 : m_State(copyFrom.m_State) {
-    for (lookahead_for_item::const_iterator it=copyFrom.m_Lookahead.begin(); it != copyFrom.m_Lookahead.end(); it++) {
-        m_Lookahead.push_back(new lr1_item::lookahead_set(**it));
+    for (lookahead_for_item::const_iterator la=copyFrom.m_Lookahead.begin(); la != copyFrom.m_Lookahead.end(); ++la) {
+        m_Lookahead.push_back(new lr1_item::lookahead_set(**la));
     }    
 }
 
 /// \brief Destroys this state
 lalr_state::~lalr_state() {
     // Destroy all the lookahead sets
-    for (lookahead_for_item::iterator it=m_Lookahead.begin(); it != m_Lookahead.end(); it++) {
-        delete *it;
+    for (lookahead_for_item::iterator la=m_Lookahead.begin(); la != m_Lookahead.end(); ++la) {
+        delete *la;
     }
 }
 

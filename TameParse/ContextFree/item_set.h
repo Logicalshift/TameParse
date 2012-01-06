@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 27/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _CONTEXTFREE_ITEM_SET_H
@@ -103,7 +103,7 @@ namespace contextfree {
             if (compareTo.m_MaxItem != m_MaxItem) return false;
 
             // Compare the elements
-            for (int item = 0; item < m_MaxItem; item++) {
+            for (int item = 0; item < m_MaxItem; ++item) {
                 if (m_Items[item] != compareTo.m_Items[item]) return false;
             }
 
@@ -121,7 +121,7 @@ namespace contextfree {
             if (compareTo.m_MaxItem < m_MaxItem) return false;
 
             // Compare the elements
-            for (int item = 0; item < m_MaxItem; item++) {
+            for (int item = 0; item < m_MaxItem; ++item) {
                 if (m_Items[item] < compareTo.m_Items[item]) return true;
                 if (m_Items[item] > compareTo.m_Items[item]) return false;
             }
