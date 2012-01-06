@@ -46,6 +46,9 @@ typedef tameparse_language::Nonterminal_Definition_n            ast_Nonterminal_
 typedef tameparse_language::Production_n                        ast_Production;
 typedef tameparse_language::Simple_Ebnf_Item_n                  ast_Simple_Ebnf_Item;
 typedef tameparse_language::Ebnf_Item_n                         ast_Ebnf_Item;
+typedef tameparse_language::Semantic_Specification_n            ast_Semantic_Specification;
+typedef tameparse_language::list_of__comma__Semantic_Item_n     list_of_Semantic_Item;
+typedef tameparse_language::Semantic_Item_n                     ast_Semantic_Item;
 typedef tameparse_language::Test_Block_n                        ast_Test_Block;
 typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
 typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
@@ -141,11 +144,49 @@ static test_block* definition_for(const ast_Test_Block* testBlock) {
     return result;
 }
 
+/// \brief Modifies the attributes with the specifed semantic specification
+static void modify_attribute(ebnf_item_attributes& attr, const ast_Semantic_Item* item) {
+    // Action depends on the content of attr
+    if (item->name) {
+        // Name of this item when it is represented in the AST
+
+        // TODO: error if a name is used twice
+        attr.name = item->name->content<wchar_t>();
+    } else if (item->conflict) {
+        // Action to perform when this item is in a shift/reduce conflict
+
+        // TODO: error if more than one conflict action is specified
+        if (item->shift) {
+            attr.conflict_action = ebnf_item_attributes::conflict_shift;
+        } else if (item->reduce && item->weak) {
+            attr.conflict_action = ebnf_item_attributes::conflict_weakreduce;
+        } else if (item->reduce) {
+            attr.conflict_action = ebnf_item_attributes::conflict_reduce;
+        }
+    }
+}
+
+/// \brief Converts a semantic specification into item attributes
+static ebnf_item_attributes definition_for(const ast_Semantic_Specification* spec) {
+    // Start with the default attributes
+    ebnf_item_attributes result;
+
+    // Process each attribute in turn
+    modify_attribute(result, spec->first_item);
+
+    for (list_of_Semantic_Item::iterator nextItem = spec->more_items->begin(); nextItem != spec->more_items->end(); ++nextItem) {
+        modify_attribute(result, (*nextItem)->Semantic_Item);
+    }
+
+    // Finished
+    return result;
+}
+
 /// \brief Definition for a simple EBNF item
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
 
 /// \brief Converts a full EBNF item into an ebnf_item object
-static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& name) {
+static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const ebnf_item_attributes& attr) {
     // Stick the items together
     bool        parenthesized   = false;            // True when parenthesized
     ebnf_item*  result          = NULL;
@@ -168,7 +209,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
         } else {
             if (!parenthesized) {
                 // Add parentheses around the result
-                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
+                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnf_item_attributes(), ebnfItem->pos(), ebnfItem->final_pos());
                 paren->add_child(result);
                 paren->add_child(nextItem);
                 result          = paren;
@@ -182,13 +223,13 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
     
     // If the result is empty, replace with an empty parenthesized item
     if (!result) {
-        result = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
+        result = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnf_item_attributes(), ebnfItem->pos(), ebnfItem->final_pos());
     }
     
     // Create an alternate if one is supplied
     if (ebnfItem->or_item) {
         // Get the alternative item
-        ebnf_item* alternative = definition_for(ebnfItem->or_item, L"");
+        ebnf_item* alternative = definition_for(ebnfItem->or_item, ebnf_item_attributes());
         
         if (alternative == NULL) {
             // Bug
@@ -197,7 +238,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
         }
         
         // Create the new result item
-        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, name, ebnfItem->pos(), ebnfItem->final_pos());
+        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, attr, ebnfItem->pos(), ebnfItem->final_pos());
         
         alternate->add_child(result);
         alternate->add_child(alternative);
@@ -211,11 +252,11 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
 
 /// \brief Converts a simple EBNF item into an ebnf_item object
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
-    // Work out the semantics for this item (names only in the current revision)
-    wstring name;
+    // Work out the semantics for this item
+    ebnf_item_attributes attr;
 
     if (simpleItem->optional_Semantic_Specification->Semantic_Specification) {
-        name = simpleItem->optional_Semantic_Specification->Semantic_Specification->name->content<wchar_t>();
+        attr = definition_for(simpleItem->optional_Semantic_Specification->Semantic_Specification);
     }
 
     // Item depends on the content
@@ -230,7 +271,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, name, simpleItem->pos(), simpleItem->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, attr, simpleItem->pos(), simpleItem->final_pos());
     }
     
     else if (simpleItem->Terminal) {
@@ -266,12 +307,12 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, name, simpleItem->pos(), simpleItem->final_pos());        
+        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, attr, simpleItem->pos(), simpleItem->final_pos());        
     }
     
     else if (simpleItem->Guard) {
         // Get the internal item
-        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item, L"");
+        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item, ebnf_item_attributes());
         
         if (!internalItem) {
             // Bug
@@ -279,7 +320,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Turn into a guard item
-        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, name);
+        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, attr);
         guardItem->add_child(internalItem);
         
         return guardItem;
@@ -293,7 +334,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(starredItem);
         return result;
     }
@@ -306,7 +347,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(plusItem);
         return result;
     }
@@ -319,14 +360,14 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(optionalItem);
         return result;        
     }
     
     else if (simpleItem->_openparen_) {
         // Item of the form (X)
-        return definition_for(simpleItem->Ebnf_Item, name);
+        return definition_for(simpleItem->Ebnf_Item, attr);
     }
     
     // Unknown type of item

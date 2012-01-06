@@ -30,7 +30,7 @@ namespace language {
 			conflict_reduce,
 
 			/// \brief Reduce the rule provided that the symbol will be subsequently shifted
-			conflict_weakreduce,
+			conflict_weakreduce
 		};
 
 	public:

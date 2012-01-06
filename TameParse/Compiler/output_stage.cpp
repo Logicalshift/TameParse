@@ -512,7 +512,7 @@ static output_stage::ast_nonterminal s_NoNonterminal;
 const output_stage::ast_nonterminal& output_stage::get_ast_nonterminal(int nonterminalId) {
 	if (m_RulesForNonterminal.empty()) generate_ast_rules();
 
-	if (nonterminalId < 0 || nonterminalId >= m_RulesForNonterminal.size()) return s_NoNonterminal;
+	if (nonterminalId < 0 || nonterminalId >= (int)m_RulesForNonterminal.size()) return s_NoNonterminal;
 
 	return m_RulesForNonterminal[nonterminalId];
 }

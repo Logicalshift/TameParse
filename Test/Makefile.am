@@ -20,6 +20,7 @@ test_SOURCES		= \
 					  lr_lalr_general.h \
 					  lr_weaksymbols.h \
 					  test_fixture.h \
+					  ../TameParse/Language/bootstrap.h \
  					  \
 					  contextfree_firstset.cpp \
 					  contextfree_followset.cpp \
@@ -34,6 +35,7 @@ test_SOURCES		= \
 					  language_primary.cpp \
 					  lr_lalr_general.cpp \
 					  lr_weaksymbols.cpp \
+					  ../TameParse/Language/bootstrap.cpp \
 					  main.cpp \
 					  test_fixture.cpp
 
