@@ -72,110 +72,117 @@ language ParserLanguage {
 		//
 		// The top-level definitions
 		//
-		
+
 		<Parser-Language>		= (<TopLevel-Block>)*
-		
+
 		<TopLevel-Block>		= <Language-Block>
 								| <Import-Block>
 								| <Parser-Block>
 								| <Test-Block>
-		
-		<Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
-		
-		<Import-Block>			= import string
-		
-		<Language-Inherits>		= ':' identifier
-		
+
+		<Language-Block>		= language identifier[name] (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+
+		<Import-Block>			= import string[filename]
+
+		<Language-Inherits>		= ':' identifier[inherit-from]
+
 		//
 		// The language block
 		//
-		
+
 		<Language-Definition>	= <Lexer-Symbols-Definition>
 								| <Lexer-Definition>
 								| <Ignore-Definition>
 								| <Keywords-Definition>
 								| <Grammar-Definition>
-								
+
 		//
 		// Basic language items
 		//
-		
-		<Lexer-Symbols-Definition>	= <Lexer-Symbols-Modifier>* lexer-symbols '{' (<Lexeme-Definition>)* '}'
-		
-		<Lexer-Definition> 			= [=> <Lexer-Modifier>* lexer] <Lexer-Modifier>* lexer '{' (<Lexeme-Definition>)* '}'
-		
-		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)* '}'
-		
-		<Keywords-Definition>		= [=> <Lexer-Modifier>* keywords] <Lexer-Modifier>* keywords '{' (<Keyword-Definition>)* '}'
+
+		<Lexer-Symbols-Definition>	= <Lexer-Symbols-Modifier>*[modifiers] lexer-symbols '{' (<Lexeme-Definition>)*[definitions] '}'
+
+		<Lexer-Definition> 			= [=> <Lexer-Modifier>* lexer] <Lexer-Modifier>*[modifiers] lexer '{' (<Lexeme-Definition>)*[definitions] '}'
+
+		<Ignore-Definition>			= ignore '{' (<Keyword-Definition>)*[definitions] '}'
+
+		<Keywords-Definition>		= [=> <Lexer-Modifier>* keywords] <Lexer-Modifier>*[modifiers] keywords '{' (<Keyword-Definition>)*[definitions] '}'
 
 		<Lexer-Modifier>			= weak
 									| case sensitive
 									| case insensitive
-		
+
 		<Lexer-Symbols-Modifier>	= case sensitive
 									| case insensitive
-		
-		<Keyword-Definition>		= identifier
-									| <Lexeme-Definition>
-		
-		<Lexeme-Definition> 		= identifier ('=' | "|=") (regex | string | character)
-									| [=> replace identifier '='] replace identifier '=' (regex | string | character)
-                                    | identifier '=' identifier '.' identifier
-		
+
+		<Keyword-Definition>		= identifier[literal]
+									| <Lexeme-Definition>[lexeme]
+
+		<Lexeme-Definition> 		= identifier[name] ('=' | "|=") (regex | string | character)
+									| [=> replace identifier '='] replace identifier[name] '=' (regex | string | character)
+                                    | identifier[name] '=' identifier[source-language] '.' identifier[source-name]
+
 		//
 		// Defining grammars
 		//
-		
-		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)* '}'
-		
+
+		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)*[nonterminals] '}'
+
 		<Nonterminal-Definition>	= [=> nonterminal ('=' | "+=")] nonterminal ('=' | "+=") <Production> ('|' <Production>)*
 									| [=> replace nonterminal '='] replace nonterminal '=' <Production> ('|' <Production>)*
-		
+
 		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point
-		<Production>				= (<Simple-Ebnf-Item>)*
-		
-		<Ebnf-Item>					= <Simple-Ebnf-Item>*
-									| <Simple-Ebnf-Item>* '|' <Ebnf-Item>
-		
-		<Simple-Ebnf-Item>			= <Nonterminal>
-									| <Terminal>
-									| <Guard>
-									| <Simple-Ebnf-Item> '*'
-									| <Simple-Ebnf-Item> '+'
-									| <Simple-Ebnf-Item> '?'
-									| '(' <Ebnf-Item> ')'
-		
+		<Production>				= (<Simple-Ebnf-Item>)*[items]
+
+		<Ebnf-Item>					= (<Simple-Ebnf-Item>)*[items]
+									| (<Simple-Ebnf-Item>)*[items] '|' <Ebnf-Item>[or-item]
+
+		<Simple-Ebnf-Item>			= <Nonterminal> <Semantic-Specification>?
+									| <Terminal> <Semantic-Specification>?
+									| <Guard> <Semantic-Specification>?
+									| <Simple-Ebnf-Item> '*' <Semantic-Specification>?
+									| <Simple-Ebnf-Item> '+' <Semantic-Specification>?
+									| <Simple-Ebnf-Item> '?' <Semantic-Specification>?
+									| '(' <Ebnf-Item> ')' <Semantic-Specification>?
+
 		<Guard>						= "[=>" <Ebnf-Item> ']'
-		
+
 		<Nonterminal>				= nonterminal
-									| identifier '.' nonterminal
-		
+									| identifier[source-language] '.' nonterminal
+
 		<Terminal>					= <Basic-Terminal>
-									| identifier '.' <Basic-Terminal>
-		
-		<Basic-Terminal>			= identifier
+									| identifier[source-language] '.' <Basic-Terminal>
+
+		<Basic-Terminal>			= identifier[lexeme-name]
 									| string
 									| character
-									
+
+		//
+		// Semantics
+		//
+
+		<Semantic-Specification>	= '[' identifier[name] ']'
+
 		//
 		// The parser declaration block
 		//
 		
-		<Parser-Block>				= parser identifier ':' identifier '{' (<Parser-StartSymbol>)+ '}'
-		
+		<Parser-Block>				= parser identifier[name] ':' identifier[language-name] '{' (<Parser-StartSymbol>)+[start-symbols] '}'
+
 		<Parser-StartSymbol>		= <Nonterminal>
 
 		//
 		// Test definition block
 		//
 
-		<Test-Block>				= test identifier '{' <Test-Definition>* '}'
+		<Test-Block>				= test identifier[language-name] '{' <Test-Definition>*[tests] '}'
 
 		<Test-Definition>			= <Nonterminal> '=' <Test-Specification>+
 									| <Nonterminal> "!=" <Test-Specification>+
 									| <Nonterminal> from <Test-Specification>+
-		
+
 		<Test-Specification>		= string
 									| [=> identifier '('] identifier '(' string ')'
+
 	}
 }
