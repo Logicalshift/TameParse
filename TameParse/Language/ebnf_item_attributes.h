@@ -40,6 +40,15 @@ namespace language {
 		/// \brief The action to take when this item is part of a shift/reduce conflict
 		conflict_action conflict_action;
 
+		/// \brief Set to true if this item is a guard that is allowed to clash (have the same start symbol) with other guards
+		///
+		/// We require that the user supplies this attributes to guards that they
+		/// know can begin with the same start symbol as other guards because clashing
+		/// guards can make it harder to maintain the language, particularly if two
+		/// guard symbols can match a common phrase: this will make the meaning of
+		/// the language arbitrary depending on which guard is checked first.
+		bool guard_can_clash;
+
 	public:
 		/// \brief Creates an empty attributes object
 		ebnf_item_attributes();

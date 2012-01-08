@@ -34,6 +34,7 @@ test ParserLanguage {
 							"(',' list)*"
 
 							"[=> guard]"
+							"[=>[can-clash] clashing guard]"
 
 							"identifier[name]"
 							"else[conflict=shift]"

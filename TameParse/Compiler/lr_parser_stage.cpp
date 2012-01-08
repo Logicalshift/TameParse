@@ -126,6 +126,9 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 				// Warned about this guard
 				warnedGuards.insert(*clashingGuard);
 
+				// Guard items that have the clashing flag set
+				set<lr0_item_container> allowedToClash;
+
 				// Find all of the LR items that have a reference to this guard
 				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); ++lrItem) {
 					// Ignore at end items
@@ -134,6 +137,15 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					// Ignore items that do not refer to this guard
 					// (Assumption is that all usages of the guard have the same initial set, so any symbol refers to any reference to this guard)
 					if ((*lrItem)->rule()->items()[(*lrItem)->offset()] != *clashingGuard) continue;
+
+					// Fetch the attributes for this item
+					const ebnf_item_attributes& attr = language->get_rule_item_data().attributes_for(*(*lrItem)->rule(), (*lrItem)->offset());
+
+					// Don't show warnings for guards that have the 'can-clash' flag set except if they clash with guards that do not have it set
+					if (attr.guard_can_clash) {
+						allowedToClash.insert(*lrItem);
+						continue;
+					}
 
 					// Get the position of this rule
 					int             ruleId      = (*lrItem)->rule()->identifier(*language->grammar());
@@ -158,6 +170,20 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
 
 					shownWarning = true;
+				}
+
+				// Show warnings for guards that had the 'can clash' flag set if there were any that did not have it set
+				if (shownWarning && !allowedToClash.empty()) {
+					for (set<lr0_item_container>::const_iterator remainingGuard = allowedToClash.begin(); remainingGuard != allowedToClash.end(); ++remainingGuard) {
+						int             ruleId      = (*remainingGuard)->rule()->identifier(*language->grammar());
+						position        rulePos     = language->rule_definition_pos(ruleId);
+
+						wstringstream msg;
+						msg << L"or here: "
+							<< formatter::to_string(**remainingGuard, builder->gram(), builder->terminals());
+						
+						cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
+					}
 				}
 			}
 		}
