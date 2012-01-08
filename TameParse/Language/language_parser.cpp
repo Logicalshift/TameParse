@@ -318,6 +318,12 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             // Bug
             return NULL;
         }
+
+        // Check for guard attributes
+        if (simpleItem->Guard->can_clash) {
+            // This guard is allowed to clash with other guards
+            attr.guard_can_clash = true;
+        }
         
         // Turn into a guard item
         ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, attr);

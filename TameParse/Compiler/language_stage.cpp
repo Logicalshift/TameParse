@@ -613,7 +613,9 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
 /// \brief Attaches attributes to the last item in the specified rule
 void language_stage::append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attr) {
     // Nothing to do if this item has no attributes
-    if (attr.name.empty() && attr.conflict_action == ebnf_item_attributes::conflict_notspecified) {
+    if (attr.name.empty() 
+        && attr.conflict_action == ebnf_item_attributes::conflict_notspecified
+        && !attr.guard_can_clash) {
         return;
     }
 

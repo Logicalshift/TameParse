@@ -68,6 +68,8 @@ language ParserLanguage {
 		conflict
 		shift
 		reduce
+
+		can-clash
 	}
 	
 	/// The grammar itself
@@ -150,6 +152,7 @@ language ParserLanguage {
 									| '(' <Ebnf-Item> ')' <Semantic-Specification>?
 
 		<Guard>						= "[=>" <Ebnf-Item> ']'
+									| "[=>" '[' can-clash ']' <Ebnf-Item> ']'
 
 		<Nonterminal>				= nonterminal
 									| identifier[source-language] '.' nonterminal
