@@ -23,8 +23,7 @@ language_stage::language_stage(console_container& console, const std::wstring& f
 : compilation_stage(console, filename)
 , m_Language(block)
 , m_Import(importStage)
-, m_InheritsFrom(NULL)
-, m_NextRuleItemKey(1) {
+, m_InheritsFrom(NULL) {
 }
 
 /// \brief Destructor
@@ -612,20 +611,14 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
 }
 
 /// \brief Attaches attributes to the last item in the specified rule
-void language_stage::append_attribute(contextfree::rule& target, const rule_attributes& attr) {
+void language_stage::append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attr) {
     // Nothing to do if this item has no attributes
-    if (attr.name.empty() && attr.conflict_action == rule_attributes::conflict_notspecified) {
+    if (attr.name.empty() && attr.conflict_action == ebnf_item_attributes::conflict_notspecified) {
         return;
     }
 
-    // Get a new key value
-    int thisKey = m_NextRuleItemKey++;
-
-    // Set the key for the final item in the rule
-    target.set_key(target.items().size()-1, thisKey);
-
-    // Associate the attributes with the key
-    m_AttributesForRuleItemKeys[thisKey] = attr;
+    // Set using the rule item data object
+    m_RuleItemData.set_attributes(target, target.items().size()-1, attr);
 }
 
 /// \brief Compiles an EBNF item from the language into a context-free grammar item
@@ -792,25 +785,6 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_EBNF_ITEM_TYPE", L"Unknown type of EBNF item", item->start_pos()));
             break;
     }
-}
-
-/// \brief Returns the name attribute associated with the rule item key of the specified value
-///
-/// You can use rule::get_key to get the key for a particular rule item.
-const language_stage::rule_attributes& language_stage::attributes_for_rule_item_key(int ruleItemKey) const {
-    static rule_attributes emptyAttributes;
-
-    // Keys <= 0 are always the empty string
-    if (ruleItemKey <= 0) return emptyAttributes;
-
-    // Try to fetch the value for this key
-    rule_attribute_map::const_iterator found = m_AttributesForRuleItemKeys.find(ruleItemKey);
-
-    // Empty string if not found
-    if (found == m_AttributesForRuleItemKeys.end()) return emptyAttributes;
-
-    // Return the found name
-    return found->second;
 }
 
 /// \brief Copies a general symbol/filename block to another

@@ -132,6 +132,9 @@
 		4B7F0C621393E9FE0012C085 /* language_bootstrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C601393E9FE0012C085 /* language_bootstrap.cpp */; };
 		4B7F0C651393F2690012C085 /* formatter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B7F0C631393F2680012C085 /* formatter.cpp */; };
 		4B7F0C661393F2690012C085 /* formatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B7F0C641393F2680012C085 /* formatter.h */; };
+		4B82D18514B9E93D00A61239 /* rule_item_data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B82D18314B9E93D00A61239 /* rule_item_data.cpp */; };
+		4B82D18614B9E93D00A61239 /* rule_item_data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B82D18314B9E93D00A61239 /* rule_item_data.cpp */; };
+		4B82D18714B9E93D00A61239 /* rule_item_data.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B82D18414B9E93D00A61239 /* rule_item_data.h */; };
 		4B8A0104140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0106140BED2100187196 /* cplusplus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B8A0103140BED2100187196 /* cplusplus.h */; };
@@ -467,6 +470,8 @@
 		4B7F0C611393E9FE0012C085 /* language_bootstrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_bootstrap.h; sourceTree = "<group>"; };
 		4B7F0C631393F2680012C085 /* formatter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = formatter.cpp; sourceTree = "<group>"; };
 		4B7F0C641393F2680012C085 /* formatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = formatter.h; sourceTree = "<group>"; };
+		4B82D18314B9E93D00A61239 /* rule_item_data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rule_item_data.cpp; sourceTree = "<group>"; };
+		4B82D18414B9E93D00A61239 /* rule_item_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rule_item_data.h; sourceTree = "<group>"; };
 		4B8A0102140BED2100187196 /* cplusplus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cplusplus.cpp; sourceTree = "<group>"; };
 		4B8A0103140BED2100187196 /* cplusplus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cplusplus.h; sourceTree = "<group>"; };
 		4B9460541427D44200B4BB87 /* language_parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = language_parser.h; sourceTree = "<group>"; };
@@ -764,6 +769,8 @@
 				4BADD6C3146E9A2A008209EC /* lexer_data.h */,
 				4BADD6C7146EC305008209EC /* lexer_item.cpp */,
 				4BADD6C5146EC2FD008209EC /* lexer_item.h */,
+				4B82D18314B9E93D00A61239 /* rule_item_data.cpp */,
+				4B82D18414B9E93D00A61239 /* rule_item_data.h */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -1105,6 +1112,7 @@
 				4BADD6C6146EC2FD008209EC /* lexer_item.h in Headers */,
 				4BA916A1147BB9F4001A0C4B /* regex_error.h in Headers */,
 				4BC3746614B75BAA003458F9 /* ebnf_item_attributes.h in Headers */,
+				4B82D18714B9E93D00A61239 /* rule_item_data.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1374,6 +1382,7 @@
 				4BADD6C8146EC305008209EC /* lexer_item.cpp in Sources */,
 				4BA9169F147BB9F4001A0C4B /* regex_error.cpp in Sources */,
 				4BC3746414B75BAA003458F9 /* ebnf_item_attributes.cpp in Sources */,
+				4B82D18514B9E93D00A61239 /* rule_item_data.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1467,6 +1476,7 @@
 				4BADD6C9146EC305008209EC /* lexer_item.cpp in Sources */,
 				4BA916A0147BB9F4001A0C4B /* regex_error.cpp in Sources */,
 				4BC3746514B75BAA003458F9 /* ebnf_item_attributes.cpp in Sources */,
+				4B82D18614B9E93D00A61239 /* rule_item_data.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

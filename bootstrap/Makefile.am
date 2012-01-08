@@ -22,6 +22,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
 					  ../TameParse/Compiler/Data/lexer_data.cpp \
 					  ../TameParse/Compiler/Data/lexer_item.cpp \
+					  ../TameParse/Compiler/Data/rule_item_data.cpp \
 					  ../TameParse/ContextFree/ebnf_items.cpp \
 					  ../TameParse/ContextFree/grammar.cpp \
 					  ../TameParse/ContextFree/guard.cpp \
