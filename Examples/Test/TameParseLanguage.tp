@@ -24,6 +24,7 @@ test ParserLanguage {
 							"language"
 							"'x'"
 							"\"string\""
+							"<Nonterminal>"
 
 							"(if x then y)"
 							"x?"
