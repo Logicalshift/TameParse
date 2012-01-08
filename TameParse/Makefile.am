@@ -22,6 +22,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  tameparse_language.cpp \
 							  \
 							  Compiler/compilation_stage.h \
+							  Compiler/conflict_attribute_rewriter.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
 							  Compiler/import_stage.h \
@@ -112,6 +113,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  version.h \
 							  \
 							  Compiler/compilation_stage.cpp \
+							  Compiler/conflict_attribute_rewriter.cpp \
 							  Compiler/console.cpp \
 							  Compiler/error.cpp \
 							  Compiler/import_stage.cpp \
@@ -200,6 +202,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 
 library_includedir 			= $(includedir)/TameParse-$(PACKAGE_VERSION)/TameParse
 nobase_library_include_HEADERS = Compiler/compilation_stage.h \
+							  Compiler/conflict_attribute_rewriter.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
 							  Compiler/import_stage.h \

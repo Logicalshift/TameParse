@@ -12,6 +12,7 @@ bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
 					  definition_tp.h \
 					  ../TameParse/Compiler/compilation_stage.cpp \
+					  ../TameParse/Compiler/conflict_attribute_rewriter.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \
 					  ../TameParse/Compiler/language_stage.cpp \
