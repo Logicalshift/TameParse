@@ -19,4 +19,24 @@ test ParserLanguage {
 							"foo = /bar/"
 							"foo |= /bar/"
 							"replace foo = /bar/"
+	
+	<Ebnf-Item>	=			"replace"
+							"language"
+							"'x'"
+							"\"string\""
+
+							"(if x then y)"
+							"x?"
+							"x*"
+							"x+"
+							"(x | y)"
+							"(',' list)*"
+
+							"[=> guard]"
+
+							"identifier[name]"
+							"else[conflict=shift]"
+							"else[conflict=reduce]"
+							"else[conflict=weak reduce]"
+
 }
