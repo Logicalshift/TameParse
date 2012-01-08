@@ -12,7 +12,7 @@
 #include <vector>
 #include <map>
 
-#include "Tameparse/ContextFree/item.h"
+#include "TameParse/ContextFree/item.h"
 
 namespace compiler {
 	/// \brief Structures used to supply output to an output stage
