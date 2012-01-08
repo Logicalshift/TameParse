@@ -117,6 +117,9 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 
 			// Default severity is 'warning' for the first item, and 'detail' for the remainder
 			bool shownWarning = false;
+            
+            // Guard items that have the clashing flag set
+            set<lr0_item_container> allowedToClash;
 
 			// Get the state ID
 			const lalr_state_container& state = builder->machine().state_with_id(stateId);
@@ -125,9 +128,6 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); ++clashingGuard) {
 				// Warned about this guard
 				warnedGuards.insert(*clashingGuard);
-
-				// Guard items that have the clashing flag set
-				set<lr0_item_container> allowedToClash;
 
 				// Find all of the LR items that have a reference to this guard
 				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); ++lrItem) {
@@ -150,7 +150,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					// Get the position of this rule
 					int             ruleId      = (*lrItem)->rule()->identifier(*language->grammar());
 					position        rulePos     = language->rule_definition_pos(ruleId);
-                    const wstring&  ruleFile    = language->rule_definition_file(ruleId);
+					const wstring&  ruleFile    = language->rule_definition_file(ruleId);
 
 					// We know the item, the guard and the position: generate the error message
 					if (!shownWarning) {
@@ -169,23 +169,23 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					
 					cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
 
-					shownWarning = true;
-				}
-
-				// Show warnings for guards that had the 'can clash' flag set if there were any that did not have it set
-				if (shownWarning && !allowedToClash.empty()) {
-					for (set<lr0_item_container>::const_iterator remainingGuard = allowedToClash.begin(); remainingGuard != allowedToClash.end(); ++remainingGuard) {
-						int             ruleId      = (*remainingGuard)->rule()->identifier(*language->grammar());
-						position        rulePos     = language->rule_definition_pos(ruleId);
-
-						wstringstream msg;
-						msg << L"or here: "
-							<< formatter::to_string(**remainingGuard, builder->gram(), builder->terminals());
-						
-						cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
-					}
+					shownWarning 	= true;
 				}
 			}
+            
+            // Show warnings for guards that had the 'can clash' flag set if there were any that did not have it set
+            if (shownWarning) {
+                for (set<lr0_item_container>::const_iterator remainingGuard = allowedToClash.begin(); remainingGuard != allowedToClash.end(); ++remainingGuard) {
+                    int             ruleId      = (*remainingGuard)->rule()->identifier(*language->grammar());
+                    position        rulePos     = language->rule_definition_pos(ruleId);
+                    
+                    wstringstream msg;
+                    msg << L"or here: "
+                    << formatter::to_string(**remainingGuard, builder->gram(), builder->terminals());
+                    
+                    cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
+                }
+            }
 		}
 	}
 }
