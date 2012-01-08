@@ -40,6 +40,7 @@ void conflict_attribute_rewriter::rewrite_actions(int state, lr_action_set& acti
 
 	// Fetch the current state
 	const lalr_state& curState = *builder.machine().state_with_id(state);
+	lr1_item_set closure;
 
 	// Search for items with shift/reduce conflicts
 	for (action_map::iterator actForItem = actionsForItem.begin(); actForItem != actionsForItem.end(); ++actForItem) {
@@ -62,10 +63,15 @@ void conflict_attribute_rewriter::rewrite_actions(int state, lr_action_set& acti
 			continue;
 		}
 
+		// Generate the closure for this state if it hasn't been generated already
+		if (closure.empty()) {
+			builder.generate_closure(curState, closure, &builder.gram());
+		}
+
 		// Work out the action to perform by inspecting the shift items in the state that correspond to this item
 		int resolve = ebnf_item_attributes::conflict_notspecified;
 
-		for (lalr_state::iterator lrItem = curState.begin(); lrItem != curState.end(); ++lrItem) {
+		for (lr1_item_set::const_iterator lrItem = closure.begin(); lrItem != closure.end(); ++lrItem) {
 			// Only want items that will produce a shift action
 			if ((*lrItem)->at_end()) continue;
 
