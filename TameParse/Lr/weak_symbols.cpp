@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 06/05/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Lr/weak_symbols.h"
