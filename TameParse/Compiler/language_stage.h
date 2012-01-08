@@ -18,6 +18,7 @@
 #include "TameParse/Language/language_unit.h"
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/Data/lexer_data.h"
+#include "TameParse/Compiler/Data/rule_item_data.h"
 
 #ifndef TAMEPARSE_BOOTSTRAP
 #include "TameParse/Compiler/import_stage.h"
@@ -46,12 +47,6 @@ namespace compiler {
         
         /// \brief Maps a symbol ID to the language block and file where it is defined
         typedef std::map<int, block_file> symbol_map;
-
-        /// \brief Type of an attribute associated with a rule item key
-        typedef std::wstring rule_attribute;
-
-        /// \brief Maps rule item keys to the associated attributes
-        typedef std::map<int, rule_attribute> rule_attribute_map;
         
     private:
         /// \brief The language block that this will compile
@@ -96,11 +91,8 @@ namespace compiler {
         /// \brief Maps nonterminal IDs to the point where they were first used
         symbol_map m_FirstNonterminalUsage;
 
-        /// \brief Maps rules to their corresponding attributes
-        rule_attribute_map m_AttributesForRuleItemKeys;
-
-        /// \brief The next rule item key to assign
-        int m_NextRuleItemKey;
+        /// \brief The data associated with each rule
+        rule_item_data m_RuleItemData;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
@@ -136,7 +128,7 @@ namespace compiler {
         void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
 
         /// \brief Attaches attributes to the last item in the specified rule
-        void append_attribute(contextfree::rule& target, const std::wstring& name);
+        void append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attributes);
 
         /// \brief In a final pass, process the symbols in a particular rule
         ///
@@ -176,10 +168,8 @@ namespace compiler {
             return found->second.first->start_pos();
         }
 
-        /// \brief Returns the name attribute associated with the rule item key of the specified value
-        ///
-        /// You can use rule::get_key to get the key for a particular rule item.
-        const std::wstring& name_for_rule_item_key(int ruleItemKey) const;
+        /// \brief Returns the object that is used to store attribute data about each rule
+        inline const rule_item_data& get_rule_item_data() const { return m_RuleItemData; }
 
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {

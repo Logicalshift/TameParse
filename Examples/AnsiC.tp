@@ -382,7 +382,7 @@ language Ansi-C {
 		<Expression-Statement>			= <Expression>? ';'
 
 		<Selection-Statement>			= if '(' <Expression> ')' <Statement>
-										| if '(' <Expression> ')' <Statement> else <Statement>
+										| if '(' <Expression> ')' <Statement> else[conflict=shift] <Statement>
 										| switch '(' <Expression> ')' <Statement>
 		
 		<Iteration-Statement>			= while '(' <Expression> ')' <Statement>

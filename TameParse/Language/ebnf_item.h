@@ -13,6 +13,7 @@
 #include <string>
 
 #include "TameParse/Language/block.h"
+#include "TameParse/Language/ebnf_item_attributes.h"
 
 namespace language {
     ///
@@ -79,7 +80,7 @@ namespace language {
         std::wstring m_Identifier;
 
         /// \brief The name assigned to this item, or the empty string if it has no name
-        std::wstring m_Name;
+        ebnf_item_attributes m_Attributes;
         
         /// \brief For guard and EBNF items, these are the items that they are made up of
         ///
@@ -88,10 +89,10 @@ namespace language {
         
     public:
         /// \brief Creates an EBNF item (sourceIdentifier.identifier)
-        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const std::wstring& name, position start, position end);
+        ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const ebnf_item_attributes& attributes, position start, position end);
 
         /// \brief Creates an EBNF item which doesn't specify a symbol
-        ebnf_item(type typ, const std::wstring& name, position start = position(), position end = position());
+        ebnf_item(type typ, const ebnf_item_attributes& attributes, position start = position(), position end = position());
         
         /// \brief Creates an EBNF item by copying an existing one
         ebnf_item(const ebnf_item& copyFrom);
@@ -120,7 +121,7 @@ namespace language {
         inline const std::wstring& identifier() const { return m_Identifier; }
 
         /// \brief The name for this item, or the empty string if it is not named
-        inline const std::wstring& name() const { return m_Name; }
+        inline const ebnf_item_attributes& attributes() const { return m_Attributes; }
         
         /// \brief The first child item for this item
         inline iterator begin() const { return m_ChildItems.begin(); }

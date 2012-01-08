@@ -12,6 +12,7 @@ bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
 					  definition_tp.h \
 					  ../TameParse/Compiler/compilation_stage.cpp \
+					  ../TameParse/Compiler/conflict_attribute_rewriter.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \
 					  ../TameParse/Compiler/language_stage.cpp \
@@ -22,6 +23,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
 					  ../TameParse/Compiler/Data/lexer_data.cpp \
 					  ../TameParse/Compiler/Data/lexer_item.cpp \
+					  ../TameParse/Compiler/Data/rule_item_data.cpp \
 					  ../TameParse/ContextFree/ebnf_items.cpp \
 					  ../TameParse/ContextFree/grammar.cpp \
 					  ../TameParse/ContextFree/guard.cpp \
@@ -55,6 +57,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/bootstrap.cpp \
 					  ../TameParse/Language/definition_file.cpp \
 					  ../TameParse/Language/ebnf_item.cpp \
+					  ../TameParse/Language/ebnf_item_attributes.cpp \
 					  ../TameParse/Language/formatter.cpp \
 					  ../TameParse/Language/grammar_block.cpp \
 					  ../TameParse/Language/import_block.cpp \

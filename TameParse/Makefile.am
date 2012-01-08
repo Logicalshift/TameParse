@@ -22,6 +22,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  tameparse_language.cpp \
 							  \
 							  Compiler/compilation_stage.h \
+							  Compiler/conflict_attribute_rewriter.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
 							  Compiler/import_stage.h \
@@ -37,6 +38,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/Data/lexer_data.h \
 							  Compiler/Data/lexer_item.h \
+							  Compiler/Data/rule_item_data.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -66,9 +68,9 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/symbol_translator.h \
 							  Dfa/transition.h \
 							  Language/block.h \
-							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
+							  Language/ebnf_item_attributes.h \
 							  Language/formatter.h \
 							  Language/grammar_block.h \
 							  Language/import_block.h \
@@ -111,6 +113,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  version.h \
 							  \
 							  Compiler/compilation_stage.cpp \
+							  Compiler/conflict_attribute_rewriter.cpp \
 							  Compiler/console.cpp \
 							  Compiler/error.cpp \
 							  Compiler/import_stage.cpp \
@@ -125,6 +128,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/OutputStages/cplusplus.cpp \
 							  Compiler/Data/lexer_data.cpp \
 							  Compiler/Data/lexer_item.cpp \
+							  Compiler/Data/rule_item_data.cpp \
 							  ContextFree/ebnf_items.cpp \
 							  ContextFree/grammar.cpp \
 							  ContextFree/guard.cpp \
@@ -155,9 +159,9 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Dfa/symbol_translator.cpp \
 							  Dfa/transition.cpp \
 							  Language/block.cpp \
-							  Language/bootstrap.cpp \
 							  Language/definition_file.cpp \
 							  Language/ebnf_item.cpp \
+							  Language/ebnf_item_attributes.cpp \
 							  Language/formatter.cpp \
 							  Language/grammar_block.cpp \
 							  Language/import_block.cpp \
@@ -198,6 +202,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 
 library_includedir 			= $(includedir)/TameParse-$(PACKAGE_VERSION)/TameParse
 nobase_library_include_HEADERS = Compiler/compilation_stage.h \
+							  Compiler/conflict_attribute_rewriter.h \
 							  Compiler/console.h \
 							  Compiler/error.h \
 							  Compiler/import_stage.h \
@@ -213,6 +218,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
 							  Compiler/Data/lexer_data.h \
 							  Compiler/Data/lexer_item.h \
+							  Compiler/Data/rule_item_data.h \
 							  ContextFree/ebnf_items.h \
 							  ContextFree/grammar.h \
 							  ContextFree/guard.h \
@@ -242,9 +248,9 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Dfa/symbol_translator.h \
 							  Dfa/transition.h \
 							  Language/block.h \
-							  Language/bootstrap.h \
 							  Language/definition_file.h \
 							  Language/ebnf_item.h \
+							  Language/ebnf_item_attributes.h \
 							  Language/formatter.h \
 							  Language/grammar_block.h \
 							  Language/import_block.h \

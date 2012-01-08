@@ -64,6 +64,10 @@ language ParserLanguage {
 		case
 		sensitive
 		insensitive
+
+		conflict
+		shift
+		reduce
 	}
 	
 	/// The grammar itself
@@ -161,7 +165,12 @@ language ParserLanguage {
 		// Semantics
 		//
 
-		<Semantic-Specification>	= '[' identifier[name] ']'
+		<Semantic-Specification>	= '[' <Semantic-Item>[first-item] (',' <Semantic-Item>)*[more-items] ']'
+
+		<Semantic-Item>				= identifier[name]
+									| conflict '=' shift
+									| conflict '=' reduce
+									| conflict '=' weak reduce
 
 		//
 		// The parser declaration block

@@ -12,18 +12,18 @@ using namespace std;
 using namespace language;
 
 /// \brief Creates an EBNF item (sourceIdentifier.identifier)
-ebnf_item::ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const std::wstring& name, position start, position end)
+ebnf_item::ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const ebnf_item_attributes& attr, position start, position end)
 : m_Type(typ)
 , m_SourceIdentifier(sourceIdentifier)
 , m_Identifier(identifier)
-, m_Name(name)
+, m_Attributes(attr)
 , block(start, end) {
 }
 
 /// \brief Creates an EBNF item which doesn't specify a symbol
-ebnf_item::ebnf_item(type typ, const std::wstring& name, position start, position end)
+ebnf_item::ebnf_item(type typ, const ebnf_item_attributes& attr, position start, position end)
 : m_Type(typ)
-, m_Name(name)
+, m_Attributes(attr)
 , block(start, end) {
 }
 
@@ -55,7 +55,7 @@ ebnf_item& ebnf_item::operator=(const ebnf_item& copyFrom) {
     // Copy the items from the source
     m_Identifier        = copyFrom.m_Identifier;
     m_SourceIdentifier  = copyFrom.m_SourceIdentifier;
-    m_Name              = copyFrom.m_Name;
+    m_Attributes        = copyFrom.m_Attributes;
     
     for (iterator toCopy = copyFrom.begin(); toCopy != copyFrom.end(); ++toCopy) {
         m_ChildItems.push_back(new ebnf_item(**toCopy));

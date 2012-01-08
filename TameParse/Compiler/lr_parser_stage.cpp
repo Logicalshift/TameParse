@@ -12,6 +12,7 @@
 #include "TameParse/Lr/ignored_symbols.h"
 #include "TameParse/Language/formatter.h"
 #include "TameParse/Lr/ast_parser.h"
+#include "TameParse/Compiler/conflict_attribute_rewriter.h"
 
 using namespace std;
 using namespace dfa;
@@ -275,6 +276,7 @@ void lr_parser_stage::compile() {
     // TODO: it might be good to have a way to supply extra rewriters from other stages instead of just having them
     // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
+    m_Parser->add_rewriter(action_rewriter_container(new conflict_attribute_rewriter(&m_Language->get_rule_item_data())));
     m_Parser->add_rewriter(ignoreContainer);
 
 	// Build the parser
