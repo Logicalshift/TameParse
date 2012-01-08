@@ -109,6 +109,7 @@ void conflict_attribute_rewriter::rewrite_actions(int state, lr_action_set& acti
 			if ((*act)->type() != lr_action::act_shift 
 				&& (*act)->type() != lr_action::act_shiftstrong
 				&& (*act)->type() != lr_action::act_reduce) {
+				// We only act on shift/reduce actions
 				continue;
 			}
 
