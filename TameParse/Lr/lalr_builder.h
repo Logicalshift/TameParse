@@ -166,6 +166,9 @@ namespace lr {
         /// \brief Returns the items that the item in the specified state generates spontaneous lookaheads for
         const std::set<lr_item_id>& spontaneous_for_item(int state, int item) const;
 
+        /// \brief Returns the lookahead generated spontaneously from a particular item to a particular item
+        const contextfree::item_set& lookahead_for_spontaneous(int sourceState, int sourceItem, int destState, int destItem);
+
         /// \brief Finds the set of items that were used in the generation of the lookahead for the specified item
         ///
         /// This is used to help with resolving reduction conflicts: if you know where a particular terminal symbol comes from,

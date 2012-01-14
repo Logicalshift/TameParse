@@ -534,6 +534,11 @@ const std::set<lalr_builder::lr_item_id>& lalr_builder::spontaneous_for_item(int
     return m_Spontaneous[lr_item_id(state, item)];
 }
 
+/// \brief Returns the lookahead generated spontaneously from a particular item to a particular item
+const contextfree::item_set& lalr_builder::lookahead_for_spontaneous(int sourceState, int sourceItem, int destState, int destItem) {
+    return m_SpontaneousLookahead[source_to_target(lr_item_id(sourceState, sourceItem), lr_item_id(destState, destItem))];
+}
+
 /// \brief Finds the set of items that were used in the generation of the lookahead for the specified item
 ///
 /// This is used to help with resolving reduction conflicts: if you know where a particular terminal symbol comes from,

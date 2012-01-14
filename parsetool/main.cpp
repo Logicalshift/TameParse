@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace contextfree;
 using namespace lr;
 using namespace tameparse;
 using namespace language;
@@ -219,8 +220,11 @@ int main (int argc, const char * argv[])
 
                         // Write out which items generate spontaneous lookaheads
                         for (set<lr_item_id>::const_iterator spont = spontaneous.begin(); spont != spontaneous.end(); spont++) {
+                            const item_set& lookahead = builder->lookahead_for_spontaneous(stateId, itemId, spont->state_id, spont->item_id);
+
                             wcout   << L"    Spontaneous -> state #" << spont->state_id << ": " 
                                     << formatter::to_string(*(*builder->machine().state_with_id(spont->state_id))[spont->item_id], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                                    << L" " << formatter::to_string(lookahead, *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
                                     << endl;
                         }
 
