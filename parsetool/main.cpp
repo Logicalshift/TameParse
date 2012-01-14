@@ -212,7 +212,10 @@ int main (int argc, const char * argv[])
                         // Ignore any items that have no items in them
                         if (spontaneous.empty() && propagate.empty()) continue;
 
-                        wcout << L"  " << formatter::to_string(*state[itemId], *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+                        wcout   << L"  " 
+                                << formatter::to_string(*state[itemId], *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) 
+                                << L" " << formatter::to_string(state.lookahead_for(itemId), *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                                << endl;
 
                         // Write out which items generate spontaneous lookaheads
                         for (set<lr_item_id>::const_iterator spont = spontaneous.begin(); spont != spontaneous.end(); spont++) {
