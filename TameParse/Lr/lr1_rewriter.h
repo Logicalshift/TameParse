@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 13/01/2012.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_LR1_REWRITER_H
@@ -33,8 +33,20 @@ namespace lr {
  	/// it this way (this allows other rewriters to resolve the conflict, and also
  	/// makes it easier to see why the grammar is conflicted)
     ///
-    class lr1_rewriter {
+    class lr1_rewriter : public action_rewriter {
+    public:
+        /// \brief Modifies the specified set of actions according to the rules in this rewriter
+        ///
+        /// This call should modify the contents of the supplied action set according to whatever rules it considers 
+        /// suitable.
+        /// 
+        /// Typical rewriting actions might include removing actions so that ambiguous grammars can be accepted, replacing
+        /// rules with alternatives (such as weak reduce actions for cases where a grammar can be parsed as LR(1)) or
+        /// adding new rules.
+        virtual void rewrite_actions(int state, lr_action_set& actions, const lalr_builder& builder) const;
         
+        /// \brief Creates a clone of this rewriter
+        virtual action_rewriter* clone() const;
     };
 }
 

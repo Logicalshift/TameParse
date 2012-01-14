@@ -139,6 +139,8 @@
 		4B82D18B14B9F0AC00A61239 /* conflict_attribute_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B82D18914B9F0AC00A61239 /* conflict_attribute_rewriter.cpp */; };
 		4B82D18D14B9F0BA00A61239 /* conflict_attribute_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B82D18C14B9F0BA00A61239 /* conflict_attribute_rewriter.h */; };
 		4B82D19714C0F71800A61239 /* lr1_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B82D19614C0F71800A61239 /* lr1_rewriter.cpp */; };
+		4B82D19814C1DF3500A61239 /* lr1_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B82D19614C0F71800A61239 /* lr1_rewriter.cpp */; };
+		4B82D19914C1DF5900A61239 /* lr1_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B82D19414C0F70E00A61239 /* lr1_rewriter.h */; };
 		4B8A0104140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0105140BED2100187196 /* cplusplus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B8A0102140BED2100187196 /* cplusplus.cpp */; };
 		4B8A0106140BED2100187196 /* cplusplus.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B8A0103140BED2100187196 /* cplusplus.h */; };
@@ -1126,6 +1128,7 @@
 				4BC3746614B75BAA003458F9 /* ebnf_item_attributes.h in Headers */,
 				4B82D18714B9E93D00A61239 /* rule_item_data.h in Headers */,
 				4B82D18D14B9F0BA00A61239 /* conflict_attribute_rewriter.h in Headers */,
+				4B82D19914C1DF5900A61239 /* lr1_rewriter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1493,6 +1496,7 @@
 				4BC3746514B75BAA003458F9 /* ebnf_item_attributes.cpp in Sources */,
 				4B82D18614B9E93D00A61239 /* rule_item_data.cpp in Sources */,
 				4B82D18B14B9F0AC00A61239 /* conflict_attribute_rewriter.cpp in Sources */,
+				4B82D19814C1DF3500A61239 /* lr1_rewriter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
