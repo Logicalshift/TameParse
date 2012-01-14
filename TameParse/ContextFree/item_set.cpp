@@ -15,6 +15,13 @@ using namespace contextfree;
 /// \brief Item set representing the empty set (cannot be modified)
 const item_set item_set::empty_set(NULL);
 
+item_set::item_set()
+: m_Grammar(NULL)
+, m_MaxItem(0)
+, m_Size(0)
+, m_Items(NULL) {
+}
+
 /// \brief Creates an empty item set for the specified grammar
 item_set::item_set(const grammar& grammar) 
 : m_Grammar(&grammar)
