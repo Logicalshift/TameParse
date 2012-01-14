@@ -75,6 +75,7 @@ boost_console::boost_console(int argc, const char** argv)
 
     hiddenOptions.add_options()
     	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.")
+    	("show-propagation",									"display the lookahead propagation tables")
     	("disable-compact-dfa",									"do not compact the DFA")
     	("disable-merged-dfa",									"do not attempt to merge symbol sets in the DFA");
 

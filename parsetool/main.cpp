@@ -183,7 +183,53 @@ int main (int argc, const char * argv[])
         
         // Write the parser out if requested
         if (!console.get_option(L"show-parser").empty() || !console.get_option(L"show-parser-closure").empty()) {
-            wcout << formatter::to_string(*lrParserStage.get_parser(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals(), !console.get_option(L"show-parser-closure").empty()) << endl;
+            wcout << endl << L"== Parser tables:" << endl << formatter::to_string(*lrParserStage.get_parser(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals(), !console.get_option(L"show-parser-closure").empty()) << endl;
+        }
+
+        // Display the propagation tables if requested
+        if (!console.get_option(L"show-propagation").empty()) {
+            // Get the parser builder
+            lalr_builder* builder = lrParserStage.get_parser();
+            typedef lalr_builder::lr_item_id lr_item_id;
+
+            if (builder) {
+                // Write out a header
+                wcout << endl << L"== Symbol propagation:" << endl;
+
+                // Iterate through the states
+                for (int stateId = 0; stateId < builder->machine().count_states(); stateId++) {
+                    const lalr_state& state = *builder->machine().state_with_id(stateId);
+
+                    // Write out the state ID
+                    wcout << L"State #" << stateId << endl;
+
+                    // Go through the items
+                    for (int itemId = 0; itemId < state.count_items(); itemId++) {
+                        // Get the spontaneous lookahead generation for this item
+                        const set<lr_item_id>& spontaneous  = builder->spontaneous_for_item(stateId, itemId);
+                        const set<lr_item_id>& propagate    = builder->propagations_for_item(stateId, itemId);
+
+                        // Ignore any items that have no items in them
+                        if (spontaneous.empty() && propagate.empty()) continue;
+
+                        wcout << L"  " << formatter::to_string(*state[itemId], *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+
+                        // Write out which items generate spontaneous lookaheads
+                        for (set<lr_item_id>::const_iterator spont = spontaneous.begin(); spont != spontaneous.end(); spont++) {
+                            wcout   << L"    Spontaneous -> state #" << spont->first << ": " 
+                                    << formatter::to_string(*(*builder->machine().state_with_id(spont->first))[spont->second], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                                    << endl;
+                        }
+
+                        // Write out which items propagate lookaheads
+                        for (set<lr_item_id>::const_iterator prop = propagate.begin(); prop != propagate.end(); prop++) {
+                            wcout   << L"    Propagate -> state #" << prop->first << ": " 
+                                    << formatter::to_string(*(*builder->machine().state_with_id(prop->first))[prop->second], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                                    << endl;
+                        }
+                    }
+                }
+            }
         }
         
         // Stop if we have an error
