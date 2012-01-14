@@ -219,15 +219,15 @@ int main (int argc, const char * argv[])
 
                         // Write out which items generate spontaneous lookaheads
                         for (set<lr_item_id>::const_iterator spont = spontaneous.begin(); spont != spontaneous.end(); spont++) {
-                            wcout   << L"    Spontaneous -> state #" << spont->first << ": " 
-                                    << formatter::to_string(*(*builder->machine().state_with_id(spont->first))[spont->second], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                            wcout   << L"    Spontaneous -> state #" << spont->state_id << ": " 
+                                    << formatter::to_string(*(*builder->machine().state_with_id(spont->state_id))[spont->item_id], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
                                     << endl;
                         }
 
                         // Write out which items propagate lookaheads
                         for (set<lr_item_id>::const_iterator prop = propagate.begin(); prop != propagate.end(); prop++) {
-                            wcout   << L"    Propagate -> state #" << prop->first << ": " 
-                                    << formatter::to_string(*(*builder->machine().state_with_id(prop->first))[prop->second], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
+                            wcout   << L"    Propagate -> state #" << prop->state_id << ": " 
+                                    << formatter::to_string(*(*builder->machine().state_with_id(prop->state_id))[prop->item_id], *compileLanguageStage->grammar(), *compileLanguageStage->terminals())
                                     << endl;
                         }
                     }
