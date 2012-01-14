@@ -286,7 +286,7 @@ void lalr_builder::complete_lookaheads() {
                 m_Machine.add_lookahead(targetState->second, targetItemId, lookahead);
                 
                 // If the lookahead is not empty, or isn't just the empty item, then add to the spontaneous set
-                if (!lookahead.empty() || lookahead.size() > 1 || !lookahead.contains(empty_c)) {
+                if (lookahead.size() > 1 || (!lookahead.empty() && !lookahead.contains(empty_c))) {
                     lr_item_id targetItem(targetState->second, targetItemId);
                     spontaneousTargets.insert(targetItem);
 
