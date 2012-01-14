@@ -63,6 +63,12 @@ namespace lr {
         /// \brief Set of LR(0) items that represent a closure of a LALR state
         typedef std::set<lr0_item_container> closure_set;
 
+        /// \brief Pair mapping a source LR item to a target LR item
+        typedef std::pair<lr_item_id, lr_item_id> source_to_target;
+
+        /// \brief Maps 
+        typedef std::map<source_to_target, contextfree::item_set> spontaneous_lookahead;
+
     private:
         /// \brief The grammar that this builder will use
         contextfree::grammar* m_Grammar;
@@ -89,6 +95,9 @@ namespace lr {
         /// Maps from the state and item whose closure generated a spontaneous lookahead to the state and item where the
         /// lookahead ended up. (This isn't quite enough to see what the lookahead generated was)
         mutable propagation m_Spontaneous;
+
+        /// \brief Maps from pairs of items (representing source and target) to the lookahead that was spontaneously generated for them
+        mutable spontaneous_lookahead m_SpontaneousLookahead;
         
         /// \brief Maps state IDs to sets of LR actions
         mutable std::map<int, lr_action_set> m_ActionsForState;

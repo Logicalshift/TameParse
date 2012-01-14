@@ -256,7 +256,8 @@ void lalr_builder::complete_lookaheads() {
             symbol->cache_closure(lr1, closure, *m_Grammar);
             
             // Create the set of spontaneous lookahead items
-            set<lr_item_id>& spontaneousTargets = m_Spontaneous[lr_item_id(stateId, itemId)];
+            lr_item_id          sourceItem(stateId, itemId);
+            set<lr_item_id>&    spontaneousTargets  = m_Spontaneous[sourceItem];
             
             // Iterate through the items in the closure
             for (lr1_item_set::iterator closureItem = closure.begin(); closureItem != closure.end(); ++closureItem) {
@@ -286,7 +287,12 @@ void lalr_builder::complete_lookaheads() {
                 
                 // If the lookahead is not empty, or isn't just the empty item, then add to the spontaneous set
                 if (!lookahead.empty() || lookahead.size() > 1 || !lookahead.contains(empty_c)) {
-                    spontaneousTargets.insert(lr_item_id(targetState->second, targetItemId));
+                    lr_item_id targetItem(targetState->second, targetItemId);
+                    spontaneousTargets.insert(targetItem);
+
+                    item_set& spontaneousItems = m_SpontaneousLookahead[pair<lr_item_id, lr_item_id>(sourceItem, targetItem)];
+                    spontaneousItems.set_grammar(m_Grammar);
+                    spontaneousItems.merge(lookahead);
                 }
                 
                 // This creates a propagation if the empty item is in the lookahead
