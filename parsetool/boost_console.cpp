@@ -69,7 +69,7 @@ boost_console::boost_console(int argc, const char** argv)
         ("show-error-codes",                                    "display error codes alongside the error messages.")
         ("show-conflict-details",                               "show details about the context that conflicts occur in.")
         ("allow-reduce-conflicts",                              "reduce/reduce conflicts will produce a warning instead of an error.")
-        ("no-conflicts",                                        "all parser conflicts count as an error and not a warning.");
+        ("no-conflicts",                                        "all unresolved parser conflicts count as an error and not a warning.");
 
     po::options_description hiddenOptions;
 
