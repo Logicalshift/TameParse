@@ -33,10 +33,31 @@ namespace lr {
     ///
     class lalr_builder {
     public:
-        // State ID, item ID pair (identifies an individual item within a state machine)
-        typedef std::pair<int, int> lr_item_id;
+        /// \brief State ID, item ID pair (identifies an individual item within a state machine)
+        struct lr_item_id {
+            inline lr_item_id(int newState, int newItem)
+            : state_id(newState)
+            , item_id(newItem) {
+            }
+
+            int state_id;
+            int item_id;
+
+            inline bool operator<(const lr_item_id& compareTo) const {
+                if (state_id < compareTo.state_id)  return true;
+                if (state_id != compareTo.state_id) return false;
+
+                return item_id < compareTo.item_id;
+            }
+
+            inline bool operator==(const lr_item_id& compareTo) const {
+                return state_id == compareTo.state_id && item_id == compareTo.item_id;
+            }
+
+            inline bool operator!=(const lr_item_id& compareTo) const { return !operator==(compareTo); }
+        };
         
-        // Maps states to lists of propagations (target state, target item ID)
+        /// \brief Maps states to lists of propagations (target state, target item ID)
         typedef std::map<lr_item_id, std::set<lr_item_id> > propagation;
         
         /// \brief Set of LR(0) items that represent a closure of a LALR state

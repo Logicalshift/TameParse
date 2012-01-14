@@ -449,7 +449,7 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
         const conflict::lr_item_id& itemId = *possibleState;
         
         // Get the relevant item
-        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.state_id))[itemId.item_id];
 
         // Ignore this item if it's not on the correct nonterminal
         if (item->at_end()) continue;

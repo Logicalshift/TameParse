@@ -324,12 +324,12 @@ void lalr_builder::complete_lookaheads() {
         set<lr_item_id>& propItems = m_Propagate[nextState];
         
         // Get the lookahead for this item
-        const item_set& itemLookahead = m_Machine.state_with_id(nextState.first)->lookahead_for(nextState.second);
+        const item_set& itemLookahead = m_Machine.state_with_id(nextState.state_id)->lookahead_for(nextState.item_id);
 
         // Perform propagation
         for (set<lr_item_id>::iterator path = propItems.begin(); path != propItems.end(); ++path) {
             // Propagating lookahead from the item identified by nextState to *path
-            if (m_Machine.add_lookahead(path->first, path->second, itemLookahead)) {
+            if (m_Machine.add_lookahead(path->state_id, path->item_id, itemLookahead)) {
                 // If the lookahead changed things, then we'll need to propagate the changed lookahead from the item specified by path
                 if (m_Propagate.find(*path) != m_Propagate.end()) {
                     toPropagate.insert(*path);
@@ -559,7 +559,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
         // Search through the spontaneous tables for items that generate this lookahead
         for (propagation::const_iterator spontaneous = m_Spontaneous.begin(); spontaneous != m_Spontaneous.end(); ++spontaneous) {
             // Get the lookahead for this item
-            const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.first)->lookahead_for(spontaneous->first.second);
+            const lr1_item::lookahead_set& la = m_Machine.state_with_id(spontaneous->first.state_id)->lookahead_for(spontaneous->first.item_id);
             
             // Ignore items that would not have generated the lookahead symbol
             if (!la.contains(lookaheadItem)) continue;
@@ -578,7 +578,7 @@ void lalr_builder::find_lookahead_source(int state, int item, contextfree::item_
         // Search through the propagation tables for items that generate this lookahead
         for (propagation::const_iterator propagate = m_Propagate.begin(); propagate != m_Propagate.end(); ++propagate) {
             // Get the lookahead for this item
-            const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.first)->lookahead_for(propagate->first.second);
+            const lr1_item::lookahead_set& la = m_Machine.state_with_id(propagate->first.state_id)->lookahead_for(propagate->first.item_id);
             
             // Ignore items that would not have generated the lookahead symbol
             if (!la.contains(lookaheadItem)) continue;
