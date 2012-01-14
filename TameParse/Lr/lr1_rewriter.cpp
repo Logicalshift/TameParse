@@ -44,6 +44,9 @@ void lr1_rewriter::rewrite_actions(int state, lr_action_set& actions, const lalr
 	for (item_reductions::iterator reduce = reductions.begin(); reduce != reductions.end(); reduce++) {
 		// Only process items with reduce/reduce conflicts
 		if (reduce->second.size() < 2) continue;
+
+		// We need to find all of the LR items for this nonterminal which can produce this
+		// symbol in the lookahead.
 	}
 }
 
