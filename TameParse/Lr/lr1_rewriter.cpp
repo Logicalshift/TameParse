@@ -25,7 +25,7 @@ using namespace lr;
 /// adding new rules.
 void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const lalr_builder& builder) const {
 	// Maps symbols to the symbols they reduce as
-	typedef set<item_container> item_list;
+	typedef vector<lr_action_container> 	item_list;
 	typedef map<item_container, item_list> 	item_reductions;
 
 	item_reductions reductions;
@@ -34,7 +34,7 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 	bool hasConflict = false;
 
 	// Search for reduce/reduce conflicts
-	for (lr_action_set::iterator act = actions.begin(); act != actions.end(); act++) {
+	for (lr_action_set::iterator act = actions.begin(); act != actions.end(); ++act) {
 		// We're only interested in reduce actions
 		if ((*act)->type() != lr_action::act_reduce) continue;
 
@@ -43,7 +43,7 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 
 		// Add this to the list of reductions for this item
 		item_list& items = reductions[(*act)->item()];
-		items.insert((*act)->rule()->nonterminal());
+		items.push_back(*act);
 
 		if (!hasConflict && items.size() >= 2) {
 			hasConflict = true;
@@ -58,7 +58,7 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 
 	// Find items which have reduce/reduce conflicts
 	// (LALR parsers can have reduce/reduce conflicts that LR(1) parsers do not)
-	for (item_reductions::iterator reduce = reductions.begin(); reduce != reductions.end(); reduce++) {
+	for (item_reductions::iterator reduce = reductions.begin(); reduce != reductions.end(); ++reduce) {
 		// Only process items with reduce/reduce conflicts
 		if (reduce->second.size() < 2) continue;
 	
@@ -66,9 +66,9 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 		item_container reduceTerminal(reduce->first);
 
 		// Find the target states for this item and nonterminal
-		map<int, set<int> > targetState;
+		map<int, set<int> > targetStateForItem;
 
-		for (int lrItemId = 0; lrItemId < state.count_items(); lrItemId++) {
+		for (int lrItemId = 0; lrItemId < state.count_items(); ++lrItemId) {
 			// Fetch this item
 			const lr0_item& lrItem = *state[lrItemId];
 
@@ -83,6 +83,61 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 			typedef lalr_builder::lr_item_id lr_item_id;
 			set<lr_item_id> sourceItems;
 			builder.find_lookahead_source(stateId, lrItemId, reduceTerminal, sourceItems);
+
+			// Find the states that this can reduce to (pre-goto)
+			// TODO: if the goto produces another reduction, then we need to check that instead
+			set<int>& targetStates = targetStateForItem[lrItemId];
+			for (set<lr_item_id>::const_iterator reduceTo = sourceItems.begin(); reduceTo != sourceItems.end(); ++reduceTo) {
+				// Check that this reduces one of our conflicted nonterminals
+				const lalr_state& 	reduceState = *builder.machine().state_with_id(reduceTo->state_id);
+				const lr0_item& 	reduceItem	= *reduceState[reduceTo->item_id];
+
+				// Ignore items at the end (which should only come up via lookahead propagation)
+				if (reduceItem.at_end()) continue;
+
+				// Fetch the item that this item will produce a goto on
+				const item_container& gotoItem = reduceItem.rule()->items()[reduceItem.offset()];
+
+				// It must equal the nonterminal that we're looking for
+				if (gotoItem != lrItem.rule()->nonterminal()) continue;
+
+				// Add this state
+				targetStates.insert(reduceTo->state_id);
+			}
+		}
+
+		// We can resolve this conflict if each of the items being reduced ends up in a different set of states
+		set<int> 	usedStates;
+		bool 		canResolve = true;
+
+		for (map<int, set<int> >::iterator itemStates = targetStateForItem.begin(); itemStates != targetStateForItem.end(); ++itemStates) {
+			// Check the target states for this item
+			for (set<int>::iterator targetState = itemStates->second.begin(); targetState != itemStates->second.end(); ++targetState) {
+				// Can't resolve this conflict if more than one item can produce this state
+				if (usedStates.find(*targetState) != usedStates.end()) {
+					canResolve = false;
+					break;
+				}
+
+				// Add this state to the set
+				usedStates.insert(*targetState);
+			}
+
+			// Don't bother continuing to check if we can't resolve this conflict
+			if (!canResolve) break;
+		}
+
+		// If we can resolve this conflict, then update the actions
+		if (canResolve) {
+			for (item_list::iterator originalAct = reduce->second.begin(); originalAct != reduce->second.end(); ++originalAct) {
+				// Create a weak reduce action
+				lr_action_container weakReduce(new lr_action((*originalAct)->type(), (*originalAct)->item(), (*originalAct)->next_state(), (*originalAct)->rule()));
+
+				// Replace the original action in the table
+				// TODO: leave one reduce action
+				actions.erase(*originalAct);
+				actions.insert(weakReduce);
+			}
 		}
 	}
 }
