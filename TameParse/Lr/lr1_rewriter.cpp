@@ -129,12 +129,11 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 
 		// If we can resolve this conflict, then update the actions
 		if (canResolve) {
-			for (item_list::iterator originalAct = reduce->second.begin(); originalAct != reduce->second.end(); ++originalAct) {
+			for (item_list::iterator originalAct = reduce->second.begin()+1; originalAct != reduce->second.end(); ++originalAct) {
 				// Create a weak reduce action
 				lr_action_container weakReduce(new lr_action(lr_action::act_weakreduce, (*originalAct)->item(), (*originalAct)->next_state(), (*originalAct)->rule()));
 
 				// Replace the original action in the table
-				// TODO: leave one reduce action
 				actions.erase(*originalAct);
 				actions.insert(weakReduce);
 			}
