@@ -1,0 +1,18 @@
+///
+/// Example 4.44 from Aho et al
+///
+language Lr1 {
+	grammar {
+		<Sp> = <S>
+
+		<S> = a <A> d | b <B> d | a <B> e | b <A> e
+
+		<A> = c
+
+		<B> = c
+	}
+}
+
+test Lr1 {
+	<Sp> = "acd" "bcd" "ace" "bce"
+}
