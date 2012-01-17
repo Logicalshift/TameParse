@@ -406,7 +406,9 @@ namespace lr {
                     
                     // If we can reduce via this item, then the result is true
                     fake_reduce(act, weakPos, weakStack, underlyingStack);
-                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) return true;
+                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) {
+                        return true;
+                    }
                     
                     // If not, keep looking for a stronger action
                     ++act;
