@@ -131,7 +131,7 @@ void lr1_rewriter::rewrite_actions(int stateId, lr_action_set& actions, const la
 		if (canResolve) {
 			for (item_list::iterator originalAct = reduce->second.begin(); originalAct != reduce->second.end(); ++originalAct) {
 				// Create a weak reduce action
-				lr_action_container weakReduce(new lr_action((*originalAct)->type(), (*originalAct)->item(), (*originalAct)->next_state(), (*originalAct)->rule()));
+				lr_action_container weakReduce(new lr_action(lr_action::act_weakreduce, (*originalAct)->item(), (*originalAct)->next_state(), (*originalAct)->rule()));
 
 				// Replace the original action in the table
 				// TODO: leave one reduce action
