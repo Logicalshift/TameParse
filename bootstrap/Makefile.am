@@ -80,6 +80,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Lr/lalr_machine.cpp \
 					  ../TameParse/Lr/lalr_state.cpp \
 					  ../TameParse/Lr/lr1_item_set.cpp \
+					  ../TameParse/Lr/lr1_rewriter.cpp \
 					  ../TameParse/Lr/lr_action.cpp \
 					  ../TameParse/Lr/lr_item.cpp \
 					  ../TameParse/Lr/lr_state.cpp \
