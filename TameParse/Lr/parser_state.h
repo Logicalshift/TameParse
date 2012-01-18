@@ -244,7 +244,8 @@ namespace lr {
             if (m_Tables->has_end_of_guard(state)) {
                 // Check if we can reduce the EOG symbol. No need to check twice.
                 if (!canReduceEog) {
-                    canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), this);
+                    parser_tables::action_iterator eogAct = m_Tables->find_nonterminal(state, m_Tables->end_of_guard());
+                    canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), eogAct, this);
                 }
                 
                 // Switch to the EOG action if it exists
@@ -267,12 +268,12 @@ namespace lr {
                     // TODO: see if this produces a meaningful speedup before complicating the code
                     if (la.item() != NULL) {
                         // Standard symbol: use the usual form of can_reduce
-                        if (!guardActions.can_reduce(la->matched(), this)) {
+                        if (!guardActions.can_reduce(la->matched(), act, this)) {
                             continue;
                         }
                     } else {
                         // Reached the end of input: check can_reduce for the EOI symbol
-                        if (!guardActions.can_reduce_nonterminal(m_Tables->end_of_input(), this)) {
+                        if (!guardActions.can_reduce_nonterminal(m_Tables->end_of_input(), act, this)) {
                             continue;
                         }
                     }
@@ -462,11 +463,12 @@ namespace lr {
             // If this is a weak reduce action, then check if the action is successful
             if (act->m_Type == lr_action::act_weakreduce) {
                 if (isTerminal) {
-                    if (!actDelegate.can_reduce(symbol, this)) {
+                    // Run a fake reduce
+                    if (!actDelegate.can_reduce(symbol, act, this)) {
                         continue;
                     }
                 } else {
-                    if (!actDelegate.can_reduce_nonterminal(symbol, this)) {
+                    if (!actDelegate.can_reduce_nonterminal(symbol, act, this)) {
                         continue;
                     }
                 }
@@ -576,7 +578,7 @@ namespace lr {
             
             // If this is a reduce or weakreduce action, check if we can reduce this symbol
             if (checkAction->m_Type == lr_action::act_reduce || checkAction->m_Type == lr_action::act_weakreduce) {
-                if (actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
+                if (actDelegate.can_reduce_nonterminal(guardSymbol, checkAction, this)) {
                     canReduce = true;
                     break;
                 }
@@ -610,7 +612,7 @@ namespace lr {
             
             if (act->m_Type == lr_action::act_weakreduce) {
                 // Check if we can perform a reduction
-                if (!actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
+                if (!actDelegate.can_reduce_nonterminal(guardSymbol, act, this)) {
                     // Try the next action if we can't reduce this item
                     ++act;
                     continue;
