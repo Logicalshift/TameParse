@@ -16,3 +16,7 @@ language Precedence {
 		left { '+' '-' }
 	}
 }
+
+test Precedence {
+	<Expr> = "1+2+3" "1+2*3" "1*2/3"
+}
