@@ -14,7 +14,7 @@ success=1
 
 for definition_file in ${definition_dir}/*.tp
 do
-	${tameparse} --run-tests ${definition_file}
+	${tameparse} --enable-lr1-resolver --run-tests ${definition_file}
 	if [ "$?" -ne "0" ]; then
 		success=0
 	fi

@@ -12,6 +12,7 @@
 #include "TameParse/Lr/ignored_symbols.h"
 #include "TameParse/Language/formatter.h"
 #include "TameParse/Lr/ast_parser.h"
+#include "TameParse/Lr/lr1_rewriter.h"
 #include "TameParse/Compiler/conflict_attribute_rewriter.h"
 
 using namespace std;
@@ -303,6 +304,9 @@ void lr_parser_stage::compile() {
     // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
     m_Parser->add_rewriter(action_rewriter_container(new conflict_attribute_rewriter(&m_Language->get_rule_item_data())));
+    if (!cons().get_option(L"enable-lr1-resolver").empty()) {
+	    m_Parser->add_rewriter(action_rewriter_container(new lr1_rewriter()));
+	}
     m_Parser->add_rewriter(ignoreContainer);
 
 	// Build the parser
@@ -449,7 +453,7 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
         const conflict::lr_item_id& itemId = *possibleState;
         
         // Get the relevant item
-        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.state_id))[itemId.item_id];
 
         // Ignore this item if it's not on the correct nonterminal
         if (item->at_end()) continue;

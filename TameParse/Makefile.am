@@ -97,6 +97,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Lr/lr_action.h \
 							  Lr/lr_item.h \
 							  Lr/lr_state.h \
+							  Lr/lr1_rewriter.h \
 							  Lr/parser.h \
 							  Lr/parser_stack.h \
 							  Lr/parser_state.h \
@@ -188,6 +189,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Lr/lr_action.cpp \
 							  Lr/lr_item.cpp \
 							  Lr/lr_state.cpp \
+							  Lr/lr1_rewriter.cpp \
 							  Lr/parser.cpp \
 							  Lr/parser_stack.cpp \
 							  Lr/parser_tables.cpp \
@@ -277,6 +279,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Lr/lr_action.h \
 							  Lr/lr_item.h \
 							  Lr/lr_state.h \
+							  Lr/lr1_rewriter.h \
 							  Lr/parser.h \
 							  Lr/parser_stack.h \
 							  Lr/parser_state.h \

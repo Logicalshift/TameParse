@@ -1,0 +1,20 @@
+///
+/// Example 4.44 from Aho et al
+///
+/// Test with the --enable-lr1-resolver option turned on
+///
+language Lr1 {
+	grammar {
+		<Sp> = <S>
+
+		<S> = a <A> d | b <B> d | a <B> e | b <A> e
+
+		<A> = c
+
+		<B> = c
+	}
+}
+
+test Lr1 {
+	<Sp> = "acd" "bcd" "ace" "bce"
+}
