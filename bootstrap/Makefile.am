@@ -67,6 +67,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/lexer_block.cpp \
 					  ../TameParse/Language/nonterminal_definition.cpp \
 					  ../TameParse/Language/parser_block.cpp \
+					  ../TameParse/Language/precedence_definition.cpp \
 					  ../TameParse/Language/process.cpp \
 					  ../TameParse/Language/production_definition.cpp \
 					  ../TameParse/Language/test_block.cpp \
