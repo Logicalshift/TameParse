@@ -56,6 +56,37 @@
                 	    }
         			);
         		},
+
+                {   name = 'meta.block.language.precedence.tameparse';
+                    begin = '(precedence)';
+                    end = '}';
+                    beginCaptures = {
+                        1 = { name = 'keyword.control.precedence.tameparse'; };
+                    };
+                    patterns = (
+                        { include = '#comments'; },
+
+                        {   name = 'meta.block.precedence.kewords.tameparse'; 
+                            begin = '{';
+                            end = '}';
+
+                            patterns = (
+                                { include = '#comments'; },
+                                { include = '#tokens'; },
+                                { include = '#strings'; },
+
+
+                                {   name = 'keyword.other.modifier.precedence.tameparse';
+                                    match = '(left|right|non-associative|non-assoc)';
+                                },
+                            );
+                        },
+
+                        {   name = 'keyword.other.modifier.precedence.tameparse';
+                            match = '(left|right|non-associative|non-assoc)';
+                        },
+                    );
+                },
 	        );
         },
             
