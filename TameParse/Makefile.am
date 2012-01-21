@@ -102,6 +102,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Lr/parser_stack.h \
 							  Lr/parser_state.h \
 							  Lr/parser_tables.h \
+							  Lr/precedence_rewriter.h \
 							  Lr/weak_symbols.h \
 							  TameParse.h \
 							  Unicode/unicode_data.h \
@@ -193,6 +194,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Lr/parser.cpp \
 							  Lr/parser_stack.cpp \
 							  Lr/parser_tables.cpp \
+							  Lr/precedence_rewriter.cpp \
 							  Lr/weak_symbols.cpp \
 							  Util/astnode.cpp \
 							  Util/container.cpp \
@@ -284,6 +286,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Lr/parser_stack.h \
 							  Lr/parser_state.h \
 							  Lr/parser_tables.h \
+							  Lr/precedence_rewriter.h \
 							  Lr/weak_symbols.h \
 							  TameParse.h \
 							  Util/astnode.h \

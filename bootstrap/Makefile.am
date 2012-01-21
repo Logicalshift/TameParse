@@ -87,6 +87,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Lr/parser.cpp \
 					  ../TameParse/Lr/parser_stack.cpp \
 					  ../TameParse/Lr/parser_tables.cpp \
+					  ../TameParse/Lr/precedence_rewriter.cpp \
 					  ../TameParse/Lr/weak_symbols.cpp \
 					  ../TameParse/Util/astnode.cpp \
 					  ../TameParse/Util/container.cpp \
