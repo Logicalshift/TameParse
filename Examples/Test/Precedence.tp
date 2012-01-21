@@ -1,0 +1,18 @@
+language Precedence {
+	lexer {
+		identifier = /[A-Za-z]+/
+	}
+
+	grammar {
+		<Expr> 	= identifier
+				| <Expr> '+' <Expr>
+				| <Expr> '-' <Expr>
+				| <Expr> '*' <Expr>
+				| <Expr> '/' <Expr>
+	}
+
+	precedence {
+		left '*' '/'
+		left '+' '-'
+	}
+}
