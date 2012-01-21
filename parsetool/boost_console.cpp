@@ -59,7 +59,9 @@ boost_console::boost_console(int argc, const char** argv)
         ("warranty",											"display warranty information.")
         ("license",												"display license information.");
 
-    po::options_description parserOptions("Parser generator options")
+    po::options_description parserOptions("Parser generator options");
+
+    parserOptions.add_options()
 		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
 		("start-symbol,S",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
     	("enable-lr1-resolver",									"attempt to resolve reduce/reduce conflicts that would be allowed by a LR(1) parser")
