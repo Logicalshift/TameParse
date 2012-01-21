@@ -81,7 +81,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/lexer_block.h \
 							  Language/nonterminal_definition.h \
 							  Language/parser_block.h \
-							  Language/precedence_definition.h \
+							  Language/precedence_block.h \
 							  Language/process.h \
 							  Language/production_definition.h \
 					  		  Language/test_block.h \
@@ -175,7 +175,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Language/lexer_block.cpp \
 							  Language/nonterminal_definition.cpp \
 							  Language/parser_block.cpp \
-							  Language/precedence_definition.cpp \
+							  Language/precedence_block.cpp \
 							  Language/process.cpp \
 							  Language/production_definition.cpp \
 							  Language/test_block.cpp \
@@ -267,7 +267,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Language/lexer_block.h \
 							  Language/nonterminal_definition.h \
 							  Language/parser_block.h \
-							  Language/precedence_definition.h \
+							  Language/precedence_block.h \
 							  Language/process.h \
 							  Language/production_definition.h \
 							  Language/toplevel_block.h \

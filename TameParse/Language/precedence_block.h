@@ -1,13 +1,13 @@
 //
-//  precedence_definition.h
+//  precedence_block.h
 //  TameParse
 //
 //  Created by Andrew Hunter on 21/01/2012.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2012 Andrew Hunter. All rights reserved.
 //
 
-#ifndef _LANGUAGE_PRECEDENCE_DEFINITION_H
-#define _LANGUAGE_PRECEDENCE_DEFINITION_H
+#ifndef _LANGUAGE_PRECEDENCE_BLOCK_H
+#define _LANGUAGE_PRECEDENCE_BLOCK_H
 
 #include <vector>
 
@@ -18,7 +18,7 @@ namespace language {
     ///
     /// \brief Block that defines the precedence of the operators in a language
     ///
-    class precedence_definition : public block {
+    class precedence_block : public block {
     public:
         ///
         /// \brief Associativity specified for an EBNF item
@@ -55,10 +55,10 @@ namespace language {
         
     public:
         /// \brief Creates a new precedence definition
-        precedence_definition(position& start, position& end);
+        precedence_block(position& start, position& end);
         
         /// \brief Destructor
-        virtual ~precedence_definition();
+        virtual ~precedence_block();
         
         /// \brief Adds a new item to this precedence definition
         void add_item(item& newItem);
