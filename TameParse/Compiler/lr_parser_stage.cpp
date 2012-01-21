@@ -304,7 +304,7 @@ void lr_parser_stage::compile() {
     // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
     m_Parser->add_rewriter(action_rewriter_container(new conflict_attribute_rewriter(&m_Language->get_rule_item_data())));
-    if (!cons().get_option("enable-lr1-resolver").empty()) {
+    if (!cons().get_option(L"enable-lr1-resolver").empty()) {
 	    m_Parser->add_rewriter(action_rewriter_container(new lr1_rewriter()));
 	}
     m_Parser->add_rewriter(ignoreContainer);
