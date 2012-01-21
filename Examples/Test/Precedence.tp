@@ -12,7 +12,7 @@ language Precedence {
 	}
 
 	precedence {
-		left '*' '/'
-		left '+' '-'
+		left { '*' '/' }
+		left { '+' '-' }
 	}
 }
