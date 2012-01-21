@@ -75,7 +75,6 @@
                                 { include = '#tokens'; },
                                 { include = '#strings'; },
 
-
                                 {   name = 'keyword.other.modifier.precedence.tameparse';
                                     match = '(left|right|non-associative|non-assoc)';
                                 },

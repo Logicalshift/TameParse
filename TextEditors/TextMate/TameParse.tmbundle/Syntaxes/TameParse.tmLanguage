@@ -160,26 +160,39 @@
 							<string>#comments</string>
 						</dict>
 						<dict>
-							<key>include</key>
-							<string>#tokens</string>
-						</dict>
-						<dict>
-							<key>include</key>
-							<string>#strings</string>
-						</dict>
-						<dict>
-							<key>match</key>
-							<string>(left|right|non-assoc|non-associative)</string>
-							<key>name</key>
-							<string>keyword.other.modifier.precedence.tameparse</string>
-						</dict>
-						<dict>
 							<key>begin</key>
 							<string>{</string>
 							<key>end</key>
 							<string>}</string>
 							<key>name</key>
 							<string>meta.block.precedence.kewords.tameparse</string>
+							<key>patterns</key>
+							<array>
+								<dict>
+									<key>include</key>
+									<string>#comments</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#tokens</string>
+								</dict>
+								<dict>
+									<key>include</key>
+									<string>#strings</string>
+								</dict>
+								<dict>
+									<key>match</key>
+									<string>(left|right|non-associative|non-assoc)</string>
+									<key>name</key>
+									<string>keyword.other.modifier.precedence.tameparse</string>
+								</dict>
+							</array>
+						</dict>
+						<dict>
+							<key>match</key>
+							<string>(left|right|non-associative|non-assoc)</string>
+							<key>name</key>
+							<string>keyword.other.modifier.precedence.tameparse</string>
 						</dict>
 					</array>
 				</dict>
