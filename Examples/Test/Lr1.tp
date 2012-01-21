@@ -1,6 +1,8 @@
 ///
 /// Example 4.44 from Aho et al
 ///
+/// Test with the --enable-lr1-resolver option turned on
+///
 language Lr1 {
 	grammar {
 		<Sp> = <S>
