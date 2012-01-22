@@ -1,10 +1,12 @@
 language Precedence {
 	lexer {
 		identifier = /[A-Za-z]+/
+		number = /[0-9]+/
 	}
 
 	grammar {
 		<Expr> 	= identifier
+				| number
 				| <Expr> '+' <Expr>
 				| <Expr> '-' <Expr>
 				| <Expr> '*' <Expr>

@@ -55,6 +55,9 @@ typedef tameparse_language::Test_Definition_n                   ast_Test_Definit
 typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
 typedef tameparse_language::list_of_Lexer_Modifier_n            list_of_Lexer_Modifier;
 typedef tameparse_language::list_of_Lexer_Symbols_Modifier_n    list_of_Lexer_Symbols_Modifier;
+typedef tameparse_language::Precedence_Definition_n             ast_Precedence_Definition;
+typedef tameparse_language::list_of_Precedence_Item_n           list_of_Precedence_Item;
+typedef tameparse_language::Equal_Precedence_Items_n            ast_Equal_Precedence_Items;
 
 /// \brief Adds a test definition to the test block
 static bool add_test_definition(test_block* target, const ast_Test_Definition* defn) {
@@ -627,6 +630,70 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     return new language_unit(type, lexerBlock);
 }
 
+/// \brief Creates a language unit from a precedence definition
+static language_unit* definition_for(const ast_Precedence_Definition* precedence) {
+    // Create the precedence block
+    position start  = precedence->pos();
+    position end    = precedence->final_pos();
+
+    precedence_block* precBlock = new precedence_block(start, end);
+
+    // Iterate through the items in this definition
+    for (list_of_Precedence_Item::iterator item = precedence->items->begin(); item != precedence->items->end(); ++item) {
+        precedence_block::item newItem;
+
+        // Set the associativity
+        newItem.assoc = precedence_block::nonassoc;
+        if ((*item)->Precedence_Item->left) {
+            newItem.assoc = precedence_block::left;
+        } else if ((*item)->Precedence_Item->right) {
+            newItem.assoc = precedence_block::right;
+        }
+    
+        // Get the definition for this item
+        const ast_Equal_Precedence_Items* equalItem = (*item)->Precedence_Item->Equal_Precedence_Items;
+
+        // Get the items inside this one
+        if (equalItem->Simple_Ebnf_Item) {
+            // left 'x' style of item
+            ebnf_item* singleItem = definition_for(equalItem->Simple_Ebnf_Item);
+            if (!singleItem) {
+                // Oops; failed to get the item
+                delete precBlock;
+                return NULL;
+            }
+
+            // TODO: must be a terminal item
+
+            // Add this item
+            newItem.items.push_back(singleItem);
+        }
+
+        if (equalItem->terminals) {
+            // left { 'x' 'y' } style of item
+            for (list_of_Simple_Ebnf_Item::iterator ebnfItem = equalItem->terminals->begin(); ebnfItem != equalItem->terminals->end(); ++ebnfItem) {
+                ebnf_item* nextItem = definition_for((*ebnfItem)->Simple_Ebnf_Item);
+                if (!nextItem) {
+                    // Oops; failed to get the item
+                    delete precBlock;
+                    return NULL;
+                }
+
+                // TODO: must be a terminal item
+
+                // Add this item
+                newItem.items.push_back(nextItem);
+            }
+        }
+
+        // Add this item
+        precBlock->add_item(newItem);
+    }
+
+    // Create the final result
+    return new language_unit(precBlock);
+}
+
 /// \brief Interprets a language unit
 static language_unit* definition_for(const ast_Language_Definition* defn) {
     // Action depends on the typeof node in this AST node
@@ -642,6 +709,8 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
         return definition_for(defn->Keywords_Definition->definitions, defn->Keywords_Definition->modifiers, NULL, language_unit::unit_keywords_definition);
     } else if (defn->Grammar_Definition) {
         return definition_for(defn->Grammar_Definition->nonterminals);
+    } else if (defn->Precedence_Definition) {
+        return definition_for(defn->Precedence_Definition);
     }
     
     return NULL;

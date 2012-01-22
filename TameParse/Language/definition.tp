@@ -188,10 +188,13 @@ language ParserLanguage {
 
 		<Precedence-Definition>		= precedence '{' <Precedence-Item>*[items] '}'
 
-		<Precedence-Item>			= (left | right | non-associative | non-assoc) <Equal-Precedence-Items>
+		<Precedence-Item>			= left <Equal-Precedence-Items>
+									| right <Equal-Precedence-Items>
+									| non-associative  <Equal-Precedence-Items>
+									| non-assoc <Equal-Precedence-Items>
 
-		<Equal-Precedence-Items>	= <Terminal>
-									| '{' <Terminal>*[terminals] '}'
+		<Equal-Precedence-Items>	= <Simple-Ebnf-Item>
+									| '{' <Simple-Ebnf-Item>*[terminals] '}'
 
 		//
 		// The parser declaration block
