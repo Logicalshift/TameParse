@@ -82,6 +82,9 @@
 		4B5E44FD13DC9A5D001FF896 /* production_definition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */; };
 		4B5E44FE13DC9A5D001FF896 /* production_definition.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B5E44FC13DC9A5C001FF896 /* production_definition.h */; };
 		4B68195813CA52BE0085CA95 /* parser_state.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B68195713CA52BE0085CA95 /* parser_state.h */; };
+		4B721E2114CCBF9A00285A5C /* precedence_block_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */; };
+		4B721E2414CCBFFF00285A5C /* precedence_block_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B721E2314CCBFFF00285A5C /* precedence_block_rewriter.h */; };
+		4B721E2514CCC00200285A5C /* precedence_block_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */; };
 		4B79D0C2142E1E2000D778BC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0C1142E1E2000D778BC /* main.cpp */; };
 		4B79D0C4142E1E2000D778BC /* tameparse.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4B79D0C3142E1E2000D778BC /* tameparse.1 */; };
 		4B79D0C8142E1E6800D778BC /* TameParseLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */; };
@@ -443,6 +446,8 @@
 		4B5E44FB13DC9A5C001FF896 /* production_definition.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = production_definition.cpp; sourceTree = "<group>"; };
 		4B5E44FC13DC9A5C001FF896 /* production_definition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = production_definition.h; sourceTree = "<group>"; };
 		4B68195713CA52BE0085CA95 /* parser_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_state.h; sourceTree = "<group>"; };
+		4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = precedence_block_rewriter.cpp; sourceTree = "<group>"; };
+		4B721E2314CCBFFF00285A5C /* precedence_block_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = precedence_block_rewriter.h; sourceTree = "<group>"; };
 		4B79D0B9142DEFC800D778BC /* TameParse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
 		4B79D0BE142E1E2000D778BC /* tameparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tameparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B79D0C1142E1E2000D778BC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -831,6 +836,8 @@
 				4BECE7B01452CE800047E1E2 /* test_stage.h */,
 				4B82D18914B9F0AC00A61239 /* conflict_attribute_rewriter.cpp */,
 				4B82D18C14B9F0BA00A61239 /* conflict_attribute_rewriter.h */,
+				4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */,
+				4B721E2314CCBFFF00285A5C /* precedence_block_rewriter.h */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -1145,6 +1152,7 @@
 				4B82D19914C1DF5900A61239 /* lr1_rewriter.h in Headers */,
 				4B82D1FE14CB2E7C00A61239 /* precedence_rewriter.h in Headers */,
 				4B82D20914CB81E700A61239 /* precedence_block.h in Headers */,
+				4B721E2414CCBFFF00285A5C /* precedence_block_rewriter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1419,6 +1427,7 @@
 				4B82D19714C0F71800A61239 /* lr1_rewriter.cpp in Sources */,
 				4B82D1FB14CB1D1200A61239 /* precedence_rewriter.cpp in Sources */,
 				4B82D20714CB81E700A61239 /* precedence_block.cpp in Sources */,
+				4B721E2114CCBF9A00285A5C /* precedence_block_rewriter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1517,6 +1526,7 @@
 				4B82D19814C1DF3500A61239 /* lr1_rewriter.cpp in Sources */,
 				4B82D1FF14CB2E7F00A61239 /* precedence_rewriter.cpp in Sources */,
 				4B82D20814CB81E700A61239 /* precedence_block.cpp in Sources */,
+				4B721E2514CCC00200285A5C /* precedence_block_rewriter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

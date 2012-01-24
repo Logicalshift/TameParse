@@ -33,6 +33,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/output_stage.h \
 							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
+							  Compiler/precedence_block_rewriter.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
@@ -126,6 +127,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/lr_parser_stage.cpp \
 							  Compiler/output_stage.cpp \
 							  Compiler/parser_stage.cpp \
+							  Compiler/precedence_block_rewriter.cpp \
 							  Compiler/std_console.cpp \
 							  Compiler/test_stage.cpp \
 							  Compiler/OutputStages/cplusplus.cpp \
@@ -219,6 +221,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/output_stage.h \
 							  Compiler/output_stage_data.h \
 							  Compiler/parser_stage.h \
+							  Compiler/precedence_block_rewriter.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
