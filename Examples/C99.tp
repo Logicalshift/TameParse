@@ -58,4 +58,10 @@ test C99 {
 				printf(\"Hello, world\");
 			}
 		")
+	
+	<Declaration> = 	"int *restrict x;"
+						"restrict int* x;"
+						"_Bool x;"
+						"_Complex x;"
+						"_Imaginary x;"
 }

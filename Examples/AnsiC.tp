@@ -434,4 +434,13 @@ test Ansi-C {
 							"(a)-b"
 							"(a)*b"
 							"(a)(b)"
+	
+	///
+	/// Declarations
+	///
+	<Declaration> = 		"int x;"
+							"int* x;"
+							"const int* x;"
+							"int* const x;"
+							"int const* x;"
 }
