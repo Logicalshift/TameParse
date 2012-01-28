@@ -4,6 +4,10 @@
 /// Test with the --enable-lr1-resolver option turned on
 ///
 language Lr1 {
+	keywords {
+		a b c d e
+	}
+
 	grammar {
 		<Sp> = <S>
 

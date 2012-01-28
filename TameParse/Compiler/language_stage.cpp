@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include "TameParse/Compiler/language_stage.h"
+#include "TameParse/Compiler/precedence_block_rewriter.h"
 #include "TameParse/Language/process.h"
 #include "TameParse/Language/formatter.h"
 
@@ -16,6 +17,7 @@ using namespace std;
 using namespace dfa;
 using namespace contextfree;
 using namespace language;
+using namespace lr;
 using namespace compiler;
 
 /// \brief Creates a compiler that will compile the specified language block
@@ -431,6 +433,35 @@ void language_stage::compile() {
         for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); ++itemRule) {
             process_rule_symbols(**itemRule);
         }
+    }
+
+    // Go through the precedence blocks and create precedence rewriters
+    for (language_block::iterator block = m_Language->begin(); block != m_Language->end(); ++block) {
+        // Only interested in precedence blocks
+        if ((*block)->type() != language_unit::unit_precedence_definition) continue;
+
+        // Fetch the precedence block
+        const precedence_block* precedenceBlock = (*block)->precedence_definition();
+        if (!precedenceBlock) continue;
+
+        // Check that all of the precedence block items are defined in the list of terminals
+        for (precedence_block::iterator precItem = precedenceBlock->begin(); precItem != precedenceBlock->end(); ++precItem) {
+            // Go through each item at this level
+            typedef precedence_block::ebnf_item_list ebnf_item_list;
+            for (ebnf_item_list::const_iterator ebnfItem = precItem->items.begin(); ebnfItem != precItem->items.end(); ++ebnfItem) {
+                // Must be defined in m_Terminals
+                if (m_Terminals.symbol_for_name((*ebnfItem)->identifier()) < 0) {
+                    // Oops: not defined, report an error
+                    wstringstream   msg;
+                    msg << L"Undefined terminal symbol: " << (*ebnfItem)->identifier();
+                    
+                    cons().report_error(error(error::sev_error, filename(), L"UNDEFINE_TERMINAL", msg.str(), (*ebnfItem)->start_pos()));
+                }
+            }
+        }
+
+        // Create a rewriter for this block
+        m_ActionRewriters.push_back(action_rewriter_container(new precedence_block_rewriter(m_Terminals, *precedenceBlock)));
     }
     
     // Any nonterminal with no rules is one that was referenced but not defined

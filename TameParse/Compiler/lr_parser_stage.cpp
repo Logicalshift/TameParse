@@ -298,6 +298,12 @@ void lr_parser_stage::compile() {
 	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); ++initialItem) {
 		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
 	}
+
+	// Add any language rewriters that might be defined
+	typedef language_stage::rewriter_list rewriter_list;
+	for (rewriter_list::const_iterator languageRewriter = m_Language->action_rewriters()->begin(); languageRewriter != m_Language->action_rewriters()->end(); ++languageRewriter) {
+		m_Parser->add_rewriter(*languageRewriter);
+	}
     
     // Add the weak symbols and ignore items actions
     // TODO: it might be good to have a way to supply extra rewriters from other stages instead of just having them

@@ -1,0 +1,24 @@
+language Precedence {
+	lexer {
+		identifier = /[A-Za-z]+/
+		number = /[0-9]+/
+	}
+
+	grammar {
+		<Expr> 	= identifier
+				| number
+				| <Expr> '+' <Expr>
+				| <Expr> '-' <Expr>
+				| <Expr> '*' <Expr>
+				| <Expr> '/' <Expr>
+	}
+
+	precedence {
+		left { '+' '-' }
+		left { '*' '/' }
+	}
+}
+
+test Precedence {
+	<Expr> = "1+2+3" "1+2*3" "1*2/3"
+}
