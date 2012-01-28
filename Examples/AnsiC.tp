@@ -433,6 +433,16 @@ test Ansi-C {
 							"(a)-b"
 							"(a)*b"
 							"(a)(b)"
+
+	///
+	/// Various statements
+	///
+
+	<Iteration-Statement> =		"for (x=0; x<1; x++) { }"
+								"for (;;) { }"
+								"for (x=0;;x++) { }"
+								"for (;x<3;) { }"
+								"for (;;x++) { }"
 	
 	///
 	/// Declarations

@@ -25,23 +25,31 @@ language C99 : Ansi-C {
 	/// Modified grammar
 	///
 	grammar {
-		<Type-Specifier>			+= _Bool
-									 | _Complex
-									 | _Imaginary
+		<Type-Specifier>				+= _Bool
+										 | _Complex
+										 | _Imaginary
+			
+		<Type-Qualifier>				+= restrict
+	
+		<Function-Specifier>			= inline
+	
+		<Direct-Declarator>				+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
+										 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+			
+		<Declaration-Specifiers>		+= <Function-Specifier> <Declaration-Specifiers>?
+
+		replace <Compound-Statement> 	= '{' <Block-Item>* '}'
+
+		<Block-Item>					= <Statement>
+										| <Declaration>
 		
-		<Type-Qualifier>			+= restrict
-
-		<Function-Specifier>		= inline
-
-		<Direct-Declarator>			+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
-									 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+		replace <Iteration-Statement>	= while '(' <Expression> ')' <Statement>
+										| do <Statement> while '(' <Expression> ')'
+										| <For-Statement>
 		
-		<Declaration-Specifiers>	+= <Function-Specifier> <Declaration-Specifiers>?
+		<For-Statement>					= for '(' <Expression-Statement> <Expression-Statement> <Expression>? ')' <Statement>
+										| for '(' [=> <Declaration>] <Declaration> <Expression-Statement> <Expression>? ')' <Statement>
 
-		replace <Compound-Statement> = '{' <Block-Item>* '}'
-
-		<Block-Item>				= <Statement>
-									| <Declaration>
 	}
 }
 
@@ -64,8 +72,30 @@ test C99 {
 								"_Bool x;"
 								"_Complex x;"
 								"_Imaginary x;"
+								"int x=0;"
 
 	<Compound-Statement> =		"{ int x; x = x + 1; }"
 								"{ foo(); int x; x = x + 1; }"
 								"{ f*x; int x; x = x + 1; int y; }"
+
+	<Iteration-Statement> =		"for (int x=0; x<1; x++) { }"
+								"for (x=0; x<1; x++) { }"
+								"for (;;) { }"
+								"for (x=0;;x++) { }"
+								"for (int x=0;;x++) { }"
+								"for (int x=0;;) { }"
+								"for (;x<3;) { }"
+								"for (;;x++) { }"
+
+	<Primary-Expression> =		"(some_struct) { 1,2,3 }"
+								"(some_struct) { 1,2,3, }"
+	
+	<Declaration> =				"struct {int a[3], b;} w[] = { [0].a = {1}, [1].a = 2 };"
+								"struct {int a, b, c, d;} s = { .a = 1, .c = 3, 4, .b = 5};"
+
+	<Constant> =				"\"\\u0abc \U0abc0abc\""
+								"100LL"
+								"100ll"
+								"100ULL"
+								"100ull"
 }
