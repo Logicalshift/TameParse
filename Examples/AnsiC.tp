@@ -304,8 +304,7 @@ language Ansi-C {
 	
 		<Type-Qualifier>				= const | volatile
 	
-		<Declarator>					= <Pointer> <Direct-Declarator>
-										| <Direct-Declarator>
+		<Declarator>					= <Pointer>? <Direct-Declarator>
 			
 		<Direct-Declarator>				= identifier
 										| '(' <Declarator> ')'
@@ -439,19 +438,28 @@ test Ansi-C {
 	/// Declarations
 	///
 	<Pointer> = 			"*"
+							"**"
 							"* const"
 							"*const*"
 	
 	<Init-Declarator> =		"*const x"
 
-	<Declaration> = 		"int x;"
-							"int* x;"
-							"const int* x;"
-							"int* const x;"
-							"int *const* x;"
-							"int const* x;"
-							"const foo* x;"
-							"foo* const x;"
-							"foo *const* x;"
-							"foo const* x;"
+	<Declaration> = 		int("int x;")
+							int-ptr("int* x;")
+							int-ptr-ptr("int** x;")
+							const-int-ptr("const int* x;")
+							int-ptr-const("int* const x;")
+							int-ptr-const-ptr("int *const* x;")
+							int-const-ptr("int const* x;")
+							int-const("int const x;")
+							bare-int("int;")
+							const-foo-ptr("const foo* x;")
+							foo-ptr("foo* x;")
+							foo-ptr-const("foo* const x;")
+							foo-ptr-const-ptr("foo *const* x;")
+							foo-const-ptr("foo const* x;")
+							initializer("int x = 1;")
+							const-initializer("const int x = 1;")
+							initializer-ptr("int* x = 1;")
+							initializer-ptr-const("int* const x = 1;")
 }
