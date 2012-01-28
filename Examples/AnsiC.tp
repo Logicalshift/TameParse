@@ -313,7 +313,7 @@ language Ansi-C {
 										| <Direct-Declarator> '(' ([=> <Parameter-Type-List> ')'] <Parameter-Type-List> | <Identifier-List>) ')'
 										| <Direct-Declarator> '(' ')'
 	
-		<Pointer>						= '*'
+		<Pointer>						= '*' <Type-Qualifier>*
 										| '*' <Type-Qualifier>* <Pointer>
 	
 		<Parameter-Type-List>			= <Parameter-Declarator> (',' <Parameter-Declarator>)* (',' "...")?
@@ -438,9 +438,20 @@ test Ansi-C {
 	///
 	/// Declarations
 	///
+	<Pointer> = 			"*"
+							"* const"
+							"*const*"
+	
+	<Init-Declarator> =		"*const x"
+
 	<Declaration> = 		"int x;"
 							"int* x;"
 							"const int* x;"
 							"int* const x;"
+							"int *const* x;"
 							"int const* x;"
+							"const foo* x;"
+							"foo* const x;"
+							"foo *const* x;"
+							"foo const* x;"
 }
