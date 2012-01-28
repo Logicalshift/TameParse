@@ -18,7 +18,9 @@ language C99 : Ansi-C {
 	lexer {
 		constant-hex		|= /0[xX]{hex-digit}+(LL|ll)/
 		constant-octal		|= /0{digit}+(LL|ll)/
+		constant-octal		|= /0{digit}+(ULL|ull)/
 		constant-decimal	|= /{digit}+(ll|LL)/
+		constant-decimal	|= /{digit}+(ull|ULL)/
 	}
 
 	///
