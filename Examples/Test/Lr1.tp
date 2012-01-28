@@ -5,7 +5,7 @@
 ///
 language Lr1 {
 	keywords {
-		a b c d
+		a b c d e
 	}
 
 	grammar {
