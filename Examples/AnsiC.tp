@@ -169,15 +169,15 @@ language Ansi-C {
 		<Unambiguous-Cast-Follow>		= <Simple-Type-Specifier>											// int, void, etc
 										| <Type-Qualifier>													// const, volatile
 										| identifier (<Simple-Type-Specifier> | <Type-Qualifier>)			// foo const etc
-										| identifier <Abstract-Declarator>? ')' ("++" <Unary-Expression> | "--" <Unary-Expression> | '&' | '*' | '~' | '!' | sizeof | identifier | <Constant>)
+										| identifier <Abstract-Declarator>? ')' ("++" <Unary-Expression> | "--" <Unary-Expression> | '&' | '~' | '!' | sizeof | identifier | <Constant>)
 
 		//
-		// (x)+1, (x)-1 and (x)(y) are all ambiguous and might be a cast or something else
+		// (x)+1, (x)-1, (x)*a and (x)(y) are all ambiguous and might be a cast or something else
 		// depending on the type of x
 		//
 		<Ambiguous-Cast>				= '(' [=>[can-clash] <Ambiguous-Cast-Follow>] <Type-Name> ')'
 
-		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '-' | '(' <Expression> ')')
+		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '*' | '-' | '(' <Expression> ')')
 			
 		<Multiplicative-Expression>		= <Cast-Expression>
 										| <Multiplicative-Expression> ('*' | '/' | '%') <Cast-Expression>
@@ -304,8 +304,7 @@ language Ansi-C {
 	
 		<Type-Qualifier>				= const | volatile
 	
-		<Declarator>					= <Pointer> <Direct-Declarator>
-										| <Direct-Declarator>
+		<Declarator>					= <Pointer>? <Direct-Declarator>
 			
 		<Direct-Declarator>				= identifier
 										| '(' <Declarator> ')'
@@ -313,7 +312,7 @@ language Ansi-C {
 										| <Direct-Declarator> '(' ([=> <Parameter-Type-List> ')'] <Parameter-Type-List> | <Identifier-List>) ')'
 										| <Direct-Declarator> '(' ')'
 	
-		<Pointer>						= '*'
+		<Pointer>						= '*' <Type-Qualifier>*
 										| '*' <Type-Qualifier>* <Pointer>
 	
 		<Parameter-Type-List>			= <Parameter-Declarator> (',' <Parameter-Declarator>)* (',' "...")?
@@ -425,4 +424,42 @@ test Ansi-C {
 				printf(\"Hello, world\");
 			}
 		")
+	
+	///
+	/// Cast expressions
+	///
+	<Cast-Expression> = 	"(a) b"
+							"(a)+b"
+							"(a)-b"
+							"(a)*b"
+							"(a)(b)"
+	
+	///
+	/// Declarations
+	///
+	<Pointer> = 			"*"
+							"**"
+							"* const"
+							"*const*"
+	
+	<Init-Declarator> =		"*const x"
+
+	<Declaration> = 		int("int x;")
+							int-ptr("int* x;")
+							int-ptr-ptr("int** x;")
+							const-int-ptr("const int* x;")
+							int-ptr-const("int* const x;")
+							int-ptr-const-ptr("int *const* x;")
+							int-const-ptr("int const* x;")
+							int-const("int const x;")
+							bare-int("int;")
+							const-foo-ptr("const foo* x;")
+							foo-ptr("foo* x;")
+							foo-ptr-const("foo* const x;")
+							foo-ptr-const-ptr("foo *const* x;")
+							foo-const-ptr("foo const* x;")
+							initializer("int x = 1;")
+							const-initializer("const int x = 1;")
+							initializer-ptr("int* x = 1;")
+							initializer-ptr-const("int* const x = 1;")
 }

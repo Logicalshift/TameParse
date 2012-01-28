@@ -377,6 +377,11 @@ namespace lr {
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
                     // Fake reduce using the action
                     std::stack<int> fakeStack;
                     int             stackPos = 0;
@@ -389,6 +394,11 @@ namespace lr {
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 inline bool can_reduce_nonterminal(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
                     // Fake reduce using the action
                     std::stack<int> fakeStack;
                     int             stackPos = 0;
@@ -480,7 +490,12 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
                     // Fake reduce using the action
                     std::stack<int> fakeStack   = m_Stack;
                     int             stackPos    = 0;
@@ -492,7 +507,12 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int nonterminal, parser_tables::action_iterator act, state* state) {
+                bool can_reduce_nonterminal(int nonterminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
                     // Fake reduce using the action
                     std::stack<int> fakeStack   = m_Stack;
                     int             stackPos    = 0;
