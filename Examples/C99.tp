@@ -25,24 +25,42 @@ language C99 : Ansi-C {
 	/// Modified grammar
 	///
 	grammar {
+		///
+		/// New type specifiers
+		///
 		<Type-Specifier>				+= _Bool
 										 | _Complex
 										 | _Imaginary
-			
+		
+		///
+		/// New type qualifiers
+		///
 		<Type-Qualifier>				+= restrict
 	
-		<Function-Specifier>			= inline
-	
+		///
+		/// ??
+		///
 		<Direct-Declarator>				+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
 										 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+	
+		///
+		/// Inline functions
+		///
+		<Function-Specifier>			= inline
 			
 		<Declaration-Specifiers>		+= <Function-Specifier> <Declaration-Specifiers>?
 
+		///
+		/// inline declarations
+		///
 		replace <Compound-Statement> 	= '{' <Block-Item>* '}'
 
 		<Block-Item>					= <Statement>
 										| <Declaration>
 		
+		///
+		/// Declaring types in for statements
+		///
 		replace <Iteration-Statement>	= while '(' <Expression> ')' <Statement>
 										| do <Statement> while '(' <Expression> ')'
 										| <For-Statement>
@@ -50,6 +68,21 @@ language C99 : Ansi-C {
 		<For-Statement>					= for '(' <Expression-Statement> <Expression-Statement> <Expression>? ')' <Statement>
 										| for '(' [=> <Declaration>] <Declaration> <Expression-Statement> <Expression>? ')' <Statement>
 
+		///
+		/// Named structures
+		///
+		<Postfix-Expression>			+= '(' [=> <Type-Name> ')' '{'] <Type-Name> ')' '{' <Initializer-List> '}'
+
+		replace <Initializer>			= <Assignment-Expression>
+										| '{' <Initializer-List> '}'
+
+		<Initializer-List>				= <Designation>? <Initializer> (',' <Designation>? <Initializer>)*
+										| <Designation>? <Initializer> (',' <Designation>? <Initializer>)* ','
+
+		<Designation>					= <Designator>+ '='
+
+		<Designator>					= '[' <Constant-Expression> ']'
+										| '.' identifier
 	}
 }
 
@@ -87,8 +120,20 @@ test C99 {
 								"for (;x<3;) { }"
 								"for (;;x++) { }"
 
-	<Primary-Expression> =		"(some_struct) { 1,2,3 }"
+	<Expression> =				"(some_struct) { 1,2,3 }"
 								"(some_struct) { 1,2,3, }"
+								"(some_struct) { .a = 1 }"
+
+	<Designation> = 			".a ="
+								"[0].a ="
+
+	<Initializer-List> =		"1, 2, 3"
+								"1, 2, 3,"
+								".a = 1"
+								".a = 1, .b = 2"
+								"[0] = 1, [1] = 2"
+								".a = 1, .b = 2,"
+								"[0].a = 1, [1].b = 2"
 	
 	<Declaration> =				"struct {int a[3], b;} w[] = { [0].a = {1}, [1].a = 2 };"
 								"struct {int a, b, c, d;} s = { .a = 1, .c = 3, 4, .b = 5};"
