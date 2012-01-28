@@ -19,6 +19,7 @@
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/Data/lexer_data.h"
 #include "TameParse/Compiler/Data/rule_item_data.h"
+#include "TameParse/Lr/action_rewriter.h"
 
 #ifndef TAMEPARSE_BOOTSTRAP
 #include "TameParse/Compiler/import_stage.h"
@@ -47,6 +48,9 @@ namespace compiler {
         
         /// \brief Maps a symbol ID to the language block and file where it is defined
         typedef std::map<int, block_file> symbol_map;
+
+        /// \brief A list of LR action rewriters
+        typedef std::vector<lr::action_rewriter_container> rewriter_list;
         
     private:
         /// \brief The language block that this will compile
@@ -93,6 +97,13 @@ namespace compiler {
 
         /// \brief The data associated with each rule
         rule_item_data m_RuleItemData;
+
+        /// \brief Any LR action rewriters that are defined by the language
+        ///
+        /// These are used to implement things like operator precedence. This design
+        /// is slightly suboptimal as it assumes that the output of this stage will
+        /// be used to build a LALR parser.
+        rewriter_list m_ActionRewriters;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
@@ -160,6 +171,9 @@ namespace compiler {
 
         /// \brief The symbols that are usually ignored but occasionally have syntactic meaning
         inline const std::set<int>* used_ignored_symbols() const            { return &m_UsedIgnoredSymbols; }
+
+        /// \brief A list of the action rewriters defined by this language
+        inline const rewriter_list* action_rewriters() const                { return &m_ActionRewriters; }
         
         /// \brief The position in the file where the terminal symbol with the given ID was defined
         inline dfa::position terminal_definition_pos(int id) const {
