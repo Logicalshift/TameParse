@@ -242,17 +242,18 @@ namespace lr {
             
             // Reduce the EOG symbol as soon as possible
             if (m_Tables->has_end_of_guard(state)) {
-                // Check if we can reduce the EOG symbol. No need to check twice.
-                if (!canReduceEog) {
-                    parser_tables::action_iterator eogAct = m_Tables->find_nonterminal(state, m_Tables->end_of_guard());
-                    canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), eogAct, this);
-                }
+                // Check if we can reduce the EOG symbol in this state
+                parser_tables::action_iterator eogAct = m_Tables->find_nonterminal(state, m_Tables->end_of_guard());
+                canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), eogAct, this);
                 
-                // Switch to the EOG action if it exists
-                sym         = m_Tables->end_of_guard();
-                act         = m_Tables->find_nonterminal(state, sym);
-                end         = m_Tables->last_nonterminal_action(state);
-                isTerminal  = false;
+                // If we can reduce the symbol, then change the lookahead
+                if (canReduceEog) {
+                    // Switch to the EOG action if it exists
+                    sym         = m_Tables->end_of_guard();
+                    act         = m_Tables->find_nonterminal(state, sym);
+                    end         = m_Tables->last_nonterminal_action(state);
+                    isTerminal  = false;
+                }
             }
             
             // Work out which action to perform
@@ -332,36 +333,63 @@ namespace lr {
     
     /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
     template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed, const stack& underlyingStack) {
-        // Get the reduce rule
-        const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
-        
-        // Pop items from the stack
-        for (int x=0; x<rule.m_Length; ++x) {
-            if (!pushed.empty()) {
-                // If we've pushed a fake state, then remove it from the stack
-                pushed.pop();
-            } else {
-                // Update the 'real' stack position
-                stackPos--;
-            }
-        }
-        
-        // Work out the current state
-        int state;
-        if (!pushed.empty()) {
-            state = pushed.top();
-        } else {
-            state = underlyingStack[stackPos].state;
-        }
-        
-        // Work out the goto action
-        parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
-        for (; gotoAct != m_Tables->last_nonterminal_action(state); ++gotoAct) {
-            if (gotoAct->m_Type == lr_action::act_goto) {
-                // Push this goto
-                pushed.push(gotoAct->m_NextState);
+        // Verify the action type
+        switch (act->m_Type) {
+            // Reduce actions are fairly easy
+            case lr_action::act_reduce:
+            case lr_action::act_weakreduce:
+            case lr_action::act_accept:
+            {
+                // Get the reduce rule
+                const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                
+                // Pop items from the stack
+                for (int x=0; x<rule.m_Length; ++x) {
+                    if (!pushed.empty()) {
+                        // If we've pushed a fake state, then remove it from the stack
+                        pushed.pop();
+                    } else {
+                        // Update the 'real' stack position
+                        stackPos--;
+                    }
+                }
+                
+                // Work out the current state
+                int state;
+                if (!pushed.empty()) {
+                    state = pushed.top();
+                } else {
+                    state = underlyingStack[stackPos].state;
+                }
+                
+                // Work out the goto action
+                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
+                for (; gotoAct != m_Tables->last_nonterminal_action(state); ++gotoAct) {
+                    if (gotoAct->m_Type == lr_action::act_goto) {
+                        // Push this goto
+                        pushed.push(gotoAct->m_NextState);
+                        break;
+                    }
+                }
                 break;
             }
+
+            case lr_action::act_divert:
+                // Divert actions just change the state on top of the stack
+                if (!pushed.empty()) {
+                    pushed.pop();
+                } else {
+                    stackPos--;
+                }
+
+                pushed.push(act->m_NextState);
+                break;
+
+            case lr_action::act_shift:
+            case lr_action::act_shiftstrong:
+                // Shift actions just move to the next state
+                pushed.push(act->m_NextState);
+                break;
         }
     }
     
