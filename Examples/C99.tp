@@ -67,4 +67,5 @@ test C99 {
 
 	<Compound-Statement> =		"{ int x; x = x + 1; }"
 								"{ foo(); int x; x = x + 1; }"
+								"{ f*x; int x; x = x + 1; int y; }"
 }

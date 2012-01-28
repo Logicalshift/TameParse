@@ -446,6 +446,9 @@ test Ansi-C {
 
 	<Compound-Statement> =	"{ int x; x = x + 1; }"
 							"{ f*x; int x; x = x + 1; }"
+							"{ f*x; int x; x = x + 1; a*b; }"
+	
+	<Compound-Statement> != "{ f*x; int x; x = x + 1; int y; }"
 
 	<Declaration> = 		int("int x;")
 							int-ptr("int* x;")
