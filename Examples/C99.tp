@@ -38,7 +38,7 @@ language C99 : Ansi-C {
 		<Type-Qualifier>				+= restrict
 	
 		///
-		/// ??
+		/// Static array function parameters
 		///
 		<Direct-Declarator>				+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
 										 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
@@ -99,6 +99,11 @@ test C99 {
 				printf(\"Hello, world\");
 			}
 		")
+
+	<Function-Definition> =		"int x(int y[static 3]) { }"
+								"int x(int y[3]) { }"
+								"int x(int y[restrict static 3]) { }"
+								"int x(int y[static restrict 3]) { }"
 	
 	<Declaration> = 			"int *restrict x;"
 								"restrict int* x;"
