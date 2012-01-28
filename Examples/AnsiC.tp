@@ -444,6 +444,9 @@ test Ansi-C {
 	
 	<Init-Declarator> =		"*const x"
 
+	<Compound-Statement> =	"{ int x; x = x + 1; }"
+							"{ f*x; int x; x = x + 1; }"
+
 	<Declaration> = 		int("int x;")
 							int-ptr("int* x;")
 							int-ptr-ptr("int** x;")

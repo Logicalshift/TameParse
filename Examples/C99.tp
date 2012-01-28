@@ -59,9 +59,12 @@ test C99 {
 			}
 		")
 	
-	<Declaration> = 	"int *restrict x;"
-						"restrict int* x;"
-						"_Bool x;"
-						"_Complex x;"
-						"_Imaginary x;"
+	<Declaration> = 			"int *restrict x;"
+								"restrict int* x;"
+								"_Bool x;"
+								"_Complex x;"
+								"_Imaginary x;"
+
+	<Compound-Statement> =		"{ int x; x = x + 1; }"
+								"{ foo(); int x; x = x + 1; }"
 }
