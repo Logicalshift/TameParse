@@ -18,30 +18,73 @@ language C99 : Ansi-C {
 	lexer {
 		constant-hex		|= /0[xX]{hex-digit}+(LL|ll)/
 		constant-octal		|= /0{digit}+(LL|ll)/
+		constant-octal		|= /0{digit}+(ULL|ull)/
 		constant-decimal	|= /{digit}+(ll|LL)/
+		constant-decimal	|= /{digit}+(ull|ULL)/
 	}
 
 	///
 	/// Modified grammar
 	///
 	grammar {
-		<Type-Specifier>			+= _Bool
-									 | _Complex
-									 | _Imaginary
+		///
+		/// New type specifiers
+		///
+		<Type-Specifier>				+= _Bool
+										 | _Complex
+										 | _Imaginary
 		
-		<Type-Qualifier>			+= restrict
+		///
+		/// New type qualifiers
+		///
+		<Type-Qualifier>				+= restrict
+	
+		///
+		/// Static array function parameters
+		///
+		<Direct-Declarator>				+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
+										 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+	
+		///
+		/// Inline functions
+		///
+		<Function-Specifier>			= inline
+			
+		<Declaration-Specifiers>		+= <Function-Specifier> <Declaration-Specifiers>?
 
-		<Function-Specifier>		= inline
+		///
+		/// inline declarations
+		///
+		replace <Compound-Statement> 	= '{' <Block-Item>* '}'
 
-		<Direct-Declarator>			+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
-									 | <Direct-Declarator> '[' <Type-Qualifier>* static <Assignment-Expression> ']'
+		<Block-Item>					= <Statement>
+										| <Declaration>
 		
-		<Declaration-Specifiers>	+= <Function-Specifier> <Declaration-Specifiers>?
+		///
+		/// Declaring types in for statements
+		///
+		replace <Iteration-Statement>	= while '(' <Expression> ')' <Statement>
+										| do <Statement> while '(' <Expression> ')'
+										| <For-Statement>
+		
+		<For-Statement>					= for '(' <Expression-Statement> <Expression-Statement> <Expression>? ')' <Statement>
+										| for '(' [=> <Declaration>] <Declaration> <Expression-Statement> <Expression>? ')' <Statement>
 
-		replace <Compound-Statement> = '{' <Block-Item>* '}'
+		///
+		/// Named structures
+		///
+		<Postfix-Expression>			+= '(' [=> <Type-Name> ')' '{'] <Type-Name> ')' '{' <Initializer-List> '}'
 
-		<Block-Item>				= <Statement>
-									| <Declaration>
+		replace <Initializer>			= <Assignment-Expression>
+										| '{' <Initializer-List> '}'
+
+		<Initializer-List>				= <Designation>? <Initializer> (',' <Designation>? <Initializer>)*
+										| <Designation>? <Initializer> (',' <Designation>? <Initializer>)* ','
+
+		<Designation>					= <Designator>+ '='
+
+		<Designator>					= '[' <Constant-Expression> ']'
+										| '.' identifier
 	}
 }
 
@@ -58,10 +101,53 @@ test C99 {
 				printf(\"Hello, world\");
 			}
 		")
+
+	<Function-Definition> =		"int x(int y[static 3]) { }"
+								"int x(int y[3]) { }"
+								"int x(int y[restrict static 3]) { }"
+								"int x(int y[static restrict 3]) { }"
 	
-	<Declaration> = 	"int *restrict x;"
-						"restrict int* x;"
-						"_Bool x;"
-						"_Complex x;"
-						"_Imaginary x;"
+	<Declaration> = 			"int *restrict x;"
+								"restrict int* x;"
+								"_Bool x;"
+								"_Complex x;"
+								"_Imaginary x;"
+								"int x=0;"
+
+	<Compound-Statement> =		"{ int x; x = x + 1; }"
+								"{ foo(); int x; x = x + 1; }"
+								"{ f*x; int x; x = x + 1; int y; }"
+
+	<Iteration-Statement> =		"for (int x=0; x<1; x++) { }"
+								"for (x=0; x<1; x++) { }"
+								"for (;;) { }"
+								"for (x=0;;x++) { }"
+								"for (int x=0;;x++) { }"
+								"for (int x=0;;) { }"
+								"for (;x<3;) { }"
+								"for (;;x++) { }"
+
+	<Expression> =				"(some_struct) { 1,2,3 }"
+								"(some_struct) { 1,2,3, }"
+								"(some_struct) { .a = 1 }"
+
+	<Designation> = 			".a ="
+								"[0].a ="
+
+	<Initializer-List> =		"1, 2, 3"
+								"1, 2, 3,"
+								".a = 1"
+								".a = 1, .b = 2"
+								"[0] = 1, [1] = 2"
+								".a = 1, .b = 2,"
+								"[0].a = 1, [1].b = 2"
+	
+	<Declaration> =				"struct {int a[3], b;} w[] = { [0].a = {1}, [1].a = 2 };"
+								"struct {int a, b, c, d;} s = { .a = 1, .c = 3, 4, .b = 5};"
+
+	<Constant> =				"\"\\u0abc \U0abc0abc\""
+								"100LL"
+								"100ll"
+								"100ULL"
+								"100ull"
 }

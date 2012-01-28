@@ -433,6 +433,16 @@ test Ansi-C {
 							"(a)-b"
 							"(a)*b"
 							"(a)(b)"
+
+	///
+	/// Various statements
+	///
+
+	<Iteration-Statement> =		"for (x=0; x<1; x++) { }"
+								"for (;;) { }"
+								"for (x=0;;x++) { }"
+								"for (;x<3;) { }"
+								"for (;;x++) { }"
 	
 	///
 	/// Declarations
@@ -443,6 +453,12 @@ test Ansi-C {
 							"*const*"
 	
 	<Init-Declarator> =		"*const x"
+
+	<Compound-Statement> =	"{ int x; x = x + 1; }"
+							"{ f*x; int x; x = x + 1; }"
+							"{ f*x; int x; x = x + 1; a*b; }"
+	
+	<Compound-Statement> != "{ f*x; int x; x = x + 1; int y; }"
 
 	<Declaration> = 		int("int x;")
 							int-ptr("int* x;")
