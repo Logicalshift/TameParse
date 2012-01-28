@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/07/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_LANGUAGE_STAGE_H
@@ -18,6 +18,8 @@
 #include "TameParse/Language/language_unit.h"
 #include "TameParse/Compiler/compilation_stage.h"
 #include "TameParse/Compiler/Data/lexer_data.h"
+#include "TameParse/Compiler/Data/rule_item_data.h"
+#include "TameParse/Lr/action_rewriter.h"
 
 #ifndef TAMEPARSE_BOOTSTRAP
 #include "TameParse/Compiler/import_stage.h"
@@ -47,11 +49,8 @@ namespace compiler {
         /// \brief Maps a symbol ID to the language block and file where it is defined
         typedef std::map<int, block_file> symbol_map;
 
-        /// \brief Type of an attribute associated with a rule item key
-        typedef std::wstring rule_attribute;
-
-        /// \brief Maps rule item keys to the associated attributes
-        typedef std::map<int, rule_attribute> rule_attribute_map;
+        /// \brief A list of LR action rewriters
+        typedef std::vector<lr::action_rewriter_container> rewriter_list;
         
     private:
         /// \brief The language block that this will compile
@@ -96,11 +95,15 @@ namespace compiler {
         /// \brief Maps nonterminal IDs to the point where they were first used
         symbol_map m_FirstNonterminalUsage;
 
-        /// \brief Maps rules to their corresponding attributes
-        rule_attribute_map m_AttributesForRuleItemKeys;
+        /// \brief The data associated with each rule
+        rule_item_data m_RuleItemData;
 
-        /// \brief The next rule item key to assign
-        int m_NextRuleItemKey;
+        /// \brief Any LR action rewriters that are defined by the language
+        ///
+        /// These are used to implement things like operator precedence. This design
+        /// is slightly suboptimal as it assumes that the output of this stage will
+        /// be used to build a LALR parser.
+        rewriter_list m_ActionRewriters;
 
         /// \brief Maps strings to string pointers (stores the filenames we know about)
         ///
@@ -136,7 +139,7 @@ namespace compiler {
         void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
 
         /// \brief Attaches attributes to the last item in the specified rule
-        void append_attribute(contextfree::rule& target, const std::wstring& name);
+        void append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attributes);
 
         /// \brief In a final pass, process the symbols in a particular rule
         ///
@@ -168,6 +171,9 @@ namespace compiler {
 
         /// \brief The symbols that are usually ignored but occasionally have syntactic meaning
         inline const std::set<int>* used_ignored_symbols() const            { return &m_UsedIgnoredSymbols; }
+
+        /// \brief A list of the action rewriters defined by this language
+        inline const rewriter_list* action_rewriters() const                { return &m_ActionRewriters; }
         
         /// \brief The position in the file where the terminal symbol with the given ID was defined
         inline dfa::position terminal_definition_pos(int id) const {
@@ -176,10 +182,8 @@ namespace compiler {
             return found->second.first->start_pos();
         }
 
-        /// \brief Returns the name attribute associated with the rule item key of the specified value
-        ///
-        /// You can use rule::get_key to get the key for a particular rule item.
-        const std::wstring& name_for_rule_item_key(int ruleItemKey) const;
+        /// \brief Returns the object that is used to store attribute data about each rule
+        inline const rule_item_data& get_rule_item_data() const { return m_RuleItemData; }
 
         /// \brief The position in the file where the rule with the given ID was defined
         inline dfa::position rule_definition_pos(int id) const {

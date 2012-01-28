@@ -12,16 +12,20 @@ bootstrap_CXXFLAGS	= -I$(top_srcdir) -DTAMEPARSE_BOOTSTRAP=1
 bootstrap_SOURCES	= main.cpp \
 					  definition_tp.h \
 					  ../TameParse/Compiler/compilation_stage.cpp \
+					  ../TameParse/Compiler/conflict_attribute_rewriter.cpp \
 					  ../TameParse/Compiler/console.cpp \
 					  ../TameParse/Compiler/error.cpp \
 					  ../TameParse/Compiler/language_stage.cpp \
 					  ../TameParse/Compiler/lexer_stage.cpp \
 					  ../TameParse/Compiler/lr_parser_stage.cpp \
+					  ../TameParse/Compiler/precedence_block_rewriter.h \
 					  ../TameParse/Compiler/output_stage.cpp \
 					  ../TameParse/Compiler/std_console.cpp \
 					  ../TameParse/Compiler/OutputStages/cplusplus.cpp \
 					  ../TameParse/Compiler/Data/lexer_data.cpp \
 					  ../TameParse/Compiler/Data/lexer_item.cpp \
+					  ../TameParse/Compiler/precedence_block_rewriter.cpp \
+					  ../TameParse/Compiler/Data/rule_item_data.cpp \
 					  ../TameParse/ContextFree/ebnf_items.cpp \
 					  ../TameParse/ContextFree/grammar.cpp \
 					  ../TameParse/ContextFree/guard.cpp \
@@ -55,6 +59,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/bootstrap.cpp \
 					  ../TameParse/Language/definition_file.cpp \
 					  ../TameParse/Language/ebnf_item.cpp \
+					  ../TameParse/Language/ebnf_item_attributes.cpp \
 					  ../TameParse/Language/formatter.cpp \
 					  ../TameParse/Language/grammar_block.cpp \
 					  ../TameParse/Language/import_block.cpp \
@@ -64,6 +69,7 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Language/lexer_block.cpp \
 					  ../TameParse/Language/nonterminal_definition.cpp \
 					  ../TameParse/Language/parser_block.cpp \
+					  ../TameParse/Language/precedence_block.cpp \
 					  ../TameParse/Language/process.cpp \
 					  ../TameParse/Language/production_definition.cpp \
 					  ../TameParse/Language/test_block.cpp \
@@ -77,12 +83,14 @@ bootstrap_SOURCES	= main.cpp \
 					  ../TameParse/Lr/lalr_machine.cpp \
 					  ../TameParse/Lr/lalr_state.cpp \
 					  ../TameParse/Lr/lr1_item_set.cpp \
+					  ../TameParse/Lr/lr1_rewriter.cpp \
 					  ../TameParse/Lr/lr_action.cpp \
 					  ../TameParse/Lr/lr_item.cpp \
 					  ../TameParse/Lr/lr_state.cpp \
 					  ../TameParse/Lr/parser.cpp \
 					  ../TameParse/Lr/parser_stack.cpp \
 					  ../TameParse/Lr/parser_tables.cpp \
+					  ../TameParse/Lr/precedence_rewriter.cpp \
 					  ../TameParse/Lr/weak_symbols.cpp \
 					  ../TameParse/Util/astnode.cpp \
 					  ../TameParse/Util/container.cpp \

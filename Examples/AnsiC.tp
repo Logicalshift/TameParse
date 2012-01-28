@@ -164,7 +164,7 @@ language Ansi-C {
 		//
 		// (int)(x), (foo const)(x), (foo) x, etc are all definitely casts
 		//
-		<Unambiguous-Cast>				= '(' [=> <Unambiguous-Cast-Follow>] <Type-Name> ')'
+		<Unambiguous-Cast>				= '(' [=>[can-clash] <Unambiguous-Cast-Follow>] <Type-Name> ')'
 
 		<Unambiguous-Cast-Follow>		= <Simple-Type-Specifier>											// int, void, etc
 										| <Type-Qualifier>													// const, volatile
@@ -175,7 +175,7 @@ language Ansi-C {
 		// (x)+1, (x)-1, (x)*a and (x)(y) are all ambiguous and might be a cast or something else
 		// depending on the type of x
 		//
-		<Ambiguous-Cast>				= '(' [=> <Ambiguous-Cast-Follow>] <Type-Name> ')'
+		<Ambiguous-Cast>				= '(' [=>[can-clash] <Ambiguous-Cast-Follow>] <Type-Name> ')'
 
 		<Ambiguous-Cast-Follow>			= identifier <Abstract-Declarator>? ')' ('+' | '*' | '-' | '(' <Expression> ')')
 			
@@ -244,7 +244,7 @@ language Ansi-C {
 		/// is interpreted correctly (the first fred can only be a type and the second can
 		/// only be sensibly interpreted as a variable name)
 		///
-		<Declaration>					= <Declaration-Specifiers> [=> ';' | <Init-Declarator> (';' | ',')] <Init-Declarator-List>? ';'
+		<Declaration>					= <Declaration-Specifiers> [=>[can-clash] ';' | <Init-Declarator> (';' | ',')] <Init-Declarator-List>? ';'
 	
 		<Declaration-Specifiers>		= (<Storage-Class-Specifier> | <Type-Specifier> | <Type-Qualifier>)+
 			
@@ -382,7 +382,7 @@ language Ansi-C {
 		<Expression-Statement>			= <Expression>? ';'
 
 		<Selection-Statement>			= if '(' <Expression> ')' <Statement>
-										| if '(' <Expression> ')' <Statement> else <Statement>
+										| if '(' <Expression> ')' <Statement> else[conflict=shift] <Statement>
 										| switch '(' <Expression> ')' <Statement>
 		
 		<Iteration-Statement>			= while '(' <Expression> ')' <Statement>
@@ -407,7 +407,7 @@ language Ansi-C {
 		/// or not. We treat things as declarators if their context is such that they can
 		/// be treated this way, which can require a potentially large amount of lookahead.
 		///
-		<Function-Definition>			= <Declaration-Specifiers> [=> <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
+		<Function-Definition>			= <Declaration-Specifiers> [=>[can-clash] <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
 										| [=> <Declarator> <Declaration-List>? '{'] <Declarator> <Declaration-List>? <Compound-Statement>
 	}
 }

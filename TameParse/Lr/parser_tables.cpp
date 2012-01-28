@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 07/05/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <algorithm>
@@ -295,10 +295,83 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
 
 /// \brief Assignment
 parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
+    // Can't self-assign
     if (&copyFrom == this) return *this;
     
-    // TODO
+    // Destroy the data in this object
+    if (m_DeleteTables) {
+        // Destroy each entry in the parser table
+        for (int x=0; x<m_NumStates; ++x) {
+            delete[] m_NonterminalActions[x];
+            delete[] m_TerminalActions[x];
+        }
+        
+        // Destroy the tables themselves
+        delete[] m_NonterminalActions;
+        delete[] m_TerminalActions;
+        delete[] m_Rules;
+        delete[] m_Counts;
+        delete[] m_EndGuardStates;
+        if (m_WeakToStrong) delete[] m_WeakToStrong;
+    }
+
+    // Copy the data from the target object
+    m_NumStates         = copyFrom.m_NumStates;
+    m_NumRules          = copyFrom.m_NumRules;
+    m_EndOfInput        = copyFrom.m_EndOfInput;
+    m_EndOfGuard        = copyFrom.m_EndOfGuard;
+    m_DeleteTables      = copyFrom.m_DeleteTables;
+    m_NumWeakToStrong   = copyFrom.m_NumWeakToStrong;
+
+    // Allocate the action tables
+    m_TerminalActions       = new action*[m_NumStates];
+    m_NonterminalActions    = new action*[m_NumStates];
+    m_Counts                = new action_count[m_NumStates];
     
+    // Copy the states
+    for (int stateId=0; stateId<m_NumStates; ++stateId) {
+        // Copy the counts
+        m_Counts[stateId] = copyFrom.m_Counts[stateId];
+        
+        // Allocate the array for this state
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].m_NumTerms];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].m_NumNonterms];
+        
+        // Copy the terminals and nonterminals
+        for (int x=0; x<m_Counts[stateId].m_NumTerms; ++x) {
+            m_TerminalActions[stateId][x] = copyFrom.m_TerminalActions[stateId][x];
+        }
+        for (int x=0; x<m_Counts[stateId].m_NumNonterms; ++x) {
+            m_NonterminalActions[stateId][x] = copyFrom.m_NonterminalActions[stateId][x];
+        }
+    }
+    
+    // Allocate the rule table
+    m_Rules = new reduce_rule[m_NumRules];
+    for (int ruleId=0; ruleId<m_NumRules; ++ruleId) {
+        m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
+    }
+    
+    // Allocate the end of guard state table
+    m_NumEndOfGuards    = copyFrom.m_NumEndOfGuards;
+    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    
+    // Copy the states
+    for (int x=0; x<m_NumEndOfGuards; ++x) {
+        m_EndGuardStates[x] = copyFrom.m_EndGuardStates[x];
+    }
+
+    // Copy the weak to strong table
+    if (copyFrom.m_WeakToStrong) {
+        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong];
+
+        for (int x=0; x<m_NumWeakToStrong; ++x) {
+            m_WeakToStrong[x] = copyFrom.m_WeakToStrong[x];
+        }
+    } else {
+        m_WeakToStrong = NULL;
+    }
+
     return *this;
 }
 

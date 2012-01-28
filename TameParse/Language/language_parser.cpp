@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 19/09/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -46,12 +46,18 @@ typedef tameparse_language::Nonterminal_Definition_n            ast_Nonterminal_
 typedef tameparse_language::Production_n                        ast_Production;
 typedef tameparse_language::Simple_Ebnf_Item_n                  ast_Simple_Ebnf_Item;
 typedef tameparse_language::Ebnf_Item_n                         ast_Ebnf_Item;
+typedef tameparse_language::Semantic_Specification_n            ast_Semantic_Specification;
+typedef tameparse_language::list_of__comma__Semantic_Item_n     list_of_Semantic_Item;
+typedef tameparse_language::Semantic_Item_n                     ast_Semantic_Item;
 typedef tameparse_language::Test_Block_n                        ast_Test_Block;
 typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
 typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
 typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
 typedef tameparse_language::list_of_Lexer_Modifier_n            list_of_Lexer_Modifier;
 typedef tameparse_language::list_of_Lexer_Symbols_Modifier_n    list_of_Lexer_Symbols_Modifier;
+typedef tameparse_language::Precedence_Definition_n             ast_Precedence_Definition;
+typedef tameparse_language::list_of_Precedence_Item_n           list_of_Precedence_Item;
+typedef tameparse_language::Equal_Precedence_Items_n            ast_Equal_Precedence_Items;
 
 /// \brief Adds a test definition to the test block
 static bool add_test_definition(test_block* target, const ast_Test_Definition* defn) {
@@ -141,11 +147,49 @@ static test_block* definition_for(const ast_Test_Block* testBlock) {
     return result;
 }
 
+/// \brief Modifies the attributes with the specifed semantic specification
+static void modify_attribute(ebnf_item_attributes& attr, const ast_Semantic_Item* item) {
+    // Action depends on the content of attr
+    if (item->name) {
+        // Name of this item when it is represented in the AST
+
+        // TODO: error if a name is used twice
+        attr.name = item->name->content<wchar_t>();
+    } else if (item->conflict) {
+        // Action to perform when this item is in a shift/reduce conflict
+
+        // TODO: error if more than one conflict action is specified
+        if (item->shift) {
+            attr.conflict_action = ebnf_item_attributes::conflict_shift;
+        } else if (item->reduce && item->weak) {
+            attr.conflict_action = ebnf_item_attributes::conflict_weakreduce;
+        } else if (item->reduce) {
+            attr.conflict_action = ebnf_item_attributes::conflict_reduce;
+        }
+    }
+}
+
+/// \brief Converts a semantic specification into item attributes
+static ebnf_item_attributes definition_for(const ast_Semantic_Specification* spec) {
+    // Start with the default attributes
+    ebnf_item_attributes result;
+
+    // Process each attribute in turn
+    modify_attribute(result, spec->first_item);
+
+    for (list_of_Semantic_Item::iterator nextItem = spec->more_items->begin(); nextItem != spec->more_items->end(); ++nextItem) {
+        modify_attribute(result, (*nextItem)->Semantic_Item);
+    }
+
+    // Finished
+    return result;
+}
+
 /// \brief Definition for a simple EBNF item
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem);
 
 /// \brief Converts a full EBNF item into an ebnf_item object
-static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& name) {
+static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const ebnf_item_attributes& attr) {
     // Stick the items together
     bool        parenthesized   = false;            // True when parenthesized
     ebnf_item*  result          = NULL;
@@ -168,7 +212,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
         } else {
             if (!parenthesized) {
                 // Add parentheses around the result
-                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
+                ebnf_item* paren = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnf_item_attributes(), ebnfItem->pos(), ebnfItem->final_pos());
                 paren->add_child(result);
                 paren->add_child(nextItem);
                 result          = paren;
@@ -182,13 +226,13 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
     
     // If the result is empty, replace with an empty parenthesized item
     if (!result) {
-        result = new ebnf_item(ebnf_item::ebnf_parenthesized, L"", ebnfItem->pos(), ebnfItem->final_pos());
+        result = new ebnf_item(ebnf_item::ebnf_parenthesized, ebnf_item_attributes(), ebnfItem->pos(), ebnfItem->final_pos());
     }
     
     // Create an alternate if one is supplied
     if (ebnfItem->or_item) {
         // Get the alternative item
-        ebnf_item* alternative = definition_for(ebnfItem->or_item, L"");
+        ebnf_item* alternative = definition_for(ebnfItem->or_item, ebnf_item_attributes());
         
         if (alternative == NULL) {
             // Bug
@@ -197,7 +241,7 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
         }
         
         // Create the new result item
-        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, name, ebnfItem->pos(), ebnfItem->final_pos());
+        ebnf_item* alternate = new ebnf_item(ebnf_item::ebnf_alternative, attr, ebnfItem->pos(), ebnfItem->final_pos());
         
         alternate->add_child(result);
         alternate->add_child(alternative);
@@ -211,11 +255,11 @@ static ebnf_item* definition_for(const ast_Ebnf_Item* ebnfItem, const wstring& n
 
 /// \brief Converts a simple EBNF item into an ebnf_item object
 static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
-    // Work out the semantics for this item (names only in the current revision)
-    wstring name;
+    // Work out the semantics for this item
+    ebnf_item_attributes attr;
 
     if (simpleItem->optional_Semantic_Specification->Semantic_Specification) {
-        name = simpleItem->optional_Semantic_Specification->Semantic_Specification->name->content<wchar_t>();
+        attr = definition_for(simpleItem->optional_Semantic_Specification->Semantic_Specification);
     }
 
     // Item depends on the content
@@ -230,7 +274,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, name, simpleItem->pos(), simpleItem->final_pos());
+        return new ebnf_item(ebnf_item::ebnf_nonterminal, sourceIdentifier, ntIdentifier, attr, simpleItem->pos(), simpleItem->final_pos());
     }
     
     else if (simpleItem->Terminal) {
@@ -266,20 +310,26 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
         }
         
         // Create the item
-        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, name, simpleItem->pos(), simpleItem->final_pos());        
+        return new ebnf_item(terminalType, sourceIdentifier, termIdentifier, attr, simpleItem->pos(), simpleItem->final_pos());        
     }
     
     else if (simpleItem->Guard) {
         // Get the internal item
-        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item, L"");
+        ebnf_item* internalItem = definition_for(simpleItem->Guard->Ebnf_Item, ebnf_item_attributes());
         
         if (!internalItem) {
             // Bug
             return NULL;
         }
+
+        // Check for guard attributes
+        if (simpleItem->Guard->can_clash) {
+            // This guard is allowed to clash with other guards
+            attr.guard_can_clash = true;
+        }
         
         // Turn into a guard item
-        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, name);
+        ebnf_item* guardItem = new ebnf_item(ebnf_item::ebnf_guard, attr);
         guardItem->add_child(internalItem);
         
         return guardItem;
@@ -293,7 +343,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_zero, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(starredItem);
         return result;
     }
@@ -306,7 +356,7 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_repeat_one, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(plusItem);
         return result;
     }
@@ -319,14 +369,14 @@ static ebnf_item* definition_for(const ast_Simple_Ebnf_Item* simpleItem) {
             return NULL;
         }
         
-        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, name, simpleItem->pos(), simpleItem->final_pos());
+        ebnf_item* result = new ebnf_item(ebnf_item::ebnf_optional, attr, simpleItem->pos(), simpleItem->final_pos());
         result->add_child(optionalItem);
         return result;        
     }
     
     else if (simpleItem->_openparen_) {
         // Item of the form (X)
-        return definition_for(simpleItem->Ebnf_Item, name);
+        return definition_for(simpleItem->Ebnf_Item, attr);
     }
     
     // Unknown type of item
@@ -580,6 +630,70 @@ static language_unit* definition_for(const list_of_Lexeme_Definition* items, con
     return new language_unit(type, lexerBlock);
 }
 
+/// \brief Creates a language unit from a precedence definition
+static language_unit* definition_for(const ast_Precedence_Definition* precedence) {
+    // Create the precedence block
+    position start  = precedence->pos();
+    position end    = precedence->final_pos();
+
+    precedence_block* precBlock = new precedence_block(start, end);
+
+    // Iterate through the items in this definition
+    for (list_of_Precedence_Item::iterator item = precedence->items->begin(); item != precedence->items->end(); ++item) {
+        precedence_block::item newItem;
+
+        // Set the associativity
+        newItem.assoc = precedence_block::nonassoc;
+        if ((*item)->Precedence_Item->left) {
+            newItem.assoc = precedence_block::left;
+        } else if ((*item)->Precedence_Item->right) {
+            newItem.assoc = precedence_block::right;
+        }
+    
+        // Get the definition for this item
+        const ast_Equal_Precedence_Items* equalItem = (*item)->Precedence_Item->Equal_Precedence_Items;
+
+        // Get the items inside this one
+        if (equalItem->Simple_Ebnf_Item) {
+            // left 'x' style of item
+            ebnf_item* singleItem = definition_for(equalItem->Simple_Ebnf_Item);
+            if (!singleItem) {
+                // Oops; failed to get the item
+                delete precBlock;
+                return NULL;
+            }
+
+            // TODO: must be a terminal item
+
+            // Add this item
+            newItem.items.push_back(singleItem);
+        }
+
+        if (equalItem->terminals) {
+            // left { 'x' 'y' } style of item
+            for (list_of_Simple_Ebnf_Item::iterator ebnfItem = equalItem->terminals->begin(); ebnfItem != equalItem->terminals->end(); ++ebnfItem) {
+                ebnf_item* nextItem = definition_for((*ebnfItem)->Simple_Ebnf_Item);
+                if (!nextItem) {
+                    // Oops; failed to get the item
+                    delete precBlock;
+                    return NULL;
+                }
+
+                // TODO: must be a terminal item
+
+                // Add this item
+                newItem.items.push_back(nextItem);
+            }
+        }
+
+        // Add this item
+        precBlock->add_item(newItem);
+    }
+
+    // Create the final result
+    return new language_unit(precBlock);
+}
+
 /// \brief Interprets a language unit
 static language_unit* definition_for(const ast_Language_Definition* defn) {
     // Action depends on the typeof node in this AST node
@@ -595,6 +709,8 @@ static language_unit* definition_for(const ast_Language_Definition* defn) {
         return definition_for(defn->Keywords_Definition->definitions, defn->Keywords_Definition->modifiers, NULL, language_unit::unit_keywords_definition);
     } else if (defn->Grammar_Definition) {
         return definition_for(defn->Grammar_Definition->nonterminals);
+    } else if (defn->Precedence_Definition) {
+        return definition_for(defn->Precedence_Definition);
     }
     
     return NULL;

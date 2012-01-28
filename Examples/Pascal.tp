@@ -509,7 +509,7 @@ language Pascal {
 
 		<If-Statement>				= if <Expression> then <Statement> <Else-Part>?
 
-		<Else-Part>					= else <Statement>
+		<Else-Part>					= else[conflict=shift] <Statement>
 
 
 		///

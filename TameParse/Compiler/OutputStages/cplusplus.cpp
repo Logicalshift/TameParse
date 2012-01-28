@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 29/08/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <time.h>
@@ -1668,7 +1668,7 @@ void output_cplusplus::source_reduce_actions() {
 
 				// Generate the constructor parameters
 				bool first = true;
-				for (size_t index = 0; index < ruleDefn->second.size(); index++) {
+				for (size_t index = 0; index < ruleDefn->second.size(); ++index) {
 					// Get the item at this index
 					const ast_rule_item& ruleItem = ruleDefn->second[index];
 

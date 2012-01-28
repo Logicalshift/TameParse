@@ -64,6 +64,18 @@ language ParserLanguage {
 		case
 		sensitive
 		insensitive
+		precedence
+
+		left
+		right
+		non-associative
+		non-assoc
+
+		conflict
+		shift
+		reduce
+
+		can-clash
 	}
 	
 	/// The grammar itself
@@ -95,6 +107,7 @@ language ParserLanguage {
 								| <Ignore-Definition>
 								| <Keywords-Definition>
 								| <Grammar-Definition>
+								| <Precedence-Definition>
 
 		//
 		// Basic language items
@@ -146,6 +159,7 @@ language ParserLanguage {
 									| '(' <Ebnf-Item> ')' <Semantic-Specification>?
 
 		<Guard>						= "[=>" <Ebnf-Item> ']'
+									| "[=>" '[' can-clash ']' <Ebnf-Item> ']'
 
 		<Nonterminal>				= nonterminal
 									| identifier[source-language] '.' nonterminal
@@ -161,7 +175,26 @@ language ParserLanguage {
 		// Semantics
 		//
 
-		<Semantic-Specification>	= '[' identifier[name] ']'
+		<Semantic-Specification>	= '[' <Semantic-Item>[first-item] (',' <Semantic-Item>)*[more-items] ']'
+
+		<Semantic-Item>				= identifier[name]
+									| conflict '=' shift
+									| conflict '=' reduce
+									| conflict '=' weak reduce
+
+		//
+		// Defining precedence
+		//
+
+		<Precedence-Definition>		= precedence '{' <Precedence-Item>*[items] '}'
+
+		<Precedence-Item>			= left <Equal-Precedence-Items>
+									| right <Equal-Precedence-Items>
+									| non-associative  <Equal-Precedence-Items>
+									| non-assoc <Equal-Precedence-Items>
+
+		<Equal-Precedence-Items>	= <Simple-Ebnf-Item>
+									| '{' <Simple-Ebnf-Item>*[terminals] '}'
 
 		//
 		// The parser declaration block

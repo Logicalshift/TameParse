@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 17/07/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <cstdlib>
@@ -15,6 +15,7 @@ using namespace language;
 language_unit::language_unit(unit_type type, lexer_block* lexer)
 : m_Grammar(NULL)
 , m_LexerBlock(lexer)
+, m_Precedence(NULL)
 , m_Type(type) {
     if (lexer) {
         set_start_pos(lexer->start_pos());
@@ -26,6 +27,7 @@ language_unit::language_unit(unit_type type, lexer_block* lexer)
 language_unit::language_unit(grammar_block* grammar)
 : m_Grammar(grammar)
 , m_LexerBlock(NULL)
+, m_Precedence(NULL)
 , m_Type(unit_grammar_definition) {
     if (grammar) {
         set_start_pos(grammar->start_pos());
@@ -33,10 +35,19 @@ language_unit::language_unit(grammar_block* grammar)
     }
 }
 
+/// \brief Defines this as a language unit with a precedence block
+language_unit::language_unit(precedence_block* precedence)
+: m_Grammar(NULL)
+, m_LexerBlock(NULL)
+, m_Precedence(precedence)
+, m_Type(unit_precedence_definition) {
+}
+
 /// \brief Copies a language unit
 language_unit::language_unit(const language_unit& copyFrom)
 : m_Grammar(NULL)
-, m_LexerBlock(NULL) {
+, m_LexerBlock(NULL)
+, m_Precedence(NULL) {
     (*this) = copyFrom;
 }
 
@@ -48,15 +59,18 @@ language_unit& language_unit::operator=(const language_unit& copyFrom) {
     // Destroy the existing content
     if (m_Grammar)      delete m_Grammar;
     if (m_LexerBlock)   delete m_LexerBlock;
+    if (m_Precedence)   delete m_Precedence;
     
     m_Grammar       = NULL;
     m_LexerBlock    = NULL;
+    m_Precedence    = NULL;
     
     // Copy the content
     m_Type = copyFrom.m_Type;
     
     if (copyFrom.m_Grammar)     m_Grammar       = new grammar_block(*copyFrom.m_Grammar);
     if (copyFrom.m_LexerBlock)  m_LexerBlock    = new lexer_block(*copyFrom.m_LexerBlock);
+    if (copyFrom.m_Precedence)  m_Precedence    = new precedence_block(*copyFrom.m_Precedence);
     
     set_start_pos(copyFrom.start_pos());
     set_end_pos(copyFrom.end_pos());
@@ -69,7 +83,9 @@ language_unit& language_unit::operator=(const language_unit& copyFrom) {
 language_unit::~language_unit() {
     if (m_Grammar)      delete m_Grammar;
     if (m_LexerBlock)   delete m_LexerBlock;
+    if (m_Precedence)   delete m_Precedence;
     
     m_Grammar       = NULL;
     m_LexerBlock    = NULL;
+    m_Precedence    = NULL;
 }

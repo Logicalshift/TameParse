@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 27/08/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -12,6 +12,8 @@
 #include "TameParse/Lr/ignored_symbols.h"
 #include "TameParse/Language/formatter.h"
 #include "TameParse/Lr/ast_parser.h"
+#include "TameParse/Lr/lr1_rewriter.h"
+#include "TameParse/Compiler/conflict_attribute_rewriter.h"
 
 using namespace std;
 using namespace dfa;
@@ -116,6 +118,9 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 
 			// Default severity is 'warning' for the first item, and 'detail' for the remainder
 			bool shownWarning = false;
+            
+            // Guard items that have the clashing flag set
+            set<lr0_item_container> allowedToClash;
 
 			// Get the state ID
 			const lalr_state_container& state = builder->machine().state_with_id(stateId);
@@ -134,10 +139,19 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					// (Assumption is that all usages of the guard have the same initial set, so any symbol refers to any reference to this guard)
 					if ((*lrItem)->rule()->items()[(*lrItem)->offset()] != *clashingGuard) continue;
 
+					// Fetch the attributes for this item
+					const ebnf_item_attributes& attr = language->get_rule_item_data().attributes_for(*(*lrItem)->rule(), (*lrItem)->offset());
+
+					// Don't show warnings for guards that have the 'can-clash' flag set except if they clash with guards that do not have it set
+					if (attr.guard_can_clash) {
+						allowedToClash.insert(*lrItem);
+						continue;
+					}
+
 					// Get the position of this rule
 					int             ruleId      = (*lrItem)->rule()->identifier(*language->grammar());
 					position        rulePos     = language->rule_definition_pos(ruleId);
-                    const wstring&  ruleFile    = language->rule_definition_file(ruleId);
+					const wstring&  ruleFile    = language->rule_definition_file(ruleId);
 
 					// We know the item, the guard and the position: generate the error message
 					if (!shownWarning) {
@@ -156,9 +170,23 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					
 					cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
 
-					shownWarning = true;
+					shownWarning 	= true;
 				}
 			}
+            
+            // Show warnings for guards that had the 'can clash' flag set if there were any that did not have it set
+            if (shownWarning) {
+                for (set<lr0_item_container>::const_iterator remainingGuard = allowedToClash.begin(); remainingGuard != allowedToClash.end(); ++remainingGuard) {
+                    int             ruleId      = (*remainingGuard)->rule()->identifier(*language->grammar());
+                    position        rulePos     = language->rule_definition_pos(ruleId);
+                    
+                    wstringstream msg;
+                    msg << L"or here: "
+                    << formatter::to_string(**remainingGuard, builder->gram(), builder->terminals());
+                    
+                    cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
+                }
+            }
 		}
 	}
 }
@@ -270,11 +298,21 @@ void lr_parser_stage::compile() {
 	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); ++initialItem) {
 		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
 	}
+
+	// Add any language rewriters that might be defined
+	typedef language_stage::rewriter_list rewriter_list;
+	for (rewriter_list::const_iterator languageRewriter = m_Language->action_rewriters()->begin(); languageRewriter != m_Language->action_rewriters()->end(); ++languageRewriter) {
+		m_Parser->add_rewriter(*languageRewriter);
+	}
     
     // Add the weak symbols and ignore items actions
     // TODO: it might be good to have a way to supply extra rewriters from other stages instead of just having them
     // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
+    m_Parser->add_rewriter(action_rewriter_container(new conflict_attribute_rewriter(&m_Language->get_rule_item_data())));
+    if (!cons().get_option(L"enable-lr1-resolver").empty()) {
+	    m_Parser->add_rewriter(action_rewriter_container(new lr1_rewriter()));
+	}
     m_Parser->add_rewriter(ignoreContainer);
 
 	// Build the parser
@@ -421,7 +459,7 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
         const conflict::lr_item_id& itemId = *possibleState;
         
         // Get the relevant item
-        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.state_id))[itemId.item_id];
 
         // Ignore this item if it's not on the correct nonterminal
         if (item->at_end()) continue;

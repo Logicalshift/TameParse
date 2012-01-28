@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 13/05/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_PARSER_H
@@ -376,13 +376,27 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce(int terminal, state* state) {
-                    return state->can_reduce(terminal);
+                inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack;
+                    int             stackPos = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on what remains
+                    return state->template can_reduce<terminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int terminal, state* state) {
-                    return state->can_reduce_nonterminal(terminal);
+                inline bool can_reduce_nonterminal(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack;
+                    int             stackPos = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on what remains
+                    return state->template can_reduce<nonterminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
             };
             
@@ -466,13 +480,27 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce(int terminal, state* state) {
-                    return state->template can_reduce<terminal_fetcher>(terminal, 0, m_Stack, state->m_Stack);
+                inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack   = m_Stack;
+                    int             stackPos    = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on the result
+                    return state->template can_reduce<terminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int nonterminal, state* state) {
-                    return state->template can_reduce<nonterminal_fetcher>(nonterminal, 0, m_Stack, state->m_Stack);
+                inline bool can_reduce_nonterminal(int nonterminal, parser_tables::action_iterator act, state* state) {
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack   = m_Stack;
+                    int             stackPos    = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on the result
+                    return state->template can_reduce<nonterminal_fetcher>(nonterminal, stackPos, fakeStack, state->m_Stack);
                 }
             };
 

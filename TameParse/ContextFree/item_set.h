@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 27/09/2011.
-//  Copyright 2011 Andrew Hunter. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _CONTEXTFREE_ITEM_SET_H
@@ -40,6 +40,9 @@ namespace contextfree {
         /// \brief Item set representing the empty set (cannot be modified, not associated with a grammar)
         static const item_set empty_set;
 
+        /// \brief Creates an item set with a null grammar (the grammar must be set before it can be used)
+        item_set();
+
         /// \brief Creates an empty item set for the specified grammar
         explicit item_set(const grammar& grammar);
         
@@ -54,6 +57,11 @@ namespace contextfree {
         
         /// \brief Destructor
         ~item_set();
+
+        /// \brief Updates the grammar associated with this item set
+        ///
+        /// This should be called if the empty constructor is used
+        inline void set_grammar(const grammar* newGram) { m_Grammar = newGram; }
 
     private:
         /// \brief Recalculates the size (number of items) in this object
