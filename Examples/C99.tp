@@ -13,6 +13,18 @@ language C99 : Ansi-C {
 	}
 
 	///
+	/// New comment style
+	///
+	lexer-symbols {
+		cpp-comment-start	= "//"
+	}
+
+	ignore {
+		cpp-comment			= 	/{cpp-comment-start}[^\n\r]*/
+		doc-comment			|=	/{cpp-comment-start}\/[^\n\r]*/
+	}
+
+	///
 	/// Lexical changes
 	///
 	lexer {
