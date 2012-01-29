@@ -82,7 +82,7 @@ language Ansi-C {
 	/// Ignored sections: comments and whitespace
 	///
 	ignore {
-		comment 			= 	/{comment-start}([^*]|\*[^\/]){comment-end}/
+		comment 			= 	/{comment-start}([^*]|\*[^\/])*{comment-end}/
 		cpp-comment			= 	/{cpp-comment-start}[^\n\r]*/
 		whitespace			= 	/{whitespace}+/
 		doc-comment			= 	/{comment-start}\*([^*]|*[^\/]){comment-end}/
