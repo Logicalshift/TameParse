@@ -52,7 +52,6 @@ language Ansi-C {
 	lexer-symbols {
 		comment-start 		= "/*"
 		comment-end			= "*/"
-		cpp-comment-start	= "//"
 
 		line-separator		= /[\n\r]/
 		whitespace			= /({line-separator}|[ \t])/
@@ -82,11 +81,9 @@ language Ansi-C {
 	/// Ignored sections: comments and whitespace
 	///
 	ignore {
-		comment 			= 	/{comment-start}([^*]|\*[^\/]){comment-end}/
-		cpp-comment			= 	/{cpp-comment-start}[^\n\r]*/
+		comment 			= 	/{comment-start}([^*]|\*[^\/])*{comment-end}/
 		whitespace			= 	/{whitespace}+/
 		doc-comment			= 	/{comment-start}\*([^*]|*[^\/]){comment-end}/
-		doc-comment			|=	/{cpp-comment-start}\/[^\n\r]*/
 	}
 
 	///

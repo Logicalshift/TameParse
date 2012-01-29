@@ -854,6 +854,8 @@ void language_stage::export_to(language_stage* target) {
     target->m_TypeForTerminal       = m_TypeForTerminal;
     target->m_UnusedSymbols         = m_UnusedSymbols;
     target->m_UsedIgnoredSymbols    = m_UsedIgnoredSymbols;
+    target->m_RuleItemData          = m_RuleItemData;
+    target->m_ActionRewriters       = m_ActionRewriters;
 
     // Copy the symbol maps
     copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);
