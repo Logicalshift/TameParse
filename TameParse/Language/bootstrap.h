@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 21/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LANGUAGE_BOOTSTRAP_H
@@ -56,6 +56,7 @@ namespace language {
                 dot,                            // '.'
                 pipe,                           // '|'
                 openguard,                      // "[=>"
+                opensquare,                     // '['
                 closesquare,                    // ']'
                 
                 newline,                        // \n or \r
@@ -88,6 +89,7 @@ namespace language {
                 id_dot,
                 id_pipe,
                 id_openguard,
+                id_opensquare,
                 id_closesquare,
                 id_newline,
                 id_whitespace,
@@ -140,7 +142,8 @@ namespace language {
                 terminal,
                 basic_terminal,
                 parser_block,
-                parser_startsymbol;
+                parser_startsymbol,
+                item_name;
             
             int
                 id_parser_language,
@@ -164,7 +167,8 @@ namespace language {
                 id_terminal,
                 id_basic_terminal,
                 id_parser_block,
-                id_parser_startsymbol;
+                id_parser_startsymbol,
+                id_item_name;
         } nt;
         
         /// \brief Dictionary of all of the terminals in this language
@@ -225,7 +229,7 @@ namespace language {
         bool                    get_production_list(nonterminal_definition* nonterm, const util::astnode* production_list);
         production_definition*  get_production_definition(const util::astnode* production_defn);
         bool                    get_ebnf_list(production_definition* defn, const util::astnode* ebnf_item_list);
-        ebnf_item*              get_ebnf_item(const util::astnode* ebnf);
+        ebnf_item*              get_ebnf_item(const util::astnode* ebnf, const util::astnode* optionalItemName);
         bool                    get_ebnf_list(ebnf_item* defn, const util::astnode* ebnf_item_list);
     };
 }

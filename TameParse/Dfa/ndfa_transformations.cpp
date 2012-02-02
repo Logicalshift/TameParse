@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 11/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 //
@@ -63,7 +63,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
     stack<remaining_entry> remainingStates;
 
     // Create the set of initial states
-    for (vector<int>::const_iterator initialIt = initialState.begin(); initialIt != initialState.end(); initialIt++) {
+    for (vector<int>::const_iterator initialIt = initialState.begin(); initialIt != initialState.end(); ++initialIt) {
         // Create a set for this initial state
         state_set thisStateSet;
         thisStateSet.insert(*initialIt);
@@ -99,12 +99,12 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         bool isEager = false;
         const state_set& nextSet = stateSets[next.first];
         
-        for (state_set::const_iterator stateIt = nextSet.begin(); stateIt != nextSet.end(); stateIt++) {
+        for (state_set::const_iterator stateIt = nextSet.begin(); stateIt != nextSet.end(); ++stateIt) {
             // Get this state
             state& thisState = *(*m_States)[*stateIt];
             
             // For each transition in this state, add to the appropriate set
-            for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+            for (state::iterator transit = thisState.begin(); transit != thisState.end(); ++transit) {
                 // Ignore the epsilon set (covered by performing the closure)
                 if (transit->symbol_set() == epsilonSymbolSet) continue;
                 
@@ -115,7 +115,7 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
             // Add the accepting actions for this state, if there are any
             accept_action_for_state::const_iterator acceptForState = m_Accept->find(*stateIt);
             if (acceptForState != m_Accept->end()) {
-                for (accept_action_list::const_iterator acceptIt = acceptForState->second.begin(); acceptIt != acceptForState->second.end(); acceptIt++) {
+                for (accept_action_list::const_iterator acceptIt = acceptForState->second.begin(); acceptIt != acceptForState->second.end(); ++acceptIt) {
                     // Add a clone of this action
                     (*accept)[next.second->identifier()].push_back((*acceptIt)->clone());
                     
@@ -131,12 +131,12 @@ ndfa* ndfa::to_dfa(const vector<int>& initialState) const {
         if (isEager) continue;
         
         // Generate the closures for epsilon transitions
-        for (transition_for_symbol::iterator it = statesForSymbol.begin(); it != statesForSymbol.end(); it++) {
-            closure(it->second);
+        for (transition_for_symbol::iterator transit = statesForSymbol.begin(); transit != statesForSymbol.end(); ++transit) {
+            closure(transit->second);
         }
         
         // Generate new transitions for each symbol
-        for (transition_for_symbol::const_iterator transit = statesForSymbol.begin(); transit != statesForSymbol.end(); transit++) {
+        for (transition_for_symbol::const_iterator transit = statesForSymbol.begin(); transit != statesForSymbol.end(); ++transit) {
             // Try to find state that this transition is targeting
             map<state_set, int>::const_iterator targetState = stateMap.find(transit->second);
             
@@ -183,28 +183,28 @@ ndfa* ndfa::to_ndfa_with_unique_symbols() const {
     accept_action_for_state*    accept  = new accept_action_for_state();
 
     // Copy the accept actions
-    for (accept_action_for_state::const_iterator it = m_Accept->begin(); it != m_Accept->end(); it++) {
+    for (accept_action_for_state::const_iterator it = m_Accept->begin(); it != m_Accept->end(); ++it) {
         accept_action_list& action = (*accept)[it->first];
-        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); actionIt++) {
+        for (accept_action_list::const_iterator actionIt = it->second.begin(); actionIt != it->second.end(); ++actionIt) {
             action.push_back((*actionIt)->clone());
         }
     }
 
     // Recreate the states
-    for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); stateIt++) {
+    for (state_list::const_iterator stateIt = m_States->begin(); stateIt != m_States->end(); ++stateIt) {
         // Create a new state
         states->push_back(new state((int)states->size()));
         state& newState = **(states->rbegin());
         
         // Create transitions for this state
-        for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); transit++) {
+        for (state::iterator transit = (*stateIt)->begin(); transit != (*stateIt)->end(); ++transit) {
             // Get the new symbols for this transition
             int transitSet      = transit->symbol_set();
             int transitState    = transit->new_state();
             
             const remapped_symbol_map::new_symbol_set& newSyms = symbols->new_symbols(transitSet);
             
-            for (remapped_symbol_map::new_symbol_set::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); symIt++) {
+            for (remapped_symbol_map::new_symbol_set::const_iterator symIt = newSyms.begin(); symIt != newSyms.end(); ++symIt) {
                 newState.add(transition(*symIt, transitState));
             }
         }
@@ -241,7 +241,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     
     // Create the set of initial states. We assume that each state can only appear once in the initialState vector; the result
     // will be incorrect if they appear more than once
-    for (vector<int>::const_iterator initial = initialState.begin(); initial != initialState.end(); initial++) {
+    for (vector<int>::const_iterator initial = initialState.begin(); initial != initialState.end(); ++initial) {
         // Each initial state becomes an initial state in the new DFA
         newStates.push_back(state_set());
         state_set& thisState = newStates.back();
@@ -260,7 +260,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     map<action_set, int> stateForActions;
     
     // Iterate through the states
-    for (int stateId = 0; stateId < count_states(); stateId++) {
+    for (int stateId = 0; stateId < count_states(); ++stateId) {
         // If this state is already mapped, then ignore it
         if (oldToNew.find(stateId) != oldToNew.end()) continue;
         
@@ -282,7 +282,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
                 // Choose only the 'first' action (the one that compares 'highest')
                 accept_action* smallestAction = acceptActions->second[0];
                 for (accept_action_list::const_iterator action = acceptActions->second.begin(); 
-                     action != acceptActions->second.end(); action++) {
+                     action != acceptActions->second.end(); ++action) {
                     if ((*smallestAction) < (**action)) {
                         smallestAction = *action;
                     }
@@ -293,7 +293,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             } else {
                 // Create a set of all of the accept actions for this state
                 for (accept_action_list::const_iterator action = acceptActions->second.begin(); 
-                     action != acceptActions->second.end(); action++) {
+                     action != acceptActions->second.end(); ++action) {
                     actions.insert(*action);
                 }
             }
@@ -324,7 +324,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         changed = false;
         
         // Iterate through the set of 'new' states
-        for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
+        for (int newStateId = 0; newStateId < (int) newStates.size(); ++newStateId) {
             // Split any symbol that has a transition to more than one different (new) state
             state_set thisState = newStates[newStateId];                        // TODO: use pointers to state sets instead
             if (thisState.size() <= 1) continue;
@@ -335,7 +335,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             state_set::iterator curState    = thisState.begin();
             const state&        firstState  = get_state(*curState);
             
-            for (state::iterator transit = firstState.begin(); transit != firstState.end(); transit++) {
+            for (state::iterator transit = firstState.begin(); transit != firstState.end(); ++transit) {
                 targetStateForSymbol[transit->symbol_set()] = oldToNew[transit->new_state()];
             }
             
@@ -343,15 +343,15 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             int splitStateId    = -1;
             int numToMatch      = firstState.count_transitions();
             vector<int> toRemove;
-            curState++;
-            for (; curState != thisState.end(); curState++) {
+            ++curState;
+            for (; curState != thisState.end(); ++curState) {
                 // Check through the items in this state
                 const state&    originalState   = get_state(*curState);
                 bool            different       = originalState.count_transitions() != numToMatch;
                 
                 if (!different) {
                     // Number of transitions are the same: need to check that they are actually the same set of transitions
-                    for (state::iterator transit = originalState.begin(); transit != originalState.end(); transit++) {
+                    for (state::iterator transit = originalState.begin(); transit != originalState.end(); ++transit) {
                         // Check the target state
                         map<int, int>::iterator originalTransition = targetStateForSymbol.find(transit->symbol_set());
                         
@@ -387,7 +387,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
             }
             
             // Remove the states that are no longer in the current state
-            for (vector<int>::iterator removeState = toRemove.begin(); removeState != toRemove.end(); removeState++) {
+            for (vector<int>::iterator removeState = toRemove.begin(); removeState != toRemove.end(); ++removeState) {
                 // TODO: pointers!
                 newStates[newStateId].erase(*removeState);
             }
@@ -401,7 +401,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
     symbol_map*                 symbolMap   = new symbol_map(*m_Symbols);
     accept_action_for_state*    accept      = new accept_action_for_state();
     
-    for (int newStateId = 0; newStateId < (int) newStates.size(); newStateId++) {
+    for (int newStateId = 0; newStateId < (int) newStates.size(); ++newStateId) {
         // Ignore empty states
         if (newStates[newStateId].empty()) continue;
         
@@ -413,7 +413,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         int             templateStateId = *newStates[newStateId].begin();
         const state&    templateState   = get_state(templateStateId);
         
-        for (state::iterator originalTransit = templateState.begin(); originalTransit != templateState.end(); originalTransit++) {
+        for (state::iterator originalTransit = templateState.begin(); originalTransit != templateState.end(); ++originalTransit) {
             int symbolSetId = originalTransit->symbol_set();
             int targetState = oldToNew[originalTransit->new_state()];
             
@@ -424,7 +424,7 @@ ndfa* ndfa::to_compact_dfa(const vector<int>& initialState, bool firstAction) co
         // TODO: if firstAction is set, then only copy the 'most important' action
         const accept_action_list&   actions         = actions_for_state(templateStateId);
         accept_action_list&         targetActions   = (*accept)[newStateId];
-        for (accept_action_list::const_iterator act = actions.begin(); act != actions.end(); act++) {
+        for (accept_action_list::const_iterator act = actions.begin(); act != actions.end(); ++act) {
             targetActions.push_back((*act)->clone());
         }
     }
@@ -454,14 +454,14 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
 
     // Begin with a set of all symbols, as ID 0
     uniqueSymbols.push_back(set<int>());
-    for (symbol_map::iterator symbolSet = m_Symbols->begin(); symbolSet != m_Symbols->end(); symbolSet++) {
+    for (symbol_map::iterator symbolSet = m_Symbols->begin(); symbolSet != m_Symbols->end(); ++symbolSet) {
         uniqueSymbols[0].insert(symbolSet->second);
         symbolForSymbol[symbolSet->second] = 0;
         symbols.insert(symbolSet->second);
     }
 
     // Iterate through all of the states to find the symbol sets that are different from one another
-    for (int stateId = 0; stateId < count_states(); stateId++) {
+    for (int stateId = 0; stateId < count_states(); ++stateId) {
         // Fetch this state
         const state& thisState = get_state(stateId);
 
@@ -508,7 +508,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
                 // Add any symbol that has the same set and target state
                 if (newState != -1) {
                     // Add all of the symbols that go to the same state as this one
-                    for (state::iterator similarTransit = transit; similarTransit != thisState.end(); similarTransit++) {
+                    for (state::iterator similarTransit = transit; similarTransit != thisState.end(); ++similarTransit) {
                         // Check that this transit goes to the same state
                         if (similarTransit->new_state() != newState) continue;
 
@@ -527,12 +527,12 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
                     set<int> goNowhere = symbols;
 
                     // Remove any symbols that go somewhere
-                    for (state::iterator otherTransit = thisState.begin(); otherTransit != thisState.end(); otherTransit++) {
+                    for (state::iterator otherTransit = thisState.begin(); otherTransit != thisState.end(); ++otherTransit) {
                         goNowhere.erase(otherTransit->symbol_set());
                     }
 
                     // Add all of the goNowhere symbols
-                    for (set<int>::iterator nowhere = goNowhere.begin(); nowhere != goNowhere.end(); nowhere++) {
+                    for (set<int>::iterator nowhere = goNowhere.begin(); nowhere != goNowhere.end(); ++nowhere) {
                         // Only remap symbols with a similar set
                         int similarSet  = symbolForSymbol[*nowhere];
                         if (similarSet != newSymbolSet) continue;
@@ -548,14 +548,14 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
             // Move on to the next transit and/or symbol set
             if (newState == -1) {
                 // The transition applies to a later symbol set: only move the symbol set on
-                oldSymbolSet++;
+                ++oldSymbolSet;
             } else {
                 // The transition matches the symbols: move the transition on
-                transit++;
+                ++transit;
 
                 // Move the symbols on as well if the transition now has a different set
                 if (transit == thisState.end() || transit->symbol_set() != *oldSymbolSet) {
-                    oldSymbolSet++;
+                    ++oldSymbolSet;
                 }
             }
         }
@@ -565,13 +565,13 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
     symbol_map* newSymbolMap = new symbol_map();
 
     // Iterate through the different symbol sets that we found
-    for (int newSymbolId = 0; newSymbolId < (int) uniqueSymbols.size(); newSymbolId++) {
+    for (int newSymbolId = 0; newSymbolId < (int) uniqueSymbols.size(); ++newSymbolId) {
         // Get the old sets that are mapped to this new set
         set<int>& newSymbols = uniqueSymbols[newSymbolId];
 
         // Iterate through them to build up the final symbol set
         symbol_set newSymbolSet;
-        for (set<int>::iterator oldSymbolId = newSymbols.begin(); oldSymbolId != newSymbols.end(); oldSymbolId++) {
+        for (set<int>::iterator oldSymbolId = newSymbols.begin(); oldSymbolId != newSymbols.end(); ++oldSymbolId) {
             newSymbolSet |= (*m_Symbols)[*oldSymbolId];
         }
 
@@ -582,7 +582,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
     // Create the new set of states with the remapped symbol sets
     accept_action_for_state*    newActions  = new accept_action_for_state();
     state_list*                 newStates   = new state_list();
-    for (int stateId = 0; stateId < count_states(); stateId++) {
+    for (int stateId = 0; stateId < count_states(); ++stateId) {
         // Get the old state
         const state& oldState = get_state(stateId);
 
@@ -591,7 +591,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
         newStates->push_back(newState);
 
         // Transform the transitions
-        for (state::iterator transit=oldState.begin(); transit != oldState.end(); transit++) {
+        for (state::iterator transit=oldState.begin(); transit != oldState.end(); ++transit) {
             newState->add(transition(symbolForSymbol[transit->symbol_set()], transit->new_state()));
         }
 
@@ -599,7 +599,7 @@ ndfa* ndfa::to_ndfa_with_merged_symbols() const {
         const accept_action_list& oldActions    = actions_for_state(stateId);
         accept_action_list& newActionsForState  = (*newActions)[stateId];
 
-        for (accept_action_list::const_iterator oldAct = oldActions.begin(); oldAct != oldActions.end(); oldAct++) {
+        for (accept_action_list::const_iterator oldAct = oldActions.begin(); oldAct != oldActions.end(); ++oldAct) {
             newActionsForState.push_back((*oldAct)->clone());
         }
     }

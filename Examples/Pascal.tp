@@ -192,10 +192,10 @@ language Pascal {
 		<Record-Type>				= record <Field-List>? end
 
 		// Need a lookahead of 2 here
-		<Field-List>				= ((<Fixed-Part> ([=> ';' case] ';' <Variant-Part>)?) | <Variant-Part>) ';'?
+		<Field-List>				= ((<Fixed-Part> ([=>[can-clash] ';' case] ';' <Variant-Part>)?) | <Variant-Part>) ';'?
 
 		// Need a lookahead of 2 to identify record sections
-		<Fixed-Part>				= <Record-Section> ([=> ';' identifier] ';' <Record-Section>)*
+		<Fixed-Part>				= <Record-Section> ([=>[can-clash] ';' identifier] ';' <Record-Section>)*
 
 		<Record-Section>			= <Identifier-List> ':' <Type-Denoter>
 
@@ -509,7 +509,7 @@ language Pascal {
 
 		<If-Statement>				= if <Expression> then <Statement> <Else-Part>?
 
-		<Else-Part>					= else <Statement>
+		<Else-Part>					= else[conflict=shift] <Statement>
 
 
 		///

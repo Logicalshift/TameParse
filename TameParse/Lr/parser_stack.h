@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 08/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_PARSER_STACK_H
@@ -155,10 +155,10 @@ namespace lr {
                 
                 // Sweep any unused items in the stack
                 m_NumFree = 0;
-                for (size_t x=0; x<m_Stack.size(); x++) {
+                for (size_t x=0; x<m_Stack.size(); ++x) {
                     if (!marks[x]) {
                         m_Stack[x].m_PreviousIndex = entry::empty;
-                        m_NumFree++;
+                        ++m_NumFree;
                     }
                 }
             }
@@ -187,13 +187,13 @@ namespace lr {
                 
                 // Find a free entry
                 while (m_Stack[m_FirstUnused].m_PreviousIndex != entry::empty) {
-                    m_FirstUnused++;
+                    ++m_FirstUnused;
                     if (m_FirstUnused >= (int) m_Stack.size()) m_FirstUnused = 0;
                 }
                 
                 // m_FirstUnused now points to an entry we can use
                 int result = m_FirstUnused;
-                m_FirstUnused++;
+                ++m_FirstUnused;
                 if (m_FirstUnused >= (int) m_Stack.size()) m_FirstUnused = 0;
                 
                 // Make this a 'head' entry
@@ -293,7 +293,7 @@ namespace lr {
         /// IE, reference[-1] gives the entry preceeding this one on the stack
         inline entry& operator[](int x) {
             int index = m_Index;
-            for (int pos = x; pos < 0; pos++) {
+            for (int pos = x; pos < 0; ++pos) {
                 int nextIndex = m_Stack->m_Stack[index].m_PreviousIndex;
                 if (nextIndex >= 0) index = nextIndex;
             }
@@ -305,7 +305,7 @@ namespace lr {
         /// IE, reference[-1] gives the entry preceeding this one on the stack
         inline const entry& operator[](int x) const {
             int index = m_Index;
-            for (int pos = x; pos < 0; pos++) {
+            for (int pos = x; pos < 0; ++pos) {
                 int nextIndex = m_Stack->m_Stack[index].m_PreviousIndex;
                 if (nextIndex >= 0) index = nextIndex;
             }

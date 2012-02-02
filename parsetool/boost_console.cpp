@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 24/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <string>
@@ -44,13 +44,10 @@ boost_console::boost_console(int argc, const char** argv)
 	outputOptions.add_options()
 		("output-file,o",		po::value<string>(),			"specifies the base name for the output file. For languages that need to generate multiple files (for example, C++), the appropriate extensions will be added to this filename. If this is not specified, the output filenames will be derived from the input file.")
 		("output-language,T",	po::value<string>(),			"specifies the output language the parser will be generated in.")
-		("start-symbol,S",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
-		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
 		("class-name,C",		po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
 		("namespace-name,N",	po::value<string>(),			"specifies the namespace to put the target class into.")
 		("run-tests",											"if the language contains any tests, then run them")
-		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.")
-        ("show-parser",                                         "writes the generated parser to standard out");
+		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
 
 	po::options_description infoOptions("Information");
     
@@ -61,6 +58,14 @@ boost_console::boost_console(int argc, const char** argv)
         ("version",												"display version information.")
         ("warranty",											"display warranty information.")
         ("license",												"display license information.");
+
+    po::options_description parserOptions("Parser generator options");
+
+    parserOptions.add_options()
+		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
+		("start-symbol,S",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
+    	("enable-lr1-resolver",									"attempt to resolve reduce/reduce conflicts that would be allowed by a LR(1) parser")
+        ("show-parser",                                         "writes the generated parser to standard out");
     
     po::options_description errorOptions("Error reporting");
     
@@ -69,12 +74,13 @@ boost_console::boost_console(int argc, const char** argv)
         ("show-error-codes",                                    "display error codes alongside the error messages.")
         ("show-conflict-details",                               "show details about the context that conflicts occur in.")
         ("allow-reduce-conflicts",                              "reduce/reduce conflicts will produce a warning instead of an error.")
-        ("no-conflicts",                                        "all parser conflicts count as an error and not a warning.");
+        ("no-conflicts",                                        "all unresolved parser conflicts count as an error and not a warning.");
 
     po::options_description hiddenOptions;
 
     hiddenOptions.add_options()
     	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.")
+    	("show-propagation",									"display the lookahead propagation tables")
     	("disable-compact-dfa",									"do not compact the DFA")
     	("disable-merged-dfa",									"do not attempt to merge symbol sets in the DFA");
 
@@ -87,8 +93,8 @@ boost_console::boost_console(int argc, const char** argv)
     // Command line options
     po::options_description cmdLine;
     po::options_description help;
-    cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions).add(hiddenOptions);
-    help.add(inputOptions).add(outputOptions).add(infoOptions).add(errorOptions);
+    cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(parserOptions).add(errorOptions).add(hiddenOptions);
+    help.add(inputOptions).add(outputOptions).add(infoOptions).add(parserOptions).add(errorOptions);
 
 	// Store the options
     try {
@@ -164,7 +170,7 @@ static wstring convert(string asciiValue) {
 	// Convert to a wstring by assuming that the string is latin-1
 	// TODO: could take account of the locale here, somehow
 	wstring value;
-	for (size_t x = 0; x < asciiValue.size(); x++) {
+	for (size_t x = 0; x < asciiValue.size(); ++x) {
 		value += (wchar_t) asciiValue[x];
 	}
 
@@ -178,7 +184,7 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 	// Convert to a standard string
 	string asciiName;
 
-	for (size_t x=0; x<name.size(); x++) {
+	for (size_t x=0; x<name.size(); ++x) {
 		asciiName += (char) name[x];
 	}
 
@@ -214,7 +220,7 @@ std::vector<std::wstring> boost_console::get_option_list(const std::wstring& nam
 	// Convert to a standard string
 	string asciiName;
 
-	for (size_t x=0; x<name.size(); x++) {
+	for (size_t x=0; x<name.size(); ++x) {
 		asciiName += (char) name[x];
 	}
 
@@ -230,7 +236,7 @@ std::vector<std::wstring> boost_console::get_option_list(const std::wstring& nam
 
 		// Convert to a wstring
 		vector<wstring> value;
-		for (size_t x = 0; x < asciiValue.size(); x++) {
+		for (size_t x = 0; x < asciiValue.size(); ++x) {
 			value.push_back(convert(asciiValue[x]));
 		}
 
@@ -286,7 +292,7 @@ std::vector<std::wstring> boost_console::split_path(const std::wstring& pathname
 	fs::wpath path(pathname);
 	vector<wstring> res;
 
-	for (fs::wpath::iterator component = path.begin(); component != path.end(); component++) {
+	for (fs::wpath::iterator component = path.begin(); component != path.end(); ++component) {
 		res.push_back(component->generic_wstring());
 	}
 

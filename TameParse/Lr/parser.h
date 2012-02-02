@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 13/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_PARSER_H
@@ -303,7 +303,7 @@ namespace lr {
                     
                     // Pop items from the stack, and create an item for them by calling the actions
                     reduce_list items;
-                    for (int x=0; x < rule.m_Length; x++) {
+                    for (int x=0; x < rule.m_Length; ++x) {
                         items.push_back(state->m_Stack->item);
                         state->m_Stack.pop();
                     }
@@ -328,7 +328,7 @@ namespace lr {
                     // Get the goto action for this nonterminal
                     for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
-                         gotoAct++) {
+                         ++gotoAct) {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
@@ -376,13 +376,37 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce(int terminal, state* state) {
-                    return state->can_reduce(terminal);
+                inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack;
+                    int             stackPos = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on what remains
+                    return state->template can_reduce<terminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int terminal, state* state) {
-                    return state->can_reduce_nonterminal(terminal);
+                inline bool can_reduce_nonterminal(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack;
+                    int             stackPos = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on what remains
+                    return state->template can_reduce<nonterminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
             };
             
@@ -411,7 +435,7 @@ namespace lr {
                 inline int offset() const { return m_Offset; }
                 
                 // \brief Moves on to the next symbol
-                inline void next() { m_Offset++; }
+                inline void next() { ++m_Offset; }
                 
                 /// \brief The current state of the guard lookahead parser
                 inline int current_state(state* state) const { return m_Stack.top(); }
@@ -431,7 +455,7 @@ namespace lr {
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
                     // Pop items from the stack, and create an item for them by calling the actions
-                    for (int x=0; x < rule.m_Length; x++) {
+                    for (int x=0; x < rule.m_Length; ++x) {
                         m_Stack.pop();
                     }
                     
@@ -441,7 +465,7 @@ namespace lr {
                     // Get the goto action for this nonterminal
                     for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
-                         gotoAct++) {
+                         ++gotoAct) {
                         if (gotoAct->m_Type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
@@ -466,13 +490,37 @@ namespace lr {
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce(int terminal, state* state) {
-                    return state->template can_reduce<terminal_fetcher>(terminal, 0, m_Stack, state->m_Stack);
+                bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack   = m_Stack;
+                    int             stackPos    = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on the result
+                    return state->template can_reduce<terminal_fetcher>(terminal, stackPos, fakeStack, state->m_Stack);
                 }
                 
                 /// \brief Returns true if the specified terminal symbol can be reduced
-                inline bool can_reduce_nonterminal(int nonterminal, state* state) {
-                    return state->template can_reduce<nonterminal_fetcher>(nonterminal, 0, m_Stack, state->m_Stack);
+                bool can_reduce_nonterminal(int nonterminal, parser_tables::action_iterator act, state* state) {
+                    // Accepting or shifting actions always return true immediately
+                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                        return true;
+                    }
+
+                    // Fake reduce using the action
+                    std::stack<int> fakeStack   = m_Stack;
+                    int             stackPos    = 0;
+
+                    state->fake_reduce(act, stackPos, fakeStack, state->m_Stack);
+
+                    // Do a can_reduce on the result
+                    return state->template can_reduce<nonterminal_fetcher>(nonterminal, stackPos, fakeStack, state->m_Stack);
                 }
             };
 

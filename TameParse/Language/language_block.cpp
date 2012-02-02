@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 17/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Language/language_block.h"
@@ -29,7 +29,7 @@ language_block& language_block::operator=(const language_block& copyFrom) {
     if (&copyFrom == this) return *this;
     
     // Clear out the existing units
-    for (unit_list::iterator toDelete = m_Units.begin(); toDelete != m_Units.end(); toDelete++) {
+    for (unit_list::iterator toDelete = m_Units.begin(); toDelete != m_Units.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Units.clear();
@@ -42,7 +42,7 @@ language_block& language_block::operator=(const language_block& copyFrom) {
     set_end_pos(copyFrom.end_pos());
     
     // Units need to be copied separately
-    for (language_block::iterator unit = copyFrom.begin(); unit != copyFrom.end(); unit++) {
+    for (language_block::iterator unit = copyFrom.begin(); unit != copyFrom.end(); ++unit) {
         m_Units.push_back(new language_unit(**unit));
     }
     
@@ -53,7 +53,7 @@ language_block& language_block::operator=(const language_block& copyFrom) {
 /// \brief Destructor
 language_block::~language_block() {
     // Clear out the existing units
-    for (unit_list::iterator toDelete = m_Units.begin(); toDelete != m_Units.end(); toDelete++) {
+    for (unit_list::iterator toDelete = m_Units.begin(); toDelete != m_Units.end(); ++toDelete) {
         delete *toDelete;
     }
     m_Units.clear();

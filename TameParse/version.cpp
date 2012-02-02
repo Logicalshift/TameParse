@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 24/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/version.h"
@@ -37,7 +37,7 @@ const std::string release_date("Sep 24 2011"); // TODO: update somehow
 
 /// \brief A string describing the license for this version of the library
 const std::string version::license_string(
-"Copyright (c) 2011 Andrew Hunter\n"
+"Copyright (c) 2011-2012 Andrew Hunter\n"
 "\n"
 "Permission is hereby granted, free of charge, to any person obtaining a copy \n"
 "of this software and associated documentation files (the \"Software\"), to \n"

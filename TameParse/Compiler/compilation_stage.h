@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 06/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_COMPILATION_STAGE_H

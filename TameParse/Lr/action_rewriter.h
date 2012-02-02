@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 05/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_ACTION_REWRITER_H

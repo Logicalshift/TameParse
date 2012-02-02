@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 23/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Language/process.h"
@@ -17,11 +17,11 @@ wstring process::dequote_string(const wstring& string) {
     wstring result;
     
     // Assume the first an last character are '"' characters
-    for (size_t pos=1; pos < string.size()-1; pos++) {
+    for (size_t pos=1; pos < string.size()-1; ++pos) {
         // Deal with quoting
         if (string[pos] == '\\') {
             // Move on a character
-            pos++;
+            ++pos;
             
             // Quoted character values
             switch (string[pos]) {

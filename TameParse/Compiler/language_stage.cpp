@@ -3,12 +3,13 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
 
 #include "TameParse/Compiler/language_stage.h"
+#include "TameParse/Compiler/precedence_block_rewriter.h"
 #include "TameParse/Language/process.h"
 #include "TameParse/Language/formatter.h"
 
@@ -16,28 +17,35 @@ using namespace std;
 using namespace dfa;
 using namespace contextfree;
 using namespace language;
+using namespace lr;
 using namespace compiler;
 
 /// \brief Creates a compiler that will compile the specified language block
 language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage)
 : compilation_stage(console, filename)
 , m_Language(block)
-, m_Import(importStage) {
+, m_Import(importStage)
+, m_InheritsFrom(NULL) {
 }
 
 /// \brief Destructor
 language_stage::~language_stage() {
     // Destroy the cached filenames
-    for (map<wstring, wstring*>::iterator filename = m_Filenames.begin(); filename != m_Filenames.end(); filename++) {
+    for (map<wstring, wstring*>::iterator filename = m_Filenames.begin(); filename != m_Filenames.end(); ++filename) {
         delete filename->second;
     }
     m_Filenames.clear();
+    
+    // Destroy the inherited stage
+    if (m_InheritsFrom) {
+        delete m_InheritsFrom;
+    }
 }
 
 /// \brief Removes any terminal symbols used in the specified rule from the unused list
 void language_stage::process_rule_symbols(const contextfree::rule& rule) {
     // Iterate through the rules in this item
-    for (rule::iterator item = rule.begin(); item != rule.end(); item++) {
+    for (rule::iterator item = rule.begin(); item != rule.end(); ++item) {
         // Remove terminal items from the unused list
         if ((*item)->type() == item::terminal) {
             m_UnusedSymbols.erase((*item)->symbol());
@@ -52,7 +60,7 @@ void language_stage::process_rule_symbols(const contextfree::rule& rule) {
         const ebnf* ebnfItem = (*item)->cast_ebnf();
         if (ebnfItem) {
             // Also remove items for any contained EBNF rules
-            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ebnfRule++) {
+            for (ebnf::rule_iterator ebnfRule = ebnfItem->first_rule(); ebnfRule != ebnfItem->last_rule(); ++ebnfRule) {
                 process_rule_symbols(**ebnfRule);
             }
         }
@@ -79,11 +87,13 @@ void language_stage::compile() {
         } else {
             // Compile the language this inherits from
             console_container consCopy(cons_container());
-            language_stage inheritStage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
-            inheritStage.compile();
+            
+            if (m_InheritsFrom) delete m_InheritsFrom;
+            m_InheritsFrom = new language_stage(consCopy, m_Import->file_with_language(inheritFrom), inheritBlock, m_Import);
+            m_InheritsFrom->compile();
 
             // Merge with this language
-            inheritStage.export_to(this);
+            m_InheritsFrom->export_to(this);
         }
     }
 #else
@@ -106,7 +116,7 @@ void language_stage::compile() {
     }
     
     // Find any lexer-symbols sections and add them to the lexer
-    for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); lexerSymbols++) {
+    for (language_block::iterator lexerSymbols = m_Language->begin(); lexerSymbols != m_Language->end(); ++lexerSymbols) {
         if ((*lexerSymbols)->type() != language_unit::unit_lexer_symbols) continue;
 
         // Fetch the lexer block
@@ -116,8 +126,34 @@ void language_stage::compile() {
         if (!lex) continue;
 
         // Define these as expressions
-        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
-            // TODO: check if an expression is already defined and report an error if it is
+        for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); ++lexerItem) {
+            // Check if an expression is already defined and report an error if it is
+            if (!m_Lexer.get_expressions((*lexerItem)->identifier()).empty()) {
+                if (!(*lexerItem)->add_to_definition() && !(*lexerItem)->replace_definition()) {
+                    // Symbol is already defined, and isn't set up to modify an existing symbol
+                    wstringstream msg;
+                    msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                }
+            } else {
+                if ((*lexerItem)->add_to_definition()) {
+                    // Can't use |= with a symbol that is not defined
+                    wstringstream msg;
+                    msg << L"Cannot add definitions to nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_ADDING", msg.str(), (*lexerItem)->start_pos()));
+                } else if ((*lexerItem)->replace_definition()) {
+                    // Can't replace a nonexistent symbol
+                    wstringstream msg;
+                    msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                    cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
+                }
+            }
+
+            // Check if this definition should replace another
+            if ((*lexerItem)->replace_definition()) {
+                // Remove the existing expression
+                m_Lexer.remove_expression((*lexerItem)->identifier());
+            }
 
             // Action depends on the type of item
             switch ((*lexerItem)->get_type()) {
@@ -127,14 +163,14 @@ void language_stage::compile() {
                     wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                     
                     // Add to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
                     
                 case lexeme_definition::literal:
                 {
                     // Add as a literal to the lexer
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -143,7 +179,7 @@ void language_stage::compile() {
                 {
                     // Add as a literal to the lexer
                     // We can do both characters and strings here (dequote_string will work on both kinds of item)
-                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive()));
+                    m_Lexer.add_expression((*lexerItem)->identifier(), lexer_item(lexer_item::literal, process::dequote_string((*lexerItem)->definition()), lex->is_case_insensitive(), lex->is_case_sensitive(), ourFilename, (*lexerItem)->definition_pos()));
                     break;
                 }
 
@@ -170,15 +206,14 @@ void language_stage::compile() {
     // This is slightly redundant; it's probably better to prioritise the lexer actions based on the type rather than the
     // terminal ID (like this assumes). This will nearly work for these terminal IDs, but will fail on strings and characters
     // defined in the grammar itself (as the grammar must be processed last)
-    for (int weakness = 0; weakness < 2; weakness++)
-    {
+    for (int weakness = 0; weakness < 2; ++weakness) {
         // Weak blocks have the highest priority
         bool isWeak = weakness == 0;
 
         // Process the remaining blocks in order
-        for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; thisType++) {
+        for (language_unit::unit_type* thisType = lexerDefinitionOrder; *thisType != language_unit::unit_null; ++thisType) {
             // Create symbols for all of the items defined in lexer blocks
-            for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); lexerBlock++) {
+            for (language_block::iterator lexerBlock = m_Language->begin(); lexerBlock != m_Language->end(); ++lexerBlock) {
                 // Fetch the lexer block
                 lexer_block* lex = (*lexerBlock)->any_lexer_block();
                 
@@ -192,20 +227,36 @@ void language_stage::compile() {
                 if (blockType != *thisType || lex->is_weak() != isWeak) continue;
                 
                 // Add the symbols to the lexer
-                for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); lexerItem++) {
+                for (lexer_block::iterator lexerItem = lex->begin(); lexerItem != lex->end(); ++lexerItem) {
                     // Get the ID that we'll define for this symbol
                     int symId;
                     
                     if (!(*lexerItem)->add_to_definition()) {
-                        // It's an error to define the same symbol twice
-                        if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
-                            wstringstream msg;
-                            msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
-                            cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                        if (!(*lexerItem)->replace_definition()) {
+                            // It's an error to define the same symbol twice
+                            if (m_Terminals.symbol_for_name((*lexerItem)->identifier()) >= 0) {
+                                wstringstream msg;
+                                msg << L"Duplicate lexer symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"DUPLICATE_LEXER_SYMBOL", msg.str(), (*lexerItem)->start_pos()));
+                            }
+                            
+                            // Add the symbol ID
+                            symId = m_Terminals.add_symbol((*lexerItem)->identifier());
+                        } else {
+                            // Replacing an existing definition
+                            symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
+
+                            if (symId < 0) {
+                                // It's an error for the symbol not to exist
+                                wstringstream msg;
+                                msg << L"Cannot replace nonexistent symbol: " << (*lexerItem)->identifier();
+                                cons().report_error(error(error::sev_error, filename(), L"MISSING_LEXER_SYMBOL_FOR_REPLACING", msg.str(), (*lexerItem)->start_pos()));
+                            } else {
+                                // Clear the existing symbol
+                                m_TerminalDefinition.erase(symId);
+                                m_Lexer.remove_definition((*lexerItem)->identifier());
+                            }
                         }
-                        
-                        // Add the symbol ID
-                        symId = m_Terminals.add_symbol((*lexerItem)->identifier());
                     } else {
                         // Get the existing symbol ID
                         symId = m_Terminals.symbol_for_name((*lexerItem)->identifier());
@@ -224,6 +275,11 @@ void language_stage::compile() {
                             cons().report_error(error(error::sev_error, filename(), L"CANNOT_ADD_TO_DIFFERENT_LEXER_SYMBOL_TYPE", msg.str(), (*lexerItem)->start_pos()));
                         }
                     }
+
+                    // Can't do any more if we haven't got a valid symbol ID
+                    if (symId < 0) {
+                        continue;
+                    }
                     
                     // Set the type of this symbol
                     m_TypeForTerminal[symId] = blockType;
@@ -234,10 +290,13 @@ void language_stage::compile() {
                     }
                     
                     // Store where it is defined
-                    m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    if (m_TerminalDefinition.find(symId) == m_TerminalDefinition.end()) {
+                        m_TerminalDefinition[symId] = pair<block*, wstring*>(*lexerItem, ourFilename);
+                    }
 
                     // Set whether the regexes or literals we add should be case insensitive
                     bool ci = lex->is_case_insensitive();
+                    bool cs = lex->is_case_sensitive();
                     
                     // Action depends on the type of item
                     switch ((*lexerItem)->get_type()) {
@@ -247,14 +306,14 @@ void language_stage::compile() {
                             wstring withoutSlashes = (*lexerItem)->definition().substr(1, (*lexerItem)->definition().size()-2);
                             
                             // Add to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::regex, withoutSlashes, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
                             
                         case lexeme_definition::literal:
                         {
                             // Add as a literal to the lexer
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, (*lexerItem)->identifier(), ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -264,7 +323,7 @@ void language_stage::compile() {
                             // Add as a literal to the lexer
                             // We can do both characters and strings here (dequote_string will work on both kinds of item)
                             wstring dequoted = process::dequote_string((*lexerItem)->definition());
-                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, symId, blockType, isWeak));
+                            m_Lexer.add_definition((*lexerItem)->identifier(), lexer_item(lexer_item::literal, dequoted, ci, cs, symId, blockType, isWeak, ourFilename, (*lexerItem)->definition_pos()));
                             break;
                         }
 
@@ -296,7 +355,7 @@ void language_stage::compile() {
     // Create symbols for any items defined in the grammar (these are all weak, so they must be defined first)
     int implicitCount = 0;
     
-    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); ++grammarBlock) {
         // Only interested in grammar blocks here
         if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
         
@@ -304,11 +363,11 @@ void language_stage::compile() {
         grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
         
         // Iterate through the nonterminals
-        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); ++nonterminal) {
             // Iterate through the productions
-            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); ++production) {
                 // Iterate through the items in this production
-                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
                     implicitCount += add_ebnf_lexer_items(*ebnfItem);
                 }
             }
@@ -317,7 +376,7 @@ void language_stage::compile() {
     
     // Build the grammar itself
     // If we reach here, then every terminal symbol in the grammar should be defined somewhere in the terminal dictionary
-    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); grammarBlock++) {
+    for (language_block::iterator grammarBlock = m_Language->begin(); grammarBlock != m_Language->end(); ++grammarBlock) {
         // Only interested in grammar blocks here
         if ((*grammarBlock)->type() != language_unit::unit_grammar_definition) continue;
         
@@ -325,7 +384,7 @@ void language_stage::compile() {
         grammar_block* nextBlock = (*grammarBlock)->grammar_definition();
         
         // Iterate through the nonterminals
-        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); nonterminal++) {
+        for (grammar_block::iterator nonterminal = nextBlock->begin(); nonterminal != nextBlock->end(); ++nonterminal) {
             // Get the identifier for the nonterminal that this maps to
             int nonterminalId = m_Grammar.id_for_nonterminal((*nonterminal)->identifier());
             
@@ -346,16 +405,16 @@ void language_stage::compile() {
             }
             
             // Define the productions associated with this nonterminal
-            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); production++) {
+            for (nonterminal_definition::iterator production = (*nonterminal)->begin(); production != (*nonterminal)->end(); ++production) {
                 // Get a rule for this production
                 rule_container newRule(new rule(nonterminalId), true);
                 
                 // Append the items in this production
-                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ebnfItem++) {
+                for (production_definition::iterator ebnfItem = (*production)->begin(); ebnfItem != (*production)->end(); ++ebnfItem) {
                     // Compile each item in turn and append them to the rule
                     compile_item(*newRule, *ebnfItem, ourFilename);
                 }
-                
+
                 // Add the rule to the list for this nonterminal
                 m_Grammar.rules_for_nonterminal(nonterminalId).push_back(newRule);
                 
@@ -366,18 +425,47 @@ void language_stage::compile() {
     }
 
     // Go through the grammar and remove any terminal symbols that are used in any of the productions
-    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); itemId++) {
+    for (int itemId = 0; itemId < m_Grammar.max_item_identifier(); ++itemId) {
         // Get the rules for this item
         const rule_list& itemRules = m_Grammar.rules_for_nonterminal(itemId);
 
         // Remove any unused symbol from the list
-        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); itemRule++) {
+        for (rule_list::const_iterator itemRule = itemRules.begin(); itemRule != itemRules.end(); ++itemRule) {
             process_rule_symbols(**itemRule);
         }
     }
+
+    // Go through the precedence blocks and create precedence rewriters
+    for (language_block::iterator block = m_Language->begin(); block != m_Language->end(); ++block) {
+        // Only interested in precedence blocks
+        if ((*block)->type() != language_unit::unit_precedence_definition) continue;
+
+        // Fetch the precedence block
+        const precedence_block* precedenceBlock = (*block)->precedence_definition();
+        if (!precedenceBlock) continue;
+
+        // Check that all of the precedence block items are defined in the list of terminals
+        for (precedence_block::iterator precItem = precedenceBlock->begin(); precItem != precedenceBlock->end(); ++precItem) {
+            // Go through each item at this level
+            typedef precedence_block::ebnf_item_list ebnf_item_list;
+            for (ebnf_item_list::const_iterator ebnfItem = precItem->items.begin(); ebnfItem != precItem->items.end(); ++ebnfItem) {
+                // Must be defined in m_Terminals
+                if (m_Terminals.symbol_for_name((*ebnfItem)->identifier()) < 0) {
+                    // Oops: not defined, report an error
+                    wstringstream   msg;
+                    msg << L"Undefined terminal symbol: " << (*ebnfItem)->identifier();
+                    
+                    cons().report_error(error(error::sev_error, filename(), L"UNDEFINE_TERMINAL", msg.str(), (*ebnfItem)->start_pos()));
+                }
+            }
+        }
+
+        // Create a rewriter for this block
+        m_ActionRewriters.push_back(action_rewriter_container(new precedence_block_rewriter(m_Terminals, *precedenceBlock)));
+    }
     
     // Any nonterminal with no rules is one that was referenced but not defined
-    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); nonterminalId++) {
+    for (int nonterminalId = 0; nonterminalId < m_Grammar.max_item_identifier(); ++nonterminalId) {
         // Get the item corresponding to this ID
         item_container ntItem = m_Grammar.item_with_identifier(nonterminalId);
         if (ntItem->type() != item::nonterminal) continue;
@@ -439,11 +527,10 @@ void language_stage::compile() {
     summary << L"    Number of nonterminals:                 " << m_Grammar.max_item_identifier() << endl;
 }
 
-
 /// \brief Reports which terminal symbols are unused in this language (and any languages that it inherits from)
 void language_stage::report_unused_symbols() {
     // Display warnings for unused symbols
-    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); unused++) {
+    for (set<int>::iterator unused = m_UnusedSymbols.begin(); unused != m_UnusedSymbols.end(); ++unused) {
         // Ignore symbols that we don't have a definition location for
         if (!m_TerminalDefinition[*unused].first) {
             cons().report_error(error(error::sev_bug, filename(), L"BUG_UNKNOWN_SYMBOL", L"Unknown unused symbol", position(-1, -1, -1)));
@@ -462,6 +549,15 @@ void language_stage::report_unused_symbols() {
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
 int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     int count = 0;
+
+    // Find/create a filename for this object
+    wstring* ourFilename;
+    if (m_Filenames.find(filename()) != m_Filenames.end()) {
+        ourFilename = m_Filenames[filename()];
+    } else {
+        ourFilename = new wstring(filename());
+        m_Filenames[filename()] = ourFilename;
+    }
     
     switch (item->get_type()) {
         case ebnf_item::ebnf_guard:
@@ -471,7 +567,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
         case ebnf_item::ebnf_optional:
         case ebnf_item::ebnf_parenthesized:
             // Process the child items for these types of object
-            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
                 count += add_ebnf_lexer_items(*childItem);
             }
             break;
@@ -497,7 +593,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Define a new literal string
             int symId = m_Terminals.add_symbol(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, symId, language_unit::unit_keywords_definition, true));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::regex, item->identifier(), false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
 
             // Set the type of this symbol
@@ -506,7 +602,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Symbols defined within the parser grammar count as weak symbols
             m_WeakSymbols.insert(symId);
 
-            count++;
+            ++count;
             break;
         }
             
@@ -523,7 +619,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             int     symId   = m_Terminals.add_symbol(item->identifier());
             wstring dequote = process::dequote_string(item->identifier());
 
-            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, symId, language_unit::unit_keywords_definition, true));
+            m_Lexer.add_definition(item->identifier(), lexer_item(lexer_item::literal, dequote, false, false, symId, language_unit::unit_keywords_definition, true, ourFilename, item->start_pos()));
             m_UnusedSymbols.insert(symId);
             
             // Set the type of this symbol
@@ -532,7 +628,7 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
             // Symbols defined within the parser count as weak symbols
             m_WeakSymbols.insert(symId);
             
-            count++;
+            ++count;
             break;
         }
             
@@ -545,6 +641,18 @@ int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
     return count;
 }
 
+/// \brief Attaches attributes to the last item in the specified rule
+void language_stage::append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attr) {
+    // Nothing to do if this item has no attributes
+    if (attr.name.empty() 
+        && attr.conflict_action == ebnf_item_attributes::conflict_notspecified
+        && !attr.guard_can_clash) {
+        return;
+    }
+
+    // Set using the rule item data object
+    m_RuleItemData.set_attributes(target, target.items().size()-1, attr);
+}
 
 /// \brief Compiles an EBNF item from the language into a context-free grammar item
 ///
@@ -561,6 +669,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Add a new terminal item
             rule << item_container(new terminal(terminalId), true);
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -576,13 +685,14 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Return a new nonterminal item
             rule << item_container(new nonterminal(nonterminalId), true);
+            append_attribute(rule, item->attributes());
             break;
         }
             
         case ebnf_item::ebnf_parenthesized:
         {
             // Just append the items inside this one to the rule
-            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); childItem++) {
+            for (ebnf_item::iterator childItem = item->begin(); childItem != item->end(); ++childItem) {
                 compile_item(rule, *childItem, ourFilename);
             }
             break;
@@ -605,6 +715,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -625,6 +736,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->attributes());
             break;
         }
 
@@ -645,6 +757,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->attributes());
             break;
         }
             
@@ -657,6 +770,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             // Append to the rule
             item_container container(newItem, true);
             rule << container;
+            append_attribute(rule, item->attributes());
 
             // Store as the first usage of this nonterminal if it exists
             int nonterminalId = m_Grammar.identifier_for_item(container);
@@ -673,12 +787,16 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
         {
             // Compile into an alternate item
             ebnf_alternate* newItem = new ebnf_alternate();
+
+            // Get the left and right-hand side rules
+            rule_container lhsRule = newItem->get_rule();
+            rule_container rhsRule = newItem->add_rule();
             
             // Left-hand side
-            compile_item(*newItem->get_rule(), (*item)[0], ourFilename);
+            compile_item(*lhsRule, (*item)[0], ourFilename);
             
             // Right-hand side
-            compile_item(*newItem->add_rule(), (*item)[1], ourFilename);
+            compile_item(*rhsRule, (*item)[1], ourFilename);
 
             // Create the item container
             item_container newContainer(newItem, true);
@@ -691,6 +809,7 @@ void language_stage::compile_item(rule& rule, ebnf_item* item, wstring* ourFilen
             
             // Append to the rule
             rule << newContainer;
+            append_attribute(rule, item->attributes());
             break;
         }
 
@@ -707,7 +826,7 @@ template<class sm> static void copy_symbols(map<wstring, wstring*>& filenames, c
     typedef typename sm::mapped_type    value_type;
     
     // Iterate through the items in the map
-    for (iterator sourceItem = source.begin(); sourceItem != source.end(); sourceItem++) {
+    for (iterator sourceItem = source.begin(); sourceItem != source.end(); ++sourceItem) {
         // Get/create the filename pointer for this item
         wstring* filenamePtr;
         map<wstring, wstring*>::iterator found = filenames.find(*sourceItem->second.second);
@@ -735,6 +854,8 @@ void language_stage::export_to(language_stage* target) {
     target->m_TypeForTerminal       = m_TypeForTerminal;
     target->m_UnusedSymbols         = m_UnusedSymbols;
     target->m_UsedIgnoredSymbols    = m_UsedIgnoredSymbols;
+    target->m_RuleItemData          = m_RuleItemData;
+    target->m_ActionRewriters       = m_ActionRewriters;
 
     // Copy the symbol maps
     copy_symbols(target->m_Filenames, m_TerminalDefinition,     target->m_TerminalDefinition);

@@ -3,7 +3,7 @@
 //  bootstrap
 //
 //  Created by Andrew Hunter on 21/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -109,7 +109,7 @@ int main (int argc, const char * argv[]) {
     
     // Run the parser stages to generate the output file
     const language_block* lBlock = NULL;
-    for (definition_file::iterator mightBeLanguage = defn->begin(); mightBeLanguage != defn->end(); mightBeLanguage++) {
+    for (definition_file::iterator mightBeLanguage = defn->begin(); mightBeLanguage != defn->end(); ++mightBeLanguage) {
         if ((*mightBeLanguage)->language()) {
             lBlock = (*mightBeLanguage)->language();
         }

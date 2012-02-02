@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 15/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Util/astnode.h"
@@ -51,7 +51,7 @@ bool astnode::operator<(const astnode& compareTo) const {
     if (children().size() < compareTo.children().size()) return true;
     if (children().size() > compareTo.children().size()) return false;
     
-    for (size_t x=0; x<children().size(); x++) {
+    for (size_t x=0; x<children().size(); ++x) {
         if (children()[x] < compareTo.children()[x]) return true;
         if (compareTo.children()[x] < children()[x]) return false;
     }

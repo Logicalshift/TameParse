@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 12/11/2011.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Compiler/Data/lexer_data.h"
@@ -48,4 +48,14 @@ void lexer_data::remove_expression(const std::wstring& term) {
 /// \brief Returns all of the expressions for a particular value
 const lexer_data::item_list& lexer_data::get_expressions(const std::wstring& term) const {
 	return m_Expressions[term];
+}
+
+/// \brief The first expression defined in this data object
+lexer_data::iterator lexer_data::begin_expr() const {
+	return m_Expressions.begin();
+}
+
+/// \brief The item after the final expression defined in this data object
+lexer_data::iterator lexer_data::end_expr() const {
+	return m_Expressions.end();
 }

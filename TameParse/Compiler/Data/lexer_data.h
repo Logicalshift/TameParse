@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 12/11/2011.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_DATA_LEXER_DATA_H
@@ -51,6 +51,12 @@ namespace compiler {
 
     	/// \brief The item after the final definition defined in this data object
     	iterator end() const;
+
+        /// \brief The first expression defined in this data object
+        iterator begin_expr() const;
+
+        /// \brief The item after the final expression defined in this data object
+        iterator end_expr() const;
 
     	/// \brief Adds a new lexer expression to this object
     	void add_expression(const std::wstring& term, const lexer_item& newItem);
