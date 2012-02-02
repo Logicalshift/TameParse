@@ -409,15 +409,6 @@ language Ansi-C {
 }
 
 ///
-/// The default parser for the ANSI-C language
-///
-parser AnsiC : Ansi-C {
-	<Translation-Unit>
-	<Statement>
-	<Expression>
-}
-
-///
 /// Tests for the Ansi C language
 ///
 test Ansi-C {
