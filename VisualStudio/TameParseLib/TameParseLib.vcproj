@@ -169,6 +169,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\TameParse\Compiler\conflict_attribute_rewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Compiler\conflict_attribute_rewriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\TameParse\Compiler\console.cpp"
 					>
 				</File>
@@ -241,6 +249,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\TameParse\Compiler\precedence_block_rewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Compiler\precedence_block_rewriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\TameParse\Compiler\std_console.cpp"
 					>
 				</File>
@@ -285,6 +301,14 @@
 					</File>
 					<File
 						RelativePath="..\..\TameParse\Compiler\Data\lexer_item.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\TameParse\Compiler\Data\rule_item_data.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\TameParse\Compiler\Data\rule_item_data.h"
 						>
 					</File>
 				</Filter>
@@ -453,6 +477,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\TameParse\Dfa\regex_error.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Dfa\regex_error.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\TameParse\Dfa\remapped_symbol_map.cpp"
 					>
 				</File>
@@ -553,6 +585,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\TameParse\Language\ebnf_item_attributes.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\ebnf_item_attributes.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\TameParse\Language\formatter.cpp"
 					>
 				</File>
@@ -630,6 +670,14 @@
 				</File>
 				<File
 					RelativePath="..\..\TameParse\Language\parser_block.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\precedence_block.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Language\precedence_block.h"
 					>
 				</File>
 				<File
@@ -741,6 +789,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\TameParse\Lr\lr1_rewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Lr\lr1_rewriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\TameParse\Lr\lr_action.cpp"
 					>
 				</File>
@@ -790,6 +846,14 @@
 				</File>
 				<File
 					RelativePath="..\..\TameParse\Lr\parser_tables.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Lr\precedence_rewriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\TameParse\Lr\precedence_rewriter.h"
 					>
 				</File>
 				<File
