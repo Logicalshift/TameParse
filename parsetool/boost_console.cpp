@@ -100,7 +100,7 @@ boost_console::boost_console(int argc, const char** argv)
 
 	// Store the options
     try {
-        po::store(po::command_line_parser(argc, argv).options(cmdLine).positional(positional).run(), m_VarMap);
+        po::store(po::command_line_parser(argc, (char**)argv).options(cmdLine).positional(positional).run(), m_VarMap);
         po::notify(m_VarMap);
     } catch (po::error e) {
         cerr << e.what() << endl << endl;
