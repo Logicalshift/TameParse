@@ -4,6 +4,11 @@ AC_INIT([TameParse], [1.0.0], [andrew@logicalshift.co.uk])
 AC_CONFIG_SRCDIR([parsetool/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+# Use -Os by default for C++ programs (-O2 is really astoundingly bad for some reason)
+if test -z $CXXFLAGS; then
+    CXXFLAGS='-Os -g'
+fi
+
 # Checks for programs.
 AM_INIT_AUTOMAKE
 AC_PROG_CXX
@@ -11,6 +16,10 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_LN_S
 AC_CHECK_PROG(HAVE_XXD, xxd, yes)
+
+if test -z $HAVE_XXD; then
+	AC_MSG_ERROR([The xxd utility is required to compile the bootstrap language])
+fi
 
 # Checks for libraries.
 
