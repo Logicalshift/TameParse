@@ -106,10 +106,13 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
         }
 
         // Now the string value of the test
-        wstring testString = process::dequote_string((*spec)->Test_Specification->string_2->content<wchar_t>());
+        wstring     testString      = process::dequote_string((*spec)->Test_Specification->string_2->content<wchar_t>());
+        position    testStringPos   = (*spec)->Test_Specification->string_2->pos();
+
+        testStringPos.increment();
 
         // Generate the test definition
-        test_definition* newDefn = new test_definition(nonterminalLanguage, nonterminalName, type, identifier, testString);
+        test_definition* newDefn = new test_definition(nonterminalLanguage, nonterminalName, type, identifier, testString, (*spec)->Test_Specification->pos(), (*spec)->Test_Specification->final_pos(), testStringPos);
 
         // Add to the target
         target->add_test_definition(newDefn);

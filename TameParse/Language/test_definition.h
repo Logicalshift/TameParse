@@ -15,7 +15,7 @@
 
 namespace language {
 	/// \brief Class that represents a test definition in the parser language
-	class test_definition {
+	class test_definition : public block {
 	public:
 		/// \brief The possible types of test definition
 		enum test_type {
@@ -45,9 +45,12 @@ namespace language {
 		/// \brief The string that should match the nonterminal, or the name of the file to load
 		std::wstring m_TestString;
 
+		/// \brief The position of the test string in the file (can be used to compute where parse errors occurred)
+		position m_TestStringPosition;
+
 	public:
 		/// \brief Creates a new test definition
-		test_definition(const std::wstring& nonterminalLanguage, const std::wstring& nonterminal, test_type testType, const std::wstring& identifier, const std::wstring& testString);
+		test_definition(const std::wstring& nonterminalLanguage, const std::wstring& nonterminal, test_type testType, const std::wstring& identifier, const std::wstring& testString, const position& start, const position& end, const position& testStringPos);
 
 		/// \brief Destructor
 		virtual ~test_definition();
@@ -66,6 +69,9 @@ namespace language {
 
 		/// \brief The string that should match the nonterminal, or the name of the file to load
 		inline const std::wstring& test_string() { return m_TestString; }
+
+		/// \brief The position of the first character in the test string
+		inline const position& test_string_position() { return m_TestStringPosition; }
 	};
 }
 

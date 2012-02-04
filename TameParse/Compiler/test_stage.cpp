@@ -306,7 +306,29 @@ void test_stage::compile() {
                 }
 
         		cons().report_error(error(error::sev_warning, (*testDefn)->test_string(), L"TEST_SYNTAX_ERROR", L"Syntax error in test file", failPos));
-        	}
+        	} else if (!result) {
+                // For other tests, report which line failed
+                cons().report_error(error(error::sev_error, filename(), L"THIS_TEST_FAILED", L"Test failed", (*testDefn)->test_string_position()));
+
+                // Report where in the test the failure occurred if we can
+                if ((*testDefn)->type() != test_definition::no_match) {
+                    position failPos = (*testDefn)->test_string_position();
+
+                    if (parseState->look().item()) {
+                        // Failed at a specific item
+                        position itemPos = parseState->look()->pos();
+
+                        // Adjust the position
+                        failPos = position(failPos.offset() + itemPos.offset(), failPos.line() + itemPos.line(), (itemPos.line()==0?failPos.column():0)+itemPos.column());
+                    } else {
+                        // Failed at the end of the definition
+                        failPos = (*testDefn)->end_pos();
+                    }
+
+                    // Report the failure
+                    cons().report_error(error(error::sev_detail, filename(), L"FAILURE_POSITION", L"Parse error", failPos));
+                }
+            }
 
         	// Add to the count of successful/failed tests
         	if (result) {
