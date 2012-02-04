@@ -32,13 +32,17 @@ language Pascal {
 
 		identifier					= /{letter}({letter}|{digit})*/
 		unsigned-integer			= /{digit}+/
-		unsigned-real				= /{unsigned-integer}\.{unsigned-integer}(e[+\-]?{unsigned-integer}+)?/
+
+		exponent					= /e[+\-]?{unsigned-integer}/
+		decimal-part 				= /\.{unsigned-integer}/
+
+		unsigned-real				= /{unsigned-integer}({decimal-part}{exponent}?|{exponent})/
 	}
 
 	///
 	/// Keywords
 	///
-	keywords {
+	case insensitive keywords {
 		and			array		begin		case		const		div			do
 		downto		else		end			file		for			function	goto
 		if			in			label		mod			nil			not			of
@@ -49,14 +53,14 @@ language Pascal {
 	///
 	/// Directives are weak keywords
 	///
-	weak keywords {
+	case insensitive weak keywords {
 		forward		external
 	}
 
 	///
 	/// Lexical tokens
 	///
-	lexer {
+	case insensitive lexer {
 		identifier					= /{identifier}*/
 		unsigned-number				= /{unsigned-integer}|{unsigned-real}/
 		character-string			= /'([^']|'')*'/
@@ -188,10 +192,10 @@ language Pascal {
 		<Record-Type>				= record <Field-List>? end
 
 		// Need a lookahead of 2 here
-		<Field-List>				= ((<Fixed-Part> ([=> ';' case] ';' <Variant-Part>)?) | <Variant-Part>) ';'?
+		<Field-List>				= ((<Fixed-Part> ([=>[can-clash] ';' case] ';' <Variant-Part>)?) | <Variant-Part>) ';'?
 
 		// Need a lookahead of 2 to identify record sections
-		<Fixed-Part>				= <Record-Section> ([=> ';' identifier] ';' <Record-Section>)*
+		<Fixed-Part>				= <Record-Section> ([=>[can-clash] ';' identifier] ';' <Record-Section>)*
 
 		<Record-Section>			= <Identifier-List> ':' <Type-Denoter>
 
@@ -505,7 +509,7 @@ language Pascal {
 
 		<If-Statement>				= if <Expression> then <Statement> <Else-Part>?
 
-		<Else-Part>					= else <Statement>
+		<Else-Part>					= else[conflict=shift] <Statement>
 
 
 		///
@@ -584,4 +588,95 @@ language Pascal {
 									| '+' unsigned-number
 									| '-' unsigned-number
 	}
+}
+
+///
+/// Tests for the pascal language
+///
+test Pascal {
+	///
+	/// Full program tests
+	///
+	<Program> = 
+		helloworld("
+			program HelloWorld;
+			begin
+			  writeln('Hello World');
+			end.
+		")
+
+	///
+	/// Tests of specific nonterminals
+	///
+	<Constant> =			"X"
+							"time"
+							"readinteger"
+							"WG4"
+							"AlterHeatSetting"
+							"1e10"
+							"1"
+							"+100"
+							"-0.1"
+							"5e-3"
+							"87.35E+8"
+							"87.35e+8"
+	
+	<Enumerated-Type> =		"(red, yellow, green, blue, tartan)"
+
+	<Subrange-Type> =		"1..100"
+							"red..green"
+							"'0'..'9'"
+	
+	<Array-Type> =			"array [1..100] of real"
+							"ArrAy [1..100] of REAL"
+							"array [Boolean] of colour"
+							"array [Boolean] of array[1..10] of array[size] of real"
+
+	<New-Structured-Type> =	"packed array [1..10, 1..8] of Boolean"
+							"packed array [1..10] of packed array[1..8] of Boolean"
+
+	<Record-Type> =			"record
+								year : 0..2000;
+								month : 1..12;
+								day : 1..31
+							end"
+							"record
+								x, y : real; 
+								area : real; 
+								case shape of
+									triangle :
+										(side : real; inclination, angle1, angle2 : angle);
+									rectangle :
+										(side1, side2 : real ; skew : angle);
+									circle :
+										(diameter : real);
+							end"
+
+	<Set-Type> =			"set of char"
+							"set of (club, diamond, heart, spade)"
+	
+	<File-Type> =			"file of real"
+
+	<Identified-Variable> =	"p1^"
+							"p1^.father^"
+							"p1^.sibling^.father^"
+
+	<Procedure-Declaration> =
+							"
+								procedure AddVectors (var A, B, C : array [low..high : natural] of real);
+								var
+									i : natural; 
+								begin
+									for i := low to high do A[i] := B[i] + C[i] 
+								end
+							"
+	
+	<Function-Declaration> =
+							"
+								function max(a : int; b : int) : int;
+								begin
+									if a > b then max := a
+									else max := b
+								end
+							"
 }

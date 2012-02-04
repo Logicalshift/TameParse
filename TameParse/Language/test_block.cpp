@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 18/10/2011.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Language/test_block.h"
@@ -28,7 +28,7 @@ test_block& test_block::operator=(const test_block& assignFrom) {
 	if (&assignFrom == this) return *this;
 
 	// Clear out this object
-	for (test_definition_list::iterator defn = m_TestDefinitions.begin(); defn != m_TestDefinitions.end(); defn++) {
+	for (test_definition_list::iterator defn = m_TestDefinitions.begin(); defn != m_TestDefinitions.end(); ++defn) {
 		delete *defn;
 	}
 	m_TestDefinitions.clear();
@@ -36,7 +36,7 @@ test_block& test_block::operator=(const test_block& assignFrom) {
 	// Assign this object
 	m_Language = assignFrom.m_Language;
 
-	for (test_block::iterator defn = assignFrom.begin(); defn != assignFrom.end(); defn++) {
+	for (test_block::iterator defn = assignFrom.begin(); defn != assignFrom.end(); ++defn) {
 		m_TestDefinitions.push_back(new test_definition(**defn));
 	}
     
@@ -46,7 +46,7 @@ test_block& test_block::operator=(const test_block& assignFrom) {
 /// \brief Destructor
 test_block::~test_block() {
 	// Free the definitions
-	for (test_definition_list::iterator defn = m_TestDefinitions.begin(); defn != m_TestDefinitions.end(); defn++) {
+	for (test_definition_list::iterator defn = m_TestDefinitions.begin(); defn != m_TestDefinitions.end(); ++defn) {
 		delete *defn;
 	}
 	m_TestDefinitions.clear();

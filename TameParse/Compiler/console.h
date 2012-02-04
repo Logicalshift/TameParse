@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 06/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _COMPILER_CONSOLE_H
@@ -43,6 +43,9 @@ namespace compiler {
         virtual console* clone() const = 0;
         
     public:
+        /// \brief Destructor
+        virtual ~console();
+
         /// \brief Reports an error to the console
         virtual void report_error(const error& error) = 0;
         

@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 15/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _UTIL_ASTNODE_H
@@ -54,7 +54,7 @@ namespace util {
         
         /// \brief Adds a series of children to this item
         template<typename iterator> void add_children(iterator begin, iterator end) {
-            for (iterator cur = begin; cur != end; cur++) {
+            for (iterator cur = begin; cur != end; ++cur) {
                 m_Children.push_back(*cur);
             }
         }

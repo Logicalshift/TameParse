@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 27/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <cstdlib>
@@ -14,6 +14,13 @@ using namespace contextfree;
 
 /// \brief Item set representing the empty set (cannot be modified)
 const item_set item_set::empty_set(NULL);
+
+item_set::item_set()
+: m_Grammar(NULL)
+, m_MaxItem(0)
+, m_Size(0)
+, m_Items(NULL) {
+}
 
 /// \brief Creates an empty item set for the specified grammar
 item_set::item_set(const grammar& grammar) 
@@ -41,7 +48,7 @@ item_set::item_set(const item_set& copyFrom)
 	if (m_MaxItem > 0) {
 		m_Items = (unsigned int*) malloc(sizeof(unsigned int)*m_MaxItem);
 
-		for (int item = 0; item < m_MaxItem; item++) {
+		for (int item = 0; item < m_MaxItem; ++item) {
 			m_Items[item] = copyFrom.m_Items[item];
 		}
 	}
@@ -60,7 +67,7 @@ item_set& item_set::operator=(const item_set& assignFrom) {
 	m_Size		= assignFrom.m_Size;
 	m_Items		= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-	for (int item=0; item < m_MaxItem; item++) {
+	for (int item=0; item < m_MaxItem; ++item) {
 		m_Items[item] = assignFrom.m_Items[item];
 	}
     
@@ -81,11 +88,11 @@ void item_set::count_size() {
 	m_Size = 0;
 
 	// Iterate through the items
-	for (int item = 0; item < m_MaxItem; item++) {
+	for (int item = 0; item < m_MaxItem; ++item) {
 		// Count the number of bits set in this item (Kerningham's method)
 		unsigned int bits = m_Items[item];
 		while (bits) {
-			m_Size++;
+			++m_Size;
 			bits &= bits-1;
 		}
 	}
@@ -111,7 +118,7 @@ bool item_set::insert(int itemId) {
     	m_MaxItem 	= setId + 1;
     	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-    	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
+    	for (int item = oldMax; item < m_MaxItem; ++item) m_Items[item] = 0;
     }
 
     // Create the mask
@@ -120,7 +127,7 @@ bool item_set::insert(int itemId) {
     // Update the bit
     if ((m_Items[setId]&mask) == 0) {
     	m_Items[setId] |= mask;
-    	m_Size++;
+    	++m_Size;
     	return true;
     } else {
     	return false;
@@ -169,14 +176,14 @@ bool item_set::merge(const item_set& mergeWith) {
     	m_MaxItem 	= mergeWith.m_MaxItem;
     	m_Items 	= (unsigned int*) realloc(m_Items, sizeof(unsigned int)*m_MaxItem);
 
-    	for (int item = oldMax; item < m_MaxItem; item++) m_Items[item] = 0;
+    	for (int item = oldMax; item < m_MaxItem; ++item) m_Items[item] = 0;
 	}
 
 	// Remember if the size has changed
 	bool sizeChanged = false;
 
 	// Iterate through the items in the set we're merging with
-	for (int item = 0; item < mergeWith.m_MaxItem; item++) {
+	for (int item = 0; item < mergeWith.m_MaxItem; ++item) {
 		// Get the items in this set
 		unsigned int bits = mergeWith.m_Items[item];
 
@@ -247,7 +254,7 @@ int item_set::next_item_id(int itemId) const {
 	while (set < m_MaxItem) {
 		// Move on rapidly if this set is empty
 		if (bit == 0 && m_Items[set] == 0) {
-			set++;
+			++set;
             
             // Check the first bit of the new set
             if (set < m_MaxItem && (m_Items[set]&1) != 0) {
@@ -258,13 +265,13 @@ int item_set::next_item_id(int itemId) const {
 		// Test this bit
 		else {
             // Move on to the next item
-            bit++;
+            ++bit;
             mask <<= 1;
             
             if (bit >= 0x20) {
                 mask 	= 1;
                 bit 	= 0;
-                set++;
+                ++set;
                 
                 if (set >= m_MaxItem) {
                     return set<<5;

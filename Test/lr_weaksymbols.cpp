@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 25/06/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "lr_weaksymbols.h"
@@ -68,7 +68,7 @@ void test_lr_weaksymbols::run_tests() {
     
     typedef ndfa::accept_action_list aal;
     
-    for (int stateId=0; stateId < simpleLexer->count_states(); stateId++) {
+    for (int stateId=0; stateId < simpleLexer->count_states(); ++stateId) {
         // Get the actions for this state
         const aal& actions = simpleLexer->actions_for_state(stateId);
         
@@ -80,7 +80,7 @@ void test_lr_weaksymbols::run_tests() {
         bool hasInt         = false;
         bool hasReal        = false;
         
-        for (aal::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+        for (aal::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
             if ((*nextAction)->symbol() == integer) {
                 hasInt          = true;
                 matchesInt      = true;

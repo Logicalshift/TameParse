@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 07/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/ContextFree/terminal_dictionary.h"
@@ -19,7 +19,7 @@ terminal_dictionary::terminal_dictionary()
 int terminal_dictionary::add_symbol() {
     // Create a new maximum symbol
     int newSymbol = m_MaxSymbol;
-    m_MaxSymbol++;
+    ++m_MaxSymbol;
     return newSymbol;
 }
 

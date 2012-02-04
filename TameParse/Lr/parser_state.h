@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 10/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_PARSER_STATE_H
@@ -91,7 +91,7 @@ namespace lr {
     /// It is an error to call this without calling lookahead() at least once since the last call.
     ///
     template<typename I, typename A, typename T> inline void parser<I, A, T>::state::next() {
-        m_LookaheadPos++;
+        ++m_LookaheadPos;
         trim_lookahead();
     }
     
@@ -242,21 +242,23 @@ namespace lr {
             
             // Reduce the EOG symbol as soon as possible
             if (m_Tables->has_end_of_guard(state)) {
-                // Check if we can reduce the EOG symbol. No need to check twice.
-                if (!canReduceEog) {
-                    canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), this);
-                }
+                // Check if we can reduce the EOG symbol in this state
+                parser_tables::action_iterator eogAct = m_Tables->find_nonterminal(state, m_Tables->end_of_guard());
+                canReduceEog = guardActions.can_reduce_nonterminal(m_Tables->end_of_guard(), eogAct, this);
                 
-                // Switch to the EOG action if it exists
-                sym         = m_Tables->end_of_guard();
-                act         = m_Tables->find_nonterminal(state, sym);
-                end         = m_Tables->last_nonterminal_action(state);
-                isTerminal  = false;
+                // If we can reduce the symbol, then change the lookahead
+                if (canReduceEog) {
+                    // Switch to the EOG action if it exists
+                    sym         = m_Tables->end_of_guard();
+                    act         = m_Tables->find_nonterminal(state, sym);
+                    end         = m_Tables->last_nonterminal_action(state);
+                    isTerminal  = false;
+                }
             }
             
             // Work out which action to perform
             bool ok = false;
-            for (; act != end; act++) {
+            for (; act != end; ++act) {
                 // Stop searching if the symbol is invalid
                 if (act->m_SymbolId != sym) break;
                 
@@ -267,12 +269,12 @@ namespace lr {
                     // TODO: see if this produces a meaningful speedup before complicating the code
                     if (la.item() != NULL) {
                         // Standard symbol: use the usual form of can_reduce
-                        if (!guardActions.can_reduce(la->matched(), this)) {
+                        if (!guardActions.can_reduce(la->matched(), act, this)) {
                             continue;
                         }
                     } else {
                         // Reached the end of input: check can_reduce for the EOI symbol
-                        if (!guardActions.can_reduce_nonterminal(m_Tables->end_of_input(), this)) {
+                        if (!guardActions.can_reduce_nonterminal(m_Tables->end_of_input(), act, this)) {
                             continue;
                         }
                     }
@@ -331,36 +333,63 @@ namespace lr {
     
     /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
     template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed, const stack& underlyingStack) {
-        // Get the reduce rule
-        const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
-        
-        // Pop items from the stack
-        for (int x=0; x<rule.m_Length; x++) {
-            if (!pushed.empty()) {
-                // If we've pushed a fake state, then remove it from the stack
-                pushed.pop();
-            } else {
-                // Update the 'real' stack position
-                stackPos--;
-            }
-        }
-        
-        // Work out the current state
-        int state;
-        if (!pushed.empty()) {
-            state = pushed.top();
-        } else {
-            state = underlyingStack[stackPos].state;
-        }
-        
-        // Work out the goto action
-        parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
-        for (; gotoAct != m_Tables->last_nonterminal_action(state); gotoAct++) {
-            if (gotoAct->m_Type == lr_action::act_goto) {
-                // Push this goto
-                pushed.push(gotoAct->m_NextState);
+        // Verify the action type
+        switch (act->m_Type) {
+            // Reduce actions are fairly easy
+            case lr_action::act_reduce:
+            case lr_action::act_weakreduce:
+            case lr_action::act_accept:
+            {
+                // Get the reduce rule
+                const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                
+                // Pop items from the stack
+                for (int x=0; x<rule.m_Length; ++x) {
+                    if (!pushed.empty()) {
+                        // If we've pushed a fake state, then remove it from the stack
+                        pushed.pop();
+                    } else {
+                        // Update the 'real' stack position
+                        stackPos--;
+                    }
+                }
+                
+                // Work out the current state
+                int state;
+                if (!pushed.empty()) {
+                    state = pushed.top();
+                } else {
+                    state = underlyingStack[stackPos].state;
+                }
+                
+                // Work out the goto action
+                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
+                for (; gotoAct != m_Tables->last_nonterminal_action(state); ++gotoAct) {
+                    if (gotoAct->m_Type == lr_action::act_goto) {
+                        // Push this goto
+                        pushed.push(gotoAct->m_NextState);
+                        break;
+                    }
+                }
                 break;
             }
+
+            case lr_action::act_divert:
+                // Divert actions just change the state on top of the stack
+                if (!pushed.empty()) {
+                    pushed.pop();
+                } else {
+                    stackPos--;
+                }
+
+                pushed.push(act->m_NextState);
+                break;
+
+            case lr_action::act_shift:
+            case lr_action::act_shiftstrong:
+                // Shift actions just move to the next state
+                pushed.push(act->m_NextState);
+                break;
         }
     }
     
@@ -406,10 +435,12 @@ namespace lr {
                     
                     // If we can reduce via this item, then the result is true
                     fake_reduce(act, weakPos, weakStack, underlyingStack);
-                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) return true;
+                    if (can_reduce<symbol_fetcher>(symbol, weakPos, weakStack, underlyingStack)) {
+                        return true;
+                    }
                     
                     // If not, keep looking for a stronger action
-                    act++;
+                    ++act;
                     break;
                 }
                     
@@ -455,18 +486,19 @@ namespace lr {
                                                           parser_tables::action_iterator& act, 
                                                           parser_tables::action_iterator& end) {
         // Work out which action to perform
-        for (; act != end; act++) {
+        for (; act != end; ++act) {
             // Stop searching if the symbol is invalid
             if (act->m_SymbolId != symbol) break;
             
             // If this is a weak reduce action, then check if the action is successful
             if (act->m_Type == lr_action::act_weakreduce) {
                 if (isTerminal) {
-                    if (!actDelegate.can_reduce(symbol, this)) {
+                    // Run a fake reduce
+                    if (!actDelegate.can_reduce(symbol, act, this)) {
                         continue;
                     }
                 } else {
-                    if (!actDelegate.can_reduce_nonterminal(symbol, this)) {
+                    if (!actDelegate.can_reduce_nonterminal(symbol, act, this)) {
                         continue;
                     }
                 }
@@ -570,13 +602,13 @@ namespace lr {
         
         // If the action is a reduce action, then we need to check that we can actually perform the reduction
         bool canReduce = false;
-        for (action_iterator checkAction = act; checkAction != end; checkAction++) {
+        for (action_iterator checkAction = act; checkAction != end; ++checkAction) {
             // Give up if this action doesn't refer to the guard symbol
             if (checkAction->m_SymbolId != guardSymbol) break;
             
             // If this is a reduce or weakreduce action, check if we can reduce this symbol
             if (checkAction->m_Type == lr_action::act_reduce || checkAction->m_Type == lr_action::act_weakreduce) {
-                if (actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
+                if (actDelegate.can_reduce_nonterminal(guardSymbol, checkAction, this)) {
                     canReduce = true;
                     break;
                 }
@@ -610,16 +642,16 @@ namespace lr {
             
             if (act->m_Type == lr_action::act_weakreduce) {
                 // Check if we can perform a reduction
-                if (!actDelegate.can_reduce_nonterminal(guardSymbol, this)) {
+                if (!actDelegate.can_reduce_nonterminal(guardSymbol, act, this)) {
                     // Try the next action if we can't reduce this item
-                    act++;
+                    ++act;
                     continue;
                 }
             }
             
             if (act->m_Type == lr_action::act_guard) {
                 // TODO: deal with guards on guards (maybe should never happen?)
-                act++;
+                ++act;
                 continue;
             }
             

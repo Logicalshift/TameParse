@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/ContextFree/grammar.h"
@@ -33,7 +33,7 @@ grammar::~grammar() {
     delete m_EpsilonSet;
     
     // Finished with the list of cached item sets
-    for (lr1_item_set_cache::iterator oldItemSets = m_CachedItemSets.begin(); oldItemSets != m_CachedItemSets.end(); oldItemSets++) {
+    for (lr1_item_set_cache::iterator oldItemSets = m_CachedItemSets.begin(); oldItemSets != m_CachedItemSets.end(); ++oldItemSets) {
         delete oldItemSets->second;
     }
 }
@@ -234,14 +234,30 @@ const item_set& grammar::first(const item_container& item) const {
 }
 
 /// \brief Computes the first set for the specified rule (or retrieves the cached version)
-const item_set& grammar::first_for_rule(const rule& rule) const {
+item_set grammar::first_for_rule(const rule& rule) const {
     // Return a set containing only the empty item if the rule is 0 items long
     if (rule.items().size() == 0) {
         return *m_EpsilonSet;
     }
     
     // Return the first set of the first item in the rule
-    return first(*rule.items()[0]);
+    item_set result(this);
+    for (size_t itemId = 0; itemId < rule.items().size(); ++itemId) {
+        // Remove the epsilon item from the set
+        result.erase(an_empty_item_c);
+
+        // Add the items in the first set for this item
+        result.merge(first(*rule.items()[itemId]));
+
+        // If the result doesn't contain the empty item, then return it
+        if (!result.contains(an_empty_item_c)) {
+            return result;
+        }
+    }
+
+    // The empty item is included
+    result.insert(an_empty_item_c);
+    return result;
 }
 
 
@@ -256,8 +272,8 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
         item_map<item_set>::type dependencies;
         
         // Iterate through all of the rules in this grammar and build up the follow set for each one
-        for (nonterminal_rule_map::const_iterator it = m_Nonterminals.begin(); it != m_Nonterminals.end(); it++) {
-            for (rule_list::const_iterator ruleIt = it->second.begin(); ruleIt != it->second.end(); ruleIt++) {
+        for (nonterminal_rule_map::const_iterator nextNt = m_Nonterminals.begin(); nextNt != m_Nonterminals.end(); ++nextNt) {
+            for (rule_list::const_iterator ruleIt = nextNt->second.begin(); ruleIt != nextNt->second.end(); ++ruleIt) {
                 fill_follow(**ruleIt, dependencies);
             }
         }
@@ -268,7 +284,7 @@ const item_set& grammar::follow(const item_container& nonterminal) const {
             changed = false;
             
             // Iterate through all of the dependencies
-            for (item_map<item_set>::type::iterator depend = dependencies.begin(); depend != dependencies.end(); depend++) {
+            for (item_map<item_set>::type::iterator depend = dependencies.begin(); depend != dependencies.end(); ++depend) {
                 // First item is the nonterminal that depends on other nonterminal
                 const item_container& nonterminal = depend->first;
                 
@@ -309,7 +325,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
     if (rule.items().size() == 0) return;
     
     // Iterate through the items in this rule
-    for (size_t pos=0; pos<rule.items().size(); pos++) {
+    for (size_t pos=0; pos<rule.items().size(); ++pos) {
         // Get the current item
         const item_container& thisItem = rule.items()[pos];
         
@@ -325,7 +341,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         // The follow set of this item is the combination of the first sets for all of the following items
         // If it's at the end, it also includes the follow set for the nonterminal for this rule
         size_t nextPos = pos+1;
-        for (;nextPos < rule.items().size(); nextPos++) {
+        for (;nextPos < rule.items().size(); ++nextPos) {
             // Get this following item
             const item_container& followingItem = rule.items()[nextPos];
             
@@ -352,7 +368,7 @@ void grammar::fill_follow(const rule& rule, item_map<item_set>::type& dependenci
         // If this item is an EBNF rule, then we need to process each of its children
         const ebnf* ebnfItem = thisItem->cast_ebnf();
         if (ebnfItem) {
-            for (ebnf::rule_iterator subRule = ebnfItem->first_rule(); subRule != ebnfItem->last_rule(); subRule++) {
+            for (ebnf::rule_iterator subRule = ebnfItem->first_rule(); subRule != ebnfItem->last_rule(); ++subRule) {
                 fill_follow(**subRule, dependencies);
             }
         }

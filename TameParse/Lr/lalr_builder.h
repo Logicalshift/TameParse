@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 01/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LR_LALR_BUILDER_H
@@ -33,14 +33,41 @@ namespace lr {
     ///
     class lalr_builder {
     public:
-        // State ID, item ID pair (identifies an individual item within a state machine)
-        typedef std::pair<int, int> lr_item_id;
+        /// \brief State ID, item ID pair (identifies an individual item within a state machine)
+        struct lr_item_id {
+            inline lr_item_id(int newState, int newItem)
+            : state_id(newState)
+            , item_id(newItem) {
+            }
+
+            int state_id;
+            int item_id;
+
+            inline bool operator<(const lr_item_id& compareTo) const {
+                if (state_id < compareTo.state_id)  return true;
+                if (state_id != compareTo.state_id) return false;
+
+                return item_id < compareTo.item_id;
+            }
+
+            inline bool operator==(const lr_item_id& compareTo) const {
+                return state_id == compareTo.state_id && item_id == compareTo.item_id;
+            }
+
+            inline bool operator!=(const lr_item_id& compareTo) const { return !operator==(compareTo); }
+        };
         
-        // Maps states to lists of propagations (target state, target item ID)
+        /// \brief Maps states to lists of propagations (target state, target item ID)
         typedef std::map<lr_item_id, std::set<lr_item_id> > propagation;
         
         /// \brief Set of LR(0) items that represent a closure of a LALR state
         typedef std::set<lr0_item_container> closure_set;
+
+        /// \brief Pair mapping a source LR item to a target LR item
+        typedef std::pair<lr_item_id, lr_item_id> source_to_target;
+
+        /// \brief Maps 
+        typedef std::map<source_to_target, contextfree::item_set> spontaneous_lookahead;
 
     private:
         /// \brief The grammar that this builder will use
@@ -68,6 +95,9 @@ namespace lr {
         /// Maps from the state and item whose closure generated a spontaneous lookahead to the state and item where the
         /// lookahead ended up. (This isn't quite enough to see what the lookahead generated was)
         mutable propagation m_Spontaneous;
+
+        /// \brief Maps from pairs of items (representing source and target) to the lookahead that was spontaneously generated for them
+        mutable spontaneous_lookahead m_SpontaneousLookahead;
         
         /// \brief Maps state IDs to sets of LR actions
         mutable std::map<int, lr_action_set> m_ActionsForState;
@@ -135,6 +165,9 @@ namespace lr {
 
         /// \brief Returns the items that the item in the specified state generates spontaneous lookaheads for
         const std::set<lr_item_id>& spontaneous_for_item(int state, int item) const;
+
+        /// \brief Returns the lookahead generated spontaneously from a particular item to a particular item
+        const contextfree::item_set& lookahead_for_spontaneous(int sourceState, int sourceItem, int destState, int destItem);
 
         /// \brief Finds the set of items that were used in the generation of the lookahead for the specified item
         ///

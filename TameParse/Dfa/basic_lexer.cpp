@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 28/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Dfa/basic_lexer.h"
@@ -19,4 +19,8 @@ lexer_symbol_stream::~lexer_symbol_stream() { }
 /// \brief Sets the initial state to be used by the next run through of the state machine
 void lexeme_stream::set_initial_state(int initialState) {
     // Default action is to do nothing
+}
+
+/// \brief Destructor
+lexeme_stream::~lexeme_stream() {
 }

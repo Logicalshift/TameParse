@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 27/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _DFA_NDFA_REGEX_H
@@ -11,8 +11,10 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 #include "TameParse/Dfa/ndfa.h"
+#include "TameParse/Dfa/regex_error.h"
 
 namespace dfa {
     ///
@@ -29,6 +31,9 @@ namespace dfa {
     private:
         /// \brief Set to true if the compiler should construct unicode surrogate sequences for characters >0xffff
         bool m_ConstructSurrogates;
+
+        /// \brief If true, then any regexes are added in a case insensitive manner
+        bool m_CaseInsensitive;
 
         /// \brief Maps expressions to regular expressions
         std::map<symbol_string, symbol_string> m_ExpressionMap;
@@ -59,9 +64,17 @@ namespace dfa {
         /// \brief Converts a null-terminated to a symbol_string
         static symbol_string convert(wchar_t* source);
 
+        /// \brief Converts a symbol string into a wstring
+        static std::wstring convert_syms(const symbol_string& source);
+
     public:
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(builder& cons, const symbol_string& regex);
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_regex(builder& cons, const std::wstring& regex) {
+            return add_regex(cons, convert(regex));
+        }
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         int add_regex(int initialState, const symbol_string& regex);
@@ -79,7 +92,7 @@ namespace dfa {
         }
 
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
-        inline int add_regex(int initialState, std::wstring regex) {
+        inline int add_regex(int initialState, std::wstring& regex) {
             return add_regex(initialState, convert(regex));
         }
 
@@ -91,6 +104,14 @@ namespace dfa {
         /// \brief Compiles a regular expression starting at the specified state, returning the final state
         inline int add_regex(int initialState, const std::wstring& regex, const accept_action& action) {
             return add_regex(initialState, convert(regex), action);
+        }
+        
+        /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
+        int add_literal(builder& cons, const symbol_string& literal);
+
+        /// \brief Compiles a regular expression starting at the specified state, returning the final state
+        inline int add_literal(builder& cons, const std::wstring& regex) {
+            return add_literal(cons, convert(regex));
         }
         
         /// \brief Compiles an NDFA that matches a literal string starting at the specified state, returning the final state
@@ -132,6 +153,9 @@ namespace dfa {
         ///
         /// By default, this is turned on, as 16-bit unicode characters are far more common.
         inline void set_use_surrogates(bool useSurrogates) { m_ConstructSurrogates = useSurrogates; }
+
+        /// \brief Sets whether or not the regular expressions should be treated as case-insensitive
+        inline void set_case_insensitive(bool caseInsensitive) { m_CaseInsensitive = caseInsensitive; }
 
         /// \brief Defines a new expression as a regular expression
         ///
@@ -183,11 +207,22 @@ namespace dfa {
             define_expression_literal(convert(name), convert(value));
         }
 
+        /// \brief Returns a vector of the errors in the specified regular expression
+        std::vector<regex_error> check_regex(const symbol_string& regex);
+
+        /// \brief Returns a vector of the errors in the specified regular expression
+        inline std::vector<regex_error> check_regex(const std::wstring& regex) {
+            return check_regex(convert(regex));
+        }
+
+        /// \brief Returns true if the specified expression is valid
+        virtual bool check_expression(const symbol_string& expression);
+
     protected:
         ///
         /// \brief Compiles a single symbol from a regular expression
         ///
-        /// Subclasses can override this to extend the grammar accepted by the regular expression.
+        /// Subclasses can override this to extend the grammar accepted as the regular expression.
         /// This class should update the supplied iterator and NDFA constructor object with the position of the next item.
         ///
         /// Note that this will be called with pos == end at the end of the regular expression. Implementations should not
@@ -195,6 +230,13 @@ namespace dfa {
         /// of a regular expression.
         ///
         virtual void compile(symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, builder& cons);
+
+        ///
+        /// \brief Checks a single symbol from a regular expression
+        ///
+        /// Subclasses can override this to extend the grammar accepted as a regular expression.
+        ///
+        virtual void check(position_tracker& exprPos, symbol_string::const_iterator& pos, const symbol_string::const_iterator& end, std::vector<regex_error>& errors);
 
         ///
         /// \brief Compiles the value of a {} expression

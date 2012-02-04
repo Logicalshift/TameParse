@@ -13,4 +13,32 @@ test ParserLanguage {
 							pascal			("../Pascal.tp")
 							test-weakguard	("WeakGuard.tp")
 							test-repetition	("Repetition.tp")
+	
+	<Lexeme-Definition> =	"foo = \"bar\""
+							"foo = 'x'"
+							"foo = /bar/"
+							"foo |= /bar/"
+							"replace foo = /bar/"
+	
+	<Ebnf-Item>	=			"replace"
+							"language"
+							"'x'"
+							"\"string\""
+							"<Nonterminal>"
+
+							"(if x then y)"
+							"x?"
+							"x*"
+							"x+"
+							"(x | y)"
+							"(',' list)*"
+
+							"[=> guard]"
+							"[=>[can-clash] clashing guard]"
+
+							"identifier[name]"
+							"else[conflict=shift]"
+							"else[conflict=reduce]"
+							"else[conflict=weak reduce]"
+
 }

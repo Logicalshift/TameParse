@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _UTIL_CONTAINER_H
@@ -76,7 +76,7 @@ namespace util {
             
             /// \brief Increases the reference count
             inline void retain() const {
-                m_RefCount++;
+                ++m_RefCount;
             }
         };
         

@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 02/05/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -43,9 +43,9 @@ static void dump(const item& it, const grammar& gram, const terminal_dictionary&
 }
 
 static void dump(const item_set& la, const grammar& gram, const terminal_dictionary& dict) {
-    for (item_set::const_iterator it = la.begin(); it != la.end(); ++it) {
+    for (item_set::const_iterator lookaheadItem = la.begin(); lookaheadItem != la.end(); ++lookaheadItem) {
         wcerr << L" ";
-        dump(**it, gram, dict);
+        dump(**lookaheadItem, gram, dict);
     }
 }
 
@@ -55,7 +55,7 @@ static void dump(const rule& rule, const grammar& gram, const terminal_dictionar
     
     wcerr << L" ->";
     size_t pos;
-    for (pos = 0; pos < rule.items().size(); pos++) {
+    for (pos = 0; pos < rule.items().size(); ++pos) {
         wcerr << L" ";
         dump(*rule.items()[pos], gram, dict);
     }
@@ -67,7 +67,7 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram, 
     
     wcerr << L" ->";
     size_t pos;
-    for (pos = 0; pos < item.rule()->items().size(); pos++) {
+    for (pos = 0; pos < item.rule()->items().size(); ++pos) {
         if (pos == item.offset()) wcerr << L" *";
         wcerr << L" ";
         dump(*item.rule()->items()[pos], gram, dict);
@@ -87,9 +87,9 @@ static void dump(const lr0_item& item, const item_set& la, const grammar& gram, 
 }
 
 static void dump(const lr_action_set& actions, const grammar& gram, const terminal_dictionary& dict) {
-    for (lr_action_set::const_iterator it = actions.begin(); it != actions.end(); it++) {
+    for (lr_action_set::const_iterator act = actions.begin(); act != actions.end(); ++act) {
         wcerr << L"  ";
-        switch ((*it)->type()) {
+        switch ((*act)->type()) {
             case lr_action::act_accept:
                 wcerr << L"ACCEPT ";
                 break;
@@ -118,13 +118,13 @@ static void dump(const lr_action_set& actions, const grammar& gram, const termin
                 wcerr << L"SHIFT-STRONG ";
                 break;
         }
-        dump(*(*it)->item(), gram, dict);
+        dump(*(*act)->item(), gram, dict);
         
-        if ((*it)->type() == lr_action::act_reduce || (*it)->type() == lr_action::act_weakreduce) {
+        if ((*act)->type() == lr_action::act_reduce || (*act)->type() == lr_action::act_weakreduce) {
             wcerr << L" on ";
-            dump(*(*it)->rule(), gram, dict);
+            dump(*(*act)->rule(), gram, dict);
         } else {
-            wcerr << L" -> " << (*it)->next_state();
+            wcerr << L" -> " << (*act)->next_state();
         }
         wcerr << endl;
     }
@@ -137,13 +137,13 @@ static void dump_machine(const lalr_builder& builder) {
     empty_set.insert(empty);
     const lalr_machine& machine = builder.machine();
     
-    for (int stateId = 0; stateId < machine.count_states(); stateId++) {
+    for (int stateId = 0; stateId < machine.count_states(); ++stateId) {
         wcerr << L"STATE " << stateId << endl;
         
         const lalr_state& state = *machine.state_with_id(stateId);
         lr1_item_set closure;
         
-        for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); nextItem++) {
+        for (lalr_state::iterator nextItem = state.begin(); nextItem != state.end(); ++nextItem) {
             int itemId = state.find_identifier(*nextItem);
             const lr0_item& item = *state[itemId];
             wcerr << L"  ";
@@ -158,7 +158,7 @@ static void dump_machine(const lalr_builder& builder) {
 
         if (!closure.empty()) {
             wcerr << endl;
-            for (lr1_item_set::iterator closed = closure.begin(); closed != closure.end(); closed++) {
+            for (lr1_item_set::iterator closed = closure.begin(); closed != closure.end(); ++closed) {
                 wcerr << L"  ";
                 dump(**closed, (*closed)->lookahead(), machine.gram(), builder.terminals());
                 wcerr << endl;
@@ -175,10 +175,10 @@ static void dump_machine(const lalr_builder& builder) {
 
 static bool state_comparison_always_reversible(lalr_machine& m) {
     // If state X is less than state Y then state Y must not be less than state X
-    for (int stateX = 0; stateX < m.count_states(); stateX++) {
+    for (int stateX = 0; stateX < m.count_states(); ++stateX) {
         const lalr_state& stateXreal = *m.state_with_id(stateX);
         
-        for (int stateY = 0; stateY < m.count_states(); stateY++) {
+        for (int stateY = 0; stateY < m.count_states(); ++stateY) {
             const lalr_state& stateYreal = *m.state_with_id(stateY);
             
             if (stateXreal < stateYreal) {
@@ -198,10 +198,10 @@ static bool no_duplicate_states(lalr_machine& m) {
     // State X and state Y can only be the same if they have the same ID
     bool ok = true;
     
-    for (int stateX = 0; stateX < m.count_states(); stateX++) {
+    for (int stateX = 0; stateX < m.count_states(); ++stateX) {
         const lalr_state& stateXreal = *m.state_with_id(stateX);
         
-        for (int stateY = 0; stateY < m.count_states(); stateY++) {
+        for (int stateY = 0; stateY < m.count_states(); ++stateY) {
             const lalr_state& stateYreal = *m.state_with_id(stateY);
             
             if (stateXreal == stateYreal) {
@@ -367,7 +367,7 @@ void test_lalr_general::run_tests() {
     oneId   += idId;
     twoIds  += idId;
     twoIds  += idId;
-    for (int x=0; x<30; x++) manyIds += idId;
+    for (int x=0; x<30; ++x) manyIds += idId;
     
     // Should accept the lot
     conflicts.clear();
@@ -444,21 +444,21 @@ void test_lalr_general::run_tests() {
     int_string csDoesntMatch3;
     int_string oneD;
     
-    for (int x=0; x<3; x++) threeOfEach += aId;
-    for (int x=0; x<3; x++) threeOfEach += bId;
-    for (int x=0; x<3; x++) threeOfEach += cId;
+    for (int x=0; x<3; ++x) threeOfEach += aId;
+    for (int x=0; x<3; ++x) threeOfEach += bId;
+    for (int x=0; x<3; ++x) threeOfEach += cId;
     
-    for (int x=0; x<3; x++) csDoesntMatch1 += aId;
-    for (int x=0; x<2; x++) csDoesntMatch1 += bId;
-    for (int x=0; x<3; x++) csDoesntMatch1 += cId;
+    for (int x=0; x<3; ++x) csDoesntMatch1 += aId;
+    for (int x=0; x<2; ++x) csDoesntMatch1 += bId;
+    for (int x=0; x<3; ++x) csDoesntMatch1 += cId;
 
-    for (int x=0; x<2; x++) csDoesntMatch2 += aId;
-    for (int x=0; x<2; x++) csDoesntMatch2 += bId;
-    for (int x=0; x<3; x++) csDoesntMatch2 += cId;
+    for (int x=0; x<2; ++x) csDoesntMatch2 += aId;
+    for (int x=0; x<2; ++x) csDoesntMatch2 += bId;
+    for (int x=0; x<3; ++x) csDoesntMatch2 += cId;
     
-    for (int x=0; x<3; x++) csDoesntMatch3 += aId;
-    for (int x=0; x<4; x++) csDoesntMatch3 += bId;
-    for (int x=0; x<3; x++) csDoesntMatch3 += cId;
+    for (int x=0; x<3; ++x) csDoesntMatch3 += aId;
+    for (int x=0; x<4; ++x) csDoesntMatch3 += bId;
+    for (int x=0; x<3; ++x) csDoesntMatch3 += cId;
     
     oneD += dId;
 

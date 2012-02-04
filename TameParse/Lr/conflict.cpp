@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 04/06/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/Lr/conflict.h"
@@ -80,7 +80,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
     typedef map<item_container, lr_action_set> items_to_actions;
     items_to_actions actionsForItem;
     
-    for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+    for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
         // Ignore actions that don't cause conflicts
         bool ignore;
         switch ((*nextAction)->type()) {
@@ -101,18 +101,18 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
     }
     
     // Generate conflicts for any item with multiple actions
-    for (items_to_actions::iterator nextItem = actionsForItem.begin(); nextItem != actionsForItem.end(); nextItem++) {
+    for (items_to_actions::iterator nextItem = actionsForItem.begin(); nextItem != actionsForItem.end(); ++nextItem) {
         // Ignore items with just one action (or no actions, if that's ever possible)
         if (nextItem->second.size() < 2) continue;
         
         // Ignore items if all but one of the items are 'weak'
         int numWeak = 0;
-        for (lr_action_set::const_iterator nextAction = nextItem->second.begin(); nextAction != nextItem->second.end(); nextAction++) {
+        for (lr_action_set::const_iterator nextAction = nextItem->second.begin(); nextAction != nextItem->second.end(); ++nextAction) {
             switch ((*nextAction)->type()) {
                 case lr_action::act_guard:
                 case lr_action::act_weakreduce:
                 case lr_action::act_ignore:
-                    numWeak++;
+                    ++numWeak;
                     break;
                     
                 default:
@@ -137,7 +137,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         const grammar*    gram = &builder.gram();
         
         // Iterate through the closure to get the items that can be shifted as part of this conflict
-        for (lr1_item_set::const_iterator nextItem = closure.begin(); nextItem != closure.end(); nextItem++) {
+        for (lr1_item_set::const_iterator nextItem = closure.begin(); nextItem != closure.end(); ++nextItem) {
             if (!(*nextItem)->at_end()) {
                 // This item will result in a shift: add it to the list if it can shift our item
                 const item_set& firstItems = gram->first((*nextItem)->rule()->items()[(*nextItem)->offset()]);
@@ -150,7 +150,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
         }
 
         // Iterate through the items in the state to look for the reduce actions
-        for (int itemId = 0; itemId < thisState.count_items(); itemId++) {
+        for (int itemId = 0; itemId < thisState.count_items(); ++itemId) {
             // Get the item that this refers to
             const lalr_state::container& thisItem = thisState[itemId];
 
@@ -170,7 +170,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
                 rule.items()[offset]->cache_closure(nextItem, itemClosure, *gram);
 
                 // For any items in the closure that are at the end and have a reduce action, generate some reduce information
-                for (lr1_item_set::iterator closureItem = itemClosure.begin(); closureItem != itemClosure.end(); closureItem++) {
+                for (lr1_item_set::iterator closureItem = itemClosure.begin(); closureItem != itemClosure.end(); ++closureItem) {
                     // Ignore items that are not at the end of the closure
                     if (!(*closureItem)->at_end()) continue;
 
@@ -219,7 +219,7 @@ static void find_conflicts(const lalr_builder& builder, int stateId, conflict_li
 /// \brief Adds the conflicts found in the specified LALR builder object to the passed in list
 void conflict::find_conflicts(const lalr_builder& builder, conflict_list& target) {
     // Iterate through the states in the builder
-    for (int stateId=0; stateId < builder.count_states(); stateId++) {
+    for (int stateId=0; stateId < builder.count_states(); ++stateId) {
         ::find_conflicts(builder, stateId, target);
     }
 }

@@ -3,7 +3,7 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 10/09/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "test_fixture.h"

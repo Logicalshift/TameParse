@@ -3,12 +3,12 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 22/10/2011.
-//  Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
 
-#include "TameParse/util/utf8reader.h"
+#include "TameParse/Util/utf8reader.h"
 #include "TameParse/Compiler/test_stage.h"
 #include "TameParse/Language/test_block.h"
 
@@ -29,7 +29,7 @@ test_stage::test_stage(console_container& console, const std::wstring& filename,
 /// \brief Destructor
 test_stage::~test_stage() {
 	// Delete the lexers
-	for (lexer_map::iterator deadLexer = m_Lexers.begin(); deadLexer != m_Lexers.end(); deadLexer++) {
+	for (lexer_map::iterator deadLexer = m_Lexers.begin(); deadLexer != m_Lexers.end(); ++deadLexer) {
 		if (deadLexer->second) {
 	 		delete deadLexer->second;
 		}
@@ -37,7 +37,7 @@ test_stage::~test_stage() {
 	m_Lexers.clear();
 
 	// Delete the languages
-	for (language_map::iterator deadLanguage = m_Languages.begin(); deadLanguage != m_Languages.end(); deadLanguage++) {
+	for (language_map::iterator deadLanguage = m_Languages.begin(); deadLanguage != m_Languages.end(); ++deadLanguage) {
 	 	if (deadLanguage->second) {
 		 	delete deadLanguage->second;
 	 	}
@@ -93,6 +93,9 @@ lexer_stage* test_stage::get_lexer(const std::wstring& languageName, const dfa::
 		// Value is null if the language couldn't be generated for any reason
 		return m_Lexers[languageName] = NULL;
 	}
+    
+    // Report any unused symbols in this language
+    language->report_unused_symbols();
 
 	// Create the lexer stage for this language
     console_container   cons    = cons_container();
@@ -164,14 +167,18 @@ void test_stage::compile() {
     cons().verbose_stream() << L"  = Running tests" << endl;
 
 	// Iterate through the definitions
-    bool firstTestSet = true;
-    
-	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); defn++) {
+    bool firstTestSet	= true;
+    bool runAnyTests 	= false;
+
+	for (definition_file::iterator defn = m_Definition->begin(); defn != m_Definition->end(); ++defn) {
 		// Retrieve the tests for this block
 		const test_block* tests = (*defn)->test();
 
 		// Ignore blocks that aren't test blocks
 		if (!tests) continue;
+
+		// Flag up that we've hit at least one test block
+		runAnyTests = true;
 
 		// Retrieve the language for this test
 		const language_block*	language 		= m_Import->language_with_name(tests->language());
@@ -208,7 +215,7 @@ void test_stage::compile() {
         map<wstring, int> testIds;
 
         // Run the tests themselves
-        for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); testDefn++) {
+        for (test_block::iterator testDefn = tests->begin(); testDefn != tests->end(); ++testDefn) {
         	// Compile a language for this nonterminal if one doesn't exist already
         	// TODO: deal with nonterminals in other languages
         	lr_parser_stage* parserStage = get_parser(tests->language(), (*testDefn)->nonterminal(), tests->start_pos());
@@ -303,9 +310,9 @@ void test_stage::compile() {
 
         	// Add to the count of successful/failed tests
         	if (result) {
-        		passed++;
+        		++passed;
         	} else {
-        		failed++;
+        		++failed;
         	}
 
         	// Done with the parser
@@ -324,10 +331,22 @@ void test_stage::compile() {
         
         // Warning if there are no tests for this language
         if (passed == 0 && failed == 0) {
-            cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found no tests to run", tests->start_pos()));
+            cons().report_error(error(error::sev_warning, filename(), L"NO_TESTS_TO_RUN", L"Found an empty test block", tests->start_pos()));
+        }
+
+        // Test failures give an error message
+        if (failed != 0) {
+            wstringstream msg;
+            msg << failed << L" tests failed while testing " << tests->language();
+            cons().report_error(error(error::sev_error, filename(), L"TESTS_FAILED", msg.str(), tests->start_pos()));
         }
         
         // No longer on the first test set
         firstTestSet = false;
+	}
+
+	// It's an error to use run-tests on any file with no test blocks
+	if (!runAnyTests) {
+		cons().report_error(error(error::sev_error, filename(), L"NO_TEST_BLOCKS", L"Could not find any tests to run in this file", position(-1, -1, -1)));
 	}
 }

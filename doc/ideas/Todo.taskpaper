@@ -2,15 +2,31 @@ Documentation:
 	- Generate docs for the API
 
 Bugs:
-	- Setting an output filename doesn't seem to work 
-		It still generates the name of the C++ files from the 
-General:
+	- Setting an output filename doesn't seem to work @commandline
+		It still generates the name of the C++ files from the name of the language file
+Refactoring:
+	- Simplify/split up the language_stage class @compiler
+		It current compiles the lexer and builds up an abstract representation of the grammar. We need to separate the lexer and grammar generation phases, and move the data into their own classes.
+
+		(The existing definition of the class: that it translate the grammar/lexer for a particular language is fine but there are really too many steps for a single class to reasonably deal with)
+
+	- Move the compiler data into separate classes @compiler
+		Currently we pass the compiler classes around but this will make it difficult to maintain the compiler in the long term.
+
+		Should probably make the stages that print out statistics separate from the stages that generate them
+		- language_stage
+		- import_stage
+		- lexer_stage
+		- parser_stage (though we already use the definition_file_container object for this purpose)
+
 	- Be more consistent about the way that public fields are named
 		Stack entry uses no 'm_' but the parse tables do, for instance
-		
+General:
 	- Check that all the operator< implementations work correctly
 
 	- Replace all usages of it or x with a more descriptive variable name
+
+	- Write a textmate/sublime text language file for the definition language
 
 	- Make it possible to determine if a stage reported an error on an individual stage basis
 		- Use this to stop trying to run tests if the parser/lexer for a language can't be built
@@ -21,7 +37,52 @@ General:
 	- Ensure that the errors format matches that of gcc
 		I think the 'detail' (note) errors in particular have the wrong format. Not sure about the way we display 'no line number information' either
 Lexer:
-	- Combine ignored symbols into a single symbol if they aren't used in the parser
+	- Combine ignored symbols into a single symbol if they aren't used in the parser @lexer @done
+		- Make it possible to turn this feature off in case the lexer needs to be used independently of the parser @lexer
+		- Suppress warnings that this generates @lexer
+
+	- Add the ability to have case-insensitive regexes @lexer @done
+
+	- Add repeats with lower and upper bounds (2 or more x style repeats) @lexer
+
+	- Add support for modifying the NDFA when inheriting from a language (replacing and adding to symbol definitions) @lexer
+
+	- Add support for case-insensitive lexer symbols @lexer @done
+
+	- Make sure |= works in lexer symbol maps @lexer @done
+
+	- If a lexer symbols block is specifically set as case sensitive, then make it case sensitive even in case insensitive contexts @lexer
+		Currently we only make sure that case insensitive symbol sets are treated correctly
+
+	- Add a way to override exisiting lexer symbols with new ones, especially when inheriting a language @lexer
+
+	- Reports 'unused symbol' warning when |= is used in an inherited language @lexer @done
+
+	- Check that we check for unused symbols in inherited languages @lexer @done
+		- Oops, we report them twice! @done
+		- Only check for unused symbols in the language that we're actually compiling @done
+
+	- Make it possible to use (weak) regular expressions 'in line' @lexer
+		Probably only want the to produce these symbols when the parser actually expects them.
+
+		Not sure how to name these symbols when they are used.
+
+	- Make it possible to have symbols that aren't generated unless they are explicitly expected.
+		This is an enhancement to the existing weak symbols system and can be used when a 'weak' symbol would otherwise be interpreted as more than one token.
+
+		For example, if we make 'Foo-Bar' a weak symbol, it won't be split up into 'Foo' '-' 'Bar' if the parser is not in  a state where the weak version is expected (so it's effectively a strong symbol). If the parser tells the lexer it's not looking for 'Foo-Bar', however, the lexer will be able to make the appropriate split.
+
+		Not sure if there are any languages where this is useful.
+
+	- Make it possible to suppress reporting unused symbols (for example to create a lexer-only base language) @lexer
+
+	- Make it possible to generate only a lexer @lexer
+		For cases where a parser is not required
+	 
+	- Issue with the case sensitivity tests @lexer @done
+		Problem appears to be that when merging if there's no transition for a symbol that's currently merged but similar transitions for all the other symbols then the two sets of symbols are not distinguished.
+
+	- Investigate ways to make the lexer smaller, particularly with unicode @lexer @size
 LALR Parser:
 	Parser generator:
 		- Fix terminology to be less confusing
@@ -77,7 +138,7 @@ Error reporting:
 
 	- If a syntax error occurs at the end of the file, we don't report its position
 
-	- Report bad regular expressions
+	- Report bad regular expressions @lexer
 
 	- Make it possible to disable errors on conflicting guards
 
@@ -90,18 +151,22 @@ Error reporting:
 Testing:
 	- report the line of the error when the match_from_file style is in use @done
 	
-	- call tameparse with the --run-tests option for all of the examples
+	- call tameparse with the --run-tests option for all of the examples @done
 
-	- write tests for the Ansi C language
+	- write tests for the Ansi C language @testing
 
-	- write tests for the Pascal language
+	- write tests for the Pascal language @done
 
-	- write tests for the parser definition language
+	- write tests for the parser definition language @testing
 
-	- write tests for the C99 language (once it's done)
+	- write tests for the C99 language (once it's done) @testing
+
+	- Stop from running tests if any errors are detected while generating the parser
 
 Examples:
 	- Finish the C99 language
+
+	- Write more tests for Pascal
 Report statistics:
 	- Number of states @done
 	

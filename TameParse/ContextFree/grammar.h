@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _CONTEXTFREE_GRAMMAR_H
@@ -185,7 +185,7 @@ namespace contextfree {
         /// \brief Computes the first set for the specified rule (or retrieves the cached version)
         ///
         /// The returned set will contain an empty (epsilon) item if the rule can have no symbols in it.
-        const item_set& first_for_rule(const rule& rule) const;
+        item_set first_for_rule(const rule& rule) const;
         
     private:
         /// \brief Updates the follow set cache using the content of a particular rule

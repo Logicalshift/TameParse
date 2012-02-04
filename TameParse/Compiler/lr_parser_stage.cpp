@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 27/08/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include <sstream>
@@ -12,6 +12,8 @@
 #include "TameParse/Lr/ignored_symbols.h"
 #include "TameParse/Language/formatter.h"
 #include "TameParse/Lr/ast_parser.h"
+#include "TameParse/Lr/lr1_rewriter.h"
+#include "TameParse/Compiler/conflict_attribute_rewriter.h"
 
 using namespace std;
 using namespace dfa;
@@ -30,7 +32,7 @@ lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring&
 , m_Parser(NULL)
 , m_Tables(NULL) {
 	// Add empty positions for each symbol
-	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+	for (size_t x=0; x<m_StartSymbols.size(); ++x) {
 		m_SymbolStartPosition.push_back(position(-1,-1,-1));
 	}
 }
@@ -46,7 +48,7 @@ lr_parser_stage::lr_parser_stage(console_container& console, const std::wstring&
 , m_Tables(NULL) {
 	// Make all the symbols begin in the same place as this block
 	// TODO: actually record where the symbols are specified
-	for (size_t x=0; x<m_StartSymbols.size(); x++) {
+	for (size_t x=0; x<m_StartSymbols.size(); ++x) {
 		m_SymbolStartPosition.push_back(m_StartPosition);
 	}	
 }
@@ -76,7 +78,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 	// TODO: have a way to mark guards that are permitted to be in the same state
 	
 	// Iterate through the states
-	for (int stateId = 0; stateId < builder->count_states(); stateId++) {
+	for (int stateId = 0; stateId < builder->count_states(); ++stateId) {
 		// Map of terminal symbol IDs to guard actions
 		typedef map<item_container, set<item_container> > guard_to_symbol;
 		guard_to_symbol guardForSymbol;
@@ -84,7 +86,7 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 		// Search for guard actions 
 		const lr_action_set& actions = builder->actions_for_state(stateId);
 
-		for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); nextAction++) {
+		for (lr_action_set::const_iterator nextAction = actions.begin(); nextAction != actions.end(); ++nextAction) {
 			// Ignore actions that are not guard actions
 			if ((*nextAction)->type() != lr_action::act_guard) continue;
 
@@ -98,14 +100,14 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 		// Warn of any guards that have conflicting actions
 		set<item_container> warnedGuards;
 
-		for (guard_to_symbol::iterator guarded = guardForSymbol.begin(); guarded != guardForSymbol.end(); guarded++) {
+		for (guard_to_symbol::iterator guarded = guardForSymbol.begin(); guarded != guardForSymbol.end(); ++guarded) {
 			// No clash if there's only one guard for this symbol
 			if (guarded->second.size() <= 1) continue;
 
 			// Ignore guards that we've already warned about
 			bool warned = true;
-			for (set<item_container>::iterator it = guarded->second.begin(); it != guarded->second.end(); it++) {
-				if (warnedGuards.find(*it) == warnedGuards.end()) {
+			for (set<item_container>::iterator clashing = guarded->second.begin(); clashing != guarded->second.end(); ++clashing) {
+				if (warnedGuards.find(*clashing) == warnedGuards.end()) {
 					// Haven't warned about this guard yet, so this is a new kind of clash
 					warned = false;
 					break;
@@ -116,17 +118,20 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 
 			// Default severity is 'warning' for the first item, and 'detail' for the remainder
 			bool shownWarning = false;
+            
+            // Guard items that have the clashing flag set
+            set<lr0_item_container> allowedToClash;
 
 			// Get the state ID
 			const lalr_state_container& state = builder->machine().state_with_id(stateId);
 
 			// Iterate through the guards
-			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); clashingGuard++) {
+			for (set<item_container>::iterator clashingGuard = guarded->second.begin(); clashingGuard != guarded->second.end(); ++clashingGuard) {
 				// Warned about this guard
 				warnedGuards.insert(*clashingGuard);
 
 				// Find all of the LR items that have a reference to this guard
-				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); lrItem++) {
+				for (lalr_state::iterator lrItem = state->begin(); lrItem != state->end(); ++lrItem) {
 					// Ignore at end items
 					if ((*lrItem)->at_end()) continue;
 
@@ -134,10 +139,19 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					// (Assumption is that all usages of the guard have the same initial set, so any symbol refers to any reference to this guard)
 					if ((*lrItem)->rule()->items()[(*lrItem)->offset()] != *clashingGuard) continue;
 
+					// Fetch the attributes for this item
+					const ebnf_item_attributes& attr = language->get_rule_item_data().attributes_for(*(*lrItem)->rule(), (*lrItem)->offset());
+
+					// Don't show warnings for guards that have the 'can-clash' flag set except if they clash with guards that do not have it set
+					if (attr.guard_can_clash) {
+						allowedToClash.insert(*lrItem);
+						continue;
+					}
+
 					// Get the position of this rule
 					int             ruleId      = (*lrItem)->rule()->identifier(*language->grammar());
 					position        rulePos     = language->rule_definition_pos(ruleId);
-                    const wstring&  ruleFile    = language->rule_definition_file(ruleId);
+					const wstring&  ruleFile    = language->rule_definition_file(ruleId);
 
 					// We know the item, the guard and the position: generate the error message
 					if (!shownWarning) {
@@ -156,9 +170,23 @@ static void warn_clashing_guards(console& cons, const language_stage* language, 
 					
 					cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
 
-					shownWarning = true;
+					shownWarning 	= true;
 				}
 			}
+            
+            // Show warnings for guards that had the 'can clash' flag set if there were any that did not have it set
+            if (shownWarning) {
+                for (set<lr0_item_container>::const_iterator remainingGuard = allowedToClash.begin(); remainingGuard != allowedToClash.end(); ++remainingGuard) {
+                    int             ruleId      = (*remainingGuard)->rule()->identifier(*language->grammar());
+                    position        rulePos     = language->rule_definition_pos(ruleId);
+                    
+                    wstringstream msg;
+                    msg << L"or here: "
+                    << formatter::to_string(**remainingGuard, builder->gram(), builder->terminals());
+                    
+                    cons.report_error(error(error::sev_detail, language->filename(), L"CLASHING_GUARDS_DETAIL", msg.str(), rulePos));
+                }
+            }
 		}
 	}
 }
@@ -186,8 +214,8 @@ void lr_parser_stage::compile() {
 		return;
 	}
 
-	if (!m_Language->ndfa()) {
-		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_NDFA", L"Language compiler stage has not generated a lexer", m_StartPosition));
+	if (!m_Language->lexer()) {
+		cons().report_error(error(error::sev_bug, filename(), L"BUG_NO_LANGUAGE_LEXER", L"Language compiler stage has not generated a lexer", m_StartPosition));
 		return;
 	}
 
@@ -232,7 +260,7 @@ void lr_parser_stage::compile() {
 	// Get the nonterminal items corresponding to the start symbols
 	vector<item_container> startItems;
 
-	for (size_t startSymbolId = 0; startSymbolId < m_StartSymbols.size(); startSymbolId++) {
+	for (size_t startSymbolId = 0; startSymbolId < m_StartSymbols.size(); ++startSymbolId) {
 		// Get the symbol
 		const wstring& startSymbol = m_StartSymbols[startSymbolId];
 
@@ -260,21 +288,31 @@ void lr_parser_stage::compile() {
     ignored_symbols* ignored = new ignored_symbols();
     action_rewriter_container ignoreContainer(ignored, true);
     
-    for (set<int>::const_iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ignoredTerminalId++) {
+    for (set<int>::const_iterator ignoredTerminalId = m_Language->ignored_symbols()->begin(); ignoredTerminalId != m_Language->ignored_symbols()->end(); ++ignoredTerminalId) {
     	item_container newTerm(new terminal(*ignoredTerminalId), true);
         ignored->add_item(newTerm);
     }
 
 	// Add the initial states to the LALR builder
 	m_InitialStates.clear();
-	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); initialItem++) {
+	for (vector<item_container>::iterator initialItem = startItems.begin(); initialItem != startItems.end(); ++initialItem) {
 		m_InitialStates.push_back(m_Parser->add_initial_state(*initialItem));
+	}
+
+	// Add any language rewriters that might be defined
+	typedef language_stage::rewriter_list rewriter_list;
+	for (rewriter_list::const_iterator languageRewriter = m_Language->action_rewriters()->begin(); languageRewriter != m_Language->action_rewriters()->end(); ++languageRewriter) {
+		m_Parser->add_rewriter(*languageRewriter);
 	}
     
     // Add the weak symbols and ignore items actions
     // TODO: it might be good to have a way to supply extra rewriters from other stages instead of just having them
     // hardcoded here. This is good enough for now, though.
     m_Parser->add_rewriter(action_rewriter_container(m_LexerCompiler->weak_symbols(), false));
+    m_Parser->add_rewriter(action_rewriter_container(new conflict_attribute_rewriter(&m_Language->get_rule_item_data())));
+    if (!cons().get_option(L"enable-lr1-resolver").empty()) {
+	    m_Parser->add_rewriter(action_rewriter_container(new lr1_rewriter()));
+	}
     m_Parser->add_rewriter(ignoreContainer);
 
 	// Build the parser
@@ -299,14 +337,14 @@ void lr_parser_stage::compile() {
         shiftReduceSev = reduceReduceSev = error::sev_error;
     }
 
-	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); conflict++) {
+	for (conflict_list::iterator conflict = conflictList.begin(); conflict != conflictList.end(); ++conflict) {
         // We only show detail if the show-conflict-details option is set
         bool showDetail = !cons().get_option(L"show-conflict-details").empty();
         
 		// Test the type of this conflict
 		if ((*conflict)->first_shift_item() != (*conflict)->last_shift_item()) {
 			// Shift/reduce conflict: we report the 'shift' part of the conflict as the first line
-			for (lr0_item_set::const_iterator shiftItem = (*conflict)->first_shift_item(); shiftItem != (*conflict)->last_shift_item(); shiftItem++) {
+			for (lr0_item_set::const_iterator shiftItem = (*conflict)->first_shift_item(); shiftItem != (*conflict)->last_shift_item(); ++shiftItem) {
 				// Start building the message
 				wstringstream 	shiftMessage;
 				error::severity	sev = shiftReduceSev;
@@ -337,7 +375,7 @@ void lr_parser_stage::compile() {
 		}
 
 		// Display the reductions for this conflict
-		for (conflict::reduce_iterator reduceItem = (*conflict)->first_reduce_item(); reduceItem != (*conflict)->last_reduce_item(); reduceItem++) {
+		for (conflict::reduce_iterator reduceItem = (*conflict)->first_reduce_item(); reduceItem != (*conflict)->last_reduce_item(); ++reduceItem) {
 			// Start building the message
 			wstring         reduceCode      = L"DETAIL_REDUCE";
 			error::severity reductionSev    = error::sev_detail;
@@ -395,7 +433,7 @@ void lr_parser_stage::compile() {
     
     // Display some stats
     int totalActions = 0;
-    for (int stateId = 0; stateId < m_Tables->count_states(); stateId++) {
+    for (int stateId = 0; stateId < m_Tables->count_states(); ++stateId) {
         totalActions += m_Tables->count_actions_for_state(stateId);
     }
     
@@ -416,12 +454,12 @@ void lr_parser_stage::report_reduce_conflict(lr::conflict::reduce_iterator& redu
     displayedNonterminals.insert(nonterminal);
     
     // For reduce/reduce conflicts, display the context in which the reduction can occur
-    for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); possibleState++) {
+    for (conflict::possible_reduce_states::const_iterator possibleState = reduceItem->second.begin(); possibleState != reduceItem->second.end(); ++possibleState) {
         // Generate a detail message for this item
         const conflict::lr_item_id& itemId = *possibleState;
         
         // Get the relevant item
-        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.first))[itemId.second];
+        const lr0_item_container& item = (*m_Parser->machine().state_with_id(itemId.state_id))[itemId.item_id];
 
         // Ignore this item if it's not on the correct nonterminal
         if (item->at_end()) continue;

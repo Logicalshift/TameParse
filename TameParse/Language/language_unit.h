@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 17/07/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #ifndef _LANGUAGE_LANGUAGE_UNIT_H
@@ -12,6 +12,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/grammar_block.h"
 #include "TameParse/Language/lexer_block.h"
+#include "TameParse/Language/precedence_block.h"
 
 namespace language {
     /// \brief Class that represents an item in a language definition
@@ -25,12 +26,6 @@ namespace language {
             /// \brief A lexer symbols block (symbols that can be re-used when defining the lexer, but which don't actually produce terminal symbols)
             unit_lexer_symbols,
             
-            /// \brief The weak keyword symbols definition
-            unit_weak_keywords_definition,
-            
-            /// \brief The weak symbols definition
-            unit_weak_lexer_definition,
-            
             /// \brief The keyword symbols definition
             unit_keywords_definition,
             
@@ -41,7 +36,10 @@ namespace language {
             unit_ignore_definition,
             
             /// \brief A grammar definition
-            unit_grammar_definition
+            unit_grammar_definition,
+
+            /// \brief A precedence definition
+            unit_precedence_definition
         };
         
     private:
@@ -53,13 +51,19 @@ namespace language {
         
         /// \brief If this is a grammar block, this will be non-NULL
         grammar_block* m_Grammar;
-        
+
+        /// \brief If this is a precedence block, this will be non-NULL
+        precedence_block* m_Precedence;
+
     public:
         /// \brief Defines this as a lexical lanuguage unit
         language_unit(unit_type type, lexer_block* lexer);
         
         /// \brief Defines this as a language unit with a grammar
         language_unit(grammar_block* grammar);
+
+        /// \brief Defines this as a language unit with a precedence block
+        language_unit(precedence_block* precedence);
         
         /// \brief Copies a language unit
         language_unit(const language_unit& copyFrom);
@@ -103,22 +107,6 @@ namespace language {
                 return NULL;
         }
         
-        /// \brief If this is a weak keywords block, this will return the lexer block that defines its content (otherwise null)
-        inline lexer_block* weak_keywords_definition() const {
-            if (m_Type == unit_weak_keywords_definition)
-                return m_LexerBlock;
-            else
-                return NULL;
-        }
-        
-        /// \brief If this is a weak symbols block, this will return the lexer block that defines its content (otherwise null)
-        inline lexer_block* weak_lexer_definition() const {
-            if (m_Type == unit_weak_lexer_definition)
-                return m_LexerBlock;
-            else
-                return NULL;
-        }
-        
         /// \brief If this is a keywords definition block, this will return the lexer block that defines its content (otherwise null)
         inline lexer_block* keywords_definition() const {
             if (m_Type == unit_keywords_definition)
@@ -130,6 +118,11 @@ namespace language {
         /// \brief If this is a grammar definition block, this will return the grammar block that defines its content
         inline grammar_block* grammar_definition() const {
             return m_Grammar;
+        }
+
+        /// \brief If this is a precedence definition block, this will return the precedence of the items
+        inline precedence_block* precedence_definition() const {
+            return m_Precedence;
         }
     };
 }

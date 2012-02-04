@@ -3,7 +3,7 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 30/04/2011.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
+//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
 #include "TameParse/ContextFree/rule.h"
@@ -21,6 +21,7 @@ rule::rule()
 rule::rule(const rule& copyFrom)
 : m_NonTerminal(copyFrom.m_NonTerminal)
 , m_Items(copyFrom.m_Items)
+, m_ItemKeys(copyFrom.m_ItemKeys)
 , m_LastGrammar(NULL) {
 }
 
@@ -28,6 +29,7 @@ rule::rule(const rule& copyFrom)
 rule::rule(const rule& copyFrom, const item_container& nonTerminal)
 : m_NonTerminal(nonTerminal)
 , m_Items(copyFrom.m_Items)
+, m_ItemKeys(copyFrom.m_ItemKeys)
 , m_LastGrammar(NULL) {
 }
 
@@ -47,6 +49,7 @@ rule::rule(const int newNt)
 rule& rule::operator=(const rule& copyFrom) {
     m_NonTerminal   = copyFrom.m_NonTerminal;
     m_Items         = copyFrom.m_Items;
+    m_ItemKeys      = copyFrom.m_ItemKeys;
     m_LastGrammar   = NULL;
     
     return *this;
@@ -62,7 +65,7 @@ int rule::compare_items(const rule& compareTo) const {
     item_list::const_iterator ourItem   = m_Items.begin();
     item_list::const_iterator theirItem = compareTo.begin();
     
-    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
+    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ++ourItem, ++theirItem) {
         if (*ourItem < *theirItem) return -1;
         if (*theirItem < *ourItem) return 1;
     }
@@ -82,6 +85,8 @@ bool rule::operator<(const rule& compareTo) const {
     // The nonterminal should be reasonably fast to compare
     if (m_NonTerminal < compareTo.m_NonTerminal)    return true;
     if (compareTo.m_NonTerminal < m_NonTerminal)    return false;
+
+    // Keys aren't compared at the moment, but perhaps they should be
     
     // Compare the items
     return compare_items(compareTo) < 0;
@@ -102,7 +107,7 @@ bool rule::operator==(const rule& compareTo) const {
     item_list::const_iterator ourItem   = m_Items.begin();
     item_list::const_iterator theirItem = compareTo.begin();
     
-    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ourItem++, theirItem++) {
+    for (;ourItem != m_Items.end() && theirItem != compareTo.end(); ++ourItem, ++theirItem) {
         if (*ourItem != *theirItem) return false;
     }
     
@@ -113,6 +118,7 @@ bool rule::operator==(const rule& compareTo) const {
 rule& rule::operator<<(const item_container& item) {
     // Add this item to the list of items
     m_Items.push_back(item);
+    m_ItemKeys.push_back(0);
     
     return *this;
 }
@@ -120,8 +126,9 @@ rule& rule::operator<<(const item_container& item) {
 
 /// \brief Appends the production in the specified rule to this item
 rule& rule::operator<<(const rule& rule) {
-    for (iterator it = rule.begin(); it != rule.end(); it++) {
-        operator<<(*it);
+    for (iterator sym = rule.begin(); sym != rule.end(); ++sym) {
+        m_Items.push_back(*sym);
+        m_ItemKeys.push_back(rule.get_key(sym));
     }
     return *this;
 }
@@ -137,4 +144,17 @@ int rule::identifier(const grammar& gram) const {
     
     m_LastGrammar = &gram;
     return m_Identifier = gram.identifier_for_rule(*this);
+}
+
+/// \brief Retrieves the key associated with the item at the specified index
+///
+/// Each item in a rule has an associated key which can be used to retrieve
+/// information associated with it. Keys are set to 0 by default.
+int rule::get_key(size_t offset) const {
+    return m_ItemKeys[offset];
+}
+
+/// \brief Sets the key associated with the item at the specified index
+void rule::set_key(size_t offset, int key) {
+    m_ItemKeys[offset] = key;
 }
