@@ -1,4 +1,4 @@
-AC_PREREQ([2.68])
+AC_PREREQ([2.65])
 AC_CONFIG_MACRO_DIR([m4])
 AC_INIT([TameParse], [1.0.0], [andrew@logicalshift.co.uk])
 AC_CONFIG_SRCDIR([parsetool/main.cpp])
