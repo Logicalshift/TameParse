@@ -5,6 +5,12 @@ test_CFLAGS			= -I$(top_srcdir) -I../TameParse
 test_CXXFLAGS		= -I$(top_srcdir) -I../TameParse
 test_LDADD			= ../TameParse/libTameParse.la
 
+definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
+	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
+	xxd -i "definition.tp" >definition_tp.h
+
+../TameParse/Language/bootstrap.cpp: definition_tp.h
+
 test_SOURCES		= \
 					  contextfree_firstset.h \
 					  contextfree_followset.h \
