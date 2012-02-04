@@ -5,6 +5,8 @@ AC_CONFIG_SRCDIR([parsetool/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 # Use -Os by default for C++ programs (-O2 is really astoundingly bad for some reason)
+# (It's generally bad to change the default options, but if you're using gcc or clang,
+# you really actually don't want them)
 if test -z $CXXFLAGS; then
     CXXFLAGS='-Os -g'
 fi
