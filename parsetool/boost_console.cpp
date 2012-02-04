@@ -6,6 +6,8 @@
 //  Copyright 2011-2012 Andrew Hunter. All rights reserved.
 //
 
+#define BOOST_FILESYSTEM_VERSION 3
+
 #include <string>
 #include <vector>
 

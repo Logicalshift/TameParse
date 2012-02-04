@@ -29,7 +29,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([getcwd])
 
 # Check for boost
-AX_BOOST_BASE([1.46])
+AX_BOOST_BASE([1.45])
 
 AC_CONFIG_FILES([Makefile
                  Test/Makefile
