@@ -436,12 +436,12 @@ void language_stage::compile() {
     }
 
     // Go through the precedence blocks and create precedence rewriters
-    for (language_block::iterator block = m_Language->begin(); block != m_Language->end(); ++block) {
+    for (language_block::iterator languageBlock = m_Language->begin(); languageBlock != m_Language->end(); ++languageBlock) {
         // Only interested in precedence blocks
-        if ((*block)->type() != language_unit::unit_precedence_definition) continue;
+        if ((*languageBlock)->type() != language_unit::unit_precedence_definition) continue;
 
         // Fetch the precedence block
-        const precedence_block* precedenceBlock = (*block)->precedence_definition();
+        const precedence_block* precedenceBlock = (*languageBlock)->precedence_definition();
         if (!precedenceBlock) continue;
 
         // Check that all of the precedence block items are defined in the list of terminals
