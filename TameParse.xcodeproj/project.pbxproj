@@ -85,6 +85,7 @@
 		4B721E2114CCBF9A00285A5C /* precedence_block_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */; };
 		4B721E2414CCBFFF00285A5C /* precedence_block_rewriter.h in Headers */ = {isa = PBXBuildFile; fileRef = 4B721E2314CCBFFF00285A5C /* precedence_block_rewriter.h */; };
 		4B721E2514CCC00200285A5C /* precedence_block_rewriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */; };
+		4B721E5114E07F4000285A5C /* binary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B721E5014E07F4000285A5C /* binary.cpp */; };
 		4B79D0C2142E1E2000D778BC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B79D0C1142E1E2000D778BC /* main.cpp */; };
 		4B79D0C4142E1E2000D778BC /* tameparse.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4B79D0C3142E1E2000D778BC /* tameparse.1 */; };
 		4B79D0C8142E1E6800D778BC /* TameParseLib.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4BD7FDF9132D05D600025433 /* TameParseLib.dylib */; };
@@ -448,6 +449,8 @@
 		4B68195713CA52BE0085CA95 /* parser_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser_state.h; sourceTree = "<group>"; };
 		4B721E2014CCBF9A00285A5C /* precedence_block_rewriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = precedence_block_rewriter.cpp; sourceTree = "<group>"; };
 		4B721E2314CCBFFF00285A5C /* precedence_block_rewriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = precedence_block_rewriter.h; sourceTree = "<group>"; };
+		4B721E5014E07F4000285A5C /* binary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = binary.cpp; sourceTree = "<group>"; };
+		4B721E5314E07F4A00285A5C /* binary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = binary.h; sourceTree = "<group>"; };
 		4B79D0B9142DEFC800D778BC /* TameParse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TameParse.h; sourceTree = "<group>"; };
 		4B79D0BE142E1E2000D778BC /* tameparse */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tameparse; sourceTree = BUILT_PRODUCTS_DIR; };
 		4B79D0C1142E1E2000D778BC /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -787,6 +790,8 @@
 			children = (
 				4B8A0102140BED2100187196 /* cplusplus.cpp */,
 				4B8A0103140BED2100187196 /* cplusplus.h */,
+				4B721E5014E07F4000285A5C /* binary.cpp */,
+				4B721E5314E07F4A00285A5C /* binary.h */,
 			);
 			path = OutputStages;
 			sourceTree = "<group>";
@@ -1428,6 +1433,7 @@
 				4B82D1FB14CB1D1200A61239 /* precedence_rewriter.cpp in Sources */,
 				4B82D20714CB81E700A61239 /* precedence_block.cpp in Sources */,
 				4B721E2114CCBF9A00285A5C /* precedence_block_rewriter.cpp in Sources */,
+				4B721E5114E07F4000285A5C /* binary.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

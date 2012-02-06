@@ -37,6 +37,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/OutputStages/binary.h \
 							  Compiler/Data/lexer_data.h \
 							  Compiler/Data/lexer_item.h \
 							  Compiler/Data/rule_item_data.h \
@@ -131,6 +132,7 @@ libTameParse_la_SOURCES		= tameparse_language.h \
 							  Compiler/std_console.cpp \
 							  Compiler/test_stage.cpp \
 							  Compiler/OutputStages/cplusplus.cpp \
+							  Compiler/OutputStages/binary.cpp \
 							  Compiler/Data/lexer_data.cpp \
 							  Compiler/Data/lexer_item.cpp \
 							  Compiler/Data/rule_item_data.cpp \
@@ -225,6 +227,7 @@ nobase_library_include_HEADERS = Compiler/compilation_stage.h \
 							  Compiler/std_console.h \
 							  Compiler/test_stage.h \
 							  Compiler/OutputStages/cplusplus.h \
+							  Compiler/OutputStages/binary.h \
 							  Compiler/Data/lexer_data.h \
 							  Compiler/Data/lexer_item.h \
 							  Compiler/Data/rule_item_data.h \
