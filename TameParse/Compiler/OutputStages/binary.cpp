@@ -8,3 +8,4 @@
 
 #include "TameParse/Compiler/OutputStages/binary.h"
 
+using namespace compiler;
