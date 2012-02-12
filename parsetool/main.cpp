@@ -93,7 +93,7 @@ int main (int argc, const char * argv[])
         wstring         buildLanguageName   = console.get_option(L"compile-language");
         wstring         buildClassName      = console.get_option(L"class-name");
         vector<wstring> startSymbols        = console.get_option_list(L"start-symbol");
-        wstring         targetLanguage      = console.get_option(L"target-language");
+        wstring         targetLanguage      = console.get_option(L"output-language");
         wstring         buildNamespaceName  = console.get_option(L"namespace-name");
         position        parseBlockPosition  = position(-1, -1, -1);
         
@@ -255,7 +255,7 @@ int main (int argc, const char * argv[])
         }
         
         // Work out the prefix filename
-        wstring prefixFilename = console.get_option(L"output-language");
+        wstring prefixFilename = console.get_option(L"output-file");
         if (prefixFilename.empty()) {
             // Derive from the input file
             // This works provided the target language 
