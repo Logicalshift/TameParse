@@ -268,6 +268,24 @@ int main (int argc, const char * argv[])
         if (targetLanguage == L"cplusplus") {
             // Use the C++ language generator
             outputStage = auto_ptr<output_stage>(new output_cplusplus(cons, importStage.file_with_language(buildLanguageName), &lexerStage, compileLanguageStage, &lrParserStage, prefixFilename, buildClassName, buildNamespaceName));
+        } else if (targetLanguage == L"binary") {
+            // Detect system endianness (AC_C_BIGENDIAN can return 'universal' so is pointless)
+            union {
+                uint32_t    num;
+                uint8_t     byte[4];
+            } endianTest;
+
+            // Use the binary language generator with the current platform's endianness
+            endianTest.num = 0x10203040;
+
+            // Create the binary language
+            outputStage = auto_ptr<output_stage>(new output_binary(cons, importStage.file_with_language(buildLanguageName), &lexerStage, compileLanguageStage, &lrParserStage, prefixFilename, endianTest.byte[0] != 0x40));
+        } else if (targetLanguage == L"binary-le") {
+            // Create the binary language (little-endian)
+            outputStage = auto_ptr<output_stage>(new output_binary(cons, importStage.file_with_language(buildLanguageName), &lexerStage, compileLanguageStage, &lrParserStage, prefixFilename, false));
+        } else if (targetLanguage == L"binary-be") {
+            // Create the binary language (big-endian)
+            outputStage = auto_ptr<output_stage>(new output_binary(cons, importStage.file_with_language(buildLanguageName), &lexerStage, compileLanguageStage, &lrParserStage, prefixFilename, true));
         } else if (targetLanguage == L"test") {
             // Special case: read from stdin, and try to parse the source language
             ast_parser parser(*lrParserStage.get_tables());
