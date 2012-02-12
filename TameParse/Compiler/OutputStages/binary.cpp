@@ -266,7 +266,7 @@ void output_binary::compile() {
 
 	// Write the final binary file
 	if (!m_Errored) {
-		std::ostream* outputFile = cons().open_binary_file_for_writing(m_TargetFilename);
+		std::ostream* outputFile = cons().open_binary_file_for_writing(m_TargetFilename + L".tpdat");
 		if (outputFile) {
 			outputFile->write((const char*) m_File, (streamsize) m_WritePos);
 
