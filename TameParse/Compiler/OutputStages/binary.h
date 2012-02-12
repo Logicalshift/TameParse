@@ -78,10 +78,9 @@ namespace compiler {
     /// There is no support for lexers with > 65536 states or > 65536 distinct symbols
     /// in this version of the file format.
     ///
-    /// The lexer accepting table consists of a length (in words), followed by a
-    /// series of words containing the value ((state_id<<16) | parse_symbol),
-    /// ordered by state ID. Parse symbols or states >= 65536 are not supported
-    /// in this version of the format. 
+    /// The lexer accepting table consists of one entry per state, which is 0xffffffff
+    /// for rejecting states, or otherwise the symbol ID of the terminal that should be
+    /// generated.
     ///
     class output_binary : public output_stage {
     public:

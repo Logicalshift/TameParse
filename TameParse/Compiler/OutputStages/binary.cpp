@@ -233,6 +233,25 @@ void output_binary::write_lexer_dfa() {
 	}
 }
 
+/// \brief Writes out the lexer 'accepting state' table
+void output_binary::write_lexer_accept() {
+	// Start the table
+	start_table(table::lexer_accepting);
+
+	// Iterate through the lexer state action table
+	bool shownError = false;
+
+	for (lexer_state_action_iterator act = begin_lexer_state_action(); act != end_lexer_state_action(); ++act) {
+		if (!act->accepting) {
+			// Non-accepting state
+			write_int(0xffffffffu);
+		} else {
+			// Accepting state
+			write_int(act->acceptSymbolId);
+		}
+	}
+}
+
 /// =============
 ///  Compilation
 /// =============
@@ -263,6 +282,7 @@ void output_binary::compile() {
 	// Write out the lexer
 	write_symbol_map();
 	write_lexer_dfa();
+	write_lexer_accept();
 
 	// Write the final binary file
 	if (!m_Errored) {
