@@ -88,6 +88,11 @@ void output_stage::end_output() {
 //  Symbols
 // =========
 
+/// \brief The name of the language that will be produced by this stage
+std::wstring output_stage::language_name() {
+	return m_LanguageStage->language_name();
+}
+
 /// \brief Generates the terminal symbols list
 void output_stage::generate_terminal_symbols() {
 	// Clear out the existing symbols (so we regenerate if this is called multiple times)
