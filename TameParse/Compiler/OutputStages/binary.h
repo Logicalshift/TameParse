@@ -71,8 +71,8 @@ namespace compiler {
     ///     1 word:   number of states
     ///     n words:  table giving the offset to the transition table for each state
     ///                 offsets of 0 indicate a state with no transitions
+    ///     1 word:   the offset to the word after the last transition
     ///     n words:  transition table for each state, in the following format:
-    ///                 1 word: number of transitions for this state
     ///                 n words: words for each transition: ((symbol<<16) | state), ordered by symbol
     ///
     /// There is no support for lexers with > 65536 states or > 65536 distinct symbols
@@ -214,6 +214,19 @@ namespace compiler {
 
         /// \brief Writes out the lexer 'accepting state' table
         void write_lexer_accept();
+
+    private:
+        /// \brief Writes the terminal and nonterminal tables
+        void write_action_tables();
+
+        /// \brief Writes the guard ending state table
+        void write_guard_endings();
+
+        /// \brief Writes the rule count table
+        void write_rule_counts();
+
+        /// \brief Writes the weak-to-strong symbol mapping table
+        void write_weak_to_strong();
 
     public:
         /// \brief Creates a new output stage
