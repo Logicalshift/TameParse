@@ -76,11 +76,37 @@ namespace compiler {
     ///                 n words: words for each transition: ((symbol<<16) | state), ordered by symbol
     ///
     /// There is no support for lexers with > 65536 states or > 65536 distinct symbols
-    /// in this version of the file format.
+    /// in this version of the file format. The number of transitions in a given state
+    /// can be established by subtracting the offset for that state from the offset
+    /// for the next state (the transitions are ordered by state)
     ///
     /// The lexer accepting table consists of one entry per state, which is 0xffffffff
     /// for rejecting states, or otherwise the symbol ID of the terminal that should be
     /// generated.
+    ///
+    /// The terminal and nonterminal tables have the same basic format and different
+    /// headers. This common format is as follows:
+    ///
+    ///     n words:  table giving the offset to the action table for each state
+    ///     n words:  the actions for each state, 2 words per action, sorted by symbol ID:
+    ///         1 word: (action_type<<24) | next_state
+    ///         1 word: symbol ID for this action
+    ///
+    /// Action types are the same as in lr_action.h. Reduce actions supply the rule
+    /// ID instead of the next state.
+    ///
+    /// The terminal table has the following header preceding the action table:
+    ///
+    ///     1 word:   number of states
+    ///
+    /// The nonterminal table has the following header preceding the action table:
+    ///
+    ///     1 word:   number of states
+    ///     1 word:   ID of the 'end of input' ('$') nonterminal symbol
+    ///     1 word:   ID of the 'end of guard' ('%') nonterminal symbol
+    ///
+    /// (Note that 'end of input' and 'end of guard' both count as nonterminal
+    /// symbols; these can have actions other than goto)
     ///
     class output_binary : public output_stage {
     public:
@@ -140,8 +166,8 @@ namespace compiler {
             /// \brief Offset to the guard ending state table
             static const uint32_t guard_endings = header::length + 6;
 
-            /// \brief Offset to the rule symbol table
-            static const uint32_t rule_symbol = header::length + 7;
+            /// \brief Offset to the rule symbol counts table
+            static const uint32_t rule_symbol_counts = header::length + 7;
 
             /// \brief Offset to the weak-to-strong symbol mapping table
             static const uint32_t weak_to_strong = header::length + 8;

@@ -163,7 +163,7 @@ void output_binary::write_lexer_dfa() {
 	uint32_t 	curOffset 	= m_WritePos;
 	const ndfa*	dfa			= get_dfa();
 
-	for (uint32_t stateId = 0; stateId < numStates; stateId++) {
+	for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
 		// Get the current state
 		const state& thisState = dfa->get_state(stateId);
 
@@ -184,7 +184,7 @@ void output_binary::write_lexer_dfa() {
 	write_int(curOffset);
 
 	// Write out the transitions themselves
-	for (uint32_t stateId = 0; stateId < numStates; stateId++) {
+	for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
 		// Get the current state
 		const state& thisState = dfa->get_state(stateId);
 
@@ -199,7 +199,7 @@ void output_binary::write_lexer_dfa() {
 		// Write out the transitions themselves
 		bool shownError = false;
 
-		for (state::iterator transit = thisState.begin(); transit != thisState.end(); transit++) {
+		for (state::iterator transit = thisState.begin(); transit != thisState.end(); ++transit) {
 			// Get the symbol set and target state of this transition
 			int symSet 		= transit->symbol_set();
 			int targetState	= transit->new_state();
@@ -268,7 +268,7 @@ void output_binary::write_action_tables() {
 
 	// Write out the pointers to the actions for each state
 	uint32_t curPos = m_WritePos;
-	for (int stateId = 0; stateId < tables.count_states(); stateId++) {
+	for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
 		// Write out the current position
 		write_int(curPos);
 
@@ -280,8 +280,8 @@ void output_binary::write_action_tables() {
 	write_int(curPos);
 
 	// Write out the actions themselves
-	for (int stateId = 0; stateId < tables.count_states(); stateId++) {
-		for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumTerms; actionId++) {
+	for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+		for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumTerms; ++actionId) {
 			// Get this action
 			const action& act = tables.terminal_actions()[stateId][actionId];
 
@@ -303,7 +303,7 @@ void output_binary::write_action_tables() {
 
 	// Write out the pointers to the actions for each state
 	curPos = m_WritePos;
-	for (int stateId = 0; stateId < tables.count_states(); stateId++) {
+	for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
 		// Write out the current position
 		write_int(curPos);
 
@@ -315,8 +315,8 @@ void output_binary::write_action_tables() {
 	write_int(curPos);
 
 	// Write out the actions themselves
-	for (int stateId = 0; stateId < tables.count_states(); stateId++) {
-		for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumNonterms; actionId++) {
+	for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+		for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumNonterms; ++actionId) {
 			// Get this action
 			const action& act = tables.nonterminal_actions()[stateId][actionId];
 
@@ -329,17 +329,61 @@ void output_binary::write_action_tables() {
 
 /// \brief Writes the guard ending state table
 void output_binary::write_guard_endings() {
-	// TODO: implement me
+	// Fetch the parser tables built by the generator
+	const lr::parser_tables& tables = get_parser_tables();
+
+	// Start the guard endings table
+	start_table(table::guard_endings);
+
+	// Write out the counts
+	write_int((uint32_t) tables.count_end_of_guards());
+
+	for (int guardId = 0; guardId < tables.count_end_of_guards(); ++guardId) {
+		write_int((uint32_t) tables.end_of_guard_states()[guardId]);
+	}
 }
 
 /// \brief Writes the rule count table
 void output_binary::write_rule_counts() {
-	// TODO: implement me
+	// Fetch the parser tables built by the generator
+	const lr::parser_tables& tables = get_parser_tables();
+
+	// Start the table
+	start_table(table::rule_symbol_counts);
+
+	// Write the number of rules
+	write_int((uint32_t) tables.count_reduce_rules());
+
+	// Write the rules themselves
+	for (int ruleId=0; ruleId < tables.count_reduce_rules(); ++ruleId) {
+        const lr::parser_tables::reduce_rule& rule = tables.reduce_rules()[ruleId];
+
+		// Each rule has a length and a nonterminal identifier
+		write_int((((uint32_t) rule.m_Identifier)<<16) | ((uint32_t) rule.m_Length));
+
+		// TODO: error if there are more than 65535 nonterminal identifiers or a rule with more than 65535 symbols
+	}
 }
 
 /// \brief Writes the weak-to-strong symbol mapping table
 void output_binary::write_weak_to_strong() {
-	// TODO: implement me
+	// Fetch the parser tables built by the generator
+	const lr::parser_tables& tables = get_parser_tables();
+
+	// Start the table
+	start_table(table::weak_to_strong);
+
+	// Write the number of weak-to-strong symbols in the table
+	write_int((uint32_t) tables.count_weak_to_strong());
+
+	// Write the symbols themselves
+	for (int symbolId = 0; symbolId < tables.count_weak_to_strong(); ++symbolId) {
+		// Write this item
+		const lr::parser_tables::symbol_equivalent& equiv = tables.weak_to_strong()[symbolId];
+		write_int((((uint32_t) equiv.m_OriginalSymbol)<<16) | ((uint32_t) equiv.m_MappedTo));
+
+		// TODO: error if the symbols are out of range (can't happen?)
+	}
 }
 
 
@@ -377,6 +421,9 @@ void output_binary::compile() {
 
 	// Write out the parser
 	write_action_tables();
+	write_guard_endings();
+	write_rule_counts();
+	write_weak_to_strong();
 
 	// Write the final binary file
 	if (!m_Errored) {
