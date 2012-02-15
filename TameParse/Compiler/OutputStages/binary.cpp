@@ -120,7 +120,16 @@ void output_binary::write_int(int32_t value) {
 
 /// \brief Writes out a string value
 void output_binary::write_string(const std::wstring& value) {
-	// TODO: implement me
+	// Start with the string length (in characters)
+	write_int((uint32_t) value.size());
+
+	// Convert the string into words and write it out
+	for (size_t pos = 0; pos < value.size(); pos += 2) {
+		wchar_t first 	= value[pos];
+		wchar_t second 	= ((pos+1) < value.size()) ? value[pos+1] : 0;
+
+		write_int((((uint32_t) first)<<16) | (uint32_t) second);
+	}
 }
 
 /// =======
@@ -160,7 +169,7 @@ void output_binary::write_lexer_dfa() {
 	write_int(numStates);
 
 	// Work out the offsets for each state
-	uint32_t 	curOffset 	= m_WritePos;
+	uint32_t 	curOffset 	= m_WritePos + numStates * 4;
 	const ndfa*	dfa			= get_dfa();
 
 	for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
@@ -267,7 +276,7 @@ void output_binary::write_action_tables() {
 	write_int((uint32_t) tables.count_states());
 
 	// Write out the pointers to the actions for each state
-	uint32_t curPos = m_WritePos;
+	uint32_t curPos = m_WritePos + tables.count_states()*4;
 	for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
 		// Write out the current position
 		write_int(curPos);
@@ -386,6 +395,53 @@ void output_binary::write_weak_to_strong() {
 	}
 }
 
+/// =========
+///  Strings
+/// =========
+
+/// \brief Writes out the strings
+///
+/// Needs to be called after all the strings are generated
+void output_binary::write_string_table() {
+	// Start writing the string
+	start_table(table::strings);
+
+	// Create a sorted list of strings
+	map<int32_t, wstring> 	idToString;
+	int32_t 				maxStringId = 0;
+
+	for (map<wstring, int32_t>::const_iterator nextString = m_StringIdentifiers.begin(); nextString != m_StringIdentifiers.end(); ++nextString) {
+		idToString[nextString->second] = nextString->first;
+
+		if (nextString->second > maxStringId) {
+			maxStringId = nextString->second;
+		}
+	}
+
+	// Generate offsets for the strings
+	write_int(maxStringId+1);
+	uint32_t 	curPos = m_WritePos + (maxStringId+1)*4;
+	int 		lastId = 0;
+
+	for (map<int32_t, wstring>::const_iterator nextString = idToString.begin(); nextString != idToString.end(); ++nextString) {
+		// Write out 0s until we get to this ID (shouldn't be necessary unless something else has gone wrong)
+		while (lastId < nextString->first) {
+			write_int(0u);
+			++lastId;
+		}
+
+		// Write out the position of this string
+		write_int(curPos);
+
+		// Add the number of bytes in this string
+		curPos += 4 + 4 * ((nextString->second.size()+1)/2);
+	}
+
+	// Write out the strings themselves (which should appear at the offsets we calculated)
+	for (map<int32_t, wstring>::const_iterator nextString = idToString.begin(); nextString != idToString.end(); ++nextString) {
+		write_string(nextString->second);
+	}
+}
 
 /// =============
 ///  Compilation
@@ -424,6 +480,9 @@ void output_binary::compile() {
 	write_guard_endings();
 	write_rule_counts();
 	write_weak_to_strong();
+
+	// Finally, write the string table
+	write_string_table();
 
 	// Write the final binary file
 	if (!m_Errored) {

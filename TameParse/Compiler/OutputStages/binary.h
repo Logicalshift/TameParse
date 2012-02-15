@@ -254,6 +254,12 @@ namespace compiler {
         /// \brief Writes the weak-to-strong symbol mapping table
         void write_weak_to_strong();
 
+    private:
+        /// \brief Writes out the strings
+        ///
+        /// Needs to be called after all the strings are generated
+        void write_string_table();
+
     public:
         /// \brief Creates a new output stage
         output_binary(console_container& console, const std::wstring& sourceFilename, lexer_stage* lexer, language_stage* language, lr_parser_stage* parser, const std::wstring& targetFilename, bool bigEndian = false);
