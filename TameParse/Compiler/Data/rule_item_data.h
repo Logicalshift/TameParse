@@ -15,11 +15,11 @@
 #include "TameParse/Language/ebnf_item_attributes.h"
 
 namespace compiler {
-	///
-	/// \brief Class that associated items in rules with corresponding data
-	///
-	class rule_item_data {
-	public:
+    ///
+    /// \brief Class that associated items in rules with corresponding data
+    ///
+    class rule_item_data {
+    public:
         /// \brief Type of an attribute associated with a rule item key
         typedef language::ebnf_item_attributes rule_attributes;
 
@@ -32,29 +32,29 @@ namespace compiler {
         /// \brief Type of a rule iterator
         typedef contextfree::rule::iterator rule_iterator;
 
-	private:
-		/// \brief The next key to assign to an item in a rule
-		int m_NextKey;
+    private:
+        /// \brief The next key to assign to an item in a rule
+        int m_NextKey;
 
-		/// \brief The attributes applied to each rule item
-		rule_attribute_map m_RuleItemAttributes;
+        /// \brief The attributes applied to each rule item
+        rule_attribute_map m_RuleItemAttributes;
 
-	public:
-		/// \brief Creates a new, empty, rule item data object
-		rule_item_data();
+    public:
+        /// \brief Creates a new, empty, rule item data object
+        rule_item_data();
 
-		/// \brief Sets the attributes for a particular item in a rule
-		void set_attributes(rule& rule, const rule_iterator& pos, const rule_attributes& newAttributes);
+        /// \brief Sets the attributes for a particular item in a rule
+        void set_attributes(rule& rule, const rule_iterator& pos, const rule_attributes& newAttributes);
 
-		/// \brief Sets the attributes for a particular item in a rule
-		void set_attributes(rule& rule, size_t index, const rule_attributes& newAttributes);
+        /// \brief Sets the attributes for a particular item in a rule
+        void set_attributes(rule& rule, size_t index, const rule_attributes& newAttributes);
 
-		/// \brief Returns the attributes for a particular item in a rule
-		const rule_attributes& attributes_for(const rule& rule, const rule_iterator& pos) const;
+        /// \brief Returns the attributes for a particular item in a rule
+        const rule_attributes& attributes_for(const rule& rule, const rule_iterator& pos) const;
 
-		/// \brief Returns the attributes for a particular item in a rule
-		const rule_attributes& attributes_for(const rule& rule, const size_t index) const;
-	};
+        /// \brief Returns the attributes for a particular item in a rule
+        const rule_attributes& attributes_for(const rule& rule, const size_t index) const;
+    };
 }
 
 #endif

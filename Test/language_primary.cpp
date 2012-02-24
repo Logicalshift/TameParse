@@ -97,7 +97,7 @@ void test_language_primary::run_tests() {
     ignoredSymbols.insert(com);
     ignoredSymbols.insert(ccom);
     
-	// Test that the lexer can match some particular symbols
+    // Test that the lexer can match some particular symbols
     report("MatchIdentifier1", test_lex("fdsu", tameparse_language::lexer, tameparse_language::t::identifier));
     report("MatchIdentifier2", test_lex("some-identifier", tameparse_language::lexer, tameparse_language::t::identifier));
     report("MatchIdentifier3", test_lex("id128", tameparse_language::lexer, tameparse_language::t::identifier));

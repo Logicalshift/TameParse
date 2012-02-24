@@ -23,7 +23,7 @@ static item_container an_empty_item_c(&an_empty_item, false);
 
 /// \brief Creates an empty grammar
 grammar::grammar() {
-	m_EpsilonSet = new item_set(this);
+    m_EpsilonSet = new item_set(this);
     m_EpsilonSet->insert(an_empty_item_c);
 }
 

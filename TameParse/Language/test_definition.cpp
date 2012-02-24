@@ -23,5 +23,5 @@ test_definition::test_definition(const std::wstring& nonterminalLanguage, const 
 
 /// \brief Destructor
 test_definition::~test_definition() {
-	
+    
 }

@@ -13,7 +13,7 @@ class test_language_primary : public test_fixture {
 private:
 
 public:
-	test_language_primary() : test_fixture("language-primary") { }
+    test_language_primary() : test_fixture("language-primary") { }
 
-	virtual void run_tests();
+    virtual void run_tests();
 };

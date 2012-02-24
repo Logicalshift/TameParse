@@ -17,7 +17,7 @@ static int some_ints[] = { 1,2,3 };
 static hard_coded_symbol_table<wchar_t, 2> s_WideCharSymbolTableTest(some_ints);
 
 static void lookup_test() {
-	s_WideCharSymbolTableTest.lookup(L'x');
+    s_WideCharSymbolTableTest.lookup(L'x');
 }
 
 #endif

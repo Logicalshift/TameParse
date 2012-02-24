@@ -20,37 +20,37 @@ namespace compiler {
     ///
     class lexer_data {
     public:
-    	/// \brief List of lexer items
-    	typedef std::vector<lexer_item> item_list;
+        /// \brief List of lexer items
+        typedef std::vector<lexer_item> item_list;
 
-    	/// \brief Maps items to their definitions
-    	typedef std::map<std::wstring, item_list> definition_map;
+        /// \brief Maps items to their definitions
+        typedef std::map<std::wstring, item_list> definition_map;
 
-    	/// \brief Iterator for this data
-    	typedef definition_map::const_iterator iterator;
+        /// \brief Iterator for this data
+        typedef definition_map::const_iterator iterator;
 
     private:
-    	/// \brief The definitions in this lexer data
-    	mutable definition_map m_Definitions;
+        /// \brief The definitions in this lexer data
+        mutable definition_map m_Definitions;
 
-    	/// \brief The expressions in this lexer data
-    	mutable definition_map m_Expressions;
+        /// \brief The expressions in this lexer data
+        mutable definition_map m_Expressions;
 
     public:
-    	/// \brief Adds a new lexer definition to this object
-    	void add_definition(const std::wstring& term, const lexer_item& newItem);
+        /// \brief Adds a new lexer definition to this object
+        void add_definition(const std::wstring& term, const lexer_item& newItem);
 
-    	/// \brief Removes all of the definitions for a terminal with a particular name from this item
-    	void remove_definition(const std::wstring& term);
+        /// \brief Removes all of the definitions for a terminal with a particular name from this item
+        void remove_definition(const std::wstring& term);
 
-    	/// \brief Returns all of the definitions for a particular terminal value
-    	const item_list& get_definitions(const std::wstring& term) const;
+        /// \brief Returns all of the definitions for a particular terminal value
+        const item_list& get_definitions(const std::wstring& term) const;
 
-    	/// \brief The first definition defined in this data object
-    	iterator begin() const;
+        /// \brief The first definition defined in this data object
+        iterator begin() const;
 
-    	/// \brief The item after the final definition defined in this data object
-    	iterator end() const;
+        /// \brief The item after the final definition defined in this data object
+        iterator end() const;
 
         /// \brief The first expression defined in this data object
         iterator begin_expr() const;
@@ -58,14 +58,14 @@ namespace compiler {
         /// \brief The item after the final expression defined in this data object
         iterator end_expr() const;
 
-    	/// \brief Adds a new lexer expression to this object
-    	void add_expression(const std::wstring& term, const lexer_item& newItem);
+        /// \brief Adds a new lexer expression to this object
+        void add_expression(const std::wstring& term, const lexer_item& newItem);
 
-    	/// \brief Removes a lexer expression from this object
-    	void remove_expression(const std::wstring& term);
+        /// \brief Removes a lexer expression from this object
+        void remove_expression(const std::wstring& term);
 
-    	/// \brief Returns all of the expressions for a particular value
-    	const item_list& get_expressions(const std::wstring& term) const;
+        /// \brief Returns all of the expressions for a particular value
+        const item_list& get_expressions(const std::wstring& term) const;
 
     };
 }

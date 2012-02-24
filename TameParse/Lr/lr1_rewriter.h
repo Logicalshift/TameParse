@@ -29,9 +29,9 @@ namespace lr {
     /// occurs in a single place in the rules reached by the reduction, we can
     /// replace one of the reductions with a weak reduce to resolve the conflict.
     ///
- 	/// Additionally, if the conflict becomes a shift/reduce we can also resolve
- 	/// it this way (this allows other rewriters to resolve the conflict, and also
- 	/// makes it easier to see why the grammar is conflicted)
+    /// Additionally, if the conflict becomes a shift/reduce we can also resolve
+    /// it this way (this allows other rewriters to resolve the conflict, and also
+    /// makes it easier to see why the grammar is conflicted)
     ///
     class lr1_rewriter : public action_rewriter {
     public:

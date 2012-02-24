@@ -42,10 +42,10 @@ const std::string& bootstrap::get_default_language_definition() {
     
     // Fill in the result if it's empty
     if (result.size() == 0) {
-		HRSRC	definitionResource	= FindResource(ThisModule, MAKEINTRESOURCE(IDR_DEFINITION_FILE), "Text");
-		DWORD	definitionSize		= SizeofResource(ThisModule, definitionResource);
-		HGLOBAL	definitionHandle	= LoadResource(ThisModule, definitionResource);
-		char*	definition			= (char*) LockResource(definitionHandle);
+        HRSRC   definitionResource  = FindResource(ThisModule, MAKEINTRESOURCE(IDR_DEFINITION_FILE), "Text");
+        DWORD   definitionSize      = SizeofResource(ThisModule, definitionResource);
+        HGLOBAL definitionHandle    = LoadResource(ThisModule, definitionResource);
+        char*   definition          = (char*) LockResource(definitionHandle);
 
         result.assign(definition, definitionSize);
     }
@@ -107,7 +107,7 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.parser            = add_terminal(languageNdfa, L"parser", L"parser");
     
     // Single character elements (these are also weak)
-	t.equals            = add_terminal(languageNdfa, L"'='", L"\\=");
+    t.equals            = add_terminal(languageNdfa, L"'='", L"\\=");
     t.question          = add_terminal(languageNdfa, L"'?'", L"\\?");
     t.plus              = add_terminal(languageNdfa, L"'+'", L"\\+");
     t.star              = add_terminal(languageNdfa, L"'*'", L"\\*");
@@ -135,14 +135,14 @@ dfa::ndfa* bootstrap::create_dfa() {
     t.comment           = add_terminal(languageNdfa, L"comment", L"//[^\n\r]*");
     
     // Store the IDs for the terminals
-    t.id_language       = t.language	->symbol();
-	t.id_grammar        = t.grammar     ->symbol();
+    t.id_language       = t.language    ->symbol();
+    t.id_grammar        = t.grammar     ->symbol();
     t.id_lexersymbols   = t.lexersymbols->symbol();
     t.id_lexer          = t.lexer       ->symbol();
     t.id_weak           = t.weak        ->symbol();
     t.id_ignore         = t.ignore      ->symbol();
     t.id_keywords       = t.keywords    ->symbol();
-	t.id_equals         = t.equals      ->symbol();
+    t.id_equals         = t.equals      ->symbol();
     t.id_question       = t.question    ->symbol();
     t.id_plus           = t.plus        ->symbol();
     t.id_star           = t.star        ->symbol();
@@ -208,13 +208,13 @@ contextfree::grammar* bootstrap::create_grammar() {
     nt.parser_startsymbol           = result->get_nonterminal(L"Parser-StartSymbol");
     nt.item_name                    = result->get_nonterminal(L"Item-Name");
 
-	// Store the IDs for these nonterminals
-	nt.id_parser_language         	= nt.parser_language         ->symbol();
+    // Store the IDs for these nonterminals
+    nt.id_parser_language           = nt.parser_language         ->symbol();
     nt.id_toplevel_block            = nt.toplevel_block          ->symbol();
     nt.id_language_block            = nt.language_block          ->symbol();
     nt.id_language_inherits         = nt.language_inherits       ->symbol();
     nt.id_language_definition       = nt.language_definition     ->symbol();
-    nt.id_lexer_symbols_definition  = nt.lexer_symbols_definition->symbol();	
+    nt.id_lexer_symbols_definition  = nt.lexer_symbols_definition->symbol();    
     nt.id_lexer_definition          = nt.lexer_definition        ->symbol();
     nt.id_ignore_definition         = nt.ignore_definition       ->symbol();
     nt.id_keywords_definition       = nt.keywords_definition     ->symbol();
@@ -519,7 +519,7 @@ language_block* bootstrap::get_language(const util::astnode* language) {
     if (!language)                                              return NULL;
     if (language->item_identifier() != nt.id_language_block)    return NULL;
     
-    // <Language-Block>		= language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
+    // <Language-Block>     = language identifier (<Language-Inherits>)? '{' (<Language-Definition>)* '}'
     const astnode* languageKeyword      = (*language)[0];
     const astnode* languageIdentifier   = (*language)[1];
     const astnode* inherits             = (*language)[2];

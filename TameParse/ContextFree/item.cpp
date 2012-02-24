@@ -92,7 +92,7 @@ void item::fill_follow(item_set& follow, const lr::lr1_item& item, const grammar
     // Work out what follows in the item
     const rule& rule        = *item.rule();
     int         offset      = item.offset();
-    int			numItems    = (int) rule.items().size();
+    int         numItems    = (int) rule.items().size();
     
     if (offset+1 >= numItems) {
         // The follow set is just the lookahead for this item
