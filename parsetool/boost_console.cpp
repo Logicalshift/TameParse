@@ -34,39 +34,39 @@ boost_console::boost_console(const boost_console& bc)
 /// \brief Constructor
 boost_console::boost_console(int argc, const char** argv) 
 : std_console(L"") {
-	// Declare the options supported by the tameparse utility
-	po::options_description inputOptions("Input options");
+    // Declare the options supported by the tameparse utility
+    po::options_description inputOptions("Input options");
 
-	inputOptions.add_options()
-		("input-file,i",		po::value<string>(),			"specifies the name of the input file.")
-		("include-path,I",		po::value< vector<string> >(),	"sets the path to search for included files.");
+    inputOptions.add_options()
+        ("input-file,i",        po::value<string>(),            "specifies the name of the input file.")
+        ("include-path,I",      po::value< vector<string> >(),  "sets the path to search for included files.");
 
-	po::options_description outputOptions("Output options");
-	
-	outputOptions.add_options()
-		("output-file,o",		po::value<string>(),			"specifies the base name for the output file. For languages that need to generate multiple files (for example, C++), the appropriate extensions will be added to this filename. If this is not specified, the output filenames will be derived from the input file.")
-		("output-language,T",	po::value<string>(),			"specifies the output language the parser will be generated in.")
-		("class-name,C",		po::value<string>(),			"specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
-		("namespace-name,N",	po::value<string>(),			"specifies the namespace to put the target class into.")
-		("run-tests",											"if the language contains any tests, then run them")
-		("test",												"specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
+    po::options_description outputOptions("Output options");
+    
+    outputOptions.add_options()
+        ("output-file,o",       po::value<string>(),            "specifies the base name for the output file. For languages that need to generate multiple files (for example, C++), the appropriate extensions will be added to this filename. If this is not specified, the output filenames will be derived from the input file.")
+        ("output-language,T",   po::value<string>(),            "specifies the output language the parser will be generated in.")
+        ("class-name,C",        po::value<string>(),            "specifies the name of the class to generate (overriding anything defined in the parser block of the input file)")
+        ("namespace-name,N",    po::value<string>(),            "specifies the namespace to put the target class into.")
+        ("run-tests",                                           "if the language contains any tests, then run them")
+        ("test",                                                "specifies that no output should be generated. This tool will instead try to read from stdin and indicate whether or not it can be accepted.");
 
-	po::options_description infoOptions("Information");
+    po::options_description infoOptions("Information");
     
     infoOptions.add_options()
-        ("help,h", 												"display help message.")
-        ("verbose,v",											"display verbose messages.")
-        ("silent",												"suppress informational messages.")
-        ("version",												"display version information.")
-        ("warranty",											"display warranty information.")
-        ("license",												"display license information.");
+        ("help,h",                                              "display help message.")
+        ("verbose,v",                                           "display verbose messages.")
+        ("silent",                                              "suppress informational messages.")
+        ("version",                                             "display version information.")
+        ("warranty",                                            "display warranty information.")
+        ("license",                                             "display license information.");
 
     po::options_description parserOptions("Parser generator options");
 
     parserOptions.add_options()
-		("compile-language,L",	po::value<string>(),			"specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
-		("start-symbol,S",		po::value< vector<string> >(),	"specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
-    	("enable-lr1-resolver",									"attempt to resolve reduce/reduce conflicts that would be allowed by a LR(1) parser")
+        ("compile-language,L",  po::value<string>(),            "specifies the name of the language block to compile (overriding anything defined in the parser block of the input file)")
+        ("start-symbol,S",      po::value< vector<string> >(),  "specifies the name of the start symbol (overriding anything defined in the parser block of the input file)")
+        ("enable-lr1-resolver",                                 "attempt to resolve reduce/reduce conflicts that would be allowed by a LR(1) parser")
         ("show-parser",                                         "writes the generated parser to standard out");
     
     po::options_description errorOptions("Error reporting");
@@ -81,16 +81,16 @@ boost_console::boost_console(int argc, const char** argv)
     po::options_description hiddenOptions;
 
     hiddenOptions.add_options()
-    	("show-parser-closure", 								"display the closure of all states when showing the parser with --show-parser.")
-    	("show-propagation",									"display the lookahead propagation tables")
-    	("disable-compact-dfa",									"do not compact the DFA")
-    	("disable-merged-dfa",									"do not attempt to merge symbol sets in the DFA");
+        ("show-parser-closure",                                 "display the closure of all states when showing the parser with --show-parser.")
+        ("show-propagation",                                    "display the lookahead propagation tables")
+        ("disable-compact-dfa",                                 "do not compact the DFA")
+        ("disable-merged-dfa",                                  "do not attempt to merge symbol sets in the DFA");
 
-	// Positional options
-	po::positional_options_description positional;
+    // Positional options
+    po::positional_options_description positional;
 
-	positional.add("input-file", 1);
-	positional.add("output-file", 1);
+    positional.add("input-file", 1);
+    positional.add("output-file", 1);
     
     // Command line options
     po::options_description cmdLine;
@@ -98,17 +98,17 @@ boost_console::boost_console(int argc, const char** argv)
     cmdLine.add(inputOptions).add(outputOptions).add(infoOptions).add(parserOptions).add(errorOptions).add(hiddenOptions);
     help.add(inputOptions).add(outputOptions).add(infoOptions).add(parserOptions).add(errorOptions);
 
-	// Store the options
+    // Store the options
     try {
         po::store(po::command_line_parser(argc, (char**)argv).options(cmdLine).positional(positional).run(), m_VarMap);
         po::notify(m_VarMap);
     } catch (po::error e) {
         cerr << e.what() << endl << endl;
-		cout << help << endl;
+        cout << help << endl;
         ::exit(1);
     }
 
-	// Display help if needed
+    // Display help if needed
     bool doneSomething = false;
     
     if (m_VarMap.count("version") || m_VarMap.count("warranty") || m_VarMap.count("license") || m_VarMap.count("help")) {
@@ -130,16 +130,16 @@ boost_console::boost_console(int argc, const char** argv)
         doneSomething = true;
     }
     
-	if (m_VarMap.count("help")) {
-		cout << help << endl;
-	    doneSomething = true;
-	}
+    if (m_VarMap.count("help")) {
+        cout << help << endl;
+        doneSomething = true;
+    }
 
-	// Also display help if no input file is displayed
-	if (!doneSomething && m_VarMap.count("input-file") == 0) {
-		cerr << argv[0] << ": no input files" << endl << endl;
-		cout << help << endl;
-	}
+    // Also display help if no input file is displayed
+    if (!doneSomething && m_VarMap.count("input-file") == 0) {
+        cerr << argv[0] << ": no input files" << endl << endl;
+        cout << help << endl;
+    }
     
     // Set the value of the input file string
     m_InputFile = get_option(L"input-file");
@@ -147,70 +147,70 @@ boost_console::boost_console(int argc, const char** argv)
 
 /// \brief Returns true if the options are valid and the parser can start
 bool boost_console::can_start() const {
-	// Nothing to do if no input file is specified
-	if (m_VarMap.count("input-file") == 0) {
-		return false;
-	}
+    // Nothing to do if no input file is specified
+    if (m_VarMap.count("input-file") == 0) {
+        return false;
+    }
 
-	// Everything looks to be in order
+    // Everything looks to be in order
     return true;
 }
 
 /// \brief Clones the console
 console* boost_console::clone() const {
-	return new boost_console(*this);
+    return new boost_console(*this);
 }
 
 /// \brief Reports an error to the console
 void boost_console::report_error(const compiler::error& error) {
-	// Pass to the standard console
-	std_console::report_error(error);
+    // Pass to the standard console
+    std_console::report_error(error);
 }
 
 /// \brief Simple conversion from a string to wstring
 static wstring convert(string asciiValue) {
-	// Convert to a wstring by assuming that the string is latin-1
-	// TODO: could take account of the locale here, somehow
-	wstring value;
-	for (size_t x = 0; x < asciiValue.size(); ++x) {
-		value += (wchar_t) asciiValue[x];
-	}
+    // Convert to a wstring by assuming that the string is latin-1
+    // TODO: could take account of the locale here, somehow
+    wstring value;
+    for (size_t x = 0; x < asciiValue.size(); ++x) {
+        value += (wchar_t) asciiValue[x];
+    }
 
-	return value;
+    return value;
 }
 
 /// \brief Retrieves the value of the option with the specified name.
 ///
 /// If the option is not set, then this should return an empty string
 std::wstring boost_console::get_option(const std::wstring& name) const {
-	// Convert to a standard string
-	string asciiName;
+    // Convert to a standard string
+    string asciiName;
 
-	for (size_t x=0; x<name.size(); ++x) {
-		asciiName += (char) name[x];
-	}
+    for (size_t x=0; x<name.size(); ++x) {
+        asciiName += (char) name[x];
+    }
 
-	// Return the empty string if the option is not present
-	if (m_VarMap.count(asciiName) == 0) {
-		return L"";
-	}
+    // Return the empty string if the option is not present
+    if (m_VarMap.count(asciiName) == 0) {
+        return L"";
+    }
 
-	// Try to get the value as a string
-	try {
-		// Convert to a wstring
-		wstring value = convert(m_VarMap[asciiName].as<string>());
+    // Try to get the value as a string
+    try {
+        // Convert to a wstring
+        wstring value = convert(m_VarMap[asciiName].as<string>());
         
         // Value is '1' if the value is empty but the option is present
         if (value.empty()) {
             value += L'1';
         }
 
-		return value;
-	} catch (boost::bad_any_cast) {
-		// The option is present but doesn't have a string value
-		// Assume it's a boolean on/off option and return the name
-		return name;
-	}
+        return value;
+    } catch (boost::bad_any_cast) {
+        // The option is present but doesn't have a string value
+        // Assume it's a boolean on/off option and return the name
+        return name;
+    }
 }
 
 /// \brief Returns a list of values for a particular option
@@ -219,60 +219,60 @@ std::wstring boost_console::get_option(const std::wstring& name) const {
 /// case, this will return all of the possible values. This can also be used
 /// to retrieve the values of options that can have an empty value.
 std::vector<std::wstring> boost_console::get_option_list(const std::wstring& name) {
-	// Convert to a standard string
-	string asciiName;
+    // Convert to a standard string
+    string asciiName;
 
-	for (size_t x=0; x<name.size(); ++x) {
-		asciiName += (char) name[x];
-	}
+    for (size_t x=0; x<name.size(); ++x) {
+        asciiName += (char) name[x];
+    }
 
-	// Return the empty string if the option is not present
-	if (m_VarMap.count(asciiName) == 0) {
-		return vector<wstring>();
-	}
+    // Return the empty string if the option is not present
+    if (m_VarMap.count(asciiName) == 0) {
+        return vector<wstring>();
+    }
 
-	// Try to get the value as a string
-	try {
-		// Get as an ascii string
-		vector<string> asciiValue = m_VarMap[asciiName].as< vector<string> >();
+    // Try to get the value as a string
+    try {
+        // Get as an ascii string
+        vector<string> asciiValue = m_VarMap[asciiName].as< vector<string> >();
 
-		// Convert to a wstring
-		vector<wstring> value;
-		for (size_t x = 0; x < asciiValue.size(); ++x) {
-			value.push_back(convert(asciiValue[x]));
-		}
+        // Convert to a wstring
+        vector<wstring> value;
+        for (size_t x = 0; x < asciiValue.size(); ++x) {
+            value.push_back(convert(asciiValue[x]));
+        }
 
-		return value;
-	} catch (boost::bad_any_cast) {
-		// Option is not a vector of string: try getting as a simple value
-		wstring simpleValue = get_option(name);
+        return value;
+    } catch (boost::bad_any_cast) {
+        // Option is not a vector of string: try getting as a simple value
+        wstring simpleValue = get_option(name);
 
-		// Place in the result if it's non-empty
-		vector<wstring> res;
-		if (!simpleValue.empty()) {
-			res.push_back(simpleValue);
-		}
-		return res;
-	}	
+        // Place in the result if it's non-empty
+        vector<wstring> res;
+        if (!simpleValue.empty()) {
+            res.push_back(simpleValue);
+        }
+        return res;
+    }   
 }
 
 /// \brief The name of the initial input file
 const std::wstring& boost_console::input_file() const {
-	return m_InputFile;
+    return m_InputFile;
 }
 
 /// \brief Converts a wstring filename to whatever is the preferred format for the current system
 std::string boost_console::convert_filename(const std::wstring& filename) {
-	fs::wpath path(filename);
-	return path.generic_string();
+    fs::wpath path(filename);
+    return path.generic_string();
 }
 
 /// \brief Given a pathname, returns the 'real', absolute pathname
 ///
 /// The default implementation just returns the current path
 std::wstring boost_console::real_path(const std::wstring& pathname) {
-	fs::wpath path(pathname);
-	fs::wpath absolute;
+    fs::wpath path(pathname);
+    fs::wpath absolute;
     
     try {
         // Try to get the absolute path for this file
@@ -291,14 +291,14 @@ std::wstring boost_console::real_path(const std::wstring& pathname) {
 ///
 /// The default implementation assumes UNIX-style paths.
 std::vector<std::wstring> boost_console::split_path(const std::wstring& pathname) {
-	fs::wpath path(pathname);
-	vector<wstring> res;
+    fs::wpath path(pathname);
+    vector<wstring> res;
 
-	for (fs::wpath::iterator component = path.begin(); component != path.end(); ++component) {
-		res.push_back(component->generic_wstring());
-	}
+    for (fs::wpath::iterator component = path.begin(); component != path.end(); ++component) {
+        res.push_back(component->generic_wstring());
+    }
 
-	return res;
+    return res;
 }
 
 /// \brief Opens a text file with the specified name for reading
@@ -306,10 +306,10 @@ std::vector<std::wstring> boost_console::split_path(const std::wstring& pathname
 /// The caller should delete the stream once it has finished with it. Streams are generally expected to contain UTF-8
 /// data, so console classes should usually open streams in binary mode.
 std::istream* boost_console::open_file(const std::wstring& filename) {
-	// Get the path
-	fs::wpath path(filename);
+    // Get the path
+    fs::wpath path(filename);
 
-	// Create the stream
+    // Create the stream
     fs::fstream* readFile = new fs::fstream();
 
     // Initially try 
@@ -347,7 +347,7 @@ std::istream* boost_console::open_file(const std::wstring& filename) {
 /// (This is an annoying compromise added to deal with C++'s completely useless support for locales and unicode)
 std::ostream* boost_console::open_binary_file_for_writing(const std::wstring& filename) {
     // Get the path
-	fs::wpath path(filename);
+    fs::wpath path(filename);
 
     // Create the resulting stream
     fs::fstream* result = new fs::fstream();

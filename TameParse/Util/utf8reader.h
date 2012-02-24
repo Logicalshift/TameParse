@@ -28,7 +28,7 @@ namespace util {
     ///
     class utf8reader {
     private:
-    	/// \brief The input stream
+        /// \brief The input stream
         std::istream* m_InputStream;
 
         /// \brief True if this object owns the input stream and should free it when done
@@ -41,24 +41,24 @@ namespace util {
         wchar_t m_PairChar;
 
     public:
-    	/// \brief Creates a new UTF-8 reader
-    	///
-    	/// Set ownsReader to true to specify that this object owns its stream and should
-    	/// dispose of it when it is freed.
-    	explicit utf8reader(std::istream* inputStream, bool ownsReader = false);
+        /// \brief Creates a new UTF-8 reader
+        ///
+        /// Set ownsReader to true to specify that this object owns its stream and should
+        /// dispose of it when it is freed.
+        explicit utf8reader(std::istream* inputStream, bool ownsReader = false);
 
-    	/// \brief Destructor for this object
-    	~utf8reader();
+        /// \brief Destructor for this object
+        ~utf8reader();
 
-    	/// \brief Places the next unicode character in the target
-    	///
-    	/// This will read multiple characters from the source stream until an entire
-    	/// unicode character has been constructed. In the case where there is a problem,
-    	/// the target will be set to 0 and good() will return false;
-    	utf8reader& get(wchar_t& target);
+        /// \brief Places the next unicode character in the target
+        ///
+        /// This will read multiple characters from the source stream until an entire
+        /// unicode character has been constructed. In the case where there is a problem,
+        /// the target will be set to 0 and good() will return false;
+        utf8reader& get(wchar_t& target);
 
-    	/// \brief True if the stream is good
-   		bool good() const;
+        /// \brief True if the stream is good
+        bool good() const;
     };
 }
 

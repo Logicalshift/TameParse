@@ -15,35 +15,35 @@
 #include "TameParse/Lr/action_rewriter.h"
 
 namespace lr {
-	///
-	/// \brief Rewriter that resolves shift/reduce rules according to operator precedence
-	///
-	class precedence_rewriter : public action_rewriter {
-	public:
-		/// \brief Associativity of a symbol
-		enum associativity {
-			/// \brief Associativity is undefined (functionally equivalent to nonassociative)
-			undefined,
+    ///
+    /// \brief Rewriter that resolves shift/reduce rules according to operator precedence
+    ///
+    class precedence_rewriter : public action_rewriter {
+    public:
+        /// \brief Associativity of a symbol
+        enum associativity {
+            /// \brief Associativity is undefined (functionally equivalent to nonassociative)
+            undefined,
 
-			/// \brief Symbol is not associative
-			nonassociative,
+            /// \brief Symbol is not associative
+            nonassociative,
 
-			/// \brief Symbol is left-associative
-			left,
+            /// \brief Symbol is left-associative
+            left,
 
-			/// \brief Symbol is right-associative
-			right
-		};
+            /// \brief Symbol is right-associative
+            right
+        };
 
-		/// \brief Precedence value representing 'no precedence'
-		static const int no_precedence = INT_MIN;
+        /// \brief Precedence value representing 'no precedence'
+        static const int no_precedence = INT_MIN;
 
-	protected:
-		/// \brief Finds the item in a rule that defines its precedence, or -1 if the rule has no such items
-		int precedence_item_index(const contextfree::rule& rule) const;
+    protected:
+        /// \brief Finds the item in a rule that defines its precedence, or -1 if the rule has no such items
+        int precedence_item_index(const contextfree::rule& rule) const;
 
-	public:
-		/// \brief Modifies the specified set of actions according to the rules in this rewriter
+    public:
+        /// \brief Modifies the specified set of actions according to the rules in this rewriter
         ///
         /// This call should modify the contents of the supplied action set according to whatever rules it considers 
         /// suitable.
@@ -77,17 +77,17 @@ namespace lr {
         /// Subclasses should implement this to supply information about symbol
         /// precedence. A value of c_NoPrecedence indicates that a symbol does not
         /// supply a precedence. Symbols with higher precedence are reduced first.
-       	virtual int get_precedence(const contextfree::item_container& terminal, const lr0_item_set& shiftItems) const = 0;
+        virtual int get_precedence(const contextfree::item_container& terminal, const lr0_item_set& shiftItems) const = 0;
 
-       	/// \brief Retrieves the associativity of a particular symbol
-       	///
-       	/// This is used when trying to disambiguate a shift/reduce conflict where
-       	/// both sides have equal precedence. Note that only the associativity of
-       	/// the rule has an effect on the result; this method is called by the default
-       	/// implementation of get_rule_associativity to determine the associativity of
-       	/// the operator it finds in the rule.
-       	virtual associativity get_associativity(const contextfree::item_container& terminal, const lr0_item_set& shiftItems) const = 0;
-	};
+        /// \brief Retrieves the associativity of a particular symbol
+        ///
+        /// This is used when trying to disambiguate a shift/reduce conflict where
+        /// both sides have equal precedence. Note that only the associativity of
+        /// the rule has an effect on the result; this method is called by the default
+        /// implementation of get_rule_associativity to determine the associativity of
+        /// the operator it finds in the rule.
+        virtual associativity get_associativity(const contextfree::item_container& terminal, const lr0_item_set& shiftItems) const = 0;
+    };
 }
 
 #endif

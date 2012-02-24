@@ -20,10 +20,10 @@ using namespace compiler;
 /// \brief Creates a new import stage
 import_stage::import_stage(console_container& console, const std::wstring& filename, definition_file_container rootFile) 
 : compilation_stage(console, filename) {
-	// Add the root file to the stage for file list
+    // Add the root file to the stage for file list
     wstring realPath = console->real_path(filename);
     
-	m_DefinitionForFile[realPath]   = rootFile;
+    m_DefinitionForFile[realPath]   = rootFile;
     m_ShortNameForFile[realPath]    = filename;
 }
 
@@ -35,34 +35,34 @@ import_stage::~import_stage() {
 void import_stage::compile() {
     console_container consContainer = cons_container();
     
-	// Create a stack of definitions to look for import statements in
+    // Create a stack of definitions to look for import statements in
     typedef pair<wstring, definition_file_container> stack_entry;
     
-	stack<stack_entry> 	toImport;
-	set<wstring>		imported;
+    stack<stack_entry>  toImport;
+    set<wstring>        imported;
 
-	// Iterate through the definitions
-	for (map<wstring, definition_file_container>::iterator defn = m_DefinitionForFile.begin(); defn != m_DefinitionForFile.end(); ++defn) {
-		// Add to the list to be processed
-		toImport.push(*defn);
-		imported.insert(cons().real_path(defn->first));
-	}
+    // Iterate through the definitions
+    for (map<wstring, definition_file_container>::iterator defn = m_DefinitionForFile.begin(); defn != m_DefinitionForFile.end(); ++defn) {
+        // Add to the list to be processed
+        toImport.push(*defn);
+        imported.insert(cons().real_path(defn->first));
+    }
 
-	// While there are files to be processed...
-	while (!toImport.empty()) {
-		// Get the next file
-		stack_entry nextFile = toImport.top();
-		toImport.pop();
+    // While there are files to be processed...
+    while (!toImport.empty()) {
+        // Get the next file
+        stack_entry nextFile = toImport.top();
+        toImport.pop();
 
-		// Ignore files with no data
-		if (!nextFile.second.item()) continue;
+        // Ignore files with no data
+        if (!nextFile.second.item()) continue;
         
         // Look for import statements
         for (definition_file::iterator defn = nextFile.second->begin(); defn != nextFile.second->end(); ++defn) {
             if ((*defn)->import()) {
                 // Is an import block: get the filename
-                wstring importFile 	= (*defn)->import()->import_filename();
-                wstring	realPath 	= cons().real_path(importFile);
+                wstring importFile  = (*defn)->import()->import_filename();
+                wstring realPath    = cons().real_path(importFile);
 
                 // Ignore if the file has already been imported
                 if (imported.find(realPath) != imported.end()) continue;
@@ -75,7 +75,7 @@ void import_stage::compile() {
                 importStage.compile();
 
                 // Add to the result
-                m_DefinitionForFile[realPath]	= importStage.definition_file();
+                m_DefinitionForFile[realPath]   = importStage.definition_file();
                 m_ShortNameForFile[realPath]    = importFile;
 
                 // Process any imports that the new file might contain
@@ -102,7 +102,7 @@ void import_stage::compile() {
                 }
             }
         }
-	}
+    }
     
     // Output some statistics
     size_t numDefns = m_LanguageBlock.size();
