@@ -29,8 +29,8 @@ namespace compiler {
     /// Header (16 words):
     ///    1 word: file format/endian indicator 'TPar' (0x54506172)
     ///    1 word: file format version number (0x100)
-    ///	   1 word: string ID containing the language name
-    ///	   1 word: TameParse version (major<<16 | minor<<8 | revision<<0)
+    ///    1 word: string ID containing the language name
+    ///    1 word: TameParse version (major<<16 | minor<<8 | revision<<0)
     ///    1 word: string ID containing the TameParse version information
     ///    11 words: reserved (written as 0xffffffff)
     ///

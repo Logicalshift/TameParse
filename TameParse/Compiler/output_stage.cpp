@@ -90,7 +90,7 @@ void output_stage::end_output() {
 
 /// \brief The name of the language that will be produced by this stage
 std::wstring output_stage::language_name() {
-	return m_LanguageStage->language_name();
+    return m_LanguageStage->language_name();
 }
 
 /// \brief Generates the terminal symbols list
