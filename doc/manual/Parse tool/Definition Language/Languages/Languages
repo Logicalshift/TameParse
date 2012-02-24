@@ -1,0 +1,8 @@
+### The Language Section
+
+New languages are defined using a language block, which appears at the top level of the file and consists of the keyword ‘language’, followed by an identifier representing the language name and a block containing the language definition:
+
+    language MyLanguage {
+        // Definitions
+    }
+

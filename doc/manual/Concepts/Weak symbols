@@ -1,0 +1,11 @@
+## Weak symbols
+
+TameParse introduces the concept of ‘weak’ symbols to the lexer. These are symbols that have another lexical token that can also match them. When the parser encounters these symbols, it will treat them as their stronger equivalent unless it is in a context where the weak symbol is explicitly in use. This feature is useful for languages with keywords which only have meaning in particular contexts.
+
+This is perhaps best illustrated by an example. In C-like languages, the rules that match an identifier also match most of the keywords - ‘int’ would be an identifier if it were not already a keyword. This means that if we have this production:
+
+    <Example> = int identifier
+
+The phrase ‘int foo’ would be matched, but ‘int int’ would not be matched, because even though ‘int’ is a valid match for an identifier, its usage as a keyword takes priority. However, in TameParse, ‘int’ could be marked as a weak keyword. The parser would then match ‘int int’ with the first use as a keyword and the second as an identifier: ‘int’ would only be a keyword when the language demands it.
+
+Languages that have an evolving standard often acquire such keywords to maintain backwards compatibility: if there is a need to add new keywords without changing the set of reserved words, it is common to add keywords that only apply in particular contexts: C#’s partial keyword being a good example of such a thing.

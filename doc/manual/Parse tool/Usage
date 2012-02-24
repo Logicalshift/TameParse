@@ -1,0 +1,55 @@
+## Usage
+
+    Input options:
+      -i [ --input-file ] arg   specifies the name of the input file.
+      -I [ --include-path ] arg sets the path to search for included files.
+    
+    Output options:
+      -o [ --output-file ] arg     specifies the base name for the output file. For
+                                   languages that need to generate multiple files 
+                                   (for example, C++), the appropriate extensions 
+                                   will be added to this filename. If this is not 
+                                   specified, the output filenames will be derived 
+                                   from the input file.
+      -T [ --output-language ] arg specifies the output language the parser will be
+                                   generated in.
+      -C [ --class-name ] arg      specifies the name of the class to generate 
+                                   (overriding anything defined in the parser block
+                                   of the input file)
+      -N [ --namespace-name ] arg  specifies the namespace to put the target class 
+                                   into.
+      --run-tests                  if the language contains any tests, then run 
+                                   them
+      --test                       specifies that no output should be generated. 
+                                   This tool will instead try to read from stdin 
+                                   and indicate whether or not it can be accepted.
+    
+    Information:
+      -h [ --help ]         display help message.
+      -v [ --verbose ]      display verbose messages.
+      --silent              suppress informational messages.
+      --version             display version information.
+      --warranty            display warranty information.
+      --license             display license information.
+    
+    Parser generator options:
+      -L [ --compile-language ] arg specifies the name of the language block to 
+                                    compile (overriding anything defined in the 
+                                    parser block of the input file)
+      -S [ --start-symbol ] arg     specifies the name of the start symbol 
+                                    (overriding anything defined in the parser 
+                                    block of the input file)
+      --enable-lr1-resolver         attempt to resolve reduce/reduce conflicts that
+                                    would be allowed by a LR(1) parser
+      --show-parser                 writes the generated parser to standard out
+    
+    Error reporting:
+      --suppress-warnings       do not display any warning messages.
+      --show-error-codes        display error codes alongside the error messages.
+      --show-conflict-details   show details about the context that conflicts occur
+                                in.
+      --allow-reduce-conflicts  reduce/reduce conflicts will produce a warning 
+                                instead of an error.
+      --no-conflicts            all unresolved parser conflicts count as an error 
+                                and not a warning.
+    

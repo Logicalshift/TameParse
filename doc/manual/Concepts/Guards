@@ -1,0 +1,17 @@
+## Guards (conditional parsing)
+
+One of the limitations of most parser generators is that when a language has constructs that cannot be handled by them the options for dealing with the situation are limited. In general, the grammar needs to be rewritten to be less specific and the construct needs to be given specific handling either with parser actions or semantic actions later on. This makes writing valid compilers much harder as syntax and semantics get mixed together, and makes maintaining a parser when a language is updated very hard as the grammar will bear little relation to how the language is specified. Modern languages, particularly C++, have become so complicated that parser generators are beginning to be considered a liability: the time they save is more than offset by the difficulty of rewriting the grammar - the result is a shift back towards hand-written recursive descent parsers.
+
+TameParse has a construct known as a ‘guard’ which is intended to solve this problem. In its most basic form, a guard can be used to provide hints to the parser so that it uses more lookahead, making it possible to accept languages that are LR(k). However, guards can also be used to disambiguate context-sensitive languages, and specify which parse tree to use for languages with truly ambiguous grammars. Pascal and ANSI C example grammars are supplied with TameParse to illustrate using guards with complex languages (Pascal is LALR(2), and ANSI C is context-sensitive).
+
+A guard is specified as ‘[=> &lt;Production>]’. When the parser encounters a guard, it will inspect the lookahead to see if it matches the supplied production. If it does, then it will continue matching against what follows the guard: if not, it will proceed as if the guard does not exist. One way to think of a guard is as a fake terminal symbol that gets added when what follows matches a particular pattern - if a conflict can be resolved by adding an extra terminal symbol, then it can usually be resolved using a guard instead.
+
+The simplest way to use a guard is to add lookahead:
+
+    <Label> = [=> identifier ‘:’] identifier ‘:’
+
+This won’t attempt to match against &lt;Label> unless the lookahead contains both an identifier and a ‘:’ - additionally, if the lookahead does contain these symbols, it will /always/ match against &lt;Label>, so anything that’s ambiguous will be treated as a &lt;Label> and not whatever else might be specified.
+
+Guards can additionally contain full context-free productions, so they can deal with situations where arbitrary amounts of lookahead is required to decide on the action to take (they will match against the shortest amount of lookahead that can be reduced using the supplied production). 
+
+There is no need to make the production in the guard match the production following the guard: this can be used to resolve ambiguities in a specific manner, or even match certain types of context sensitive language. See the ContextSensitive example language for an illustration of how to use guards to match indexed languages.

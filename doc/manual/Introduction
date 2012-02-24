@@ -1,0 +1,20 @@
+# Introduction
+
+TameParse is a parser generation system (a ‘compiler compiler’) designed to address the traditional problems that are encountered with such systems. At the core, it is a LALR parser, but with extensions designed to reduce or eliminate the need to restructure language grammars to fit within the restrictions of the algorithm.
+
+TameParse can deal with ambiguous and certain context-sensitive grammars. It achieves this with a deterministic algorithm: the result of any given parse is always a single parse tree, and it is designed to make it easy to predict the behaviour of the parser.
+
+The current version supports generating C++ parsers, but support for other languages is in the works.
+
+Other features:
+
+* Full support for Unicode in the lexer (including surrogates)
+* Automatic AST generation
+* Support for EBNF grammars
+* Automatic resolution of LALR conflicts (possible to parse LR(1) grammars with LALR-sized tables)
+* C++ API
+* Support for language inheritance
+* Support for multiple start symbols
+* Support for testing grammars
+* Define keywords in-line with the grammar
+* Possible to mix case sensitive and case insensitive lexical symbols

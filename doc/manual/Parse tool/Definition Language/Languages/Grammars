@@ -1,0 +1,50 @@
+#### Defining Grammars
+
+Grammars are defined under a language block in a ‘grammar’ section. This section consists of a series of nonterminal definitions, which have the form ‘&lt;Nonterminal-Name> = &lt;Production> (| &lt;Production>)\*’. A production can be empty, or have a list of terminal and nonterminal symbols that define the phrase that is matched by the production. For example:
+
+    language Example {
+        // …lexer definitions…
+        
+        grammar {
+            <Example> = keyword identifier
+                    | <Example> other-keyword
+        }
+    }
+
+A terminal symbol can be a symbol defined in one of the lexer sections, or it can be a string or a character. When a string or a character is used, TameParse will generate a new weak lexical symbol to represent that item: this is convenient for one-off items which don’t need to be given a specific name. For instance:
+
+      grammar {
+          <Hello-World> = “hello” “world”
+      }
+
+This would match the phrase “helloworld” without the need to define lexical symbols. Identifiers for lexical symbols that don’t have a definition are also allowed but will produce a warning when the grammar is compiled - these produce new weak keywords.
+
+Items in a production may be followed by modifiers, contained within square brackets. The simplest modifier is just to name an item, by supplying an identifier. For example: ‘&lt;Foo> = identifier[bar]’ gives the name ‘bar’ to the identifier. This name can be used by language generators to produce a more meaningful AST definition. 
+
+The other modifier that is supported is ‘conflict=’, which specifies what to do in the event that the symbol is part of a shift/reduce conflict. This is set on the symbol that makes up the shift part of the conflict, and has three possible values: ‘[conflict=shift]’ resolves the conflict by shifting, ‘[conflict=reduce]’ resolves the conflict by reducing and ‘[conflict=weak reduce]’ resolves the conflict by reducing only if it will not result in an immediate error (otherwise resolving it by shifting).
+
+Productions may contain EBNF specifiers. ‘\*’ indicates that the preceding item can be repeated 0 or more times:
+
+      <Commas> = ‘,’*
+
+‘+’ indicates that the preceding item can be repeated 1 or more times:
+
+      <AtLeastOneComma> = ‘,’+
+
+‘?’ indicates that the preceding item is optional:
+
+      <CouldBeAComma> = ‘,’?
+
+Brackets can be used to group items together, and are combined with the other items:
+
+      <List> = <Item> (‘,’ <Item>)*
+
+The ‘|’ operator can be used within a bracketed section to specify alternatives:
+
+      <ComingOrGoing> = (“hello” | “goodbye”) “world”
+
+A ‘guard’ is an item in a production that specifies that the remainder should only be matched if the lookahead matches a particular pattern. It has the form ‘[=> &lt;Pattern>]’. The pattern can be any pattern matched by the parser. If the generator has to decide between two guards with the same starting terminal symbol, it will generate a warning as the order of evaluation is not defined and either could be matched if there is a common phrase between them. This error can be suppressed by defining the guard with the can-clash modifier: ‘[=>[can-clash] &lt;Pattern>]’.
+
+      <Guarded> = ‘[=> “hello”] (“hello” | “goodbye”) “world”   // Matches only helloworld
+
+If a guard is matched, other alternatives for a symbol are not considered, so in the above example, the production ‘&lt;Example> = &lt;Guarded> | “hello” “there”’ would never match ‘hellothere’ due to the guard matching ‘hello’.
