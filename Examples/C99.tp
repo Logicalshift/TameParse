@@ -42,19 +42,19 @@ language C99 : Ansi-C {
 		///
 		/// New type specifiers
 		///
-		<Type-Specifier>				+= _Bool
+		<Type-Specifier>				|= _Bool
 										 | _Complex
 										 | _Imaginary
 		
 		///
 		/// New type qualifiers
 		///
-		<Type-Qualifier>				+= restrict
+		<Type-Qualifier>				|= restrict
 	
 		///
 		/// Static array function parameters
 		///
-		<Direct-Declarator>				+= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
+		<Direct-Declarator>				|= <Direct-Declarator> '[' static <Type-Qualifier>* <Assignment-Expression> ']'
 										 | <Direct-Declarator> '[' <Type-Qualifier>+ static <Assignment-Expression> ']'
 	
 		///
@@ -62,7 +62,7 @@ language C99 : Ansi-C {
 		///
 		<Function-Specifier>			= inline
 			
-		<Declaration-Specifiers>		+= <Function-Specifier> <Declaration-Specifiers>?
+		<Declaration-Specifiers>		|= <Function-Specifier> <Declaration-Specifiers>?
 
 		///
 		/// inline declarations
@@ -85,7 +85,7 @@ language C99 : Ansi-C {
 		///
 		/// Named structures
 		///
-		<Postfix-Expression>			+= '(' [=>[can-clash] <Type-Name> ')' '{'] <Type-Name> ')' '{' <Initializer-List> '}'
+		<Postfix-Expression>			|= '(' [=>[can-clash] <Type-Name> ')' '{'] <Type-Name> ')' '{' <Initializer-List> '}'
 
 		replace <Initializer>			= <Assignment-Expression>
 										| '{' <Initializer-List> '}'
