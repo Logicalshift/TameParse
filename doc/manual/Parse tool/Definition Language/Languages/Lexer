@@ -26,11 +26,11 @@ A lexer definition consists of an identifier, the ‘=‘ symbol and a definitio
 
       lexer { 
           regex = /[A-Za-z]+/
-          string = “string”
+          string = "string"
       }
       keywords {
           kw-regex = /[A-Z][0-9]+/
-          literal	       /* Same as saying literal = “literal” */
+          literal	       /* Same as saying literal = "literal" */
       }
 
 It is an error to define an expression within a single block that can match two different symbols (but it is allowed to do this with multiple blocks: in the event of a clash, the earlier definition is the one that is used). It’s also an error to define a symbol that can never be produced due to other symbols with a higher priority. Keywords have a higher priority than lexer blocks, which have a higher priority than ignore blocks.
