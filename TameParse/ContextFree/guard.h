@@ -26,7 +26,7 @@ namespace contextfree {
     /// first set. If a guard is matched, then the action associated with it will be performed; if there are multiple possible
     /// guards, only the first match is followed.
     ///
-    /// Guard symbols that match the lookaehad against a series of symbols work to increase the lookahead supported by the parser.
+    /// Guard symbols that match the lookahead against a series of symbols work to increase the lookahead supported by the parser.
     /// These can be used to parse LALR(k) grammars.
     ///
     /// Guard symbols that match the lookahead against a context-free grammar effectively enable the parser to perform back-tracking.
