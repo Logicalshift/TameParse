@@ -1,1 +1,15 @@
 #### Writing Tests
+
+The ‘test’ top-level block can be used to write tests for a language. It has the following form:
+
+    test Language-Name {
+        <Nonterminal>   = "string1" named-test("string2")
+        <Nonterminal-2> = "string1" "string2"
+
+        <Nonterminal>   != "invalidstring1" "invalidstring2"
+        <Nonterminal>   from "filename" named-test("filename")
+    }
+
+Language-Name specifies the language to run tests against. Tests can be written against any nonterminal in the language, not just the usual start symbol, and are usually supplied as strings. Test can optionally be named by using the ‘name(“test”)’ syntax: this can make it easier to work out which test is failing: without a name, tests will be named after the nonterminal that they are run against.
+
+It is possible to test for phrases that should not be accepted using the ‘!=’ syntax, and to read the data for a test directly from a file using the ‘from’ syntax.
