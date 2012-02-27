@@ -365,7 +365,7 @@ language Pascal {
 		/// 6.6.3.7 Conformant array parameters
 		///
 
-		<Formal-Parameter-Section>	+= <Conformant-Array-Parameter-Specification>
+		<Formal-Parameter-Section>	|= <Conformant-Array-Parameter-Specification>
 
 		<Conformant-Array-Parameter-Specification> 	= <Value-Conformant-Array-Specification>
 													| <Variable-Conformant-Array-Specification>

@@ -420,10 +420,10 @@ static nonterminal_definition* definition_for(const ast_Nonterminal_Definition* 
     // Work out the type
     nonterminal_definition::type ntType = nonterminal_definition::assignment;
     
-    if (nonterminal->one_of__equals__or__plus__equals_) {
-        if (nonterminal->one_of__equals__or__plus__equals_->_equals_) {
+    if (nonterminal->one_of__equals__or__pipe__equals_) {
+        if (nonterminal->one_of__equals__or__pipe__equals_->_equals_) {
             ntType = nonterminal_definition::assignment;
-        } else if (nonterminal->one_of__equals__or__plus__equals_->_plus__equals_) {
+        } else if (nonterminal->one_of__equals__or__pipe__equals_->_pipe__equals_) {
             ntType = nonterminal_definition::addition;
         }
     } else if (nonterminal->replace) {

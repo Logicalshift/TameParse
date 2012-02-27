@@ -1,0 +1,19 @@
+## LALR Parser
+
+The core algorithm that TameParse is built around is a modification of the LALR algorithm; when presented with a simple grammar, the result will be identical to that produced by other LALR(1) parser generators (such as yacc). The LALR algorithm is powerful and can handle a wide variety of context-free languages, but it can be a little tricky to debug grammars when there are problems.
+
+One limitation with BNF is that the Chomsky hierarchy which it is a part of was designed as a way of describing how to generate phrases in a given language rather than as a way to actually read those phrases. This is a problem for parsers as it is possible to write a BNF grammar that can produce a given phrase in more than one way. Additionally, the LALR algorithm is not actually capable of dealing even with all of the grammars that are not ambiguous in this way. This will lead to the tool reporting errors for these languages, known as ‘shift/reduce’ and ‘reduce/reduce’ conflicts.
+
+To understand these conflicts, one must first understand the two basic actions a LALR parser can take:
+
+‘Shift’ is an action taken on a symbol that is part of a string that the parser is building up. It essentially means that the symbol will eventually form a part of a nonterminal that is recognised once all of the component parts have been seen.
+
+‘Reduce’ is an action that occurs once all of the symbols in a nonterminal are matched. The parser will remove the symbols that have been shifted and replace them with the nonterminal that was matched.
+
+The (1) in ‘LALR(1)’ means that the parser needs to be able to tell what to do at any given point by only looking at a single symbol from the input. If it cannot, then a conflict will be reported, the type of which depends on which possible actions could be performed for a symbol. TameParse will make an effort to show the productions where the conflicting symbol comes from to aid in debugging these issues.
+
+A shift/reduce conflict indicates that a nonterminal could be reduced but the parser could also go on to build up a longer phrase. These conflicts can often be resolved by performing the shift action, so TameParse typically treats them as warnings. These conflicts can be resolved in four ways: the grammar can be rewritten so there is only a single action, the shifted symbol can have a ‘[conflict=shift]’ modifier placed on it to explicitly resolve the problem, a precedence table can be used to automatically work out the best action, or a guard can be used to resolve the problem using the local context of the symbol.
+
+A reduce/reduce conflict occurs when there is more than one possible nonterminal that can be substituted for the phrase that the parser has matched. This is treated as an error as TameParse has no way to determine which nonterminal is correct without help. This can indicate that the parser needs more lookahead to determine what it has matched or that the grammar is truly ambiguous. With a LALR parser, there is a third possibility - that the grammar is actually ‘LR(1)’ and not ‘LALR’. This occurs fairly rarely - when the two possible nonterminal symbols do not actually conflict after they have been reduced, so the parser could actually work out which symbol to use.
+
+Reduce/reduce conflicts are traditionally resolved by rewriting the grammar to remove them. This is inconvenient, so TameParse supplies guards, and also a limited ability to resolve LR(1) conflicts.

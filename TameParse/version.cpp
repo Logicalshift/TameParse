@@ -12,16 +12,16 @@ using namespace std;
 using namespace tameparse;
 
 /// \brief The major version number of the library
-const int version::major_version = 1;
+const int version::major_version = 0;
 
 /// \brief The minor version of the library
-const int version::minor_version = 0;
+const int version::minor_version = 1;
 
 /// \brief The revision of the library
 const int version::revision = 0;
 
 /// \brief A string representing the version of this library
-const std::string version::version_string("1.0.0 (" __DATE__ ")");
+const std::string version::version_string("0.1.0 (" __DATE__ ")");
 
 /// \brief A string describing the copyright for this version of the library
 const std::string version::copyright_string("Written by Andrew Hunter");
@@ -33,7 +33,7 @@ const std::string version::contact_string("<andrew@logicalshift.co.uk>");
 const std::string compile_date(__DATE__);
 
 /// \brief A string containing the release date for this library
-const std::string release_date("Sep 24 2011"); // TODO: update somehow
+const std::string release_date("Feb 24 2012"); // TODO: update somehow
 
 /// \brief A string describing the license for this version of the library
 const std::string version::license_string(

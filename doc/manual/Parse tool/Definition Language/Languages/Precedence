@@ -1,0 +1,29 @@
+#### Operator Precedence
+
+Operator precedence is a way to resolve conflicts in grammars intended to represent expressions. These conflicts appear as shift/reduce conflicts in grammars that appear like this:
+
+      <Expr>    = identifier
+                | number
+                | <Expr> '+' <Expr>
+                | <Expr> '-' <Expr>
+                | <Expr> '*' <Expr>
+                | <Expr> '/' <Expr>
+
+These conflicts can be resolved by rewriting the grammar or by specifying operator precedence using a precedence section:
+
+    language {
+      // Grammar definition
+
+      precedence {
+          left { '+' '-' }
+          left { '*' '/' }
+      }
+    }
+
+This specifies that the ‘+’ and ‘-’ operators have equal precedence, which is lower than the ‘\*’ and ‘/’ operators. Any terminal symbol can have precedence specified in this way. The parser generator can use this to resolve the conflicts in the grammar, in this case reducing the multiplication operators before the addition operators, so ‘1*2+3’ will parse as ‘(1*2)+3’ and ‘1+2*3’ will parse as ‘1+(2*3)’.
+
+The precedence block is a series of declarations, starting with the items of lowest precedence (these are reduced last) and ending with the items of highest precedence (which are reduced first). Each declaration is of the form ‘associativity { terminal-list }’. The associativity describes what to do with items of equal precedence, and the terminal list gives the list of terminal symbols that should be considered as being at the current level.
+
+There are three types of associativity that can be declared: ‘left’, ‘right’, and ‘non-associative’. ‘left’ associativity reduces items on the left first: ‘1+2-3’ will be parsed as ‘(1+2)-3’, and ‘right’ associativity reduces those on the right first: ‘1+2-3’ will be parsed as ‘1+(2-3)’. ‘non-associative’ will do nothing, leaving the conflict intact (useful if sequences such as ‘1+2+3’ are not meant to be present in the language)
+
+For the purposes of precedence, the parser will treat the first terminal symbol with a declared precedence as the operator.

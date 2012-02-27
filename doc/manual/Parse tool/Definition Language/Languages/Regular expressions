@@ -1,0 +1,78 @@
+#### Regular Expression Syntax
+
+A regular expression is a phrase enclosed by slashes (‘/regex/‘). Characters within a regular expression are matched exactly, except for the following special characters:
+
+      * - 0 or more of previous character/group
+      + - 1 or more of previous character/group
+      a|b - match either a or b
+      a? - optionally match a
+      . - match any character
+      \ - quote next character
+      (regex) - define a group
+      [A-Z] - match any character in the range A-Z
+      {foo} - match lexer symbol ‘foo’
+
+Regular expressions support the full range of unicode UTF-8 characters, including surrogates.
+
+The ‘\\’ character can be used to quote any character. This will produce the literal character that follows the symbol - so \\\* can be used to produce a literal ‘\*’ character - with some exceptions:
+
+      \a - bell character (ASCII 7)
+      \e - escape character (ASCII 27)
+      \f - form feed character (ASCII 12)
+      \n - newline character (ASCII 10)
+      \r - carriage return character (ASCII 13)
+      \t - tab character (ASCII 9)
+      \u001b - literal unicode character hexadecimal 0x001b
+      \x1b - literal latin-1 character 0x1b
+      \123 - octal latin-1 character 0123
+
+Lexer symbols can be defined in the ‘lexer-symbols’ section. These are useful if there are parts of a regular expression that are used in multiple places, or for building up complicated expressions from simpler components. There are also a set of predefined lexer symbols that relate to groups of unicode characters. These all have the format {unicode-set} or {unicode-set-modifier}, where ‘set’ is one of the following:
+
+      letter
+      mark
+      number
+      punctuation
+      symbol
+      separator
+      control
+
+These correspond to the various different types of unicode character set that can be defined - ie, {unicode-letter} is the set of all the unicode letter characters. Each of these can be refined to a more specific set of character by supplying a modifier (each character set has its own specific set of modifiers):
+
+      letter:
+          uppercase
+          lowercase
+          titlecase
+          modifier
+          other
+      mark:
+          nonspacing
+          spacing
+          enclosing
+      number:
+          decimal
+          letter
+          other
+      punctuation:
+          connector
+          dash
+          open
+          close
+          initial
+          final
+          other
+      symbol:
+          math
+          currency
+          modifier
+          other
+      separator:
+          space
+          line
+          paragraph
+      control:
+          control
+          format
+          surrogate
+          private
+
+So, {unicode-letter-uppercase} is the set of all uppercase letters. Finally, ‘unicode-‘ can be abbreviated as ‘u-‘ or ‘uni-‘, so you could also say ‘{u-letter-uppercase}’ to get the same effect.
