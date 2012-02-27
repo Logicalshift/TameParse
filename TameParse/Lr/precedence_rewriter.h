@@ -4,6 +4,7 @@
 //
 //  Created by Andrew Hunter on 21/01/2012.
 //  
+//  Copyright (c) 2011-2012 Andrew Hunter
 //  
 //  Permission is hereby granted, free of charge, to any person obtaining a copy 
 //  of this software and associated documentation files (the \"Software\"), to 
