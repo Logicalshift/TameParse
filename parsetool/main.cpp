@@ -32,6 +32,7 @@
 #include <memory>
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace contextfree;
 using namespace lr;
@@ -112,7 +113,7 @@ int main (int argc, const char * argv[])
         wstring         buildLanguageName   = console.get_option(L"compile-language");
         wstring         buildClassName      = console.get_option(L"class-name");
         vector<wstring> startSymbols        = console.get_option_list(L"start-symbol");
-        wstring         targetLanguage      = console.get_option(L"target-language");
+        wstring         targetLanguage      = console.get_option(L"output-language");
         wstring         buildNamespaceName  = console.get_option(L"namespace-name");
         position        parseBlockPosition  = position(-1, -1, -1);
         
@@ -306,6 +307,33 @@ int main (int argc, const char * argv[])
                 
                 console.report_error(error(error::sev_error, L"stdin", L"TEST_PARSER_ERROR", L"Syntax error", failPos));
             }
+        } else if (targetLanguage == L"test-trace") {
+            // Special case: same as for test, but use the debug version of the parser
+            typedef parser<astnode_container, ast_parser_actions, debug_parser_trace<1> > trace_parser;
+            trace_parser parser(*lrParserStage.get_tables());
+            
+            // Create the parser
+            lexeme_stream* stdinStream          = lexerStage.get_lexer()->create_stream_from(wcin);
+            trace_parser::state* stdInParser    = parser.create_parser(new ast_parser_actions(stdinStream));
+            
+            // Parse stdin
+            if (stdInParser->parse()) {
+                console.verbose_stream() << formatter::to_string(*stdInParser->get_item(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+            } else {
+                position failPos(-1, -1, -1);
+                if (stdInParser->look().item()) {
+                    failPos = stdInParser->look()->pos();
+                }
+                
+                console.report_error(error(error::sev_error, L"stdin", L"TEST_PARSER_ERROR", L"Syntax error", failPos));
+
+                // Report the stack at the point of failure
+                trace_parser::stack stack = stdInParser->get_stack();
+                console.verbose_stream() << endl << L"Stack:" << endl;
+                do {
+                    console.verbose_stream() << formatter::to_string(*stack->item, *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+                } while (stack.pop());
+            }
         } else {
             // Unknown target language
             wstringstream msg;
@@ -326,4 +354,3 @@ int main (int argc, const char * argv[])
         throw;
     }
 }
-
