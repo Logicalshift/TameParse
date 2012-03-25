@@ -274,6 +274,16 @@ namespace compiler {
         void write_weak_to_strong();
 
     private:
+        /// \brief Writes out the names of the terminal symbols
+        void write_terminal_names();
+
+        /// \brief Writes out the names of the nonterminal symbols
+        void write_nonterminal_names();
+
+        /// \brief Writes out the definitions of the rules
+        void write_rule_definitions();
+
+    private:
         /// \brief Writes out the strings
         ///
         /// Needs to be called after all the strings are generated

@@ -31,6 +31,7 @@
 
 using namespace std;
 using namespace dfa;
+using namespace contextfree;
 using namespace tameparse;
 using namespace compiler;
 
@@ -414,6 +415,49 @@ void output_binary::write_weak_to_strong() {
     }
 }
 
+/// =====================
+///  Rule/grammar tables
+/// =====================
+
+/// \brief Writes out the names of the terminal symbols
+void output_binary::write_terminal_names() {
+    // Fetch the terminal dictionary
+    const terminal_dictionary& terms = terminals();
+
+    // Start the table
+    start_table(table::terminal_names);
+
+    // Terminal ID that we want to write out
+    int curId = 0;
+
+    // Iterate through the terminals
+    for (terminal_dictionary::iterator term = terms.begin(); term != terms.end(); ++term) {
+        // Ignore terminals that require us to go backwards (shouldn't be possible)
+        if (term->first < curId) {
+            continue;
+        }
+
+        // Write out blanks until we hit curId
+        for (int blank = curId+1; blank < term->first; ++blank) {
+            write_int(0xffffffffu);
+        }
+        curId = term->first;
+
+        // Write out the string for this terminal
+        write_string(term->second);
+    }
+}
+
+/// \brief Writes out the names of the nonterminal symbols
+void output_binary::write_nonterminal_names() {
+
+}
+
+/// \brief Writes out the definitions of the rules
+void output_binary::write_rule_definitions() {
+
+}
+
 /// =========
 ///  Strings
 /// =========
@@ -499,6 +543,11 @@ void output_binary::compile() {
     write_guard_endings();
     write_rule_counts();
     write_weak_to_strong();
+
+    // Write out the names of things and the rule definition table
+    write_terminal_names();
+    write_nonterminal_names();
+    write_rule_definitions();
 
     // Finally, write the string table
     write_string_table();

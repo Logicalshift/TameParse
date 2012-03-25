@@ -61,6 +61,9 @@ namespace contextfree {
         
         /// \brief Maps a symbol to its child symbols
         typedef std::map<int, symbol_set> symbol_to_children;
+
+        /// \brief Iterator used to access all of the symbols defined in this object
+        typedef symbol_to_name::const_iterator iterator;
         
     private:
         /// \brief Maximum used symbol
@@ -141,6 +144,17 @@ namespace contextfree {
             
             return found->second;
         }
+
+    public:
+        /// \brief Returns an iterator pointing to the first symbol defined in this object
+        ///
+        /// Symbols are ordered by ID (which usually begins from 0 and increases)
+        inline iterator begin() const { return m_SymbolToName.begin(); }
+
+        /// \brief Returns an iterator pointing to the symbol after the last symbol defined in this object
+        ///
+        /// Symbols are ordered by ID (which usually begins from 0 and increases)
+        inline iterator end() const { return m_SymbolToName.end(); }
     };
 }
 
