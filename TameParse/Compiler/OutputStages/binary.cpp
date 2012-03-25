@@ -506,7 +506,64 @@ void output_binary::write_nonterminal_names() {
 
 /// \brief Writes out the definitions of the rules
 void output_binary::write_rule_definitions() {
+    // Start the table
+    start_table(table::rule_definitions);
 
+    // Fetch the grammar
+    const grammar&              gram        = output_stage::gram();
+    const terminal_dictionary&  terminals   = output_stage::terminals();
+
+    // Count the number of rules
+    int numRules = gram.max_rule_identifier();
+    write_int(numRules);
+
+    // Work out where the rules will start in the file
+    int firstRuleOffset = m_WritePos + numRules * 4;
+    int curRuleOffset   = firstRuleOffset;
+
+    // Write out the positions for each rule
+    for (int ruleId = 0; ruleId < numRules; ++ruleId) {
+        // Each rule has the following format:
+        //      nonterminal ID
+        //      number of items
+        //      n * item
+        //          +ve value = terminal ID
+        //          -ve value = (-1 - nonterminal ID)
+        const rule_container& rule = gram.rule_with_identifier(ruleId);
+
+        // 2 words header + n words items
+        int ruleSize = 8 + 4*(int) rule->items().size();
+
+        // Write where this rule will appear
+        write_int(curRuleOffset);
+
+        // Move the offset on to where the next rule will appear
+        curRuleOffset += ruleSize;
+    }
+
+    // Write out the actual data for the rules
+    for (int ruleId = 0; ruleId < numRules; ++ruleId) {
+        // Fetch the rule
+        const rule_container& rule = gram.rule_with_identifier(ruleId);
+
+        // Get the nonterminal ID
+        int ntId = gram.identifier_for_item(*rule->nonterminal());
+        write_int(ntId);
+
+        // Number of items in this rule
+        write_int((int) rule->items().size());
+
+        // The items themselves
+        for (rule::iterator ruleItem = rule->begin(); ruleItem != rule->end(); ++ruleItem) {
+            if ((*ruleItem)->type() == item::terminal) {
+                // Terminal items get a positive ID
+                write_int((*ruleItem)->symbol());
+            } else {
+                // Nonterminal items get a negative ID
+                write_int(-1 - gram.identifier_for_item(*ruleItem));
+            }
+        }
+    }
 }
 
 /// =========
