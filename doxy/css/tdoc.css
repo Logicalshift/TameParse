@@ -1,0 +1,93 @@
+body {
+	font-family: "Georgia", "Times", "Times New Roman", serif;
+	font-weight: 100;
+	font-size: 11pt;
+	line-height: 135%;
+	color: rgb(72, 72, 72);
+	background: rgb(252, 252, 252)
+}
+
+article h1 {
+	font-size: 15pt
+}
+
+article p {
+	font-family: Helvetica, Arial, sans-serif
+}
+
+header#page_header {
+	position: fixed;
+	top: 20px;
+	left: 40px;
+	width: 180px;
+	height: 75px;
+	display: block;
+}
+
+section#navigation {
+	position: fixed;
+	width: 170px;
+	left: 45px;
+	top: 90px;
+	font-size: 11pt;
+}
+
+section#navigation h1 {
+	text-shadow: rgb(200, 200, 200) 0px 2px 3px;
+	font-size: 13pt;
+	margin-left: -12px;
+	margin-top: 16pt;
+	margin-bottom: 6pt;
+}
+
+nav ul {
+	color: rgb(128, 128, 128);
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+	line-height: 135%
+}
+
+nav > ul {
+	padding-bottom: 0px;
+	border-bottom: solid rgb(220, 220, 200) 1px;
+}
+
+nav li {
+	display: block;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	border-top: solid rgb(220, 220, 200) 1px
+}
+
+nav li:hover {
+	background: rgb(192, 192, 192);
+}
+
+nav a:hover {
+	color: rgb(96, 96, 96);
+}
+
+nav ul ul {
+	list-style: none;
+	margin: 0px;
+	padding-left: 16px;
+}
+
+nav ul a {
+	display: block;
+	width: 100%;
+	padding-left: 4px;
+	padding-right: 4px;
+	color: rgb(72, 72, 72);
+	text-decoration: none
+}
+
+section#body_text {
+	position: relative;
+	top: 30px;
+	padding-bottom: 30px;
+	min-width: 550px;
+	margin-left: 250px;
+	margin-right: 80px;
+}

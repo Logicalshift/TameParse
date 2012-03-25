@@ -72,7 +72,7 @@ namespace lr {
         inline void shift(const lexeme_container& lookahead, int newState)  { }
         inline void reduce(int nonterminalId, int ruleId, int length)       { }
         inline void goto_state(int newState)                                { }
-        inline void checked_guard(int result)                               { }
+        inline void checked_guard(int initialState, int result)             { }
         inline void reject(const lexeme_container& lookahead)               { }
     };
     
@@ -101,9 +101,9 @@ namespace lr {
             std::wcerr << L"GOTO " << newState << std::endl;
         }
         
-        inline void checked_guard(int result) {
+        inline void checked_guard(int initialState, int result) {
             if (level > 0) {
-                std::wcerr << L"CHECK GUARD RESULT: " << result << L"\n";
+                std::wcerr << L"CHECK GUARD RESULT: " << result << L" (from state " << initialState << L")\n";
             }
         }
 
@@ -384,7 +384,7 @@ namespace lr {
                 inline int check_guard(state* state, int initialState) {
                     int result = state->check_guard(initialState, 0);
                     
-                    m_Trace.checked_guard(result);
+                    m_Trace.checked_guard(initialState, result);
                     
                     return result;
                 }

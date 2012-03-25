@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
+<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
+<link href="$relpath$tabs.css" rel="stylesheet" type="text/css"/>
+<link href="$relpath$doxy.css" rel="stylesheet" type="text/css" />
+$treeview
+$search
+$mathjax
+</head>
+<body>
+  <!-- BEGIN TITLEAREA-->
+  <header id="page_header">
+    <!-- BEGIN PROJECT_LOGO-->
+    <img alt="Logo" src="$relpath$logo-small.png" />
+    <!-- END PROJECT_LOGO-->
+  </header>
+
+  <section id="navigation">
+    <!-- BEGIN PROJECT_NAME-->
+    <header id="doctitle">
+      <h1>$projectname
+        <!-- BEGIN PROJECT_NUMBER-->
+        <span id="projectnumber">$projectnumber</span>
+        <!-- END PROJECT_NUMBER-->
+      </h1>
+      <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+    </header>
+    <!-- END PROJECT_NAME-->
+    <!--BEGIN !PROJECT_NAME-->
+     <!--BEGIN PROJECT_BRIEF-->
+      <header id="doctitle">
+        <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+      </header>
+     <!--END PROJECT_BRIEF-->
+    <!--END !PROJECT_NAME-->
+  <!--BEGIN DISABLE_INDEX-->
+   <!--BEGIN SEARCHENGINE-->
+    <nav id="page_sections">$searchbox</nav>
+   <!--END SEARCHENGINE-->
+  <!--END DISABLE_INDEX-->
+    <footer id="doxygen">
+        $generatedby <a href="http://www.doxygen.org/index.html">
+        doxygen
+        </a> $doxygenversion
+    </footer>
+  </section>
+  <!-- END TITLEAREA-->
+
+  <section id="body_text">
+    <article>
+      <div id="top"><!-- do not remove this div! -->

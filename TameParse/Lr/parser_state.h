@@ -443,7 +443,17 @@ namespace lr {
                     pushed.push(act->m_NextState);
                     break;
                     
-                    // TODO: guards (how to deal with these? There's limited lookahead here, and it's possible that they will allow a reduction to continue). Hrm, maybe we can succeed if either of the possible paths lead to a successful reduction, though we need to know the rule ID to do that...
+                case lr_action::act_guard:
+                    // Deal with guards by ignoring them and trying the other, weaker actions.
+                    //
+                    // I *think* this behaviour is correct for the places can_reduce is used in. We only inspect the
+                    // requested symbol to see if it can be reduced: guards act as their own symbol, so things that
+                    // are interested in seeing if a particular guard is accepted should check the guard *before*
+                    // calling this function.
+                    //
+                    // If a user program calls this API, this behaviour may be non-obvious, however.
+                    ++act;
+                    break;
                     
                 case lr_action::act_weakreduce:
                 {
