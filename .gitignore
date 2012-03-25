@@ -1,8 +1,8 @@
-syntax: glob
-
-.git
+# Xcode/OS X
 TameParse.xcodeproj/project.xcworkspace/xcuserdata
 TameParse.xcodeproj/xcuserdata
+
+# Generated files
 tameparse_language.cpp
 tameparse_language.h
 autom4te.cache
