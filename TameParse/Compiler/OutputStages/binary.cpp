@@ -27,12 +27,14 @@
 
 #include <cstdlib>
 #include "TameParse/Compiler/OutputStages/binary.h"
+#include "TameParse/Language/Formatter.h"
 #include "TameParse/version.h"
 
 using namespace std;
 using namespace dfa;
 using namespace contextfree;
 using namespace tameparse;
+using namespace language;
 using namespace compiler;
 
 /// \brief Creates a new output stage
@@ -444,13 +446,62 @@ void output_binary::write_terminal_names() {
         curId = term->first;
 
         // Write out the string for this terminal
-        write_string(term->second);
+        write_int(get_string(term->second));
     }
 }
 
 /// \brief Writes out the names of the nonterminal symbols
 void output_binary::write_nonterminal_names() {
+    // Start the table
+    start_table(table::nonterminal_names);
 
+    // Fetch the grammar
+    const grammar&              gram        = output_stage::gram();
+    const terminal_dictionary&  terminals   = output_stage::terminals();
+
+    // Start building up a map of nonterminal IDs to names
+    map<int, wstring> ntNames;
+
+    // Iterate through all of the rules in the grammar
+    for (int ruleId = 0; ruleId < gram.max_rule_identifier(); ++ruleId) {
+        // Fetch this rule
+        const rule_container& rule = gram.rule_with_identifier(ruleId);
+
+        // Get the nonterminal (item) ID
+        int itemId = gram.identifier_for_item(rule->nonterminal());
+
+        // See if we've already recorded a name for its nonterminal
+        if (ntNames.find(itemId) == ntNames.end()) {
+            // Generate the name for this item using the formatter
+            ntNames[itemId] = formatter::to_string(*rule->nonterminal(), gram, terminals);
+        }
+    }
+
+    // Write out the list of terminals
+    int curId = 0; 
+
+    for (map<int, wstring>::iterator nt = ntNames.begin(); nt != ntNames.end(); ++nt) {
+        // Ignore items with identifiers that go downwards (shouldn't happen; generally indicates some items have negative IDs)
+        if (nt->first < curId) {
+            continue;
+        }
+
+        // Fetch the item that this represents
+        const item_container& item = gram.item_with_identifier(nt->first);
+
+        // Write out blanks until we reach the current ID
+        for (int blank = curId+1; blank < nt->first; ++blank) {
+            write_int(0xffffffffu);
+            write_int(0xffffffffu);
+        }
+        curId = nt->first;
+
+        // Write out the type of this nonterminal
+        write_int(item->type());
+
+        // Write out the identifier of the string for this nonterminal
+        write_int(get_string(nt->second));
+    }
 }
 
 /// \brief Writes out the definitions of the rules
