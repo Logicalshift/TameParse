@@ -1,0 +1,5 @@
+## LR parser
+
+TameParse has a feature that attempts to resolve reduce/reduce conflicts caused by the LALR algorithm. This feature is somewhat experimental in that it’s not clear that it currently catches all of the cases. It can be turned on with the —enable-lr1-resolver option.
+
+The technique used to implement this feature is to use a ‘weak’ reduce action to resolve the conflicts. This action looks at the nonterminal that would be reduced and checks that it can be used in the current situation. This produces a parse table whose actions are equivalent to the corresponding LR(1) parse tables but which is still the same size as a LALR parse table.

@@ -1,0 +1,5 @@
+## Lexer
+
+TameParse performs parsing in a two-stage manner. The first stage is the lexer, which splits up the input text into tokens. Tokens are specified as regular expressions, and are matched ‘greedily’ (a shorter token will not be returned if there is a possible longer phrase). 
+
+There are three types of token: keywords, lexical tokens and ignored tokens. Keywords and lexical tokens are essentially the same thing but if a particular string matches both a keyword and a lexical token, then the keyword will be chosen. Ignored tokens are matched by the lexer but are usually ignored by the parser. Unlike other systems, it is possible to use the ignored symbols in the parser grammar - this makes it possible to parse languages where whitespace is occasionally syntactically relevant, or implement javadoc-style systems where comments sometimes need to be associated with particular syntactic items.

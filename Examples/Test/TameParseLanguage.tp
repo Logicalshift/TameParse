@@ -40,5 +40,4 @@ test ParserLanguage {
 							"else[conflict=shift]"
 							"else[conflict=reduce]"
 							"else[conflict=weak reduce]"
-
 }

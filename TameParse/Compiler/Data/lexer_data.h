@@ -3,7 +3,26 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 12/11/2011.
-//  Copyright (c) 2011 Andrew Hunter. All rights reserved.
+//  
+//  Copyright (c) 2011-2012 Andrew Hunter
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy 
+//  of this software and associated documentation files (the \"Software\"), to 
+//  deal in the Software without restriction, including without limitation the 
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+//  sell copies of the Software, and to permit persons to whom the Software is 
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  IN THE SOFTWARE.
 //
 
 #ifndef _COMPILER_DATA_LEXER_DATA_H
@@ -20,37 +39,37 @@ namespace compiler {
     ///
     class lexer_data {
     public:
-    	/// \brief List of lexer items
-    	typedef std::vector<lexer_item> item_list;
+        /// \brief List of lexer items
+        typedef std::vector<lexer_item> item_list;
 
-    	/// \brief Maps items to their definitions
-    	typedef std::map<std::wstring, item_list> definition_map;
+        /// \brief Maps items to their definitions
+        typedef std::map<std::wstring, item_list> definition_map;
 
-    	/// \brief Iterator for this data
-    	typedef definition_map::const_iterator iterator;
+        /// \brief Iterator for this data
+        typedef definition_map::const_iterator iterator;
 
     private:
-    	/// \brief The definitions in this lexer data
-    	mutable definition_map m_Definitions;
+        /// \brief The definitions in this lexer data
+        mutable definition_map m_Definitions;
 
-    	/// \brief The expressions in this lexer data
-    	mutable definition_map m_Expressions;
+        /// \brief The expressions in this lexer data
+        mutable definition_map m_Expressions;
 
     public:
-    	/// \brief Adds a new lexer definition to this object
-    	void add_definition(const std::wstring& term, const lexer_item& newItem);
+        /// \brief Adds a new lexer definition to this object
+        void add_definition(const std::wstring& term, const lexer_item& newItem);
 
-    	/// \brief Removes all of the definitions for a terminal with a particular name from this item
-    	void remove_definition(const std::wstring& term);
+        /// \brief Removes all of the definitions for a terminal with a particular name from this item
+        void remove_definition(const std::wstring& term);
 
-    	/// \brief Returns all of the definitions for a particular terminal value
-    	const item_list& get_definitions(const std::wstring& term) const;
+        /// \brief Returns all of the definitions for a particular terminal value
+        const item_list& get_definitions(const std::wstring& term) const;
 
-    	/// \brief The first definition defined in this data object
-    	iterator begin() const;
+        /// \brief The first definition defined in this data object
+        iterator begin() const;
 
-    	/// \brief The item after the final definition defined in this data object
-    	iterator end() const;
+        /// \brief The item after the final definition defined in this data object
+        iterator end() const;
 
         /// \brief The first expression defined in this data object
         iterator begin_expr() const;
@@ -58,14 +77,14 @@ namespace compiler {
         /// \brief The item after the final expression defined in this data object
         iterator end_expr() const;
 
-    	/// \brief Adds a new lexer expression to this object
-    	void add_expression(const std::wstring& term, const lexer_item& newItem);
+        /// \brief Adds a new lexer expression to this object
+        void add_expression(const std::wstring& term, const lexer_item& newItem);
 
-    	/// \brief Removes a lexer expression from this object
-    	void remove_expression(const std::wstring& term);
+        /// \brief Removes a lexer expression from this object
+        void remove_expression(const std::wstring& term);
 
-    	/// \brief Returns all of the expressions for a particular value
-    	const item_list& get_expressions(const std::wstring& term) const;
+        /// \brief Returns all of the expressions for a particular value
+        const item_list& get_expressions(const std::wstring& term) const;
 
     };
 }

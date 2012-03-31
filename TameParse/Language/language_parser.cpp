@@ -3,7 +3,26 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 19/09/2011.
-//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
+//  
+//  Copyright (c) 2011-2012 Andrew Hunter
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy 
+//  of this software and associated documentation files (the \"Software\"), to 
+//  deal in the Software without restriction, including without limitation the 
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+//  sell copies of the Software, and to permit persons to whom the Software is 
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  IN THE SOFTWARE.
 //
 
 #include <sstream>
@@ -53,6 +72,8 @@ typedef tameparse_language::Test_Block_n                        ast_Test_Block;
 typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
 typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
 typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
+typedef tameparse_language::Parser_Block_n                      ast_Parser_Block;
+typedef tameparse_language::list_of_Parser_StartSymbol_n        ast_list_of_Parser_StartSymbol;
 typedef tameparse_language::list_of_Lexer_Modifier_n            list_of_Lexer_Modifier;
 typedef tameparse_language::list_of_Lexer_Symbols_Modifier_n    list_of_Lexer_Symbols_Modifier;
 typedef tameparse_language::Precedence_Definition_n             ast_Precedence_Definition;
@@ -120,6 +141,22 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
 
     // Win
     return true;
+}
+
+/// \brief Converts a parser block into a parser_block object
+static parser_block* definition_for(const ast_Parser_Block* parserBlock) {
+    // Sanity check
+    if (!parserBlock->name)             return NULL;
+    if (!parserBlock->language_name)    return NULL;
+
+    // Get the list of start symbols
+    vector<wstring> startSymbols;
+    for (ast_list_of_Parser_StartSymbol::iterator startSymbol = parserBlock->start_symbols->begin(); startSymbol != parserBlock->start_symbols->end(); ++startSymbol) {
+        startSymbols.push_back((*startSymbol)->Parser_StartSymbol->Nonterminal->nonterminal_2->content<wchar_t>());
+    }
+
+    // Create the parser block
+    return new parser_block(parserBlock->name->content<wchar_t>(), parserBlock->language_name->content<wchar_t>(), startSymbols, parserBlock->pos(), parserBlock->final_pos());
 }
 
 /// \brief Converts a test block into a test_block
@@ -420,10 +457,10 @@ static nonterminal_definition* definition_for(const ast_Nonterminal_Definition* 
     // Work out the type
     nonterminal_definition::type ntType = nonterminal_definition::assignment;
     
-    if (nonterminal->one_of__equals__or__plus__equals_) {
-        if (nonterminal->one_of__equals__or__plus__equals_->_equals_) {
+    if (nonterminal->one_of__equals__or__pipe__equals_) {
+        if (nonterminal->one_of__equals__or__pipe__equals_->_equals_) {
             ntType = nonterminal_definition::assignment;
-        } else if (nonterminal->one_of__equals__or__plus__equals_->_plus__equals_) {
+        } else if (nonterminal->one_of__equals__or__pipe__equals_->_pipe__equals_) {
             ntType = nonterminal_definition::addition;
         }
     } else if (nonterminal->replace) {
@@ -790,7 +827,14 @@ static toplevel_block* definition_for(const ast_TopLevel_Block* toplevel) {
     
     // Parser block
     else if (toplevel->Parser_Block) {
-        
+        parser_block* parser = definition_for(toplevel->Parser_Block);
+        if (!parser) {
+            // Doh
+            return NULL;
+        }
+
+        // Turn into a toplevel block
+        return new toplevel_block(parser);
     }
     
     // Failed to parse: doh, bug

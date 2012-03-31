@@ -3,7 +3,26 @@
 //  TameParse
 //
 //  Created by Andrew Hunter on 13/01/2012.
-//  Copyright (c) 2012 Andrew Hunter. All rights reserved.
+//  
+//  Copyright (c) 2011-2012 Andrew Hunter
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy 
+//  of this software and associated documentation files (the \"Software\"), to 
+//  deal in the Software without restriction, including without limitation the 
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+//  sell copies of the Software, and to permit persons to whom the Software is 
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  IN THE SOFTWARE.
 //
 
 #ifndef _LR_LR1_REWRITER_H
@@ -29,9 +48,9 @@ namespace lr {
     /// occurs in a single place in the rules reached by the reduction, we can
     /// replace one of the reductions with a weak reduce to resolve the conflict.
     ///
- 	/// Additionally, if the conflict becomes a shift/reduce we can also resolve
- 	/// it this way (this allows other rewriters to resolve the conflict, and also
- 	/// makes it easier to see why the grammar is conflicted)
+    /// Additionally, if the conflict becomes a shift/reduce we can also resolve
+    /// it this way (this allows other rewriters to resolve the conflict, and also
+    /// makes it easier to see why the grammar is conflicted)
     ///
     class lr1_rewriter : public action_rewriter {
     public:

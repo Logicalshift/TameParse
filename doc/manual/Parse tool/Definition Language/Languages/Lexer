@@ -1,0 +1,36 @@
+#### Defining the Lexer
+
+Within the language block, a number of lexer sections can be defined. These each define lexical symbols that match terminal symbols used by the grammar (with the exception of the lexer-symbols section, which defines symbols used by the other lexer blocks). There are four kinds of lexer block:
+
+lexer blocks define basic terminal symbols.
+keywords blocks define language keywords.
+ignore blocks define symbols that are usually ignored by the parser (such as comments and whitespace).
+lexer-symbols blocks define symbols that can be used by the other lexer blocks
+
+These blocks are defined as follows:
+
+    language Example {
+      lexer { /* Lexer definitions */ }
+      keywords { /* Lexer definitions */ }
+      ignore { /* Ignored symbol definitions */ }
+      lexer-symbols { /* Symbols definitions */ }
+    }
+
+Lexer blocks can be declared with two optional modifiers. The ‘weak’ modifier indicates that the block defines weak symbols which are only matched when specifically required by the parser. The ‘case insensitive’ modifier can be used to specify that the symbols in a block should be matched case insensitively. ‘Weak’ has no effect when applied to lexer-symbols or ignore blocks. Modifiers are declared before the keyword that defines the block, for example:
+
+      weak lexer { /* Weak symbol definitions */ }
+      case insensitive keywords { /* Case-insensitive keywords */ }
+      weak case insensitive lexer { /* Weak, case insensitive symbol definitions */ }
+
+A lexer definition consists of an identifier, the ‘=‘ symbol and a definition, which can be a regular expression, a string or a character. In a keywords block, the ‘=‘ is optional: not specifying it creates a keyword whose definition is the literal identifier. Each block can contain many definitions. For instance:
+
+      lexer { 
+          regex = /[A-Za-z]+/
+          string = "string"
+      }
+      keywords {
+          kw-regex = /[A-Z][0-9]+/
+          literal	       /* Same as saying literal = "literal" */
+      }
+
+It is an error to define an expression within a single block that can match two different symbols (but it is allowed to do this with multiple blocks: in the event of a clash, the earlier definition is the one that is used). It’s also an error to define a symbol that can never be produced due to other symbols with a higher priority. Keywords have a higher priority than lexer blocks, which have a higher priority than ignore blocks.

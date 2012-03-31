@@ -3,7 +3,26 @@
 //  Parse
 //
 //  Created by Andrew Hunter on 13/05/2011.
-//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
+//  
+//  Copyright (c) 2011-2012 Andrew Hunter
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy 
+//  of this software and associated documentation files (the \"Software\"), to 
+//  deal in the Software without restriction, including without limitation the 
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+//  sell copies of the Software, and to permit persons to whom the Software is 
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  IN THE SOFTWARE.
 //
 
 #ifndef _LR_PARSER_H
@@ -53,7 +72,7 @@ namespace lr {
         inline void shift(const lexeme_container& lookahead, int newState)  { }
         inline void reduce(int nonterminalId, int ruleId, int length)       { }
         inline void goto_state(int newState)                                { }
-        inline void checked_guard(int result)                               { }
+        inline void checked_guard(int initialState, int result)             { }
         inline void reject(const lexeme_container& lookahead)               { }
     };
     
@@ -82,9 +101,9 @@ namespace lr {
             std::wcerr << L"GOTO " << newState << std::endl;
         }
         
-        inline void checked_guard(int result) {
+        inline void checked_guard(int initialState, int result) {
             if (level > 0) {
-                std::wcerr << L"CHECK GUARD RESULT: " << result << L"\n";
+                std::wcerr << L"CHECK GUARD RESULT: " << result << L" (from state " << initialState << L")\n";
             }
         }
 
@@ -365,7 +384,7 @@ namespace lr {
                 inline int check_guard(state* state, int initialState) {
                     int result = state->check_guard(initialState, 0);
                     
-                    m_Trace.checked_guard(result);
+                    m_Trace.checked_guard(initialState, result);
                     
                     return result;
                 }

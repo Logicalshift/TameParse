@@ -3,7 +3,26 @@
 //  parsetool
 //
 //  Created by Andrew Hunter on 24/09/2011.
-//  Copyright 2011-2012 Andrew Hunter. All rights reserved.
+//  
+//  Copyright (c) 2011-2012 Andrew Hunter
+//  
+//  Permission is hereby granted, free of charge, to any person obtaining a copy 
+//  of this software and associated documentation files (the \"Software\"), to 
+//  deal in the Software without restriction, including without limitation the 
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+//  sell copies of the Software, and to permit persons to whom the Software is 
+//  furnished to do so, subject to the following conditions:
+//  
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//  
+//  THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+//  IN THE SOFTWARE.
 //
 
 #include "TameParse/TameParse.h"
@@ -13,6 +32,7 @@
 #include <memory>
 
 using namespace std;
+using namespace util;
 using namespace dfa;
 using namespace contextfree;
 using namespace lr;
@@ -90,12 +110,13 @@ int main (int argc, const char * argv[])
         }
         
         // Work out the name of the language to build and the start symbols
-        wstring         buildLanguageName   = console.get_option(L"compile-language");
-        wstring         buildClassName      = console.get_option(L"class-name");
-        vector<wstring> startSymbols        = console.get_option_list(L"start-symbol");
-        wstring         targetLanguage      = console.get_option(L"target-language");
-        wstring         buildNamespaceName  = console.get_option(L"namespace-name");
-        position        parseBlockPosition  = position(-1, -1, -1);
+        wstring             buildLanguageName   = console.get_option(L"compile-language");
+        wstring             buildClassName      = console.get_option(L"class-name");
+        vector<wstring>     startSymbols        = console.get_option_list(L"start-symbol");
+        wstring             targetLanguage      = console.get_option(L"output-language");
+        wstring             buildNamespaceName  = console.get_option(L"namespace-name");
+        position            parseBlockPosition  = position(-1, -1, -1);
+        const parser_block* parserBlock         = NULL;
         
         // Use the options by default
         if (console.get_option(L"compile-language").empty()) {
@@ -104,8 +125,35 @@ int main (int argc, const char * argv[])
             // TODO: use the position of the parser block to report 
             // TODO: deal with multiple parser blocks somehow (error? generate multiple classes?)
         }
+
+        // Try to fetch a parser block from the input file
+        for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); ++defnBlock) {
+            if ((*defnBlock)->parser()) {
+                if (parserBlock) {
+                    // We only allow one parser block per file
+                    console.report_error(error(error::sev_info, console.input_file(), L"MULTIPLE_PARSER_BLOCKS", L"Multiple parser blocks specified", (*defnBlock)->start_pos()));
+                    parserBlock = NULL;
+                    break;
+                } else {
+                    // This is the parser block
+                    parserBlock = (*defnBlock)->parser();
+                }
+            }
+        }
+
+        // If there are no start symbols or build languages specified on the command line, then pick them from the parser block
+        if (buildLanguageName.empty() && startSymbols.empty() && parserBlock) {
+            // Get the language name and start symbols from the block
+            buildLanguageName   = parserBlock->language_name();
+            startSymbols        = parserBlock->start_symbols();
+
+            // The class name is also specified in the block if not overridden on the command line
+            if (buildClassName.empty()) {
+                buildClassName = parserBlock->parser_name();
+            }
+        }
         
-        // If there is only one language in the original file and none specified, then we will generate that
+        // If there is only one language in the original file and none specified on the command line, then we will generate that
         if (buildLanguageName.empty()) {
             int languageCount = 0;
             
@@ -287,6 +335,33 @@ int main (int argc, const char * argv[])
                 
                 console.report_error(error(error::sev_error, L"stdin", L"TEST_PARSER_ERROR", L"Syntax error", failPos));
             }
+        } else if (targetLanguage == L"test-trace") {
+            // Special case: same as for test, but use the debug version of the parser
+            typedef parser<astnode_container, ast_parser_actions, debug_parser_trace<1> > trace_parser;
+            trace_parser parser(*lrParserStage.get_tables());
+            
+            // Create the parser
+            lexeme_stream* stdinStream          = lexerStage.get_lexer()->create_stream_from(wcin);
+            trace_parser::state* stdInParser    = parser.create_parser(new ast_parser_actions(stdinStream));
+            
+            // Parse stdin
+            if (stdInParser->parse()) {
+                console.verbose_stream() << formatter::to_string(*stdInParser->get_item(), *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+            } else {
+                position failPos(-1, -1, -1);
+                if (stdInParser->look().item()) {
+                    failPos = stdInParser->look()->pos();
+                }
+                
+                console.report_error(error(error::sev_error, L"stdin", L"TEST_PARSER_ERROR", L"Syntax error", failPos));
+
+                // Report the stack at the point of failure
+                trace_parser::stack stack = stdInParser->get_stack();
+                console.verbose_stream() << endl << L"Stack:" << endl;
+                do {
+                    console.verbose_stream() << formatter::to_string(*stack->item, *compileLanguageStage->grammar(), *compileLanguageStage->terminals()) << endl;
+                } while (stack.pop());
+            }
         } else {
             // Unknown target language
             wstringstream msg;
@@ -307,4 +382,3 @@ int main (int argc, const char * argv[])
         throw;
     }
 }
-

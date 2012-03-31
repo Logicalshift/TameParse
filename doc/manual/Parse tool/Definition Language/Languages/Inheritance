@@ -1,0 +1,29 @@
+#### Inheriting Languages
+
+TameParse supports language inheritance: declaring a new language that inherits the definitions of another. There are several declarations that support this feature. The ‘import’ directive, which appears at the top level, can be used to load definitions from another language file:
+
+      import "AnsiC.tp"
+
+This will load definitions from the AnsiC.tp file before evaluating the rest of the current file. A language can be declared to inherit from another language using an alternative form of the language directive:
+
+      language C99 : Ansi-C {
+          // Declarations extending the definition of the Ansi-C language
+      }
+
+This declares a new language that inherits all of the declarations from Ansi-C. Without any further definitions, this language will be identical to the language it inherits from. Declaring new grammar and lexer sections will add new definitions to the language - this can be useful for creating a new language that uses features of the older language. It is also possible to extend or replace existing definitions.
+
+In a lexer block you can use ‘|=’ declarations to add new definitions to existing lexemes, and declare new identifiers with the ‘replace’ modifier to replace old lexemes with new definitions:
+
+      lexer {
+          modified |= "extradefinition"
+          replace old = "newdefinition"
+      }
+
+These work in all lexer blocks, including lexer-symbols blocks. It’s an error to try to modify an existing item without using one of these symbols. Grammars can be similarly modified:
+
+      grammar {
+          <Modified> |= modified          // Add extra production to <Modified>
+          replace <Old> = newdefinition   // Replace definition of <Old>
+      }
+
+Note that guards are highly useful when extending an existing language: traditionally, it is necessary to rewrite a grammar to fit it into the parsing algorithm used by a language generator due to the limitations associated with algorithms such as LALR. This makes ‘inheritance’ as applied to languages a difficult idea, as both languages would need to be rewritten to create a working parser. Guards can be used to work around these limitations, making inheritance a much more useful concept.

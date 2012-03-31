@@ -141,7 +141,7 @@ language ParserLanguage {
 
 		<Grammar-Definition>		= grammar '{' (<Nonterminal-Definition>)*[nonterminals] '}'
 
-		<Nonterminal-Definition>	= [=> nonterminal ('=' | "+=")] nonterminal ('=' | "+=") <Production> ('|' <Production>)*
+		<Nonterminal-Definition>	= [=> nonterminal ('=' | "|=")] nonterminal ('=' | "|=") <Production> ('|' <Production>)*
 									| [=> replace nonterminal '='] replace nonterminal '=' <Production> ('|' <Production>)*
 
 		// Top level is just a simple EBNF term, as the '|' operator creates a new production at this point

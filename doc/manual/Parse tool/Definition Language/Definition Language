@@ -1,0 +1,13 @@
+## Defining Languages
+
+A TameParse definition file can contain multiple sections - defining languages, their tests and how to generate parsers. Conventionally, a file should only contain a single language, though this is more a question of organisation than a limitation of the tool.
+
+Definition files are UTF-8 text files and can contain any unicode characters. Target languages may not support unicode characters, however, so consider limiting the usage of unicode to comments and lexical definitions.
+
+There are two types of identifier used by a TameParse file. The first is a terminal identifier, which consists of an alphabetic letter followed by a sequence of alphanumeric and punctuation symbols. Examples of valid terminal identifiers are ‘foo’, ‘Foo’, ‘foo-bar’, ‘foo_bar’, etc. The second type of identifier is a nonterminal identifier, which follow the same rules as terminal identifiers but are enclosed in angle brackets - ie, ‘&lt;foo>’ , ‘&lt;Foo>’, ‘&lt;foo-bar>’, ‘&lt;foo_bar>’, etc. TameParse has no reserved words.
+
+Comments can be supplied in the same style as C++, so ‘// Comment’ and ‘/* Comment */‘ are both valid comments.
+
+Regular expressions are enclosed by slashes - ‘/xyz/‘, ‘/xy\*z/’, etc.
+
+Strings are enclosed by double quotes, and characters by single quotes.
