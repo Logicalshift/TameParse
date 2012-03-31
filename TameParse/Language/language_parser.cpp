@@ -872,7 +872,7 @@ static definition_file* definition_for(const tameparse_language::epsilon_n* root
 }
 
 /// \brief Type of a parser state
-typedef tameparse_language::ast_parser_type::state parser_state;
+typedef tameparse_language::state parser_state;
 
 /// \brief Parser actions type
 typedef tameparse_language::parser_actions parser_actions;
@@ -910,15 +910,11 @@ bool language_parser::parse(const std::wstring& language) {
     m_FileDefinition = definition_file_container(NULL, true);
     m_RecentErrors.clear();
 
-    // Create a lexer for this string
+    // Create a stream for this string
     wstringreader reader(language);
     
-    lexeme_stream* stream = tameparse_language::lexer.create_stream_from<wchar_t>(reader);
-    
     // Create the parser
-    // Currently using the 'raw' parser here (due to the state of the C++ generator at this point in time: I imagine it will have
-    // a few more interesting/easy ways of creating parsers later on)
-    parser_state* parser_state = tameparse_language::ast_parser.create_parser(new parser_actions(stream));
+    parser_state* parser_state = tameparse_language::create_Parser_Language<wchar_t>(reader);
     
     // Parse the language
     result          = parser_state->parse();
@@ -936,7 +932,6 @@ bool language_parser::parse(const std::wstring& language) {
     
     // Finished with the parser
     delete parser_state;
-    delete stream;
     
     // Done
     return result;
