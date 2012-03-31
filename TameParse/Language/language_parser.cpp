@@ -72,6 +72,8 @@ typedef tameparse_language::Test_Block_n                        ast_Test_Block;
 typedef tameparse_language::list_of_Test_Definition_n           ast_list_of_Test_Definition;
 typedef tameparse_language::Test_Definition_n                   ast_Test_Definition;
 typedef tameparse_language::list_of_Test_Specification_n        ast_list_of_Test_Specification;
+typedef tameparse_language::Parser_Block_n                      ast_Parser_Block;
+typedef tameparse_language::list_of_Parser_StartSymbol_n        ast_list_of_Parser_StartSymbol;
 typedef tameparse_language::list_of_Lexer_Modifier_n            list_of_Lexer_Modifier;
 typedef tameparse_language::list_of_Lexer_Symbols_Modifier_n    list_of_Lexer_Symbols_Modifier;
 typedef tameparse_language::Precedence_Definition_n             ast_Precedence_Definition;
@@ -139,6 +141,22 @@ static bool add_test_definition(test_block* target, const ast_Test_Definition* d
 
     // Win
     return true;
+}
+
+/// \brief Converts a parser block into a parser_block object
+static parser_block* definition_for(const ast_Parser_Block* parserBlock) {
+    // Sanity check
+    if (!parserBlock->name)             return NULL;
+    if (!parserBlock->language_name)    return NULL;
+
+    // Get the list of start symbols
+    vector<wstring> startSymbols;
+    for (ast_list_of_Parser_StartSymbol::iterator startSymbol = parserBlock->start_symbols->begin(); startSymbol != parserBlock->start_symbols->end(); ++startSymbol) {
+        startSymbols.push_back((*startSymbol)->Parser_StartSymbol->Nonterminal->nonterminal_2->content<wchar_t>());
+    }
+
+    // Create the parser block
+    return new parser_block(parserBlock->name->content<wchar_t>(), parserBlock->language_name->content<wchar_t>(), startSymbols, parserBlock->pos(), parserBlock->final_pos());
 }
 
 /// \brief Converts a test block into a test_block
@@ -809,7 +827,14 @@ static toplevel_block* definition_for(const ast_TopLevel_Block* toplevel) {
     
     // Parser block
     else if (toplevel->Parser_Block) {
-        
+        parser_block* parser = definition_for(toplevel->Parser_Block);
+        if (!parser) {
+            // Doh
+            return NULL;
+        }
+
+        // Turn into a toplevel block
+        return new toplevel_block(parser);
     }
     
     // Failed to parse: doh, bug
