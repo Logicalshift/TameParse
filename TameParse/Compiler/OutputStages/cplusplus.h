@@ -137,6 +137,9 @@ namespace compiler {
         /// \brief Writes out the reduce actions to the source file
         void source_reduce_actions();
 
+        /// \brief Writes out inline functions to generate initial parser states for specific start symbols
+        void header_start_symbols();
+
     protected:
         // Functions that represent various steps of the output of a language.
         // These are intended to make it easy to write out a file in the specified language.

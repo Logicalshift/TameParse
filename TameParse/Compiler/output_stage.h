@@ -226,6 +226,15 @@ namespace compiler {
         /// \brief The parser tables built by the parser generator
         inline const lr::parser_tables& get_parser_tables() { return *m_ParserStage->get_tables(); }
 
+        /// \brief Retrieves the start symbols that are possible for this parser
+        ///
+        /// In the generated parser, the first start symbol will accepted by the
+        /// parser starting at state 0, the second by the parser starting at
+        /// state 1, etc.
+        inline const std::vector<std::wstring>& get_start_symbols() { 
+            return m_ParserStage->get_start_symbols();
+        }
+
         /// \brief Returns the AST definition for the specified nonterminal
         const ast_nonterminal& get_ast_nonterminal(int nonterminalId);
     };
