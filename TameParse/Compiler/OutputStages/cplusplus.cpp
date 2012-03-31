@@ -1036,11 +1036,11 @@ void output_cplusplus::header_start_symbols() {
 
         // Define a function 
         *m_HeaderFile   << "    inline static state* create_" << startName << "(parser_actions* actions) {\n"
-                        << "        return ast_parser.create_parser(actions);\n"
+                        << "        return ast_parser.create_parser(actions, " << initialState << ");\n"
                         << "    }\n"
                         << "\n"
                         << "    inline static state* create_" << startName << "(dfa::lexeme_stream* stream, bool deleteStream = false) {\n"
-                        << "        return ast_parser.create_parser(new parser_actions(stream, deleteStream));\n"
+                        << "        return ast_parser.create_parser(new parser_actions(stream, deleteStream), " << initialState << ");\n"
                         << "    }\n"
                         << "\n"
                         << "    template<typename char_type, typename traits> inline static state* create_" << startName << "(std::basic_istream<char_type, traits>& input) {\n"
@@ -1050,6 +1050,9 @@ void output_cplusplus::header_start_symbols() {
                         << "    template<typename char_type, typename custom_stream_alike> inline static state* create_" << startName << "(custom_stream_alike& input) {\n"
                         << "        return create_" << startName << "(lexer.create_stream_from<char_type, custom_stream_alike>(input), true);\n"
                         << "    }\n";
+
+        // Move the initial state on
+        initialState++;
     }
 }
 
