@@ -94,6 +94,9 @@ namespace compiler {
         
         /// \brief Returns the parse tables built by this stage
         inline lr::parser_tables* get_tables() { return m_Tables; }
+
+        /// \brief Returns the start symbols for this language
+        inline const std::vector<std::wstring>& get_start_symbols() const { return m_StartSymbols; }
     };
 }
 

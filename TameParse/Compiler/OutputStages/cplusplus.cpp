@@ -158,6 +158,7 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
     m_ReservedWords.insert("syntax_node");
     m_ReservedWords.insert("node");
     m_ReservedWords.insert("content");
+    m_ReservedWords.insert("state");
 
     // Mainly stuff from the std namespace
     m_ReservedWords.insert("string");
@@ -1012,6 +1013,44 @@ void output_cplusplus::define_ast_tables() {
                     << "    static const ast_parser_type ast_parser;\n";
     
     *m_SourceFile   << "\nconst " << get_identifier(m_ClassName, false) << "::ast_parser_type " << get_identifier(m_ClassName, false) << "::ast_parser(&lr_tables, false);\n";
+
+    // Generate functions for creating new parsers
+    header_start_symbols();
+}
+
+/// \brief Writes out inline functions to generate initial parser states for specific start symbols
+void output_cplusplus::header_start_symbols() {
+    // Begin writing out the definitions
+    *m_HeaderFile   << "\npublic:\n"
+                    << "    typedef ast_parser_type::state state;\n";
+
+    // Fetch the start symbols
+    const vector<wstring>& startSymbols = get_start_symbols();
+
+    // Write out functions for generating the initial state for each start symbol
+    int initialState = 0;
+    for (vector<wstring>::const_iterator startSymbol = startSymbols.begin(); startSymbol != startSymbols.end(); ++startSymbol) {
+        // Assign a name to this symbol
+        // TODO: avoid clashes with defined symbols called 'create_X'
+        string startName = get_identifier(*startSymbol, true);
+
+        // Define a function 
+        *m_HeaderFile   << "    inline static state* create_" << startName << "(parser_actions* actions) {\n"
+                        << "        return ast_parser.create_parser(actions);\n"
+                        << "    }\n"
+                        << "\n"
+                        << "    inline static state* create_" << startName << "(dfa::lexeme_stream* stream, bool deleteStream = false) {\n"
+                        << "        return ast_parser.create_parser(new parser_actions(stream, deleteStream));\n"
+                        << "    }\n"
+                        << "\n"
+                        << "    template<typename char_type, typename traits> inline static state* create_" << startName << "(std::basic_istream<char_type, traits>& input) {\n"
+                        << "        return create_" << startName << "(lexer.create_stream_from<char_type, traits>(input), true);\n"
+                        << "    }\n"
+                        << "\n"
+                        << "    template<typename char_type, typename custom_stream_alike> inline static state* create_" << startName << "(custom_stream_alike& input) {\n"
+                        << "        return create_" << startName << "(lexer.create_stream_from<char_type, custom_stream_alike>(input), true);\n"
+                        << "    }\n";
+    }
 }
 
 /// \brief Writes out the forward declarations for the classes that represent items in the grammar
@@ -1559,15 +1598,21 @@ void output_cplusplus::header_parser_actions() {
                     << "\n"
                     << "    private:\n"
                     << "        dfa::lexeme_stream* m_Stream;\n"
+                    << "        bool m_OwnStream;\n"
                     << "\n"
                     << "        parser_actions(parser_actions& noCopying);\n"
                     << "        parser_actions& operator=(const parser_actions& noCopying);\n"
                     << "\n"
                     << "    public:\n"
-                    << "        parser_actions(dfa::lexeme_stream* stream)\n"
-                    << "        : m_Stream(stream) { }\n"
+                    << "        parser_actions(dfa::lexeme_stream* stream, bool ownStream = false)\n"
+                    << "        : m_Stream(stream)\n"
+                    << "        , m_OwnStream(ownStream) { }\n"
                     << "\n"
                     << "        ~parser_actions() {\n"
+                    << "            if (m_OwnStream && m_Stream) {\n"
+                    << "                delete m_Stream;\n"
+                    << "                m_Stream = NULL;\n"
+                    << "            }\n"
                     << "        }\n"
                     << "\n"
                     << "        inline dfa::lexeme* read() {\n"
