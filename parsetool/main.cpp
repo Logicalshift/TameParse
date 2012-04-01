@@ -303,7 +303,7 @@ int main (int argc, const char * argv[])
         }
         
         // Work out the prefix filename
-        wstring prefixFilename = console.get_option(L"output-language");
+        wstring prefixFilename = console.get_option(L"output-file");
         if (prefixFilename.empty()) {
             // Derive from the input file
             // This works provided the target language 
