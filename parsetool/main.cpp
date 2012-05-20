@@ -110,12 +110,13 @@ int main (int argc, const char * argv[])
         }
         
         // Work out the name of the language to build and the start symbols
-        wstring         buildLanguageName   = console.get_option(L"compile-language");
-        wstring         buildClassName      = console.get_option(L"class-name");
-        vector<wstring> startSymbols        = console.get_option_list(L"start-symbol");
-        wstring         targetLanguage      = console.get_option(L"output-language");
-        wstring         buildNamespaceName  = console.get_option(L"namespace-name");
-        position        parseBlockPosition  = position(-1, -1, -1);
+        wstring             buildLanguageName   = console.get_option(L"compile-language");
+        wstring             buildClassName      = console.get_option(L"class-name");
+        vector<wstring>     startSymbols        = console.get_option_list(L"start-symbol");
+        wstring             targetLanguage      = console.get_option(L"output-language");
+        wstring             buildNamespaceName  = console.get_option(L"namespace-name");
+        position            parseBlockPosition  = position(-1, -1, -1);
+        const parser_block* parserBlock         = NULL;
         
         // Use the options by default
         if (console.get_option(L"compile-language").empty()) {
@@ -124,8 +125,35 @@ int main (int argc, const char * argv[])
             // TODO: use the position of the parser block to report 
             // TODO: deal with multiple parser blocks somehow (error? generate multiple classes?)
         }
+
+        // Try to fetch a parser block from the input file
+        for (definition_file::iterator defnBlock = parserStage.definition_file()->begin(); defnBlock != parserStage.definition_file()->end(); ++defnBlock) {
+            if ((*defnBlock)->parser()) {
+                if (parserBlock) {
+                    // We only allow one parser block per file
+                    console.report_error(error(error::sev_info, console.input_file(), L"MULTIPLE_PARSER_BLOCKS", L"Multiple parser blocks specified", (*defnBlock)->start_pos()));
+                    parserBlock = NULL;
+                    break;
+                } else {
+                    // This is the parser block
+                    parserBlock = (*defnBlock)->parser();
+                }
+            }
+        }
+
+        // If there are no start symbols or build languages specified on the command line, then pick them from the parser block
+        if (buildLanguageName.empty() && startSymbols.empty() && parserBlock) {
+            // Get the language name and start symbols from the block
+            buildLanguageName   = parserBlock->language_name();
+            startSymbols        = parserBlock->start_symbols();
+
+            // The class name is also specified in the block if not overridden on the command line
+            if (buildClassName.empty()) {
+                buildClassName = parserBlock->parser_name();
+            }
+        }
         
-        // If there is only one language in the original file and none specified, then we will generate that
+        // If there is only one language in the original file and none specified on the command line, then we will generate that
         if (buildLanguageName.empty()) {
             int languageCount = 0;
             

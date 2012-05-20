@@ -37,21 +37,21 @@ namespace util {
     struct syntax_ptr_reference {
         /// \brief Creates a reference to NULL
         syntax_ptr_reference()
-        : m_UsageCount(1)
-        , m_Value(NULL) {
+        : usageCount(1)
+        , value(NULL) {
         }
         
         /// \brief Creates a reference to a value
         syntax_ptr_reference(const void* newValue)
-        : m_UsageCount(1)
-        , m_Value(newValue) {
+        : usageCount(1)
+        , value(newValue) {
         }
         
         /// \brief Number of syntax_ptr objects that refer to this reference
-        int m_UsageCount;
+        int usageCount;
         
         /// \brief The value in this reference
-        const void* m_Value;
+        const void* value;
         
     private:
         syntax_ptr_reference(const syntax_ptr_reference& noCopying);
@@ -73,7 +73,7 @@ namespace util {
         /// Generally, you should not use this constructor, it's mainly here to support pointer casting (the cast_to() function)
         inline explicit syntax_ptr(syntax_ptr_reference* ref)
         : m_Reference(ref) {
-            ++m_Reference->m_UsageCount;
+            ++m_Reference->usageCount;
         }
         
     public:
@@ -94,7 +94,7 @@ namespace util {
         inline syntax_ptr(const syntax_ptr<ptr_type>& copyFrom)
         : m_Reference(copyFrom.m_Reference) {
             // Increase the reference count for this object
-            ++m_Reference->m_UsageCount;
+            ++m_Reference->usageCount;
         }
         
         /// \brief Assignment
@@ -103,27 +103,27 @@ namespace util {
             if (m_Reference == assignFrom.m_Reference) return *this;
             
             // Deallocate the reference
-            m_Reference->m_UsageCount--;
-            if (m_Reference->m_UsageCount <= 0) {
-                delete (ptr_type*) m_Reference->m_Value;
-                m_Reference->m_Value = NULL;
+            m_Reference->usageCount--;
+            if (m_Reference->usageCount <= 0) {
+                delete (ptr_type*) m_Reference->value;
+                m_Reference->value = NULL;
                 delete m_Reference;
             }
             m_Reference = NULL;
             
             // Switch to the reference in the other object
             m_Reference = assignFrom.m_Reference;
-            ++m_Reference->m_UsageCount;
+            ++m_Reference->usageCount;
             
             return *this;
         }
         
         /// \brief Destructs a syntax_ptr
         ~syntax_ptr() {
-            m_Reference->m_UsageCount--;
-            if (m_Reference->m_UsageCount <= 0) {
-                delete (ptr_type*) m_Reference->m_Value;
-                m_Reference->m_Value = NULL;
+            m_Reference->usageCount--;
+            if (m_Reference->usageCount <= 0) {
+                delete (ptr_type*) m_Reference->value;
+                m_Reference->value = NULL;
                 delete m_Reference;
                 m_Reference = NULL;
             }
@@ -131,10 +131,10 @@ namespace util {
         
     public:
         /// \brief Converts this object back to its underlying type
-        inline operator const ptr_type*() const { return (ptr_type*) m_Reference->m_Value; }
+        inline operator const ptr_type*() const { return (ptr_type*) m_Reference->value; }
 
         /// \brief Evaluating this as a boolean returns whether or not the item is present
-        inline operator bool() const { return m_Reference->m_Value != NULL; }
+        inline operator bool() const { return m_Reference->value != NULL; }
         
         /// \brief Casts this pointer to a pointer of a different type (but maintains reference counting)
         ///
@@ -147,10 +147,10 @@ namespace util {
 
         // Other operators
         
-        inline const ptr_type* operator->() const { return (ptr_type*) m_Reference->m_Value; }
-        inline const ptr_type& operator*() { return *(ptr_type*) m_Reference->m_Value; }
+        inline const ptr_type* operator->() const { return (ptr_type*) m_Reference->value; }
+        inline const ptr_type& operator*() { return *(ptr_type*) m_Reference->value; }
         
-        inline const ptr_type* item() const { return (ptr_type*) m_Reference->m_Value; }
+        inline const ptr_type* item() const { return (ptr_type*) m_Reference->value; }
     };
 }
 
