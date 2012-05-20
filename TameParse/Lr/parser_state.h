@@ -158,7 +158,7 @@ namespace lr {
     /// well as standard actions (where we want to call the actions object to actually perform the action)
     ///
     template<class I, class A, class T> template<class actions> inline bool parser<I, A, T>::state::perform_generic(const lexeme_container& lookahead, const action* act, actions& actDelegate) {
-        switch (act->m_Type) {
+        switch (act->type) {
             case lr_action::act_ignore:
                 // Discard the current lookahead
                 actDelegate.ignore(this, act, lookahead);
@@ -191,7 +191,7 @@ namespace lr {
             case lr_action::act_accept:                 // An accepting action is the same as a reducing action
             {
                 // For reduce actions, the 'm_NextState' field actually refers to the rule that's being reduced
-                const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                const parser_tables::reduce_rule& rule = m_Tables->rule(act->next_state);
                 
                 // Pop items from the stack, and create an item for them by calling the actions
                 actDelegate.reduce(this, act, rule);
@@ -202,7 +202,7 @@ namespace lr {
                 
             case lr_action::act_goto:
                 // In general, this won't happen
-                actDelegate.set_state(this, act->m_NextState);
+                actDelegate.set_state(this, act->next_state);
                 return false;
                 
             case lr_action::act_guard:
@@ -279,10 +279,10 @@ namespace lr {
             bool ok = false;
             for (; act != end; ++act) {
                 // Stop searching if the symbol is invalid
-                if (act->m_SymbolId != sym) break;
+                if (act->symbol_id != sym) break;
                 
                 // If this is a weak reduce action, then check if the action is successful
-                if (act->m_Type == lr_action::act_weakreduce) {
+                if (act->type == lr_action::act_weakreduce) {
                     // TODO: if we've previously tested this symbol to see if it will reduce and the parser state hasn't changed
                     // then we can just re-use the existing information.
                     // TODO: see if this produces a meaningful speedup before complicating the code
@@ -300,19 +300,19 @@ namespace lr {
                 }
                 
                 // The guard is matched if this is an accepting action
-                if (act->m_Type == lr_action::act_accept) {
+                if (act->type == lr_action::act_accept) {
                     // Get the accepting rule
-                    const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                    const parser_tables::reduce_rule& rule = m_Tables->rule(act->next_state);
                     
                     // Return the nonterminal ID for this rule, which should be the ID of the guard that was 
                     // matched
-                    return rule.m_Identifier;
+                    return rule.identifier;
                 }
                 
                 // Recursively check guard actions
-                else if (act->m_Type == lr_action::act_guard) {
+                else if (act->type == lr_action::act_guard) {
                     // Check if this guard generates a guard symbol
-                    int guardSym = guardActions.check_guard(this, act->m_NextState);
+                    int guardSym = guardActions.check_guard(this, act->next_state);
                     
                     // If the guard was not matched, continue to the next action for this symbol
                     if (guardSym < 0) {
@@ -353,17 +353,17 @@ namespace lr {
     /// \brief Fakes up a reduce action during can_reduce testing. act must be a reduce action
     template<typename I, typename A, typename T> inline void parser<I, A, T>::state::fake_reduce(parser_tables::action_iterator act, int& stackPos, std::stack<int>& pushed, const stack& underlyingStack) {
         // Verify the action type
-        switch (act->m_Type) {
+        switch (act->type) {
             // Reduce actions are fairly easy
             case lr_action::act_reduce:
             case lr_action::act_weakreduce:
             case lr_action::act_accept:
             {
                 // Get the reduce rule
-                const parser_tables::reduce_rule& rule = m_Tables->rule(act->m_NextState);
+                const parser_tables::reduce_rule& rule = m_Tables->rule(act->next_state);
                 
                 // Pop items from the stack
-                for (int x=0; x<rule.m_Length; ++x) {
+                for (int x=0; x<rule.length; ++x) {
                     if (!pushed.empty()) {
                         // If we've pushed a fake state, then remove it from the stack
                         pushed.pop();
@@ -382,11 +382,11 @@ namespace lr {
                 }
                 
                 // Work out the goto action
-                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.m_Identifier);
+                parser_tables::action_iterator gotoAct = m_Tables->find_nonterminal(state, rule.identifier);
                 for (; gotoAct != m_Tables->last_nonterminal_action(state); ++gotoAct) {
-                    if (gotoAct->m_Type == lr_action::act_goto) {
+                    if (gotoAct->type == lr_action::act_goto) {
                         // Push this goto
-                        pushed.push(gotoAct->m_NextState);
+                        pushed.push(gotoAct->next_state);
                         break;
                     }
                 }
@@ -401,13 +401,13 @@ namespace lr {
                     stackPos--;
                 }
 
-                pushed.push(act->m_NextState);
+                pushed.push(act->next_state);
                 break;
 
             case lr_action::act_shift:
             case lr_action::act_shiftstrong:
                 // Shift actions just move to the next state
-                pushed.push(act->m_NextState);
+                pushed.push(act->next_state);
                 break;
         }
     }
@@ -429,9 +429,9 @@ namespace lr {
         // Find the first reduce action for this item
         while (act != symbol_fetcher::last_symbol_action(m_Tables, state)) {
             // Fail if there are no actions for this terminal
-            if (act->m_SymbolId != symbol) return false;
+            if (act->symbol_id != symbol) return false;
             
-            switch (act->m_Type) {
+            switch (act->type) {
                 case lr_action::act_shift:
                 case lr_action::act_shiftstrong:
                 case lr_action::act_accept:
@@ -440,7 +440,7 @@ namespace lr {
                     
                 case lr_action::act_divert:
                     // Push the new state to the stack
-                    pushed.push(act->m_NextState);
+                    pushed.push(act->next_state);
                     break;
                     
                 case lr_action::act_guard:
@@ -517,10 +517,10 @@ namespace lr {
         // Work out which action to perform
         for (; act != end; ++act) {
             // Stop searching if the symbol is invalid
-            if (act->m_SymbolId != symbol) break;
+            if (act->symbol_id != symbol) break;
             
             // If this is a weak reduce action, then check if the action is successful
-            if (act->m_Type == lr_action::act_weakreduce) {
+            if (act->type == lr_action::act_weakreduce) {
                 if (isTerminal) {
                     // Run a fake reduce
                     if (!actDelegate.can_reduce(symbol, act, this)) {
@@ -534,9 +534,9 @@ namespace lr {
             }
             
             // Guard actions are not performed by the 'perform' method, but are handled separately
-            else if (act->m_Type == lr_action::act_guard) {
+            else if (act->type == lr_action::act_guard) {
                 // Check if this guard generates a guard symbol
-                int guardSym = actDelegate.check_guard(this, act->m_NextState);
+                int guardSym = actDelegate.check_guard(this, act->next_state);
                 
                 // If the guard was not matched, continue to the next action for this symbol
                 if (guardSym < 0) {
@@ -554,7 +554,7 @@ namespace lr {
             }
             
             // The accepting action finishes the parse
-            else if (act->m_Type == lr_action::act_accept) {
+            else if (act->type == lr_action::act_accept) {
                 return parser_result::accept;
             }
             
@@ -627,16 +627,16 @@ namespace lr {
         
         // Sanity check
         if (act == end)                     return false;
-        if (act->m_SymbolId != guardSymbol) return false;
+        if (act->symbol_id != guardSymbol) return false;
         
         // If the action is a reduce action, then we need to check that we can actually perform the reduction
         bool canReduce = false;
         for (action_iterator checkAction = act; checkAction != end; ++checkAction) {
             // Give up if this action doesn't refer to the guard symbol
-            if (checkAction->m_SymbolId != guardSymbol) break;
+            if (checkAction->symbol_id != guardSymbol) break;
             
             // If this is a reduce or weakreduce action, check if we can reduce this symbol
-            if (checkAction->m_Type == lr_action::act_reduce || checkAction->m_Type == lr_action::act_weakreduce) {
+            if (checkAction->type == lr_action::act_reduce || checkAction->type == lr_action::act_weakreduce) {
                 if (actDelegate.can_reduce_nonterminal(guardSymbol, checkAction, this)) {
                     canReduce = true;
                     break;
@@ -644,7 +644,7 @@ namespace lr {
             }
             
             // Shift actions are always allowed
-            else if (checkAction->m_Type == lr_action::act_shift || checkAction->m_Type == lr_action::act_shiftstrong) {
+            else if (checkAction->type == lr_action::act_shift || checkAction->type == lr_action::act_shiftstrong) {
                 canReduce = true;
                 break;
             }
@@ -664,12 +664,12 @@ namespace lr {
                 return true;
             }
             
-            if (act->m_SymbolId != guardSymbol) {
+            if (act->symbol_id != guardSymbol) {
                 // BUG! can_reduce was incorrect
                 return true;
             }
             
-            if (act->m_Type == lr_action::act_weakreduce) {
+            if (act->type == lr_action::act_weakreduce) {
                 // Check if we can perform a reduction
                 if (!actDelegate.can_reduce_nonterminal(guardSymbol, act, this)) {
                     // Try the next action if we can't reduce this item
@@ -678,7 +678,7 @@ namespace lr {
                 }
             }
             
-            if (act->m_Type == lr_action::act_guard) {
+            if (act->type == lr_action::act_guard) {
                 // TODO: deal with guards on guards (maybe should never happen?)
                 ++act;
                 continue;
