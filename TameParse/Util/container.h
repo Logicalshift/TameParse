@@ -60,7 +60,7 @@ namespace util {
     private:
         /// \brief Structure used to represent a reference to an item
         struct reference {
-            ItemType*       m_Item;
+            ItemType*       item;
             
         private:
             const bool m_WillDelete;
@@ -72,15 +72,15 @@ namespace util {
         public:
             /// \brief Creates a reference to an item, with a reference count of 1. The item will be deleted if the reference count reached 0 and willDelete is true
             inline reference(ItemType* it, bool willDelete)
-            : m_Item(it)
+            : item(it)
             , m_RefCount(1)
             , m_WillDelete(willDelete) {
             }
             
             inline ~reference() {
-                if (m_WillDelete && m_Item) {
-                    ItemAllocator::destruct(m_Item);
-                    m_Item = NULL;
+                if (m_WillDelete && item) {
+                    ItemAllocator::destruct(item);
+                    item = NULL;
                 }
             }
             
@@ -106,44 +106,44 @@ namespace util {
         
     public:
         /// \brief Dereferences the content of this container
-        inline ItemType* item() { return m_Ref->m_Item; }
+        inline ItemType* item() { return m_Ref->item; }
 
         /// \brief Dereferences the content of this container
-        inline const ItemType* item() const { return m_Ref->m_Item; }
+        inline const ItemType* item() const { return m_Ref->item; }
         
         /// \brief Dereferences the content of this container
         inline ItemType* operator->() {
-            return m_Ref->m_Item;
+            return m_Ref->item;
         }
         
         /// \brief Dereferences the content of this container
         inline const ItemType* operator->() const {
-            return m_Ref->m_Item;
+            return m_Ref->item;
         }
         
         /// \brief Dereferences the content of this container
         inline ItemType& operator*() {
-            return *m_Ref->m_Item;
+            return *m_Ref->item;
         }
         
         /// \brief Dereferences the content of this container
         inline const ItemType& operator*() const {
-            return *m_Ref->m_Item;
+            return *m_Ref->item;
         }
         
         /// \brief Dereferences the content of this container
         inline operator ItemType*() {
-            return m_Ref->m_Item;
+            return m_Ref->item;
         }
         
         /// \brief Dereferences the content of this container
         inline operator const ItemType*() const {
-            return m_Ref->m_Item;
+            return m_Ref->item;
         }
         
         /// \brief Ordering operator
         inline bool operator<(const container& compareTo) const {
-            return ItemType::compare(m_Ref->m_Item, compareTo.m_Ref->m_Item);
+            return ItemType::compare(m_Ref->item, compareTo.m_Ref->item);
         }
         
         /// \brief Ordering operator
@@ -163,10 +163,10 @@ namespace util {
         
         /// \brief Comparison operator
         inline bool operator==(const container& compareTo) const {
-            if (m_Ref->m_Item == compareTo.m_Ref->m_Item)                   return true;
-            if (m_Ref->m_Item == NULL || compareTo.m_Ref->m_Item == NULL)   return false;
+            if (m_Ref->item == compareTo.m_Ref->item)                   return true;
+            if (m_Ref->item == NULL || compareTo.m_Ref->item == NULL)   return false;
             
-            return (*m_Ref->m_Item) == *compareTo;
+            return (*m_Ref->item) == *compareTo;
         }
         
         /// \brief Comparison operator
@@ -181,9 +181,9 @@ namespace util {
             inline bool operator()(const container& a, const container& b) const {
                 static compare_item less_than;
                 
-                if (a.m_Ref->m_Item == b.m_Ref->m_Item) return false;
-                if (!a.m_Ref->m_Item)                   return true;
-                if (!b.m_Ref->m_Item)                   return false;
+                if (a.m_Ref->item == b.m_Ref->item)     return false;
+                if (!a.m_Ref->item)                     return true;
+                if (!b.m_Ref->item)                     return false;
                 
                 return less_than(*a, *b);
             }

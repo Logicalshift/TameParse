@@ -384,16 +384,16 @@ namespace dfa {
     ///
     template<class symbol_type, class table_type = symbol_level_for<symbol_type> > struct symbol_table {
         /// \brief The internal table
-        table_type Table;
+        table_type table;
         
         /// \brief Returns the set that the specified symbol is in
         inline int lookup(symbol_type val) const {
-            return Table.lookup(val);
+            return table.lookup(val);
         }
         
         /// \brief Adds a new symbol to this table
         inline void add_range(const range<int>& range, int symbol) {
-            Table.add_range(0, range, symbol);
+            table.add_range(0, range, symbol);
         }
     };
 }

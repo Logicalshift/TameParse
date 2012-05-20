@@ -65,12 +65,12 @@ static inline int action_score(int action) {
 
 static inline bool compare_actions(const parser_tables::action& a, const parser_tables::action& b) {
     // First, compare on symbol IDs
-    if (a.m_SymbolId < b.m_SymbolId) return true;
-    if (a.m_SymbolId > b.m_SymbolId) return false;
+    if (a.symbolId < b.symbolId) return true;
+    if (a.symbolId > b.symbolId) return false;
     
     // Next, compare on action types
-    int aScore = action_score(a.m_Type);
-    int bScore = action_score(b.m_Type);
+    int aScore = action_score(a.type);
+    int bScore = action_score(b.type);
     
     if (aScore < bScore) return true;
     if (aScore > bScore) return false;
@@ -144,18 +144,18 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
             
             if ((*nextAction)->item()->type() == item::terminal) {
                 // Add a new terminal action
-                termActions[termPos].m_Type             = type;
-                termActions[termPos].m_NextState        = nextState;
-                termActions[termPos].m_SymbolId         = (*nextAction)->item()->symbol();
+                termActions[termPos].type               = type;
+                termActions[termPos].nextState          = nextState;
+                termActions[termPos].symbolId           = (*nextAction)->item()->symbol();
                 
                 ++termPos;
             } else {
                 // Add a new nonterminal action
-                nontermActions[nontermPos].m_Type       = type;
-                nontermActions[nontermPos].m_NextState  = nextState;
-                nontermActions[nontermPos].m_SymbolId   = gram.identifier_for_item((*nextAction)->item());
+                nontermActions[nontermPos].type         = type;
+                nontermActions[nontermPos].nextState    = nextState;
+                nontermActions[nontermPos].symbolId     = gram.identifier_for_item((*nextAction)->item());
                 
-                if (nontermActions[nontermPos].m_SymbolId == m_EndOfGuard) {
+                if (nontermActions[nontermPos].symbolId == m_EndOfGuard) {
                     eogStates.push_back(stateId);
                 }
                 
@@ -168,10 +168,10 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         std::sort(nontermActions, nontermActions + nontermCount, compare_actions);
         
         // Store the actions in the table
-        m_TerminalActions[stateId]      = termActions;
-        m_NonterminalActions[stateId]   = nontermActions;
-        m_Counts[stateId].m_NumTerms    = termCount;
-        m_Counts[stateId].m_NumNonterms = nontermCount;
+        m_TerminalActions[stateId]          = termActions;
+        m_NonterminalActions[stateId]       = nontermActions;
+        m_Counts[stateId].numTerminals      = termCount;
+        m_Counts[stateId].numNonterminals   = nontermCount;
     }
     
     // Store the end of guard state table (we evaluate states in order, so this is already sorted)
@@ -188,9 +188,9 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     for (map<int, int>::iterator ruleId = ruleIds.begin(); ruleId != ruleIds.end(); ++ruleId) {
         const rule_container& rule = gram.rule_with_identifier(ruleId->first);
         
-        m_Rules[ruleId->second].m_Identifier    = gram.identifier_for_item(rule->nonterminal());
-        m_Rules[ruleId->second].m_RuleId        = rule->identifier(gram);
-        m_Rules[ruleId->second].m_Length        = (int)rule->items().size();
+        m_Rules[ruleId->second].identifier      = gram.identifier_for_item(rule->nonterminal());
+        m_Rules[ruleId->second].ruleId          = rule->identifier(gram);
+        m_Rules[ruleId->second].length          = (int)rule->items().size();
     }
     
     // Fill in the weak symbols table
@@ -273,14 +273,14 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
         m_Counts[stateId] = copyFrom.m_Counts[stateId];
         
         // Allocate the array for this state
-        m_TerminalActions[stateId]      = new action[m_Counts[stateId].m_NumTerms];
-        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].m_NumNonterms];
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals];
         
         // Copy the terminals and nonterminals
-        for (int x=0; x<m_Counts[stateId].m_NumTerms; ++x) {
+        for (int x=0; x<m_Counts[stateId].numTerminals; ++x) {
             m_TerminalActions[stateId][x] = copyFrom.m_TerminalActions[stateId][x];
         }
-        for (int x=0; x<m_Counts[stateId].m_NumNonterms; ++x) {
+        for (int x=0; x<m_Counts[stateId].numNonterminals; ++x) {
             m_NonterminalActions[stateId][x] = copyFrom.m_NonterminalActions[stateId][x];
         }
     }
@@ -353,14 +353,14 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
         m_Counts[stateId] = copyFrom.m_Counts[stateId];
         
         // Allocate the array for this state
-        m_TerminalActions[stateId]      = new action[m_Counts[stateId].m_NumTerms];
-        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].m_NumNonterms];
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals];
         
         // Copy the terminals and nonterminals
-        for (int x=0; x<m_Counts[stateId].m_NumTerms; ++x) {
+        for (int x=0; x<m_Counts[stateId].numTerminals; ++x) {
             m_TerminalActions[stateId][x] = copyFrom.m_TerminalActions[stateId][x];
         }
-        for (int x=0; x<m_Counts[stateId].m_NumNonterms; ++x) {
+        for (int x=0; x<m_Counts[stateId].numNonterminals; ++x) {
             m_NonterminalActions[stateId][x] = copyFrom.m_NonterminalActions[stateId][x];
         }
     }
@@ -425,8 +425,8 @@ size_t parser_tables::size() const {
     
     // Add up the size of the various rule arrays
     for (int stateId = 0; stateId < m_NumStates; ++stateId) {
-        total += sizeof(action) * m_Counts[stateId].m_NumTerms;
-        total += sizeof(action) * m_Counts[stateId].m_NumNonterms;
+        total += sizeof(action) * m_Counts[stateId].numTerminals;
+        total += sizeof(action) * m_Counts[stateId].numNonterminals;
     }
     
     // This is the result

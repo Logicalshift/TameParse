@@ -76,7 +76,7 @@ namespace dfa {
         
         // \brief Returns the number of bytes required by the table
         inline size_t size() const {
-            return m_Table.Table.size();
+            return m_Table.table.size();
         }
     };
 }

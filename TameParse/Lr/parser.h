@@ -309,20 +309,20 @@ namespace lr {
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
-                    state->m_Stack.push(act->m_NextState, state->m_Session->m_Actions->shift(lookahead));
+                    state->m_Stack.push(act->nextState, state->m_Session->m_Actions->shift(lookahead));
                     
                     // Tell the trace
-                    m_Trace.shift(lookahead, act->m_NextState);
+                    m_Trace.shift(lookahead, act->nextState);
                 }
                 
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
                     // Tell the trace that this is happening
-                    m_Trace.reduce(rule.m_Identifier, rule.m_RuleId, rule.m_Length);
+                    m_Trace.reduce(rule.identifier, rule.ruleId, rule.length);
                     
                     // Pop items from the stack, and create an item for them by calling the actions
                     reduce_list items;
-                    for (int x=0; x < rule.m_Length; ++x) {
+                    for (int x=0; x < rule.length; ++x) {
                         items.push_back(state->m_Stack->item);
                         state->m_Stack.pop();
                     }
@@ -345,16 +345,16 @@ namespace lr {
                     }
                     
                     // Get the goto action for this nonterminal
-                    for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
+                    for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
                          ++gotoAct) {
-                        if (gotoAct->m_Type == lr_action::act_goto) {
+                        if (gotoAct->type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            state->m_Stack.push(gotoAct->m_NextState, state->m_Session->m_Actions->reduce(rule.m_Identifier, rule.m_RuleId, items, *lookaheadPos));
+                            state->m_Stack.push(gotoAct->nextState, state->m_Session->m_Actions->reduce(rule.identifier, rule.ruleId, items, *lookaheadPos));
                             
                             // Tell the trace about this
-                            m_Trace.goto_state(gotoAct->m_NextState);
+                            m_Trace.goto_state(gotoAct->nextState);
                             break;
                         }
                     }                    
@@ -397,7 +397,7 @@ namespace lr {
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 inline bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
                     // Accepting or shifting actions always return true immediately
-                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                    if (act->type == lr_action::act_shift || act->type == lr_action::act_shiftstrong || act->type == lr_action::act_accept) {
                         return true;
                     }
 
@@ -414,7 +414,7 @@ namespace lr {
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 inline bool can_reduce_nonterminal(int terminal, parser_tables::action_iterator act, state* state) {
                     // Accepting or shifting actions always return true immediately
-                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                    if (act->type == lr_action::act_shift || act->type == lr_action::act_shiftstrong || act->type == lr_action::act_accept) {
                         return true;
                     }
 
@@ -468,13 +468,13 @@ namespace lr {
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
-                    m_Stack.push(act->m_NextState);
+                    m_Stack.push(act->nextState);
                 }
                 
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
                     // Pop items from the stack, and create an item for them by calling the actions
-                    for (int x=0; x < rule.m_Length; ++x) {
+                    for (int x=0; x < rule.length; ++x) {
                         m_Stack.pop();
                     }
                     
@@ -482,13 +482,13 @@ namespace lr {
                     int gotoState = m_Stack.top();
                     
                     // Get the goto action for this nonterminal
-                    for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.m_Identifier);
+                    for (parser_tables::action_iterator gotoAct = state->m_Tables->find_nonterminal(gotoState, rule.identifier);
                          gotoAct != state->m_Tables->last_nonterminal_action(gotoState); 
                          ++gotoAct) {
-                        if (gotoAct->m_Type == lr_action::act_goto) {
+                        if (gotoAct->type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            m_Stack.push(gotoAct->m_NextState);
+                            m_Stack.push(gotoAct->nextState);
                             break;
                         }
                     }                    
@@ -511,7 +511,7 @@ namespace lr {
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 bool can_reduce(int terminal, parser_tables::action_iterator act, state* state) {
                     // Accepting or shifting actions always return true immediately
-                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                    if (act->type == lr_action::act_shift || act->type == lr_action::act_shiftstrong || act->type == lr_action::act_accept) {
                         return true;
                     }
 
@@ -528,7 +528,7 @@ namespace lr {
                 /// \brief Returns true if the specified terminal symbol can be reduced
                 bool can_reduce_nonterminal(int nonterminal, parser_tables::action_iterator act, state* state) {
                     // Accepting or shifting actions always return true immediately
-                    if (act->m_Type == lr_action::act_shift || act->m_Type == lr_action::act_shiftstrong || act->m_Type == lr_action::act_accept) {
+                    if (act->type == lr_action::act_shift || act->type == lr_action::act_shiftstrong || act->type == lr_action::act_accept) {
                         return true;
                     }
 

@@ -582,7 +582,7 @@ void output_cplusplus::source_symbol_map() {
 
     // Convert to a hard-coded table
     size_t  size;
-    int*    hcst = symbolLevels.Table.to_hard_coded_table(size);
+    int*    hcst = symbolLevels.table.to_hard_coded_table(size);
 
     // Write it out
     for (size_t tablePos = 0; tablePos < size; ++tablePos) {
@@ -783,7 +783,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 
             // Write out this action
             const action& thisAction = actionTable[state][actionId];
-            output << "{ " << thisAction.m_Type << ", " << thisAction.m_NextState << ", " << thisAction.m_SymbolId << " }";
+            output << "{ " << thisAction.type << ", " << thisAction.nextState << ", " << thisAction.symbolId << " }";
 
             // Move on
             first = false;
@@ -830,7 +830,7 @@ template<class get_count> void write_action_table(string tableName, const lr::pa
 class count_terminal_actions {
 public:
     int operator()(const lr::parser_tables& tables, int state) const {
-        return tables.action_counts()[state].m_NumTerms;
+        return tables.action_counts()[state].numTerminals;
     }   
 };
 
@@ -838,7 +838,7 @@ public:
 class count_nonterminal_actions {
 public:
     int operator()(const lr::parser_tables& tables, int state) const {
-        return tables.action_counts()[state].m_NumNonterms;
+        return tables.action_counts()[state].numNonterminals;
     }   
 };
 
@@ -888,7 +888,7 @@ void output_cplusplus::source_parser_tables() {
         }
         
         // Write out the next item
-        *m_SourceFile << "{ " << tables.action_counts()[stateId].m_NumTerms << ", " << tables.action_counts()[stateId].m_NumNonterms << " }";
+        *m_SourceFile << "{ " << tables.action_counts()[stateId].numTerminals << ", " << tables.action_counts()[stateId].numNonterminals << " }";
         
         // Move on
         first = false;
@@ -941,7 +941,7 @@ void output_cplusplus::source_parser_tables() {
         
         // Write out the next item
         const lr::parser_tables::reduce_rule& rule = tables.reduce_rules()[ruleId];
-        *m_SourceFile << "{ " << rule.m_Identifier << ", " << rule.m_RuleId << ", " << rule.m_Length << " }";
+        *m_SourceFile << "{ " << rule.identifier << ", " << rule.ruleId << ", " << rule.length << " }";
         
         // Move on
         first = false;
