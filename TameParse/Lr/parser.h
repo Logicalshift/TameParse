@@ -309,16 +309,16 @@ namespace lr {
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
-                    state->m_Stack.push(act->next_state, state->m_Session->m_Actions->shift(lookahead));
+                    state->m_Stack.push(act->nextState, state->m_Session->m_Actions->shift(lookahead));
                     
                     // Tell the trace
-                    m_Trace.shift(lookahead, act->next_state);
+                    m_Trace.shift(lookahead, act->nextState);
                 }
                 
                 /// \brief Reduce action
                 inline void reduce(state* state, const action* act, const parser_tables::reduce_rule& rule) {
                     // Tell the trace that this is happening
-                    m_Trace.reduce(rule.identifier, rule.rule_id, rule.length);
+                    m_Trace.reduce(rule.identifier, rule.ruleId, rule.length);
                     
                     // Pop items from the stack, and create an item for them by calling the actions
                     reduce_list items;
@@ -351,10 +351,10 @@ namespace lr {
                         if (gotoAct->type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            state->m_Stack.push(gotoAct->next_state, state->m_Session->m_Actions->reduce(rule.identifier, rule.rule_id, items, *lookaheadPos));
+                            state->m_Stack.push(gotoAct->nextState, state->m_Session->m_Actions->reduce(rule.identifier, rule.ruleId, items, *lookaheadPos));
                             
                             // Tell the trace about this
-                            m_Trace.goto_state(gotoAct->next_state);
+                            m_Trace.goto_state(gotoAct->nextState);
                             break;
                         }
                     }                    
@@ -468,7 +468,7 @@ namespace lr {
                 /// \brief Shift action
                 inline void shift(state* state, const action* act, const lexeme_container& lookahead) {
                     // Push the next state, and the result of the shift action in the actions class
-                    m_Stack.push(act->next_state);
+                    m_Stack.push(act->nextState);
                 }
                 
                 /// \brief Reduce action
@@ -488,7 +488,7 @@ namespace lr {
                         if (gotoAct->type == lr_action::act_goto) {
                             // Found the goto action, perform the reduction
                             // (Note that this will perform the goto action for the next nonterminal if the nonterminal isn't in this state. This can only happen if the parser is in an invalid state)
-                            m_Stack.push(gotoAct->next_state);
+                            m_Stack.push(gotoAct->nextState);
                             break;
                         }
                     }                    

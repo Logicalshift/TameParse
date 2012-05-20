@@ -48,13 +48,13 @@ namespace lr {
             unsigned int type : 8;
             
             /// \brief The state to enter when this symbol is matched (or the rule to reduce for reduce actions)
-            unsigned int next_state : 24;
+            unsigned int nextState : 24;
             
             /// \brief The symbol ID. 
             ///
             /// For shift or reduce actions, this is the terminal identifier. For all other actions,
             /// this is the item ID as supplied by the source grammar.
-            int symbol_id;
+            int symbolId;
         };
         
         ///
@@ -65,7 +65,7 @@ namespace lr {
             int identifier;
             
             /// \brief The identifier for the rule that was reduced (within the grammar)
-            int rule_id;
+            int ruleId;
             
             /// \brief Number of items in this rule
             int length;
@@ -76,8 +76,8 @@ namespace lr {
         
         /// \brief Structure that counts the number of terminal and nonterminal actions a state
         struct action_count {
-            int num_terminals;
-            int num_nonterminals;
+            int numTerminals;
+            int numNonterminals;
         };
         
         /// \brief Structure that maps a weak symbol to its strong equivalent
@@ -158,13 +158,13 @@ namespace lr {
     private:
         /// \brief Compares a symbol to an action
         inline static bool compare_symbols(const action& a, const action& compareTo) {
-            return a.symbol_id < compareTo.symbol_id;
+            return a.symbolId < compareTo.symbolId;
         }
         
         /// \brief Finds an action
         inline const action_iterator find_action(int symbol, action* actionList, int count) const {
             action compareAction;
-            compareAction.symbol_id = symbol;
+            compareAction.symbolId = symbol;
 
             return std::lower_bound(actionList, actionList + count, compareAction, compare_symbols);
         }
@@ -175,24 +175,24 @@ namespace lr {
         
         /// \brief An iterator pointing to the last action referring to a terminal symbol in the specified state
         inline action_iterator last_terminal_action(int stateId) const { 
-            return m_TerminalActions[stateId] + m_Counts[stateId].num_terminals;
+            return m_TerminalActions[stateId] + m_Counts[stateId].numTerminals;
         }
 
         /// \brief An iterator pointing to the last action referring to a non-terminal symbol in the specified state
         inline action_iterator last_nonterminal_action(int stateId) const { 
-            return m_NonterminalActions[stateId] + m_Counts[stateId].num_nonterminals;
+            return m_NonterminalActions[stateId] + m_Counts[stateId].numNonterminals;
         }
         
         /// \brief Finds the first action that refers to a terminal with an ID equal or greater to that supplied 
         /// to this function
         inline action_iterator find_terminal(int stateId, int terminal) const {
-            return find_action(terminal, m_TerminalActions[stateId], m_Counts[stateId].num_terminals);
+            return find_action(terminal, m_TerminalActions[stateId], m_Counts[stateId].numTerminals);
         }
         
         /// \brief Finds the first action that refers to a nonterminal with an ID equal or greater to that supplied
         /// to this function
         inline action_iterator find_nonterminal(int stateId, int nonterminal) const {
-            return find_action(nonterminal, m_NonterminalActions[stateId], m_Counts[stateId].num_nonterminals);
+            return find_action(nonterminal, m_NonterminalActions[stateId], m_Counts[stateId].numNonterminals);
         }
         
         /// \brief Returns the nonterminal identifier representing the end of input symbol
@@ -225,7 +225,7 @@ namespace lr {
     public:
         /// \brief Returns the total number of action items for the specified state
         inline int count_actions_for_state(int stateId) const {
-            return m_Counts[stateId].num_terminals + m_Counts[stateId].num_nonterminals;
+            return m_Counts[stateId].numTerminals + m_Counts[stateId].numNonterminals;
         }
 
         /// \brief Returns the number of states in these tables
