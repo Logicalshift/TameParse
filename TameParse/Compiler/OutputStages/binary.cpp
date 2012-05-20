@@ -170,7 +170,7 @@ void output_binary::write_symbol_map() {
 
     // Convert to a hard-coded symbol table
     size_t  size    = 0;
-    int*    table   = symbolLevels.Table.to_hard_coded_table(size);
+    int*    table   = symbolLevels.table.to_hard_coded_table(size);
 
     // Write out the table
     start_table(table::symbol_map);
@@ -304,7 +304,7 @@ void output_binary::write_action_tables() {
         write_int(curPos);
 
         // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].m_NumTerms;
+        curPos += 8 * tables.action_counts()[stateId].numTerminals;
     }
 
     // Write out the final position
@@ -312,13 +312,13 @@ void output_binary::write_action_tables() {
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumTerms; ++actionId) {
+        for (int actionId = 0; actionId < tables.action_counts()[stateId].numTerminals; ++actionId) {
             // Get this action
             const action& act = tables.terminal_actions()[stateId][actionId];
 
             // Write it out
-            write_int((((uint32_t)act.m_Type) << 24) | act.m_NextState);
-            write_int((uint32_t)act.m_SymbolId);
+            write_int((((uint32_t)act.type) << 24) | act.nextState);
+            write_int((uint32_t)act.symbolId);
         }
     }
 
@@ -339,7 +339,7 @@ void output_binary::write_action_tables() {
         write_int(curPos);
 
         // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].m_NumNonterms;
+        curPos += 8 * tables.action_counts()[stateId].numNonterminals;
     }
 
     // Write out the final position
@@ -347,13 +347,13 @@ void output_binary::write_action_tables() {
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        for (int actionId = 0; actionId < tables.action_counts()[stateId].m_NumNonterms; ++actionId) {
+        for (int actionId = 0; actionId < tables.action_counts()[stateId].numNonterminals; ++actionId) {
             // Get this action
             const action& act = tables.nonterminal_actions()[stateId][actionId];
 
             // Write it out
-            write_int((((uint32_t)act.m_Type) << 24) | act.m_NextState);
-            write_int((uint32_t)act.m_SymbolId);
+            write_int((((uint32_t)act.type) << 24) | act.nextState);
+            write_int((uint32_t)act.symbolId);
         }
     }
 }
@@ -390,7 +390,7 @@ void output_binary::write_rule_counts() {
         const lr::parser_tables::reduce_rule& rule = tables.reduce_rules()[ruleId];
 
         // Each rule has a length and a nonterminal identifier
-        write_int((((uint32_t) rule.m_Identifier)<<16) | ((uint32_t) rule.m_Length));
+        write_int((((uint32_t) rule.identifier)<<16) | ((uint32_t) rule.length));
 
         // TODO: error if there are more than 65535 nonterminal identifiers or a rule with more than 65535 symbols
     }
