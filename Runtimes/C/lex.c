@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "cparse.h"
 #include "cparse_internal.h"
@@ -53,9 +54,6 @@ struct tp_lexer_state {
 
     /** A pointer to the lexer accepting states */
     const uint32_t* lexerAcceptingStates;
-
-    /** The identifier of the current state */
-    int curState;
 
     /** The size of the lookahead buffer */
     int lookaheadSize;
@@ -114,7 +112,6 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
     state->symbolMap            = parser->data + parser->data[TPH_LEXER_SYMBOLMAP];
     state->lexerStateMachine    = parser->data + parser->data[TPH_LEXER_STATEMACHINE];
     state->lexerAcceptingStates = parser->data + parser->data[TPH_LEXER_ACCEPTINGSTATES];
-    state->curState             = 0;
     state->lookaheadSize        = DEFAULT_LOOKAHEAD_SIZE;
     state->lookaheadPos         = 0;
     state->lookaheadEndPos      = 0;
@@ -230,9 +227,30 @@ static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMach
 
     /* Get the upper and lower bounds for this state */
     lower = offset;
-    upper = (int) stateMachine[1 + state + 1];
+    upper = (int) stateMachine[1 + state + 1] - 1;
 
-    /* TODO: Do a binary search to find the symbol set */
+    /* Do a binary search to find the symbol set */
+    while (upper >= lower) {
+        int         midPoint;
+        uint32_t    transition;
+        int         transitionSymbolSet;
+
+        /* Fetch the midpoint */
+        midPoint = (lower + upper) >> 1;
+
+        /* Fetch this transition */
+        transition          = stateMachine[midPoint];
+        transitionSymbolSet = (int) ((transition>>16)&0xffff);
+
+        if (transitionSymbolSet < symbolSet) {
+            lower = midPoint + 1;
+        } else if (transitionSymbolSet > symbolSet) {
+            upper = midPoint - 1;
+        } else {
+            /* Found the transition */
+            return (int) (transition&0xffff);
+        }
+    }
 
     /* Result is -1 if we couldn't find any transition */
     return -1;
@@ -256,6 +274,11 @@ int tp_lex_symbol(tp_lexer_state state) {
     int*            lookahead;
     int*            lookaheadSets;
     const uint32_t* symbolMap;
+    const uint32_t* stateMachine;
+    const uint32_t* accepting;
+    int             currentState;
+    int             acceptSymbol;
+    int             acceptingPos;
 
     /* Sanity check */
     if (!state) {
@@ -265,14 +288,24 @@ int tp_lex_symbol(tp_lexer_state state) {
     /* Fetch some data from the state */
     parser          = state->parser;
     symbolMap       = state->symbolMap;
+    stateMachine    = state->lexerStateMachine;
+    accepting       = state->lexerAcceptingStates;
     readSymbol      = parser->functions.readSymbol;
     userData        = parser->userData;
     lookahead       = state->lookahead;
     lookaheadSets   = state->lookaheadSets;
 
+    /* The initial state is 0 */
+    currentState = 0;
+
+    /* Default is to accept a single character, as 'no match' */
+    acceptingPos    = 1;
+    acceptSymbol    = tp_lex_nothing;
+
     /* Discard any existing lookahead */
     if (state->lookaheadPos > 0) {
         memmove(lookahead, lookahead + state->lookaheadPos, sizeof(int) * state->lookaheadPos);
+        memmove(lookaheadSets, lookaheadSets + state->lookaheadPos, sizeof(int) * state->lookaheadPos);
 
         state->lookaheadEndPos -= state->lookaheadPos;
         state->lookaheadPos     = 0;
@@ -281,6 +314,7 @@ int tp_lex_symbol(tp_lexer_state state) {
     /* Iterate until we reach the end of the file */
     for (;;) {
         int nextSymbolSet;
+        int nextState;
 
         /* Fill in the lookahead */
         if (state->lookaheadEndPos == state->lookaheadPos) {
@@ -319,5 +353,29 @@ int tp_lex_symbol(tp_lexer_state state) {
         /* Fetch the next symbol set */
         nextSymbolSet = lookaheadSets[state->lookaheadPos];
 
+        /* Look up the next state */
+        nextState = tp_lex_next_state(nextSymbolSet, currentState, stateMachine);
+
+        /* Give up if the next state is not valid */
+        if (nextState < 0) {
+            break;
+        }
+
+        /* Lookahead position moves on */
+        state->lookaheadPos++;
+
+        /* Note our accepting position if this is an accepting state */
+        /* Checking here means we don't accept 0-length strings, important to avoid infinite loops */
+        if (accepting[nextState] != 0xffffffff) {
+            /* Next state is an accepting state */
+            acceptingPos    = state->lookaheadPos;
+            acceptSymbol    = accepting[nextState];
+        }
     }
+
+    /* Move back to the symbol we accepted */
+    state->lookaheadPos = acceptingPos;
+
+    /* Result is the symbol that we accepted */
+    return acceptSymbol;
 }
