@@ -48,6 +48,11 @@ static const int tp_lex_nothing = -1;
 static const int tp_lex_eof = -2;
 
 /**
+ * \brief Lexical symbol representing an invalid character
+ */
+static const int tp_lex_invalid = -3;
+
+/**
  * \brief User-defined function that reads the next symbol from the stream
  *
  * The return value is an integer indicating the symbol ID (usually a UTF-16
@@ -195,7 +200,8 @@ void tp_free_lexer(tp_lexer_state state);
  *
  * \param state A lexer state
  *
- * \return tp_lex_nothing if no symbols are matched, otherwise 
+ * \return tp_lex_nothing if no symbols are matched, otherwise the identifier of
+ * the lexical symbol that was matched.
  *
  * At least one character is always removed from the source stream,
  * so it is safe to repeatedly call this even if an error results.

@@ -1,4 +1,5 @@
 libTameParseC_VERSION       = 1:0:0
+libTameParseC_CFLAGS        = -ansi
 lib_LTLIBRARIES             = libTameParseC.la
 
 libTameParseC_la_SOURCES    =                       \
