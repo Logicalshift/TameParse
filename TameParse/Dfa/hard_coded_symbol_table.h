@@ -44,13 +44,13 @@ namespace dfa {
         int highest = lowHigh>>8;
         
         // Return the default value if the symbol is out of range
-        if ((int) symbol < lowest || (int) symbol >= highest) return table[offset + 0];
+        int pos         = (((unsigned int) symbol) >> (level * 8))&0xff;
+        if ((int) pos < lowest || (int) pos >= highest) return table[offset + 0];
         
         // Look up the next level
-        int pos         = (((unsigned int) symbol) >> (level * 8))&0xff;
         int nextOffset  = table[offset + 2 + (pos - lowest)];
         
-        // Use the default symbol if the offset is 0
+        // Use the default symbol if the offset is -1
         if (nextOffset == -1) return table[offset + 0];
         
         // Look up the next level
@@ -76,7 +76,7 @@ namespace dfa {
         int pos         = ((unsigned int) symbol&0xff);
         int symbolSet   = table[offset + 2 + (pos - lowest)];
         
-        // Use the default symbol if the offset is 0
+        // Use the default symbol if the offset is -1
         if (symbolSet == -1) return table[offset + 0];
         
         // Otherwise use the value at this point in the table
