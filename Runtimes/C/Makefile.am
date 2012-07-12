@@ -1,0 +1,9 @@
+libTameParseC_VERSION       = 1:0:0
+lib_LTLIBRARIES             = libTameParseC.la
+
+libTameParseC_la_SOURCES    =                       \
+                                cparse.h            \
+                                cparse_internal.h   \
+                                cparse.c            \
+                                lex.c               \
+                                binaryformat.h

@@ -28,6 +28,8 @@
 #ifndef _TAMEPARSE_CPARSE_H
 #define _TAMEPARSE_CPARSE_H
 
+#include <stdint.h>
+
 /** \file cparse.h
  *
  * Definitions for the C implementation of a TameParse parser.
