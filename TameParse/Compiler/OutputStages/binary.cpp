@@ -198,12 +198,6 @@ void output_binary::write_lexer_dfa() {
         // Get the current state
         const state& thisState = dfa->get_state(stateId);
 
-        // Offset is 0 if there are no transitions for this state
-        if (thisState.count_transitions() == 0) {
-            write_int(0u);
-            continue;
-        }
-
         // For other states, the offset is in curOffset
         write_int(curOffset);
 
