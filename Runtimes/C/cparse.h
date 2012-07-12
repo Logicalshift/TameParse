@@ -2,7 +2,7 @@
  *  cparse.h
  *  TameParse
  *
- *  Created by Andrew Hunter on 24/09/2011.
+ *  Created by Andrew Hunter on 20/05/2012.
  *  
  *  Copyright (c) 2011-2012 Andrew Hunter
  *  
@@ -36,17 +36,30 @@
 /* = Type definitions = */
 
 /**
- * \brief Reads the next symbol from the stream
+ * \brief Lexical symbol returned when no match is made
+ */
+static const int tp_lex_nothing = -1;
+
+/**
+ * \brief Lexical symbol returned when the end of file is reached
+ */
+static const int tp_lex_eof = -2;
+
+/**
+ * \brief User-defined function that reads the next symbol from the stream
  *
  * The return value is an integer indicating the symbol ID (usually a UTF-16
  * unicode character)
+ *
+ * Symbols less than 0 indicate various error conditions. In particular,
+ * tp_lex_eof is used to symbolise the end of the input stream.
  *
  * \param userData User data associated with the parser that this is being called for
  */
 typedef int (*tp_read_symbol)(void* userData);
 
 /**
- * \brief Frees the data associated with an AST node
+ * \brief User-defined function that frees the data associated with an AST node
  *
  * \param astData Data for the specified AST node, as allocated by tp_shift or tp_reduce
  * \param userData User data associated with the parser that this is being called for
@@ -57,7 +70,7 @@ typedef int (*tp_read_symbol)(void* userData);
 typedef void (*tp_free)(void* astData, void* userData);
 
 /**
- * \brief Returns the AST node resulting from shifting a lexical symbol
+ * \brief User-defined function that returns the AST node resulting from shifting a lexical symbol
  *
  * \param terminalId The ID of the terminal that is being shifted
  * \param symbols An array containing the symbols read using the tp_read_symbol function
@@ -69,7 +82,7 @@ typedef void (*tp_free)(void* astData, void* userData);
 typedef void* (*tp_shift)(int terminalId, int* symbols, int numSymbols, void* userData);
 
 /**
- * \brief Returns the result of reducing a series of AST nodes
+ * \brief User-defined function that returns the result of reducing a series of AST nodes
  *
  * \param nonterminalId The ID of the nonterminal that is being reduced
  * \param numSymbols The number of symbols that are being reduced
@@ -126,6 +139,11 @@ typedef struct tp_parser_functions {
 typedef struct tp_parser* tp_parser;
 
 /**
+ * \brief The state of a runner lexer
+ */
+typedef struct tp_lexer_state* tp_lexer_state;
+
+/**
  * \brief The state of a running parser
  */
 typedef struct tp_parser_state* tp_parser_state;
@@ -143,7 +161,7 @@ typedef void* tp_parser_data;
 /**
  * \brief Creates a new parser
  *
- * \param data The parser definition data
+ * \param data The parser definition data (which must be generated for the native system endianess)
  * \param functions The parser action functions
  *
  * \return NULL if the parser could not be created, otherwise a new tp_parser structure
@@ -156,6 +174,33 @@ tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions);
 void tp_free_parser(tp_parser oldParser);
 
 /**
+ * \brief Creates a new lexer in the initial state
+ *
+ * \param parser The parser where the lexer is defined
+ * \param userData The user data to pass in to the parser functions
+ *
+ * \return The final state of the parser
+ */
+tp_lexer_state tp_create_lexer(tp_parser parser, void* userData);
+
+/**
+ * \brief Frees up a lexer state
+ */
+void tp_free_lexer(tp_lexer_state state);
+
+/**
+ * \brief Matches a single symbol using the lexer
+ *
+ * \param state A lexer state
+ *
+ * \return tp_lex_nothing if no symbols are matched, otherwise 
+ *
+ * At least one character is always removed from the source stream,
+ * so it is safe to repeatedly call this even if an error results.
+ */
+int tp_lex_symbol(tp_lexer_state state);
+
+/**
  * \brief Runs the parser and returns the final state
  *
  * \param parser The parser to run
@@ -166,7 +211,7 @@ void tp_free_parser(tp_parser oldParser);
 tp_parser_state tp_parse(tp_parser parser, void* userData);
 
 /**
- * \brief Creates the initial state for a the parser
+ * \brief Creates the initial state for the parser
  *
  * \param parser A parser created by tp_create_parser
  * \param userData The user data to pass in to the parser functions
