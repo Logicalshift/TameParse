@@ -89,7 +89,6 @@ namespace compiler {
     ///
     ///     1 word:   number of states
     ///     n words:  table giving the offset to the transition table for each state
-    ///                 offsets of 0 indicate a state with no transitions
     ///     1 word:   the offset to the word after the last transition
     ///     n words:  transition table for each state, in the following format:
     ///                 n words: words for each transition: ((symbol<<16) | state), ordered by symbol
