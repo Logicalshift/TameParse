@@ -69,6 +69,9 @@ struct tp_lexer_state {
     /** The lookahead buffer */
     int* lookahead;
 
+    /** The lookahead symbol set buffer */
+    int* lookaheadSets;
+
     /** tp_lex_nothing, or the symbol accepted at acceptPos */
     int acceptSymbol;
 
@@ -116,6 +119,7 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
     state->lookaheadPos         = 0;
     state->lookaheadEndPos      = 0;
     state->lookahead            = calloc(sizeof(int), state->lookaheadSize);
+    state->lookaheadSets        = calloc(sizeof(int), state->lookaheadSize);
     state->acceptSymbol         = tp_lex_nothing;
     state->endOfFile            = 0;
 
@@ -134,6 +138,7 @@ void tp_free_lexer(tp_lexer_state state) {
 
     /* Free the internal structures */
     free(state->lookahead);
+    free(state->lookaheadSets);
 
     /* Free the state itself */
     free(state);
@@ -210,19 +215,46 @@ static int tp_lex_map_symbol(int character, const uint32_t* symbolMap) {
 }
 
 /**
+ * \brief Returns the next state for a particular symbol set in a particular state
+ *
+ * Assumes state is valid for the current state machine
+ */
+static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMachine) {
+    int offset;
+    int nextState;
+    int upper;
+    int lower;
+
+    /* Fetch the offset for this state */
+    offset = (int) stateMachine[1 + state];
+
+    /* Get the upper and lower bounds for this state */
+    lower = offset;
+    upper = (int) stateMachine[1 + state + 1];
+
+    /* TODO: Do a binary search to find the symbol set */
+
+    /* Result is -1 if we couldn't find any transition */
+    return -1;
+}
+
+/**
  * \brief Matches a single symbol using the lexer
  *
  * \param state A lexer state
  *
- * \return tp_lex_nothing if no symbols are matched, otherwise 
+ * \return tp_lex_nothing if no symbols are matched, otherwise the identifier of
+ * the lexical symbol that was matched.
  *
- * At least one character is always removed from
+ * At least one character is always removed from the source stream,
+ * so it is safe to repeatedly call this even if an error results.
  */
 int tp_lex_symbol(tp_lexer_state state) {
     tp_parser       parser;
     tp_read_symbol  readSymbol;
     void*           userData;
     int*            lookahead;
+    int*            lookaheadSets;
     const uint32_t* symbolMap;
 
     /* Sanity check */
@@ -231,11 +263,12 @@ int tp_lex_symbol(tp_lexer_state state) {
     }
 
     /* Fetch some data from the state */
-    parser      = state->parser;
-    symbolMap   = state->symbolMap;
-    readSymbol  = parser->functions.readSymbol;
-    userData    = parser->userData;
-    lookahead   = state->lookahead;
+    parser          = state->parser;
+    symbolMap       = state->symbolMap;
+    readSymbol      = parser->functions.readSymbol;
+    userData        = parser->userData;
+    lookahead       = state->lookahead;
+    lookaheadSets   = state->lookaheadSets;
 
     /* Discard any existing lookahead */
     if (state->lookaheadPos > 0) {
@@ -247,7 +280,6 @@ int tp_lex_symbol(tp_lexer_state state) {
 
     /* Iterate until we reach the end of the file */
     for (;;) {
-        int nextCharacter;
         int nextSymbolSet;
 
         /* Fill in the lookahead */
@@ -256,7 +288,9 @@ int tp_lex_symbol(tp_lexer_state state) {
             if (state->lookaheadEndPos >= state->lookaheadSize) {
                 state->lookaheadSize    *= 2;
                 state->lookahead        = realloc(state->lookahead, sizeof(int) * state->lookaheadSize);
+                state->lookaheadSets    = realloc(state->lookaheadSets, sizeof(int) * state->lookaheadSize);
                 lookahead               = state->lookahead;
+                lookaheadSets           = state->lookaheadSets;
             }
 
             /* Read the next character */
@@ -267,23 +301,23 @@ int tp_lex_symbol(tp_lexer_state state) {
                 lookahead[state->lookaheadPos]  = nextCharacter;
                 if (nextCharacter == tp_lex_eof) {
                     state->endOfFile = tp_lex_eof;
+                    lookaheadSets[state->lookaheadPos] = tp_lex_eof;
+                } else {
+                    /* Map the character we read */
+                    lookaheadSets[state->lookaheadPos] = tp_lex_map_symbol(nextCharacter, symbolMap);
                 }
             } else {
                 /* Generate an infinite series of EOF characters here */
                 lookahead[state->lookaheadPos] = tp_lex_eof;
+                lookaheadSets[state->lookaheadPos] = tp_lex_eof;
             }
 
             /* Move the lookahead position on */
             state->lookaheadEndPos++;
         }
 
-        /* Fetch the next symbol */
-        nextCharacter = lookahead[state->lookaheadPos];
+        /* Fetch the next symbol set */
+        nextSymbolSet = lookaheadSets[state->lookaheadPos];
 
-        /* Lookahead position moves on */
-        state->lookaheadPos++;
-
-        /* Map this character */
-        nextSymbolSet = tp_lex_map_symbol(nextCharacter, symbolMap);
     }
 }
