@@ -84,6 +84,9 @@ language Ansi-C {
 		comment 			= 	/{comment-start}([^*]|\*[^\/])*{comment-end}/
 		whitespace			= 	/{whitespace}+/
 		doc-comment			= 	/{comment-start}\*([^*]|*[^\/]){comment-end}/
+
+		// BUG: we don't currently have a way of specifying 'beginning of file', so preprocessor statements at the very start will not get ignored
+		preprocessor		=	/(\n|\r)[ \t]*#[^\r\n]*/
 	}
 
 	///
