@@ -629,7 +629,7 @@ void output_binary::compile() {
     write_int(get_string(language_name()));
     write_int((version::major_version<<16) | (version::minor_version<<8) | (version::revision<<0));
     write_int(get_string(version::version_string));
-    for (int unsetHeader = 0; unsetHeader<1; ++unsetHeader) {
+    for (int unsetHeader = 0; unsetHeader<11; ++unsetHeader) {
         write_int(0xffffffffu);
     }
 
