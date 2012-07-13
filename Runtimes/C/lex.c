@@ -46,6 +46,9 @@ struct tp_lexer_state_def {
     /** The parser for this state */
     tp_parser parser;
 
+    /** The user data for this state */
+    void* userData;
+
     /** A pointer to the symbol map for this parser */
     const uint32_t* symbolMap;
 
@@ -109,6 +112,7 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
     state                       = malloc(sizeof(struct tp_lexer_state_def));
 
     state->parser               = parser;
+    state->userData             = userData;
     state->symbolMap            = parser->data + parser->data[TPH_LEXER_SYMBOLMAP];
     state->lexerStateMachine    = parser->data + parser->data[TPH_LEXER_STATEMACHINE];
     state->lexerAcceptingStates = parser->data + parser->data[TPH_LEXER_ACCEPTINGSTATES];
@@ -291,7 +295,7 @@ int tp_lex_symbol(tp_lexer_state state) {
     stateMachine    = state->lexerStateMachine;
     accepting       = state->lexerAcceptingStates;
     readSymbol      = parser->functions.readSymbol;
-    userData        = parser->userData;
+    userData        = state->userData;
     lookahead       = state->lookahead;
     lookaheadSets   = state->lookaheadSets;
 

@@ -93,7 +93,7 @@ void test_runtime_c::run_tests() {
     functions.reduce        = reduce;
 
     // Try to create a parser from the stream
-    tp_parser cParser = tp_create_parser((tp_parser_data*) ansiBinary, &functions, (void*) new runtime_data(identifierTest));
+    tp_parser cParser = tp_create_parser((tp_parser_data*) ansiBinary, &functions);
 
     report("create-parser", cParser != NULL);
     if (!cParser) return;

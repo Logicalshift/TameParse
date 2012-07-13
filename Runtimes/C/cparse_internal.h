@@ -42,9 +42,6 @@ struct tp_parser_def {
 
     /** The data that defines this parser */
     const uint32_t* data;
-
-    /** The user data for this parser */
-    void* userData;
 };
 
 #endif

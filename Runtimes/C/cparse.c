@@ -39,7 +39,7 @@
  *
  * \return NULL if the parser could not be created, otherwise a new tp_parser structure
  */
-tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions, void* userData) {
+tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions) {
     tp_parser result;
 
     /* Sanity check */
@@ -61,7 +61,6 @@ tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions, 
 
     result->functions   = *functions;
     result->data        = (const uint32_t*) data;
-    result->userData    = userData;
 
     return result;
 }
