@@ -194,7 +194,7 @@ void output_binary::write_lexer_dfa() {
     write_int(numStates);
 
     // Work out the offsets for each state
-    uint32_t    curOffset   = m_WritePos + numStates * 4;
+    uint32_t    curOffset   = m_WritePos + numStates * 4 + 4;
     const ndfa* dfa         = get_dfa();
 
     for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
@@ -204,8 +204,8 @@ void output_binary::write_lexer_dfa() {
         // For other states, the offset is in curOffset
         write_int(curOffset);
 
-        // 4 bytes per transition
-        curOffset += 4 * thisState.count_transitions();
+        // 4 bytes per transition, plus 4 bytes for the number of transitions
+        curOffset += 4 + 4 * thisState.count_transitions();
     }
 
     // Write the final offset (so for a given state, the two offsets can be used to calculate the number of transitions)
