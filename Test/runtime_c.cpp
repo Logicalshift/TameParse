@@ -95,8 +95,24 @@ void test_runtime_c::run_tests() {
     // Try to create a parser from the stream
     tp_parser cParser = tp_create_parser((tp_parser_data*) ansiBinary, &functions, (void*) new runtime_data(identifierTest));
 
-    report("CreateParser", cParser != NULL);
+    report("create-parser", cParser != NULL);
     if (!cParser) return;
+
+    // Try out the lexer
+    tp_lexer_state cLexer = tp_create_lexer(cParser, (void*) new runtime_data(identifierTest));
+    report("create-lexer", cLexer != NULL);
+    if (!cLexer) return;
+
+    // Should be three symbols (identifier, whitespace, identifier), followed by EOF
+    int symbol1     = tp_lex_symbol(cLexer);
+    int symbol2     = tp_lex_symbol(cLexer);
+    int symbol3     = tp_lex_symbol(cLexer);
+    int symbolEof   = tp_lex_symbol(cLexer);
+
+    report("lex-symbol1", symbol1 >= 0);
+    report("lex-symbol2", symbol2 >= 0);
+    report("lex-symbol3", symbol3 >= 0);
+    report("lex-symbol-eof", symbolEof == tp_lex_eof);
 
     // Finish up
     delete[] ansiBinary;
