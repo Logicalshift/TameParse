@@ -40,6 +40,7 @@
 #include "language_bootstrap.h"
 #include "language_primary.h"
 #include "dfa_multi_regex.h"
+#include "runtime_c.h"
 
 using namespace std;
 
@@ -71,6 +72,8 @@ int main (int argc, const char * argv[])
     
     test_language_bootstrap     bootstrap;      run(bootstrap);
     test_language_primary       primary;        run(primary);
+
+    test_runtime_c              runtimeC;       run(runtimeC);
     
     int exitCode = 0;
     if (s_Failed > 0) {

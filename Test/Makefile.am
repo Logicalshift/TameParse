@@ -14,7 +14,7 @@ ansic.tpdat: $(top_srcdir)/Examples/AnsiC.tp
 
 ../TameParse/Language/bootstrap.cpp: definition_tp.h
 
-contextfree_firstset.cpp: ansic.tpdat
+runtime_c.cpp: ansic.tpdat
 
 test_SOURCES		= \
 					  contextfree_firstset.h \
@@ -30,6 +30,7 @@ test_SOURCES		= \
 					  language_primary.h \
 					  lr_lalr_general.h \
 					  lr_weaksymbols.h \
+					  runtime_c.h \
 					  test_fixture.h \
 					  ../TameParse/Language/bootstrap.h \
  					  \
@@ -46,6 +47,7 @@ test_SOURCES		= \
 					  language_primary.cpp \
 					  lr_lalr_general.cpp \
 					  lr_weaksymbols.cpp \
+					  runtime_c.cpp \
 					  ../TameParse/Language/bootstrap.cpp \
 					  main.cpp \
 					  test_fixture.cpp
