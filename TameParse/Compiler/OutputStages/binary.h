@@ -96,6 +96,10 @@ namespace compiler {
     ///     n words:  transition table for each state, in the following format:
     ///                 n words: words for each transition: ((symbol<<16) | state), ordered by symbol
     ///
+    /// The states are always written out in order, so the difference in the location
+    /// of a state and the following state can be used to work out the number of transitions
+    /// in that state.
+    ///
     /// There is no support for lexers with > 65536 states or > 65536 distinct symbols
     /// in this version of the file format. The number of transitions in a given state
     /// can be established by subtracting the offset for that state from the offset

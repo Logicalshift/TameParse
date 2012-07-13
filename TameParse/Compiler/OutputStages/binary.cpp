@@ -204,8 +204,8 @@ void output_binary::write_lexer_dfa() {
         // For other states, the offset is in curOffset
         write_int(curOffset);
 
-        // 4 bytes per transition, plus 4 bytes for the number of transitions
-        curOffset += 4 + 4 * thisState.count_transitions();
+        // 4 bytes per transition
+        curOffset += 4 * thisState.count_transitions();
     }
 
     // Write the final offset (so for a given state, the two offsets can be used to calculate the number of transitions)
@@ -220,9 +220,6 @@ void output_binary::write_lexer_dfa() {
         if (thisState.count_transitions() == 0) {
             continue;
         }
-
-        // Write out the number of transitions
-        write_int((uint32_t) thisState.count_transitions());
 
         // Write out the transitions themselves
         bool shownError = false;
