@@ -403,6 +403,9 @@ int tp_lex_symbol(tp_lexer_state state) {
             acceptingPos    = state->lookaheadPos;
             acceptSymbol    = accepting[nextState];
         }
+
+        /* Next state becomes the current state */
+        currentState = nextState;
     }
 
     /* Move back to the symbol we accepted */
