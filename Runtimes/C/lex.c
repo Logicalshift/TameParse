@@ -248,7 +248,7 @@ static int tp_lex_map_symbol(int character, const uint32_t* symbolMap) {
  *
  * Assumes state is valid for the current state machine
  */
-static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMachine) {
+static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMachine, const uint32_t* parseData) {
     int offset;
     int nextState;
     int upper;
@@ -258,8 +258,11 @@ static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMach
     offset = (int) stateMachine[1 + state];
 
     /* Get the upper and lower bounds for this state */
-    lower = offset;
-    upper = (int) stateMachine[1 + state + 1] - 1;
+    lower = offset + 4;
+    upper = lower + parseData[(offset/4)]*4;
+
+    lower /= 4;
+    upper /= 4;
 
     /* Do a binary search to find the symbol set */
     while (upper >= lower) {
@@ -271,7 +274,7 @@ static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMach
         midPoint = (lower + upper) >> 1;
 
         /* Fetch this transition */
-        transition          = stateMachine[midPoint];
+        transition          = parseData[midPoint];
         transitionSymbolSet = (int) ((transition>>16)&0xffff);
 
         if (transitionSymbolSet < symbolSet) {
@@ -386,7 +389,7 @@ int tp_lex_symbol(tp_lexer_state state) {
         nextSymbolSet = lookaheadSets[state->lookaheadPos];
 
         /* Look up the next state */
-        nextState = tp_lex_next_state(nextSymbolSet, currentState, stateMachine);
+        nextState = tp_lex_next_state(nextSymbolSet, currentState, stateMachine, parser->data);
 
         /* Give up if the next state is not valid */
         if (nextState < 0) {
