@@ -108,14 +108,26 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
         return NULL;
     }
 
+    if (parser->data[TPH_LEXER_SYMBOLMAP] <= 0) {
+        return NULL;
+    }
+
+    if (parser->data[TPH_LEXER_STATEMACHINE] <= 0) {
+        return NULL;
+    }
+
+    if (parser->data[TPH_LEXER_ACCEPTINGSTATES] <= 0) {
+        return NULL;
+    }
+
     /* Allocate space for the lexer */
     state                       = malloc(sizeof(struct tp_lexer_state_def));
 
     state->parser               = parser;
     state->userData             = userData;
-    state->symbolMap            = parser->data + parser->data[TPH_LEXER_SYMBOLMAP];
-    state->lexerStateMachine    = parser->data + parser->data[TPH_LEXER_STATEMACHINE];
-    state->lexerAcceptingStates = parser->data + parser->data[TPH_LEXER_ACCEPTINGSTATES];
+    state->symbolMap            = parser->data + parser->data[TPH_LEXER_SYMBOLMAP]/4;
+    state->lexerStateMachine    = parser->data + parser->data[TPH_LEXER_STATEMACHINE]/4;
+    state->lexerAcceptingStates = parser->data + parser->data[TPH_LEXER_ACCEPTINGSTATES]/4;
     state->lookaheadSize        = DEFAULT_LOOKAHEAD_SIZE;
     state->lookaheadPos         = 0;
     state->lookaheadEndPos      = 0;
@@ -123,6 +135,22 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
     state->lookaheadSets        = calloc(sizeof(int), state->lookaheadSize);
     state->acceptSymbol         = tp_lex_nothing;
     state->endOfFile            = 0;
+
+    /* Check tables; all should have the format indicator before them */
+    if (state->symbolMap[-1] != TP_FORMATINDICATOR) {
+        tp_free_lexer(state);
+        return NULL;
+    }
+
+    if (state->lexerStateMachine[-1] != TP_FORMATINDICATOR) {
+        tp_free_lexer(state);
+        return NULL;
+    }
+
+    if (state->lexerAcceptingStates[-1] != TP_FORMATINDICATOR) {
+        tp_free_lexer(state);
+        return NULL;
+    }
 
     /* Done; ready to start reading data */
     return state;

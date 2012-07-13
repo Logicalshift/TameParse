@@ -9,8 +9,8 @@ definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
 	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
 	xxd -i "definition.tp" >definition_tp.h
 
-ansic.tpdat: $(top_srcdir)/Examples/AnsiC.tp
-	$(top_builddir)/parsetool/tameparse -T binary -o ansic -S "<Translation-Unit>" $(top_srcdir)/Examples/AnsiC.tp
+ansic.tpdat: $(top_srcdir)/Examples/AnsiC.tp $(top_builddir)/parsetool/tameparse
+	$(top_builddir)/parsetool/tameparse -v -T binary -o ansic -S "<Translation-Unit>" $(top_srcdir)/Examples/AnsiC.tp
 
 ../TameParse/Language/bootstrap.cpp: definition_tp.h
 
