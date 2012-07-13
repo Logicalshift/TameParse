@@ -206,7 +206,7 @@ static int tp_lex_map_symbol(int character, const uint32_t* symbolMap) {
     if (character >= 65536) return tp_lex_invalid;
 
     /* First layer: fetch the symbol range */
-    lowHigh = (int)symbolMap[1];
+    lowHigh = (int)symbolMap[2];
     lowest  = lowHigh&0xff;
     highest = lowHigh>>8;
 
@@ -214,16 +214,16 @@ static int tp_lex_map_symbol(int character, const uint32_t* symbolMap) {
     pos = (character>>8)&0xff;
 
     /* Use the default character if out of range */
-    if (pos < lowest || pos >= highest) return (int)symbolMap[0];
+    if (pos < lowest || pos >= highest) return (int)symbolMap[1];
 
     /* Fetch the offset of the secondary table */
-    nextOffset = (int)symbolMap[2 + (pos - lowest)];
+    nextOffset = (int)symbolMap[3 + (pos - lowest)];
 
     /* Default symbol if the offset is -1 */
-    if (nextOffset == -1) return (int)symbolMap[0];
+    if (nextOffset == -1) return (int)symbolMap[1];
 
     /* Second layer: fetch the symbol itself */
-    lowHigh = (int)symbolMap[nextOffset + 1];
+    lowHigh = (int)symbolMap[nextOffset + 2];
     lowest  = lowHigh&0xff;
     highest = lowHigh>>8;
 
@@ -231,13 +231,13 @@ static int tp_lex_map_symbol(int character, const uint32_t* symbolMap) {
     pos = character&0xff;
 
     /* Default character if out of range */
-    if (pos < lowest || pos >= highest) return (int)symbolMap[nextOffset + 0];
+    if (pos < lowest || pos >= highest) return (int)symbolMap[nextOffset + 1];
 
     /* Fetch the result if not */
-    result = (int)symbolMap[nextOffset + 2 + (pos - lowest)];
+    result = (int)symbolMap[nextOffset + 3 + (pos - lowest)];
 
     /* Default character if -1 */
-    if (result == -1) return (int)symbolMap[nextOffset + 0];
+    if (result == -1) return (int)symbolMap[nextOffset + 1];
 
     /* Otherwise, this is the result */
     return result;
