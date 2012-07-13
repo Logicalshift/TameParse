@@ -29,6 +29,7 @@
 
 #include "cparse.h"
 #include "cparse_internal.h"
+#include "binaryformat.h"
 
 /**
  * \brief Creates a new parser
@@ -50,6 +51,10 @@ tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions, 
     if (!functions->freeAstNode)                        return NULL;
     if (!functions->shift)                              return NULL;
     if (!functions->reduce)                             return NULL;
+
+    const uint32_t* intData = (uint32_t*) data;
+    if (intData[TPH_FORMAT] != TP_FORMATINDICATOR)                  return NULL;
+    if (intData[TPH_FILEFORMATVERSION] != TP_CURRENTFORMATVERSION)  return NULL;
 
     /* Allocate the structure */
     result = malloc(sizeof(struct tp_parser_def));
