@@ -258,8 +258,8 @@ static int tp_lex_next_state(int symbolSet, int state, const uint32_t* stateMach
     offset = (int) stateMachine[1 + state];
 
     /* Get the upper and lower bounds for this state */
-    lower = offset + 4;
-    upper = lower + parseData[(offset/4)]*4;
+    lower = offset;
+    upper = stateMachine[2 + state]-4;
 
     lower /= 4;
     upper /= 4;
