@@ -3,7 +3,7 @@ EXTRA_DIST 			= Test.1
 
 test_CFLAGS			= -I$(top_srcdir) -I../TameParse
 test_CXXFLAGS		= -I$(top_srcdir) -I../TameParse
-test_LDADD			= ../TameParse/libTameParse.la
+test_LDADD			= $(top_builddir)/TameParse/libTameParse.la $(top_builddir)/Runtimes/C/libTameParseC.la
 
 definition_tp.h: $(top_srcdir)/TameParse/Language/definition.tp
 	ln -sf $(top_srcdir)/TameParse/Language/definition.tp ./definition.tp
