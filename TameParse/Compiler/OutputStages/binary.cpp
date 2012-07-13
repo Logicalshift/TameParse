@@ -121,6 +121,9 @@ int32_t output_binary::get_string(const string& value) {
 
 /// \brief Indicates that we're about to start writing out the table whose header offset is at the specified position
 void output_binary::start_table(uint32_t offset) {
+    // Write the format indicator before each table (so we can tell when an offset is incorrect)
+    write_int(header::format_indicator);
+
     // Position within the actual file (4 * the offset)
     int pos = offset * 4;
 
@@ -626,7 +629,7 @@ void output_binary::compile() {
     write_int(get_string(language_name()));
     write_int((version::major_version<<16) | (version::minor_version<<8) | (version::revision<<0));
     write_int(get_string(version::version_string));
-    for (int unsetHeader = 0; unsetHeader<1; ++unsetHeader) {
+    for (int unsetHeader = 0; unsetHeader<11; ++unsetHeader) {
         write_int(0xffffffffu);
     }
 

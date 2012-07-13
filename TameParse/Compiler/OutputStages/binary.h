@@ -70,6 +70,9 @@ namespace compiler {
     ///    1 word: offset to terminal name table
     ///    1 word: offset to nonterminal name table
     ///
+    /// Each table is preceded by the file format/endian indicator ('TPar'), so
+    /// it's possible to check the integrity of the file.
+    ///
     /// The symbol map has the same format documented in hard_coded_symbol_table
     /// (with a character type of wchar_t, ie, 16-bit characters):
     ///
