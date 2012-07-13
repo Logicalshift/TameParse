@@ -28,6 +28,10 @@
 #ifndef _TAMEPARSE_CPARSE_H
 #define _TAMEPARSE_CPARSE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /** \file cparse.h
@@ -143,17 +147,17 @@ typedef struct tp_parser_functions {
 /**
  * \brief Parser definition
  */
-typedef struct tp_parser* tp_parser;
+typedef struct tp_parser_def* tp_parser;
 
 /**
  * \brief The state of a runner lexer
  */
-typedef struct tp_lexer_state* tp_lexer_state;
+typedef struct tp_lexer_state_def* tp_lexer_state;
 
 /**
  * \brief The state of a running parser
  */
-typedef struct tp_parser_state* tp_parser_state;
+typedef struct tp_parser_state_def* tp_parser_state;
 
 /**
  * \brief Binary data defining a parser
@@ -274,5 +278,9 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth);
  * \brief Attempts to shift the specified symbol on to the given parser state
  */
 void tp_state_shift(tp_parser_state state, int terminalId, int** symbols, int numSymbols);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif

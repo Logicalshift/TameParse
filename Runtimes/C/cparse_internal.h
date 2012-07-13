@@ -36,7 +36,7 @@
  * User programs should not rely on this structure, as it's subject to change
  * even between minor updates of the runtime.
  */
-struct tp_parser {
+struct tp_parser_def {
     /** The user-defined functions used by this parser */
     tp_parser_functions functions;
 

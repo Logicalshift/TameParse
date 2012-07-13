@@ -52,7 +52,7 @@ tp_parser tp_create_parser(tp_parser_data data, tp_parser_functions* functions, 
     if (!functions->reduce)                             return NULL;
 
     /* Allocate the structure */
-    result = malloc(sizeof(struct tp_parser));
+    result = malloc(sizeof(struct tp_parser_def));
 
     result->functions   = *functions;
     result->data        = (const uint32_t*) data;

@@ -30,7 +30,7 @@
 /// Tests for checking the C runtime
 class test_runtime_c : public test_fixture {
 public:
-    test_lalr_general() : test_fixture("runtime-c") { }
+    test_runtime_c() : test_fixture("runtime-c") { }
     
     virtual void run_tests();
 };

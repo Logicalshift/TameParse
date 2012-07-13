@@ -42,7 +42,7 @@
 /**
  * \brief Definition of a lexer state
  */
-struct tp_lexer_state {
+struct tp_lexer_state_def {
     /** The parser for this state */
     tp_parser parser;
 
@@ -106,7 +106,7 @@ tp_lexer_state tp_create_lexer(tp_parser parser, void* userData) {
     }
 
     /* Allocate space for the lexer */
-    state                       = malloc(sizeof(struct tp_lexer_state));
+    state                       = malloc(sizeof(struct tp_lexer_state_def));
 
     state->parser               = parser;
     state->symbolMap            = parser->data + parser->data[TPH_LEXER_SYMBOLMAP];
