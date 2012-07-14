@@ -236,28 +236,30 @@ void output_binary::write_lexer_dfa() {
     uint32_t numStates = count_lexer_states();
     write_int(numStates);
 
-    // Work out the offsets for each state
-    uint32_t    curOffset   = m_WritePos + numStates * 4 + 4;
+    // Vector of offsets for each state
+    vector<int> offsetForState;
+
+    // Write out the offsets for each state
     const ndfa* dfa         = get_dfa();
 
     for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
         // Get the current state
         const state& thisState = dfa->get_state(stateId);
 
-        // For other states, the offset is in curOffset
-        write_int(curOffset);
-
-        // 4 bytes per transition
-        curOffset += 4 * thisState.count_transitions();
+        // Generate an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write the final offset (so for a given state, the two offsets can be used to calculate the number of transitions)
-    write_int(curOffset);
+    offsetForState.push_back(write_offset());
 
     // Write out the transitions themselves
     for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
         // Get the current state
         const state& thisState = dfa->get_state(stateId);
+
+        // Set the offset
+        set_offset(offsetForState[stateId]);
 
         // Nothing to write if there are no transitions for this state
         if (thisState.count_transitions() == 0) {
@@ -297,6 +299,9 @@ void output_binary::write_lexer_dfa() {
             write_int(entry);
         }
     }
+
+    // Write out the final offset
+    set_offset(offsetForState.back());
 }
 
 /// \brief Writes out the lexer 'accepting state' table
