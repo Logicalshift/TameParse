@@ -568,34 +568,21 @@ void output_binary::write_rule_definitions() {
     int numRules = gram.max_rule_identifier();
     write_int(numRules);
 
-    // Work out where the rules will start in the file
-    int firstRuleOffset = m_WritePos + numRules * 4;
-    int curRuleOffset   = firstRuleOffset;
+    // Offset handles for each rule ID
+    vector<int> offsetForRule;
 
     // Write out the positions for each rule
     for (int ruleId = 0; ruleId < numRules; ++ruleId) {
-        // Each rule has the following format:
-        //      nonterminal ID
-        //      number of items
-        //      n * item
-        //          +ve value = terminal ID
-        //          -ve value = (-1 - nonterminal ID)
-        const rule_container& rule = gram.rule_with_identifier(ruleId);
-
-        // 2 words header + n words items
-        int ruleSize = 8 + 4*(int) rule->items().size();
-
-        // Write where this rule will appear
-        write_int(curRuleOffset);
-
-        // Move the offset on to where the next rule will appear
-        curRuleOffset += ruleSize;
+        offsetForRule.push_back(write_offset());
     }
 
     // Write out the actual data for the rules
     for (int ruleId = 0; ruleId < numRules; ++ruleId) {
         // Fetch the rule
         const rule_container& rule = gram.rule_with_identifier(ruleId);
+
+        // Note where this rule begins
+        set_offset(offsetForRule[ruleId]);
 
         // Get the nonterminal ID
         int ntId = gram.identifier_for_item(*rule->nonterminal());
