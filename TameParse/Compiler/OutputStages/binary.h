@@ -230,12 +230,33 @@ namespace compiler {
         /// \brief Maps strings to their identifiers
         std::map<std::wstring, int32_t> m_StringIdentifiers;
 
+        /// \brief Maps offset handles to the location in the file where they can be found
+        std::map<int, int> m_Offsets;
+
+        /// \brief The next offset handle that will be assigned
+        int m_NextOffsetHandle;
+
         /// \brief The name of the file to write
         std::wstring m_TargetFilename;
 
     private:
         output_binary(const output_binary& copyFrom);
         output_binary& operator=(const output_binary& copyFrom);
+
+    private:
+        /// \brief The current location will contain an offset to another point in the file that will be written out later
+        ///
+        /// The returned value is a handle that can be used to finalise the offset
+        /// later later on. An offset requires 4 bytes in the target file.
+        ///
+        /// If set_offset is never called, the offset will be left at its default value,
+        /// 0xffffffff.
+        int write_offset();
+
+        /// \brief Writes the current file location as the offset at the location with the given handle.
+        ///
+        /// The handle is no longer valid after this call has been made.
+        void set_offset(int handle);
 
     private:
         /// \brief Retrieves a string associated with this binary file

@@ -44,7 +44,8 @@ output_binary::output_binary(console_container& console, const std::wstring& sou
 , m_WritePos(0)
 , m_FileLength(0)
 , m_BigEndian(bigEndian) 
-, m_TargetFilename(targetFile) {
+, m_TargetFilename(targetFile)
+, m_NextOffsetHandle(0) {
 }
 
 /// \brief Destructor
@@ -155,6 +156,48 @@ void output_binary::write_string(const std::wstring& value) {
 
         write_int((((uint32_t) first)<<16) | (uint32_t) second);
     }
+}
+
+/// ==================
+///  Managing Offsets
+/// ==================
+
+/// \brief The current location will contain an offset to another point in the file that will be written out later
+///
+/// The returned value is a handle that can be used to finalise the offset
+/// later later on. An offset requires 4 bytes in the target file.
+///
+/// If set_offset is never called, the offset will be left at its default value,
+/// 0xffffffff.
+int output_binary::write_offset() {
+    // Assign a handle to this offset
+    int handle = m_NextOffsetHandle++;
+
+    // Store the current write position in the map
+    m_Offsets[handle] = m_WritePos;
+
+    // Write out the default value
+    write_int(0xffffffffu);
+
+    // Return the handle so we can set the offset later on
+    return handle;
+}
+
+/// \brief Writes the current file location as the offset at the location with the given handle.
+///
+/// The handle is no longer valid after this call has been made.
+void output_binary::set_offset(int handle) {
+    // Find this handle
+    map<int, int>::const_iterator handlePos = m_Offsets.find(handle);
+
+    // Do nothing if the handle is invalid
+    if (handlePos == m_Offsets.end()) return;
+
+    // Write out the offset for this handle
+    write_int_raw((uint32_t) m_WritePos, m_File, handlePos->second, m_FileLength, m_BigEndian);
+
+    // Remove this handle
+    m_Offsets.erase(handle);
 }
 
 /// =======
