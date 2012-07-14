@@ -44,7 +44,8 @@ output_binary::output_binary(console_container& console, const std::wstring& sou
 , m_WritePos(0)
 , m_FileLength(0)
 , m_BigEndian(bigEndian) 
-, m_TargetFilename(targetFile) {
+, m_TargetFilename(targetFile)
+, m_NextOffsetHandle(0) {
 }
 
 /// \brief Destructor
@@ -157,6 +158,48 @@ void output_binary::write_string(const std::wstring& value) {
     }
 }
 
+/// ==================
+///  Managing Offsets
+/// ==================
+
+/// \brief The current location will contain an offset to another point in the file that will be written out later
+///
+/// The returned value is a handle that can be used to finalise the offset
+/// later later on. An offset requires 4 bytes in the target file.
+///
+/// If set_offset is never called, the offset will be left at its default value,
+/// 0xffffffff.
+int output_binary::write_offset() {
+    // Assign a handle to this offset
+    int handle = m_NextOffsetHandle++;
+
+    // Store the current write position in the map
+    m_Offsets[handle] = m_WritePos;
+
+    // Write out the default value
+    write_int(0xffffffffu);
+
+    // Return the handle so we can set the offset later on
+    return handle;
+}
+
+/// \brief Writes the current file location as the offset at the location with the given handle.
+///
+/// The handle is no longer valid after this call has been made.
+void output_binary::set_offset(int handle) {
+    // Find this handle
+    map<int, int>::const_iterator handlePos = m_Offsets.find(handle);
+
+    // Do nothing if the handle is invalid
+    if (handlePos == m_Offsets.end()) return;
+
+    // Write out the offset for this handle
+    write_int_raw((uint32_t) m_WritePos, m_File, handlePos->second, m_FileLength, m_BigEndian);
+
+    // Remove this handle
+    m_Offsets.erase(handle);
+}
+
 /// =======
 ///  Lexer
 /// =======
@@ -193,28 +236,30 @@ void output_binary::write_lexer_dfa() {
     uint32_t numStates = count_lexer_states();
     write_int(numStates);
 
-    // Work out the offsets for each state
-    uint32_t    curOffset   = m_WritePos + numStates * 4 + 4;
+    // Vector of offsets for each state
+    vector<int> offsetForState;
+
+    // Write out the offsets for each state
     const ndfa* dfa         = get_dfa();
 
     for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
         // Get the current state
         const state& thisState = dfa->get_state(stateId);
 
-        // For other states, the offset is in curOffset
-        write_int(curOffset);
-
-        // 4 bytes per transition
-        curOffset += 4 * thisState.count_transitions();
+        // Generate an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write the final offset (so for a given state, the two offsets can be used to calculate the number of transitions)
-    write_int(curOffset);
+    offsetForState.push_back(write_offset());
 
     // Write out the transitions themselves
     for (uint32_t stateId = 0; stateId < numStates; ++stateId) {
         // Get the current state
         const state& thisState = dfa->get_state(stateId);
+
+        // Set the offset
+        set_offset(offsetForState[stateId]);
 
         // Nothing to write if there are no transitions for this state
         if (thisState.count_transitions() == 0) {
@@ -254,6 +299,9 @@ void output_binary::write_lexer_dfa() {
             write_int(entry);
         }
     }
+
+    // Write out the final offset
+    set_offset(offsetForState.back());
 }
 
 /// \brief Writes out the lexer 'accepting state' table
@@ -291,21 +339,23 @@ void output_binary::write_action_tables() {
     // Write out the number of states
     write_int((uint32_t) tables.count_states());
 
-    // Write out the pointers to the actions for each state
-    uint32_t curPos = m_WritePos + tables.count_states()*4;
-    for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        // Write out the current position
-        write_int(curPos);
+    // Handles for the states
+    vector<int> offsetForState;
 
-        // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].numTerminals;
+    // Write out the pointers to the actions for each state
+    for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Create an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write out the final position
-    write_int(curPos);
+    offsetForState.push_back(write_offset());
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Set the position of this state
+        set_offset(offsetForState[stateId]);
+
         for (int actionId = 0; actionId < tables.action_counts()[stateId].numTerminals; ++actionId) {
             // Get this action
             const action& act = tables.terminal_actions()[stateId][actionId];
@@ -316,8 +366,13 @@ void output_binary::write_action_tables() {
         }
     }
 
+    // Write out the final position
+    set_offset(offsetForState.back());
+
     // Start the nonterminal actions table
     start_table(table::nonterminal_actions);
+
+    offsetForState.clear();
 
     // Write out the number of states
     write_int((uint32_t) tables.count_states());
@@ -327,20 +382,19 @@ void output_binary::write_action_tables() {
     write_int((uint32_t) tables.end_of_guard());
 
     // Write out the pointers to the actions for each state
-    curPos = m_WritePos;
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        // Write out the current position
-        write_int(curPos);
-
-        // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].numNonterminals;
+        // Create an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write out the final position
-    write_int(curPos);
+    offsetForState.push_back(write_offset());
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Set the position of this state
+        set_offset(offsetForState[stateId]);
+
         for (int actionId = 0; actionId < tables.action_counts()[stateId].numNonterminals; ++actionId) {
             // Get this action
             const action& act = tables.nonterminal_actions()[stateId][actionId];
@@ -350,6 +404,9 @@ void output_binary::write_action_tables() {
             write_int((uint32_t)act.symbolId);
         }
     }
+
+    // Write out the final position
+    set_offset(offsetForState.back());
 }
 
 /// \brief Writes the guard ending state table
@@ -511,34 +568,21 @@ void output_binary::write_rule_definitions() {
     int numRules = gram.max_rule_identifier();
     write_int(numRules);
 
-    // Work out where the rules will start in the file
-    int firstRuleOffset = m_WritePos + numRules * 4;
-    int curRuleOffset   = firstRuleOffset;
+    // Offset handles for each rule ID
+    vector<int> offsetForRule;
 
     // Write out the positions for each rule
     for (int ruleId = 0; ruleId < numRules; ++ruleId) {
-        // Each rule has the following format:
-        //      nonterminal ID
-        //      number of items
-        //      n * item
-        //          +ve value = terminal ID
-        //          -ve value = (-1 - nonterminal ID)
-        const rule_container& rule = gram.rule_with_identifier(ruleId);
-
-        // 2 words header + n words items
-        int ruleSize = 8 + 4*(int) rule->items().size();
-
-        // Write where this rule will appear
-        write_int(curRuleOffset);
-
-        // Move the offset on to where the next rule will appear
-        curRuleOffset += ruleSize;
+        offsetForRule.push_back(write_offset());
     }
 
     // Write out the actual data for the rules
     for (int ruleId = 0; ruleId < numRules; ++ruleId) {
         // Fetch the rule
         const rule_container& rule = gram.rule_with_identifier(ruleId);
+
+        // Note where this rule begins
+        set_offset(offsetForRule[ruleId]);
 
         // Get the nonterminal ID
         int ntId = gram.identifier_for_item(*rule->nonterminal());
