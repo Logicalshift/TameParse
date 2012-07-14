@@ -339,21 +339,23 @@ void output_binary::write_action_tables() {
     // Write out the number of states
     write_int((uint32_t) tables.count_states());
 
-    // Write out the pointers to the actions for each state
-    uint32_t curPos = m_WritePos + tables.count_states()*4;
-    for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        // Write out the current position
-        write_int(curPos);
+    // Handles for the states
+    vector<int> offsetForState;
 
-        // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].numTerminals;
+    // Write out the pointers to the actions for each state
+    for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Create an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write out the final position
-    write_int(curPos);
+    offsetForState.push_back(write_offset());
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Set the position of this state
+        set_offset(offsetForState[stateId]);
+
         for (int actionId = 0; actionId < tables.action_counts()[stateId].numTerminals; ++actionId) {
             // Get this action
             const action& act = tables.terminal_actions()[stateId][actionId];
@@ -364,8 +366,13 @@ void output_binary::write_action_tables() {
         }
     }
 
+    // Write out the final position
+    set_offset(offsetForState.back());
+
     // Start the nonterminal actions table
     start_table(table::nonterminal_actions);
+
+    offsetForState.clear();
 
     // Write out the number of states
     write_int((uint32_t) tables.count_states());
@@ -375,20 +382,19 @@ void output_binary::write_action_tables() {
     write_int((uint32_t) tables.end_of_guard());
 
     // Write out the pointers to the actions for each state
-    curPos = m_WritePos;
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
-        // Write out the current position
-        write_int(curPos);
-
-        // 8 bytes per action
-        curPos += 8 * tables.action_counts()[stateId].numNonterminals;
+        // Create an offset for this state
+        offsetForState.push_back(write_offset());
     }
 
     // Write out the final position
-    write_int(curPos);
+    offsetForState.push_back(write_offset());
 
     // Write out the actions themselves
     for (int stateId = 0; stateId < tables.count_states(); ++stateId) {
+        // Set the position of this state
+        set_offset(offsetForState[stateId]);
+
         for (int actionId = 0; actionId < tables.action_counts()[stateId].numNonterminals; ++actionId) {
             // Get this action
             const action& act = tables.nonterminal_actions()[stateId][actionId];
@@ -398,6 +404,9 @@ void output_binary::write_action_tables() {
             write_int((uint32_t)act.symbolId);
         }
     }
+
+    // Write out the final position
+    set_offset(offsetForState.back());
 }
 
 /// \brief Writes the guard ending state table
