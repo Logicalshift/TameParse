@@ -55,7 +55,7 @@ tp_parser_state tp_parse(tp_parser parser, int initialStateId, void* userData) {
  * a language. These parsers will have more than one start state.
  */
 tp_parser_state tp_create_initial_state(tp_parser parser, int stateId, void* userData) {
-    
+
 }
 
 /**
@@ -112,6 +112,6 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth) {
 /**
  * \brief Attempts to shift the specified symbol on to the given parser state
  */
-void tp_state_shift(tp_parser_state state, int terminalId, int** symbols, int numSymbols) {
+void tp_state_shift(tp_parser_state state, int terminalId, int* symbols, int numSymbols) {
 
 }

@@ -284,7 +284,7 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth);
 /**
  * \brief Attempts to shift the specified symbol on to the given parser state
  */
-void tp_state_shift(tp_parser_state state, int terminalId, int** symbols, int numSymbols);
+void tp_state_shift(tp_parser_state state, int terminalId, int* symbols, int numSymbols);
 
 #ifdef __cplusplus
 };
