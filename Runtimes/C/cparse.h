@@ -33,6 +33,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /** \file cparse.h
  *
@@ -221,21 +222,27 @@ int tp_lex_symbol(tp_lexer_state state);
  * \brief Runs the parser and returns the final state
  *
  * \param parser The parser to run
+ * \param initialStateId The initial 
  * \param userData The user data to pass in to the parser functions
  *
  * \return The final state of the parser
  */
-tp_parser_state tp_parse(tp_parser parser, void* userData);
+tp_parser_state tp_parse(tp_parser parser, int initialStateId, void* userData);
 
 /**
  * \brief Creates the initial state for the parser
  *
  * \param parser A parser created by tp_create_parser
+ * \param stateId The initial state ID to begin parsing at
  * \param userData The user data to pass in to the parser functions
  *
  * \return NULL if no state can be created, otherwise a parser state in the initial state for the parser
+ *
+ * The initial state will be 0 in many cases. However, TameParse can generate
+ * parsers with numerous start symbols to support parsing different aspects of
+ * a language. These parsers will have more than one start state.
  */
-tp_parser_state tp_create_initial_state(tp_parser parser, void* userData);
+tp_parser_state tp_create_initial_state(tp_parser parser, int stateId, void* userData);
 
 /**
  * \brief Creates a new parser state by copying an existing state
