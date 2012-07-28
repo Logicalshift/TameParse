@@ -45,6 +45,36 @@ struct tp_parser_def {
 };
 
 /**
+ * \brief An entry in the lookahead queue
+ */
+struct tp_lookahead_entry {
+    /** The number of states that are pointing at this entry */
+    int usageCount;
+
+    /** The terminal ID of the token this entry represents */
+    int terminalId;
+
+    /** The number of symbols that were read from the input stream for this item */
+    int numSymbols;
+
+    /** A copy of the input symbols read in for this entry */
+    int* symbols;
+
+    /** \brief The next item in the lookahead queue */
+    struct tp_lookahead_entry* next;
+
+    /** 
+     * \brief The previous item in the lookahead queue 
+     *
+     * A state can free a lookahead entry if usageCount is 0 and there is no
+     * previous item (if there is a previous item or the usage count is
+     * non zero, then another state must have an eventual reference to this
+     * entry)
+     */
+    struct tp_lookahead_entry* prev;
+};
+
+/**
  * \brief The internal represention of a parser stack entry
  */
 struct tp_parser_entry {
@@ -99,6 +129,9 @@ struct tp_parser_state_def {
 
     /** The stack that this state is a part of */
     struct tp_parser_stack* stack;
+
+    /** The current lookahead in this state */
+    struct tp_lookahead_entry* lookahead;
 
     /** The ID of the stack entry that this state refers to */
     int entry;
