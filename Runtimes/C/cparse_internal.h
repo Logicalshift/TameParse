@@ -44,4 +44,64 @@ struct tp_parser_def {
     const uint32_t* data;
 };
 
+/**
+ * \brief The internal represention of a parser stack entry
+ */
+struct tp_parser_entry {
+    /** The number of states that point at this entry, or 0 or -1 if this entry is marked (referenced from another entry) */
+    int usageCount;
+
+    /** -1 if this item is on top of the stack, or the index of the entry 'above' it */
+    int previousEntry;
+
+    /** The ID of the state represented by this entry */
+    int state;
+
+    /** The user-supplied AST data for this entry */
+    void* ast;
+};
+
+/** 
+ * \brief The internal representation of a parser stack
+ *
+ * The stack uses a garbage-collection algorithm to remove states rather than
+ * being a simple push/pop stack. This makes it possible to have multiple
+ * states for the same input simultaneously (this is initially useful for
+ * evaluating guards, but can also be used for performing error recovery or 
+ * implementing generalised parsing) 
+ */
+struct tp_parser_stack {
+    /** The parser object that this stack is for */
+    tp_parser parser;
+
+    /** The number of parser states that are using this stack */
+    int numStates;
+
+    /** The number of entries in this stack */
+    int numEntries;
+
+    /** An array of stack entries */
+    struct tp_parser_entry* entries;
+
+    /** The next free entry */
+    int nextFree;
+
+    /** The value of usageCount for a marked, in-use, entry (0 or -1) */
+    int markValue;
+};
+
+/**
+ * \brief The internal representation of a parser state
+ */
+struct tp_parser_state_def {
+    /** The parser object that this state is for */
+    tp_parser parser;
+
+    /** The stack that this state is a part of */
+    struct tp_parser_stack* stack;
+
+    /** The ID of the stack entry that this state refers to */
+    int entry;
+};
+
 #endif
