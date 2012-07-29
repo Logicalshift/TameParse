@@ -6,6 +6,7 @@ libTameParseC_la_SOURCES    =                       \
                                 cparse.h            \
                                 cparse_internal.h   \
                                 cparse.c            \
+                                lookahead.c         \
                                 lex.c               \
                                 lr.c                \
                                 binaryformat.h
