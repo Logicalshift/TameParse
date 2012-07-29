@@ -284,7 +284,32 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth);
 /**
  * \brief Attempts to shift the specified symbol on to the given parser state
  */
-void tp_state_shift(tp_parser_state state, int terminalId, int* symbols, int numSymbols);
+void tp_state_shift(tp_parser_state state, int terminalId, const int* symbols, int numSymbols);
+
+/* = The lookahead queue = */
+
+/**
+ * \brief Inserts a lookahead item into the specified state (before any other lookahead)
+ */
+void tp_lookahead_push(tp_parser_state state, int terminalId, const int* symbols, int numSymbols);
+
+/**
+ * \brief Throws away the lookahead pointed to by the specified state
+ */
+void tp_lookahead_pop(tp_parser_state state);
+
+/**
+ * \brief Retrieves the terminal at the current lookahead position
+ */
+int tp_lookahead_terminal(tp_parser_state state);
+
+/**
+ * \brief Retrieves the symbols at the current lookahead position
+ *
+ * This returns the number of symbols and updates result so that it points
+ * at the symbols themselves.
+ */
+int tp_lookahead_symbols(tp_parser_state state, const int** result);
 
 #ifdef __cplusplus
 };
