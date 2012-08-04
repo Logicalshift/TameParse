@@ -64,14 +64,19 @@ struct tp_lookahead_entry {
     struct tp_lookahead_entry* next;
 
     /** 
-     * \brief The previous item in the lookahead queue 
+     * \brief The previous item(s) in the lookahead queue 
      *
      * A state can free a lookahead entry if usageCount is 0 and there is no
      * previous item (if there is a previous item or the usage count is
      * non zero, then another state must have an eventual reference to this
      * entry)
      */
-    struct tp_lookahead_entry* prev;
+    struct tp_lookahead_entry** prev;
+
+    /**
+     * \brief The number of previous items
+     */
+    int numPrev;
 };
 
 /**
@@ -136,5 +141,10 @@ struct tp_parser_state_def {
     /** The ID of the stack entry that this state refers to */
     int entry;
 };
+
+/**
+ * \brief Creates a new lookahead entry by reading from the lexer
+ */
+struct tp_lookahead_entry* tp_lookahead_load_from_lexer(tp_parser_state state);
 
 #endif
