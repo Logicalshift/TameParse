@@ -26,6 +26,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "cparse.h"
 #include "cparse_internal.h"
@@ -78,7 +79,33 @@ void tp_lookahead_push(tp_parser_state state, int terminalId, const int* symbols
  * \brief Creates a new lookahead entry by reading from the lexer
  */
 struct tp_lookahead_entry* tp_lookahead_load_from_lexer(tp_parser_state state) {
+    const int*                  symbols;
+    int                         numSymbols;
+    int                         terminalId;
+    struct tp_lookahead_entry*  newLookahead;
+    int                         pos;
 
+    /* Read the next item from the tokenizer */
+    terminalId = state->tokenizer(state->tokenizerData, &numSymbols, &symbols);
+
+    /* Generate a new lookahead entry */
+    newLookahead = malloc(sizeof(struct tp_lookahead_entry));
+
+    newLookahead->usageCount    = 0;                                /* Initial usage count is 0 */
+    newLookahead->terminalId    = terminalId;                       /* Terminal from the tokenizer */
+    newLookahead->numSymbols    = numSymbols;                       /* Number of symbols */
+    newLookahead->symbols       = malloc(sizeof(int)*numSymbols);   /* Symbol data */
+    newLookahead->next          = NULL;                             /* Nothing following yet */
+    newLookahead->prev          = NULL;                             /* Nothing preceding */
+    newLookahead->numPrev       = 0;
+
+    /* Copy the symbols */
+    for (pos = 0; pos<numSymbols; ++pos) {
+        newLookahead->symbols[pos] = symbols[pos];
+    }
+
+    /* This is the result */
+    return newLookahead;
 }
 
 /**

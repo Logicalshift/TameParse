@@ -132,6 +132,12 @@ struct tp_parser_state_def {
     /** The parser object that this state is for */
     tp_parser parser;
 
+    /** The tokenizer for this parser */
+    tp_read_token tokenizer;
+
+    /** The user data for the tokenizer */
+    void* tokenizerData;
+
     /** The stack that this state is a part of */
     struct tp_parser_stack* stack;
 

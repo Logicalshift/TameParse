@@ -417,3 +417,23 @@ int tp_lex_symbol(tp_lexer_state state) {
     /* Result is the symbol that we accepted */
     return acceptSymbol;
 }
+
+/**
+ * \brief Returns the last symbol that the lexer matched
+ *
+ * \param state A lexer state
+ * \param symbol Updated on return to point to the data for the symbol (invalid once any other lexer call is made)
+ *
+ * \return The number of entries in the symbol
+ */
+int tp_lex_get_symbol(tp_lexer_state state, const int** symbol) {
+    /* Sanity check */
+    if (!symbol)    return 0;
+    *symbol = NULL;
+
+    if (!state)     return 0;
+
+    /* The state lookahead contains the current symbol */
+    *symbol = state->lookahead;
+    return state->lookaheadPos;
+}

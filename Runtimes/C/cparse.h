@@ -71,6 +71,20 @@ static const int tp_lex_invalid = -3;
 typedef int (*tp_read_symbol)(void* userData);
 
 /**
+ * \brief User-defined function that reads the next token from the stream
+ *
+ * \param userData User data associated with the lexer
+ * \param numSymbols Updated on return to indicate the length of the symbols array
+ * \param symbols Updated on return to contain the array of symbols read for this token (valid until the next call to read_token)
+ * 
+ * \return The token ID that was matched by the lexer
+ *
+ * Functions matching this signature can be used to run the parser without using
+ * the built-in lexer.
+ */
+typedef int (*tp_read_token)(void* userData, int* numSymbols, const int** symbols);
+
+/**
  * \brief User-defined function that frees the data associated with an AST node
  *
  * \param astData Data for the specified AST node, as allocated by tp_shift or tp_reduce
@@ -215,6 +229,16 @@ void tp_free_lexer(tp_lexer_state state);
  * so it is safe to repeatedly call this even if an error results.
  */
 int tp_lex_symbol(tp_lexer_state state);
+
+/**
+ * \brief Returns the last symbol that the lexer matched
+ *
+ * \param state A lexer state
+ * \param symbol Updated on return to point to the data for the symbol (invalid once any other lexer call is made)
+ *
+ * \return The number of entries in the symbol
+ */
+int tp_lex_get_symbol(tp_lexer_state state, const int** symbol);
 
 /* = The parser = */
 
