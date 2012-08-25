@@ -60,20 +60,20 @@ namespace lr {
         /// \brief Types of LR action
         enum action_type {
             /// \brief If the terminal is seen, then it is placed on the stack and the next terminal is read
-            act_shift,
+            act_shift           = 0,
             
             /// \brief If the terminal is seen, then it is substituted for its 'strong' equivalent, placed on the stack and the
             /// next terminal is read
-            act_shiftstrong,
+            act_shiftstrong     = 1,
             
             /// \brief If the terminal is seen, discard it and look at the next one
-            act_ignore,
+            act_ignore          = 2,
             
             /// \brief If the terminal is seen, then the parser reduces by the specified rule
             /// 
             /// That is, pops the items in the rule, then pushes the nonterminal that the rule reduces to, and finally looks up the goto action
             /// for the resulting nonterminal in the state on top of the stack.
-            act_reduce,
+            act_reduce          = 3,
             
             /// \brief Works as for reduce, except that the parser does not perform this action if the symbol won't be shifted after the reduce
             ///
@@ -85,25 +85,25 @@ namespace lr {
             /// This can be used to resolve reduce/reduce conflicts and hence allow a LALR parser to parse full LR(1) grammars. It is also useful
             /// if you want to support the concept of 'weak' lexical symbols (whose meaning depends on context), as a weak reduction is only possible
             /// if the lookahead symbol is a valid part of the language.
-            act_weakreduce,
+            act_weakreduce      = 4,
             
             /// \brief Identical to 'reduce', except the target symbol is the root of the language
-            act_accept,
+            act_accept          = 5,
             
             /// \brief If a phrase has been reduced to this nonterminal symbol, then goto to the specified state
-            act_goto,
+            act_goto            = 6,
             
             /// \brief If the terminal is seen, then the parser moves directly to the specified state (and it is left as lookahead)
             ///
             /// This is used when generating actions for guard symbols, specifically when the parser detects there is no conflict
             /// and so can always assume that the guard is successful based on a single symbol of lookahead.
-            act_divert,
+            act_divert          = 7,
             
             /// \brief If the terminal is seen, then the specified guard rule should be evaluated.
             ///
             /// If the guard rule is accepted, then the guard symbol is set as the lookahead (this is retrieved from the rule
             /// that is reduced)
-            act_guard
+            act_guard           = 8
         };
         
     private:

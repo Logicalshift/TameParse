@@ -28,6 +28,58 @@
 #include "cparse.h"
 #include "cparse_internal.h"
 
+/** 
+ *  \brief Finds the first action for a symbol in a state
+ *
+ *  \param parseData    A pointer to the start of the parse data (the point to which offsets are relative to)
+ *  \param actionTable  A pointer to the action table to search (the first word after the header)
+ *  \param stateId      The ID of the state to search
+ *  \param symbolId     The symbol to search for
+ *
+ *  \return A pointer to the action, or NULL if the action does not exist
+ */
+static const int* tp_find_first_action(const int* parseData, const int* actionTable, int stateId, int symbolId) {
+    int stateStartOffset;
+    int stateEndOffset;
+    int numEntries;
+
+    int lower, upper;
+    int pos;
+
+    /* Fetch the offset for this state */
+    stateStartOffset    = actionTable[stateId];
+    stateEndOffset      = actionTable[stateId + 1];
+    numEntries          = (stateEndOffset - stateStartOffset) / 2; /* Two words per entry */
+
+    /* Result if NULL if there are no actions in this state */
+    if (numEntries <= 0) return NULL;
+
+    /* Perform a binary search for this symbol */
+    lower = 0;
+    upper = numEntries - 1;
+
+    while (upper >= lower) {
+        int middle;
+        int middleSymbol;
+
+        /* Fetch the symbol to compare (it's the second word in the entry, see binary.h for details) */
+        middle          = (lower + upper) >> 1;
+        middleSymbol    = parseData[stateStartOffset + (middle*2) + 1];
+
+        if (middleSymbol < symbolId)    lower = middle + 1;
+        else                            upper = middle - 1;
+    }
+
+    /* Now upper will be first with a value < symbol */
+    pos = upper + 1;
+
+    /* Result is NULL if there is no action for this symbol */
+    if (parseData[stateStartOffset + (pos*2) + 1] != symbolId) return NULL;
+
+    /* Got the offset */
+    return parseData + stateStartOffset + (pos*2);
+}
+
 /**
  * \brief Runs the parser and returns the final state
  *
@@ -112,6 +164,6 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth) {
 /**
  * \brief Attempts to shift the specified symbol on to the given parser state
  */
-void tp_state_shift(tp_parser_state state, int terminalId, const int* symbols, int numSymbols) {
+int tp_state_shift(tp_parser_state state, int terminalId, const int* symbols, int numSymbols) {
 
 }
