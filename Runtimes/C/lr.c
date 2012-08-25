@@ -162,8 +162,41 @@ tp_parser_state tp_state_peek(tp_parser_state state, int depth) {
 }
 
 /**
- * \brief Attempts to shift the specified symbol on to the given parser state
+ * \brief Attempts to shift the current lookahead symbol on to the given parser state
+ *
+ * \param state The state to update
+ *
+ * \return 0 if the symbol could not be shifted (the state is left unchanged if this occurs)
  */
-int tp_state_shift(tp_parser_state state, int terminalId, const int* symbols, int numSymbols) {
+int tp_state_shift(tp_parser_state state) {
 
+}
+
+/**
+ * \brief Updates a state by performing a particular action
+ *
+ * \param state         The state to update
+ * \param actionType    The type of action to perform
+ * \param nextState     The new state ID after the action (or the rule ID for reduction/guard actions)
+ * 
+ * \return              1 if the lookahead should be moved on to the next symbol
+ */
+int tp_perform_action(tp_parser_state state, int actionType, int nextState) {
+
+}
+
+/**
+ * \brief Determines if a particular action is possible in the specified state
+ *
+ * This can be used with guard actions or weak reductions to check if the action
+ * should be taken or if the next action should be performed. The action is
+ * checked in the context of the current parser lookahead. This can be used to
+ * aid error recovery (as it can check if a new state is valid).
+ *
+ * \param state         The state to update
+ * \param actionType    The type of action to perform
+ * \param nextState     The new state ID after the action (or the rule ID for reduction/guard actions)
+ */
+int tp_can_perform(tp_parser_state state, int actionType, int nextState) {
+    
 }
