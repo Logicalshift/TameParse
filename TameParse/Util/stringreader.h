@@ -51,6 +51,15 @@ namespace util {
         
         /// \brief The type of string that this reader will reference
         typedef std::basic_string<char_type, traits, Alloc> string_type;
+
+        /// \brief Offset type (required by gcc)
+        typedef int off_type;
+
+        /// \brief Integer type (required by gcc)
+        typedef int int_type;
+
+        /// \brief Position type (required by gcc)
+        typedef size_t pos_type;
         
     private:
         /// \brief A reference to the source string
