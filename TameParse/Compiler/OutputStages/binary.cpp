@@ -27,7 +27,7 @@
 
 #include <cstdlib>
 #include "TameParse/Compiler/OutputStages/binary.h"
-#include "TameParse/Language/Formatter.h"
+#include "TameParse/Language/formatter.h"
 #include "TameParse/version.h"
 
 using namespace std;
