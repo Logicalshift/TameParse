@@ -49,7 +49,7 @@ written like this instead:
 
     <A> = [=> <C>] <B>
 
-This tells the parser to match <B> only if the lookahead also matches <C>, 
+This tells the parser to match &lt;B> only if the lookahead also matches &lt;C>, 
 effectively creating a conditional rule. This makes it possible for the tool to accept
 certain context-sensitive languages. (See the ContextSensitive.tp example for a 
 demonstration of how to write guards to accept an indexed language)
@@ -71,7 +71,7 @@ long periods of time and display way too much information.
 Copyright (c) 2011-2013 Andrew Hunter
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
-of this software and associated documentation files (the \"Software\"), to 
+of this software and associated documentation files (the "Software"), to 
 deal in the Software without restriction, including without limitation the 
 rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
 sell copies of the Software, and to permit persons to whom the Software is 
@@ -80,7 +80,7 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
