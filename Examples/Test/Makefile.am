@@ -8,4 +8,4 @@ EXTRA_DIST			= CaseSensitivity.tp \
 					  \
 					  run-tests.sh
 
-TESTS 				= $(srcdir)/run-tests.sh
+TESTS 				= run-tests.sh
