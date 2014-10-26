@@ -25,8 +25,8 @@
 //  IN THE SOFTWARE.
 //
 
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 #include "lr_lalr_general.h"
 
@@ -242,8 +242,8 @@ static bool no_duplicate_states(lalr_machine& m) {
     return ok;
 }
 
-typedef basic_string<int> int_string;
-typedef basic_stringstream<int> int_stringstream;
+typedef basic_string<wchar_t> int_string;
+typedef basic_stringstream<wchar_t> int_stringstream;
 
 static bool can_parse(int_string& symbols, simple_parser& p, character_lexer& lex) {
     int_stringstream stream(symbols);
