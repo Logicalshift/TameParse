@@ -11,4 +11,4 @@ json_format_SOURCES     = \
 						  json.cpp
 
 json.h json.cpp: json.tp ../../parsetool/tameparse
-	../../parsetool/tameparse -o json -T cplusplus -S "<Object>" $(srcdir)/json.tp
+	../../parsetool/tameparse --run-tests -o json -T cplusplus -S "<Object>" $(srcdir)/json.tp

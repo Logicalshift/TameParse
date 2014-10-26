@@ -109,15 +109,17 @@ void pretty_print(const JSON::Pair_n* pair, int indentAmount) {
 void pretty_print(const JSON::Object_n* obj, int indentAmount) {
     wcout << L"{";
 
-    if (obj->pairs && obj->pairs->size() > 0) {
-        wcout << endl << indent(indentAmount);
+    // obj->first indicates the presence of a list of objects
+    if (obj->first) {
+        wcout << endl << indent(indentAmount+2);
+        pretty_print(obj->first, indentAmount+2);
 
-        for (JSON::list_of_Pair_n::iterator pair = obj->pairs->begin(); pair != obj->pairs->end(); ++pair) {
-            wcout << L"  ";
+        for (JSON::list_of__comma__Pair_n::iterator pair = obj->pairs->begin(); pair != obj->pairs->end(); ++pair) {
+            wcout << L"," << endl << indent(indentAmount+2);
             pretty_print((*pair)->Pair, indentAmount + 2);
-
-            wcout << endl << indent(indentAmount+2);
         }        
+
+        wcout << endl << indent(indentAmount);
     }
 
     wcout << L"}";

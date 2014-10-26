@@ -47,7 +47,8 @@ language JSON {
     }
 
     grammar {
-        <Object> = '{' <Pair>*[pairs] '}'
+        <Object> = '{' '}'
+                 | '{' <Pair>[first] (',' <Pair>)*[pairs] '}'
 
         <Pair> = string[name] ':' <Value>[value]
 
@@ -75,5 +76,5 @@ test JSON {
                 null("null")
                 empty-object("{}")
                 biggerobject("{\"foo\":\"bar\"}")
-
+                twopair("{\"foo\":\"bar\", \"foo2\":\"bar2\"}")
 }
