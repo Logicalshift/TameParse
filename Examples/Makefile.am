@@ -1,4 +1,4 @@
-SUBDIRS				= Test
+SUBDIRS				= Test JsonPrettyPrinter
 
 EXTRA_DIST 			= AnsiC.tp \
 					  C99.tp \

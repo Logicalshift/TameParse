@@ -49,6 +49,7 @@ AC_CONFIG_FILES([Makefile
                  parsetool/Makefile
                  Examples/Makefile
                  Examples/Test/Makefile
+                 Examples/JsonPrettyPrinter/Makefile
                  TextEditors/Makefile
                  doxy/Makefile])
 AC_OUTPUT

@@ -47,9 +47,9 @@ language JSON {
     }
 
     grammar {
-        <Object> = '{' <Pair>* '}'
+        <Object> = '{' <Pair>*[pairs] '}'
 
-        <Pair> = string ':' <Value>
+        <Pair> = string[name] ':' <Value>[value]
 
         <Array> = '[' ']'
                 | '[' <Value>[first] (',' <Value>)*[remainder] ']'
