@@ -1,0 +1,79 @@
+//
+// JSON grammar
+// See http://json.org
+//
+
+language JSON {
+    keywords {
+        true    false   null
+    }
+
+    lexer-symbols {
+        hex-digit = /[0-9A-Fa-f]/
+        char = /[^\"\\]/
+        char |= /\\\"/
+        char |= /[\\][\\]/
+        char |= /\\\//
+        char |= /\\b/
+        char |= /\\f/
+        char |= /\\n/
+        char |= /\\r/
+        char |= /\\t/
+        char |= /\\u{hex-digit}{hex-digit}{hex-digit}{hex-digit}/
+        digit = /[0-9]/
+        int = /{digit}+/
+        int |= /-{digit}+/
+        frac = /.{digit}+/
+        e = /e/
+        e |= /e\+/
+        e |= /e\-/
+        e |= /E/
+        e |= /E\+/
+        e |= /E\-/
+        exp = /{e}{digit}+/
+        whitespace = /[ \t\n\r]/
+    }
+
+    ignore {
+        whitespace = /{whitespace}+/
+    }
+
+    lexer {
+        string = /\"{char}*\"/
+        number = /{int}/
+        number |= /{int}{frac}/
+        number |= /{int}{exp}/
+        number |= /{int}{frac}{exp}/
+    }
+
+    grammar {
+        <Object> = '{' <Pair>* '}'
+
+        <Pair> = string ':' <Value>
+
+        <Array> = '[' ']'
+                | '[' <Value>[first] (',' <Value>)*[remainder] ']'
+
+        <Value> = string
+                | number
+                | <Object>
+                | <Array>
+                | true
+                | false
+                | null
+    }
+}
+
+test JSON {
+    <Value> =   string("\"string\"")
+                num("1")
+                numfrac("1.0")
+                numexp("1e1")
+                numfracexp("1.0e1")
+                truthiness("true")
+                falsitude("false")
+                null("null")
+                empty-object("{}")
+                biggerobject("{\"foo\":\"bar\"}")
+
+}
