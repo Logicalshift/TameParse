@@ -1,6 +1,6 @@
-AC_PREREQ([2.65])
+AC_PREREQ([2.71])
 AC_CONFIG_MACRO_DIR([m4])
-AC_INIT([TameParse], [1.0.0], [andrew@logicalshift.co.uk])
+AC_INIT([TameParse],[1.0.0],[andrew@logicalshift.co.uk])
 AC_CONFIG_SRCDIR([parsetool/main.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -12,10 +12,10 @@ if test -z $CXXFLAGS; then
 fi
 
 # Checks for programs.
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 AC_PROG_LN_S
 AC_CHECK_PROG(HAVE_XXD, xxd, yes)
 
