@@ -165,7 +165,7 @@ namespace lr {
             // (For hard-coded parsers, the tables often aren't, so there's no need to copy)
             if (copyFrom.m_OwnsTables) {
                 m_OwnsTables    = true;
-                m_ParserTables  = new parser_tables(copyFrom.m_ParserTables);
+                m_ParserTables  = new parser_tables(*copyFrom.m_ParserTables);
             } else {
                 m_OwnsTables    = false;
                 m_ParserTables  = copyFrom.m_ParserTables;
@@ -728,7 +728,7 @@ namespace lr {
         }
         
         /// \brief Retrieves the tables for this parser
-        inline const parser_tables& get_tables() const { return m_ParserTables; }
+        inline const parser_tables& get_tables() const { return *m_ParserTables; }
     };
     
     ///
