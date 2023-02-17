@@ -40,7 +40,7 @@ namespace compiler {
     class rule_item_data {
     public:
         /// \brief Type of an attribute associated with a rule item key
-        typedef language::ebnf_item_attributes rule_attributes;
+        typedef yy_language::ebnf_item_attributes rule_attributes;
 
         /// \brief Maps rule item keys to the associated attributes
         typedef std::map<int, rule_attributes> rule_attribute_map;

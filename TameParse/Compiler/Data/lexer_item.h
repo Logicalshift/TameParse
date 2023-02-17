@@ -39,7 +39,7 @@ namespace compiler {
     class lexer_item {
     public:
         /// \brief The type of the language unit where this block was defined
-        typedef language::language_unit::unit_type unit_type;
+        typedef yy_language::language_unit::unit_type unit_type;
 
         /// \brief The type of a lexer item
         enum item_type {

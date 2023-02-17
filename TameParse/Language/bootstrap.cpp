@@ -41,7 +41,7 @@ using namespace util;
 using namespace dfa;
 using namespace contextfree;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Redefinition of ebnf_item_attributes to abbreviate it a bit
 typedef ebnf_item_attributes attributes;

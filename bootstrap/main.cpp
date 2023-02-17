@@ -41,7 +41,7 @@ using namespace std;
 using namespace util;
 using namespace dfa;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 #ifdef DEBUG

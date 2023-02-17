@@ -33,7 +33,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/ebnf_item.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class representing a production associated with a nonterminal
     ///

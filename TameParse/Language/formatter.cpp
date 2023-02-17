@@ -45,7 +45,7 @@ using namespace std;
 using namespace util;
 using namespace contextfree;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Turns a terminal into a string
 wstring formatter::to_string(const terminal& term, const terminal_dictionary& dict) {

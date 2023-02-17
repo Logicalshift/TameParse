@@ -33,7 +33,7 @@
 #include "TameParse/Dfa/lexeme.h"
 #include "TameParse/Language/block.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Represents an import block in a language file
     ///

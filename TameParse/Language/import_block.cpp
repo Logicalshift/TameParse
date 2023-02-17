@@ -30,7 +30,7 @@
 
 using namespace std;
 using namespace dfa;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new import block by processing the quoted string in a lexeme
 import_block::import_block(const dfa::lexeme& string) {

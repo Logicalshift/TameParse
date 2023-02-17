@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/nonterminal_definition.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new nonterminal definition for a nonterminal with the specified identifier
 nonterminal_definition::nonterminal_definition(type definitionType, const std::wstring& identifier, position start, position end)

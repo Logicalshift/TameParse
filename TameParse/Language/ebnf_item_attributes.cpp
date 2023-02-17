@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/ebnf_item_attributes.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates an empty attributes object
 ebnf_item_attributes::ebnf_item_attributes()

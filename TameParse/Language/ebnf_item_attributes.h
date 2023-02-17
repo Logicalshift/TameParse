@@ -31,7 +31,7 @@
 #include <vector>
 #include <string>
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class representing the attributes associated with an EBNF item in a rule
     ///

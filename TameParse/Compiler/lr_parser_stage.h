@@ -76,7 +76,7 @@ namespace compiler {
         lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, const std::vector<std::wstring>& startSymbols);
 
         /// \brief Constructure which builds the list of start symbols from a parser block
-        lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, language::parser_block* parserBlock);
+        lr_parser_stage(console_container& console, const std::wstring& filename, language_stage* languageCompiler, lexer_stage* lexerCompiler, yy_language::parser_block* parserBlock);
 
         /// \brief Destructor
         ~lr_parser_stage();

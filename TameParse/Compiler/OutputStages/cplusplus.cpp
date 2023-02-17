@@ -51,150 +51,6 @@ output_cplusplus::output_cplusplus(console_container& console, const std::wstrin
 , m_Namespace(namespaceName)
 , m_SourceFile(NULL)
 , m_HeaderFile(NULL) {
-    // Keywords (ANSI-C)
-    m_ReservedWords.insert("auto");
-    m_ReservedWords.insert("break");
-    m_ReservedWords.insert("case");
-    m_ReservedWords.insert("char");
-    m_ReservedWords.insert("const");
-    m_ReservedWords.insert("continue");
-    m_ReservedWords.insert("default");
-    m_ReservedWords.insert("do");
-    m_ReservedWords.insert("double");
-    m_ReservedWords.insert("else");
-    m_ReservedWords.insert("enum");
-    m_ReservedWords.insert("extern"); 
-    m_ReservedWords.insert("float");
-    m_ReservedWords.insert("for");
-    m_ReservedWords.insert("goto");
-    m_ReservedWords.insert("if");
-    m_ReservedWords.insert("int");
-    m_ReservedWords.insert("long"); 
-    m_ReservedWords.insert("register");
-    m_ReservedWords.insert("return");
-    m_ReservedWords.insert("short");
-    m_ReservedWords.insert("signed");
-    m_ReservedWords.insert("sizeof");
-    m_ReservedWords.insert("static"); 
-    m_ReservedWords.insert("struct");
-    m_ReservedWords.insert("switch");
-    m_ReservedWords.insert("typedef");
-    m_ReservedWords.insert("union");
-    m_ReservedWords.insert("unsigned");
-    m_ReservedWords.insert("void"); 
-    m_ReservedWords.insert("volatile");
-    m_ReservedWords.insert("while");
-
-    // Keywords (C99)
-    m_ReservedWords.insert("complex");
-    m_ReservedWords.insert("imaginary");
-    m_ReservedWords.insert("inline");
-    m_ReservedWords.insert("restrict");
-
-    // Keywords (C++11)
-    m_ReservedWords.insert("and");
-    m_ReservedWords.insert("and_eq");
-    m_ReservedWords.insert("alignas");
-    m_ReservedWords.insert("alignof");
-    m_ReservedWords.insert("asm");
-    m_ReservedWords.insert("bitand");
-    m_ReservedWords.insert("bitor");
-    m_ReservedWords.insert("bool");
-    m_ReservedWords.insert("catch");
-    m_ReservedWords.insert("char16_t");
-    m_ReservedWords.insert("char32_t");
-    m_ReservedWords.insert("class");
-    m_ReservedWords.insert("compl");
-    m_ReservedWords.insert("constexpr");
-    m_ReservedWords.insert("const_cast");
-    m_ReservedWords.insert("decltype");
-    m_ReservedWords.insert("delete");
-    m_ReservedWords.insert("dynamic_cast");
-    m_ReservedWords.insert("explicit");
-    m_ReservedWords.insert("export");
-    m_ReservedWords.insert("false");
-    m_ReservedWords.insert("friend");
-    m_ReservedWords.insert("mutable");
-    m_ReservedWords.insert("namespace");
-    m_ReservedWords.insert("new");
-    m_ReservedWords.insert("noexcept");
-    m_ReservedWords.insert("not");
-    m_ReservedWords.insert("not_eq");
-    m_ReservedWords.insert("nullptr");
-    m_ReservedWords.insert("operator");
-    m_ReservedWords.insert("or");
-    m_ReservedWords.insert("or_eq");
-    m_ReservedWords.insert("private");
-    m_ReservedWords.insert("protected");
-    m_ReservedWords.insert("public");
-    m_ReservedWords.insert("reinterpret_cast");
-    m_ReservedWords.insert("static_assert");
-    m_ReservedWords.insert("static_cast");
-    m_ReservedWords.insert("template");
-    m_ReservedWords.insert("this");
-    m_ReservedWords.insert("thread_local");
-    m_ReservedWords.insert("throw");
-    m_ReservedWords.insert("true");
-    m_ReservedWords.insert("try");
-    m_ReservedWords.insert("typeid");
-    m_ReservedWords.insert("typename");
-    m_ReservedWords.insert("using");
-    m_ReservedWords.insert("virtual");
-    m_ReservedWords.insert("wchar_t");
-    m_ReservedWords.insert("xor");
-    m_ReservedWords.insert("xor_eq");
-
-    // Standard set of reserved class names
-    m_ReservedWords.insert("terminal");
-    m_ReservedWords.insert("parser_actions");
-
-    // Some other classes we don't want to create clashes for to avoid confusion.
-    m_ReservedWords.insert("parser");
-    m_ReservedWords.insert("lexer");
-    m_ReservedWords.insert("lexeme");
-    m_ReservedWords.insert("rule");
-    m_ReservedWords.insert("nonterminal");
-    m_ReservedWords.insert("reduce_list");
-    m_ReservedWords.insert("syntax_node");
-    m_ReservedWords.insert("node");
-    m_ReservedWords.insert("content");
-    m_ReservedWords.insert("state");
-
-    // Mainly stuff from the std namespace
-    m_ReservedWords.insert("string");
-    m_ReservedWords.insert("wstring");
-    m_ReservedWords.insert("vector");
-    m_ReservedWords.insert("deque");
-    m_ReservedWords.insert("list");
-    m_ReservedWords.insert("stack");
-    m_ReservedWords.insert("queue");
-    m_ReservedWords.insert("priority_queue");
-    m_ReservedWords.insert("set");
-    m_ReservedWords.insert("multiset");
-    m_ReservedWords.insert("map");
-    m_ReservedWords.insert("multimap");
-    m_ReservedWords.insert("bitset");
-    m_ReservedWords.insert("ios_base");
-    m_ReservedWords.insert("ios");
-    m_ReservedWords.insert("istream");
-    m_ReservedWords.insert("ostream");
-    m_ReservedWords.insert("ifstream");
-    m_ReservedWords.insert("ofstream");
-    m_ReservedWords.insert("fstream");
-    m_ReservedWords.insert("istringstream");
-    m_ReservedWords.insert("ostringstream");
-    m_ReservedWords.insert("stringstream");
-    m_ReservedWords.insert("streambuf");
-    m_ReservedWords.insert("filebuf");
-    m_ReservedWords.insert("stringbuf");
-    m_ReservedWords.insert("cin");
-    m_ReservedWords.insert("cout");
-    m_ReservedWords.insert("cerr");
-    m_ReservedWords.insert("clog");
-    m_ReservedWords.insert("wcin");
-    m_ReservedWords.insert("wcout");
-    m_ReservedWords.insert("wcerr");
-    m_ReservedWords.insert("wclog");    
 }
 
 /// \brief Destructor
@@ -245,6 +101,7 @@ std::string output_cplusplus::get_identifier(const std::wstring& name, bool allo
     }
 
     stringstream res;
+    res << "yy_";
     for (wstring::const_iterator wideChar = stripped.begin(); wideChar != stripped.end(); ++wideChar) {
         // Just append values that are valid C++ identifiers
         wchar_t c = *wideChar;
@@ -300,11 +157,6 @@ std::string output_cplusplus::get_identifier(const std::wstring& name, bool allo
                 res << "_";
                 break;
         }
-    }
-
-    // Ensure that this doesn't match any reserved words
-    while (!allowReserved && m_ReservedWords.find(res.str()) != m_ReservedWords.end()) {
-        res << "_";
     }
     
     // Produce the final result
@@ -363,12 +215,6 @@ std::string output_cplusplus::class_name_for_item(const contextfree::item_contai
 bool output_cplusplus::name_is_valid(const std::wstring& name) {
     // Empty names are invalid
     if (name.empty()) return false;
-
-    // Names whose identifiers map to a reserved word are invalid
-    string asIdentifier = get_identifier(name, true);
-    if (m_ReservedWords.find(asIdentifier) != m_ReservedWords.end()) {
-        return false;
-    }
 
     // All other names are valid
     return true;

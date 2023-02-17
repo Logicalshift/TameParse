@@ -28,7 +28,7 @@
 #include "TameParse/Language/test_block.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new test block
 test_block::test_block(const std::wstring& languageIdentifier, position start, position end) 

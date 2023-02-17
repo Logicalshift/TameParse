@@ -60,7 +60,7 @@ namespace compiler {
     class language_stage : public compilation_stage {
     public:
         /// \brief Maps a language block to the file it is defined it
-        typedef std::pair<language::block*, std::wstring*> block_file;
+        typedef std::pair<yy_language::block*, std::wstring*> block_file;
 
         /// \brief A position and the file it is in
         typedef std::pair<dfa::position, std::wstring*> position_file;
@@ -73,7 +73,7 @@ namespace compiler {
         
     private:
         /// \brief The language block that this will compile
-        const language::language_block* m_Language;
+        const yy_language::language_block* m_Language;
 
         /// \brief The import stage used to find and compile any inherited languages
         const import_stage* m_Import;
@@ -106,7 +106,7 @@ namespace compiler {
         std::set<int> m_UnusedSymbols;
         
         /// \brief The type of the definition for each terminal symbol
-        std::map<int, language::language_unit::unit_type> m_TypeForTerminal;
+        std::map<int, yy_language::language_unit::unit_type> m_TypeForTerminal;
         
         /// \brief Maps terminal IDs to the block where they are declared (used for reporting errors later on)
         symbol_map m_TerminalDefinition;
@@ -134,7 +134,7 @@ namespace compiler {
         
     public:
         /// \brief Creates a compiler that will compile the specified language block
-        language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage);
+        language_stage(console_container& console, const std::wstring& filename, const yy_language::language_block* block, const import_stage* importStage);
         
         /// \brief Destructor
         virtual ~language_stage();
@@ -149,13 +149,13 @@ namespace compiler {
         /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
         ///
         /// Returns the number of new items that were defined
-        int add_ebnf_lexer_items(language::ebnf_item* item);
+        int add_ebnf_lexer_items(yy_language::ebnf_item* item);
 
         /// \brief Compiles an EBNF item from the language into a context-free grammar item onto the end of the specified rule
         ///
         /// The lexer items should already be compiled before this call is made; it's a bug if any terminal items are found
         /// to be missing from the terminal dictionary.
-        void compile_item(contextfree::rule& target, language::ebnf_item* item, std::wstring* ourFilename);
+        void compile_item(contextfree::rule& target, yy_language::ebnf_item* item, std::wstring* ourFilename);
 
         /// \brief Attaches attributes to the last item in the specified rule
         void append_attribute(contextfree::rule& target, const rule_item_data::rule_attributes& attributes);

@@ -28,7 +28,7 @@
 #include "TameParse/Language/definition_file.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new definition file, containing no blocks
 definition_file::definition_file() {

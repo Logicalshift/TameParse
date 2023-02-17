@@ -48,7 +48,7 @@ namespace compiler {
 
     public:
         /// \brief Construcuts a new rewriter by interpreting a language block
-        precedence_block_rewriter(const contextfree::terminal_dictionary& terminals, const language::precedence_block& precedence);
+        precedence_block_rewriter(const contextfree::terminal_dictionary& terminals, const yy_language::precedence_block& precedence);
 
         /// \brief Creates a clone of this rewriter
         virtual action_rewriter* clone() const;

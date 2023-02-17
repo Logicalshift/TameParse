@@ -37,7 +37,7 @@ using namespace dfa;
 using namespace contextfree;
 using namespace lr;
 using namespace tameparse;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 int main (int argc, const char * argv[])

@@ -40,7 +40,7 @@
 using namespace std;
 using namespace dfa;
 using namespace contextfree;
-using namespace language;
+using namespace yy_language;
 using namespace lr;
 
 static void dump(const item& it, const grammar& gram, const terminal_dictionary& dict) {

@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/production_definition.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new production definition
 production_definition::production_definition(position start, position end)

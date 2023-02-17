@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/grammar_block.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new grammar block
 grammar_block::grammar_block(position start, position end)

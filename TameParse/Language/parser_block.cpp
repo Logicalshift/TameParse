@@ -28,7 +28,7 @@
 #include "TameParse/Language/parser_block.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new parser block
 parser_block::parser_block(const std::wstring& name, const std::wstring& languageName, const std::vector<std::wstring>& startSymbols, position startPos, position endPos) 

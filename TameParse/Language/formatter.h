@@ -56,7 +56,7 @@ namespace lr {
     class conflict;
 }
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Methods for formatting language items for display
     ///

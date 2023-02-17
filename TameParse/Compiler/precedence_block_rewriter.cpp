@@ -30,11 +30,11 @@
 using namespace std;
 using namespace contextfree;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Construcuts a new rewriter by interpreting a language block
-precedence_block_rewriter::precedence_block_rewriter(const contextfree::terminal_dictionary& terminals, const language::precedence_block& precedence) {
+precedence_block_rewriter::precedence_block_rewriter(const contextfree::terminal_dictionary& terminals, const yy_language::precedence_block& precedence) {
     // Precedence of the current item
     int currentPrecedence = 0;
 

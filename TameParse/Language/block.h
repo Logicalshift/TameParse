@@ -30,7 +30,7 @@
 
 #include "TameParse/Dfa/position.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Common superclass for a block in a language file
     ///

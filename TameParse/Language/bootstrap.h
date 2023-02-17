@@ -38,7 +38,7 @@
 
 #include "TameParse/Language/definition_file.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Bootstrap version of the parser language
     ///

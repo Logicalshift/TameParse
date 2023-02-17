@@ -36,7 +36,7 @@
 #include "TameParse/Language/parser_block.h"
 #include "TameParse/Language/test_block.h"
 
-namespace language {
+namespace yy_language {
     /// \brief Class representing a toplevel block
     class toplevel_block : public block {
     private:

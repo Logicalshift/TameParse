@@ -34,7 +34,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/language_unit.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class representing the content of a language block from a parser definition file
     ///

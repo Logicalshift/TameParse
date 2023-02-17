@@ -33,7 +33,7 @@
 #include "TameParse/Language/lexer_block.h"
 #include "TameParse/Language/precedence_block.h"
 
-namespace language {
+namespace yy_language {
     /// \brief Class that represents an item in a language definition
     class language_unit : public block {
     public:

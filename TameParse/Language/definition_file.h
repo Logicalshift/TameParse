@@ -34,7 +34,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/toplevel_block.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Describes the content of a definition file
     ///
