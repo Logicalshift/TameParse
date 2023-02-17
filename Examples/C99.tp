@@ -97,6 +97,9 @@ language C99 : Ansi-C {
 
 		<Designator>					= '[' <Constant-Expression> ']'
 										| '.' identifier
+
+		replace <Enumerator-List>		= <Enumerator> (',' <Enumerator>)* ','?
+
 	}
 }
 
