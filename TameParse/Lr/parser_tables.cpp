@@ -84,9 +84,9 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
 : m_DeleteTables(true) {
     // Allocate the tables
     m_NumStates             = builder.count_states();
-    m_NonterminalActions    = new action*[m_NumStates];
-    m_TerminalActions       = new action*[m_NumStates];
-    m_Counts                = new action_count[m_NumStates];
+    m_NonterminalActions    = new action*[m_NumStates+1];
+    m_TerminalActions       = new action*[m_NumStates+1];
+    m_Counts                = new action_count[m_NumStates+1];
     
     contextfree::end_of_input eoi;
     contextfree::end_of_guard eog;
@@ -116,8 +116,8 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         }
         
         // Allocate action tables of the appropriate size
-        action* termActions     = new action[termCount];
-        action* nontermActions  = new action[nontermCount];
+        action* termActions     = new action[termCount+1];
+        action* nontermActions  = new action[nontermCount+1];
         
         int     termPos         = 0;                    // Current item in the terminal table
         int     nontermPos      = 0;                    // Current item in the nonterminal table
@@ -176,7 +176,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
     
     // Store the end of guard state table (we evaluate states in order, so this is already sorted)
     m_NumEndOfGuards    = (int) eogStates.size();
-    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    m_EndGuardStates    = new int[m_NumEndOfGuards+1];
     for (int x=0; x<m_NumEndOfGuards; ++x) {
         m_EndGuardStates[x] = eogStates[x];
     }
@@ -206,7 +206,7 @@ parser_tables::parser_tables(const lalr_builder& builder, const weak_symbols* we
         }
         
         // Fill in the table as an unordered list
-        m_WeakToStrong      = new symbol_equivalent[m_NumWeakToStrong];
+        m_WeakToStrong      = new symbol_equivalent[m_NumWeakToStrong+1];
         int pos = 0;
         for (weak_symbols::strong_iterator weakForStrong = weakSymbols->begin_strong(); weakForStrong != weakSymbols->end_strong(); ++weakForStrong) {
             // Fetch the strong symbol
@@ -263,9 +263,9 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
 , m_DeleteTables(copyFrom.m_DeleteTables)
 , m_NumWeakToStrong(copyFrom.m_NumWeakToStrong) {
     // Allocate the action tables
-    m_TerminalActions       = new action*[m_NumStates];
-    m_NonterminalActions    = new action*[m_NumStates];
-    m_Counts                = new action_count[m_NumStates];
+    m_TerminalActions       = new action*[m_NumStates+1];
+    m_NonterminalActions    = new action*[m_NumStates+1];
+    m_Counts                = new action_count[m_NumStates+1];
     
     // Copy the states
     for (int stateId=0; stateId<m_NumStates; ++stateId) {
@@ -273,8 +273,8 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
         m_Counts[stateId] = copyFrom.m_Counts[stateId];
         
         // Allocate the array for this state
-        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals];
-        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals];
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals+1];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals+1];
         
         // Copy the terminals and nonterminals
         for (int x=0; x<m_Counts[stateId].numTerminals; ++x) {
@@ -286,14 +286,14 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
     }
     
     // Allocate the rule table
-    m_Rules = new reduce_rule[m_NumRules];
+    m_Rules = new reduce_rule[m_NumRules+1];
     for (int ruleId=0; ruleId<m_NumRules; ++ruleId) {
         m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
     }
     
     // Allocate the end of guard state table
     m_NumEndOfGuards    = copyFrom.m_NumEndOfGuards;
-    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    m_EndGuardStates    = new int[m_NumEndOfGuards+1];
     
     // Copy the states
     for (int x=0; x<m_NumEndOfGuards; ++x) {
@@ -302,7 +302,7 @@ parser_tables::parser_tables(const parser_tables& copyFrom)
 
     // Copy the weak to strong table
     if (copyFrom.m_WeakToStrong) {
-        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong];
+        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong+1];
 
         for (int x=0; x<m_NumWeakToStrong; ++x) {
             m_WeakToStrong[x] = copyFrom.m_WeakToStrong[x];
@@ -343,9 +343,9 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
     m_NumWeakToStrong   = copyFrom.m_NumWeakToStrong;
 
     // Allocate the action tables
-    m_TerminalActions       = new action*[m_NumStates];
-    m_NonterminalActions    = new action*[m_NumStates];
-    m_Counts                = new action_count[m_NumStates];
+    m_TerminalActions       = new action*[m_NumStates+1];
+    m_NonterminalActions    = new action*[m_NumStates+1];
+    m_Counts                = new action_count[m_NumStates+1];
     
     // Copy the states
     for (int stateId=0; stateId<m_NumStates; ++stateId) {
@@ -353,8 +353,8 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
         m_Counts[stateId] = copyFrom.m_Counts[stateId];
         
         // Allocate the array for this state
-        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals];
-        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals];
+        m_TerminalActions[stateId]      = new action[m_Counts[stateId].numTerminals+1];
+        m_NonterminalActions[stateId]   = new action[m_Counts[stateId].numNonterminals+1];
         
         // Copy the terminals and nonterminals
         for (int x=0; x<m_Counts[stateId].numTerminals; ++x) {
@@ -366,14 +366,14 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
     }
     
     // Allocate the rule table
-    m_Rules = new reduce_rule[m_NumRules];
+    m_Rules = new reduce_rule[m_NumRules+1];
     for (int ruleId=0; ruleId<m_NumRules; ++ruleId) {
         m_Rules[ruleId] = copyFrom.m_Rules[ruleId];
     }
     
     // Allocate the end of guard state table
     m_NumEndOfGuards    = copyFrom.m_NumEndOfGuards;
-    m_EndGuardStates    = new int[m_NumEndOfGuards];
+    m_EndGuardStates    = new int[m_NumEndOfGuards+1];
     
     // Copy the states
     for (int x=0; x<m_NumEndOfGuards; ++x) {
@@ -382,7 +382,7 @@ parser_tables& parser_tables::operator=(const parser_tables& copyFrom) {
 
     // Copy the weak to strong table
     if (copyFrom.m_WeakToStrong) {
-        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong];
+        m_WeakToStrong = new symbol_equivalent[m_NumWeakToStrong+1];
 
         for (int x=0; x<m_NumWeakToStrong; ++x) {
             m_WeakToStrong[x] = copyFrom.m_WeakToStrong[x];

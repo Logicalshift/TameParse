@@ -116,6 +116,7 @@ void lalr_builder::create_closure(closure_set& target, const lalr_state& state, 
                 waiting.push(*newItem);
             }
         }
+        closureItems.clear();
     }
 }
 
@@ -417,6 +418,7 @@ void lalr_builder::generate_closure(const lalr_state& state, lr1_item_set& closu
                 waitingForClosure.push(*newItem);
             }
         }
+        closureItems.clear();
     }
 }
 
