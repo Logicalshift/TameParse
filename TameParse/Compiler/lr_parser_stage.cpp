@@ -38,7 +38,7 @@ using namespace std;
 using namespace dfa;
 using namespace contextfree;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Constructor

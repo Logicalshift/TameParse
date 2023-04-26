@@ -28,7 +28,7 @@
 #include "TameParse/Language/ebnf_item.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates an EBNF item (sourceIdentifier.identifier)
 ebnf_item::ebnf_item(type typ, const std::wstring& sourceIdentifier, const std::wstring& identifier, const ebnf_item_attributes& attr, position start, position end)

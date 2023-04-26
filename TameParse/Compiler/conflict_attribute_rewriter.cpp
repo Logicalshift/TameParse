@@ -33,7 +33,7 @@
 using namespace std;
 using namespace contextfree;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new conflict rewriter

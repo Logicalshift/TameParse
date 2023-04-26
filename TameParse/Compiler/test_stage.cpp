@@ -35,11 +35,11 @@ using namespace std;
 using namespace util;
 using namespace dfa;
 using namespace lr;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new test stage that will run the tests in the specified definition file
-test_stage::test_stage(console_container& console, const std::wstring& filename, const language::definition_file_container& definition, const import_stage* import)
+test_stage::test_stage(console_container& console, const std::wstring& filename, const yy_language::definition_file_container& definition, const import_stage* import)
 : compilation_stage(console, filename)
 , m_Definition(definition)
 , m_Import(import) {

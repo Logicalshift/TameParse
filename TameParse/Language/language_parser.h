@@ -34,7 +34,7 @@
 #include "TameParse/Language/definition_file.h"
 #include "TameParse/Compiler/error.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class used to process parser language files
     ///

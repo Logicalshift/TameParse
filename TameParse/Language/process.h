@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Routines to help with processing items from a language file
     ///

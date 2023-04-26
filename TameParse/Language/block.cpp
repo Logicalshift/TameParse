@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/block.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new block with unset start and end points
 block::block()

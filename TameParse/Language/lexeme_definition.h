@@ -32,7 +32,7 @@
 
 #include "TameParse/Language/block.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class that represents the ways that an individual lexeme can be defined
     ///

@@ -31,7 +31,7 @@
 #include <iostream>
 #include "TameParse/Language/formatter.h"
 
-using namespace language;
+using namespace yy_language;
 #endif
 
 #include <queue>

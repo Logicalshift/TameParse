@@ -53,7 +53,7 @@ namespace compiler {
 
     private:
         /// \brief The definition file that contains the tests that this
-        language::definition_file_container m_Definition;
+        yy_language::definition_file_container m_Definition;
 
         /// \brief The import stage where languages should be loaded from
         const import_stage* m_Import;
@@ -79,7 +79,7 @@ namespace compiler {
 
     public:
         /// \brief Creates a new test stage that will run the tests in the specified definition file
-        test_stage(console_container& console, const std::wstring& filename, const language::definition_file_container& definition, const import_stage* import);
+        test_stage(console_container& console, const std::wstring& filename, const yy_language::definition_file_container& definition, const import_stage* import);
 
         /// \brief Destructor
         virtual ~test_stage();

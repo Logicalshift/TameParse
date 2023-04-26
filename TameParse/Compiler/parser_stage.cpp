@@ -35,7 +35,7 @@
 using namespace std;
 using namespace util;
 using namespace dfa;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new compilation stage which will use the specified console object

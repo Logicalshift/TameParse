@@ -27,7 +27,7 @@
 
 #include "toplevel_block.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new top level block containing a language block
 toplevel_block::toplevel_block(language_block* language)

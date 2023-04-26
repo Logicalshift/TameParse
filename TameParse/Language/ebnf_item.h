@@ -34,7 +34,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/ebnf_item_attributes.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Representation of a single EBNF item in a production
     ///

@@ -33,7 +33,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/lexeme_definition.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Class representing the definition of a block that defines lexical symbols
     ///

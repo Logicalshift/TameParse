@@ -48,7 +48,7 @@ namespace lr {
 ///
 /// \brief Data-storage classes representing the TameParse input language
 ///
-namespace language {
+namespace yy_language {
 
 }
 

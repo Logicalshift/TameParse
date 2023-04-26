@@ -32,7 +32,7 @@
 
 #include "TameParse/Language/block.h"
 
-namespace language {
+namespace yy_language {
     /// \brief Class that represents a test definition in the parser language
     class test_definition : public block {
     public:

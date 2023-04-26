@@ -28,7 +28,7 @@
 #include "TameParse/Compiler/language_builder_stage.h"
 
 using namespace dfa;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new language builder stage

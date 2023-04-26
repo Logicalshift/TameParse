@@ -33,7 +33,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/ebnf_item.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Block that defines the precedence of the operators in a language
     ///

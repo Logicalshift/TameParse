@@ -39,7 +39,7 @@ using namespace std;
 using namespace util;
 using namespace dfa;
 using namespace contextfree;
-using namespace language;
+using namespace yy_language;
 using namespace lr;
 
 // Checks that a given phrase is lexed as the specified symbol

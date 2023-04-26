@@ -33,7 +33,7 @@
 #include "TameParse/Compiler/parser_stage.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new import stage

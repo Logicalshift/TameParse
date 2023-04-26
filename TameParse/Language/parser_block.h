@@ -33,7 +33,7 @@
 
 #include "TameParse/Language/block.h"
 
-namespace language {
+namespace yy_language {
     class parser_block : public block {
     public:
         /// \brief List of start symbols for this language

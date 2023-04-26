@@ -41,13 +41,13 @@ namespace compiler {
     class import_stage : public compilation_stage {
     public:
         /// \brief Map of language names to their corresponding blocks
-        typedef std::map<std::wstring, const language::language_block*> language_block_map;
+        typedef std::map<std::wstring, const yy_language::language_block*> language_block_map;
 
         /// \brief Maps strings to other strings
         typedef std::map<std::wstring, std::wstring> string_map;
 
         /// \brief Maps filenames to the definition file that they specify
-        typedef std::map<std::wstring, language::definition_file_container> definition_map;
+        typedef std::map<std::wstring, yy_language::definition_file_container> definition_map;
 
         /// \brief Iterator for retrieving a list of language name, block pairs
         typedef language_block_map::const_iterator language_iterator;
@@ -67,7 +67,7 @@ namespace compiler {
 
     public:
         /// \brief Creates a new import stage
-        import_stage(console_container& console, const std::wstring& filename, language::definition_file_container rootFile);
+        import_stage(console_container& console, const std::wstring& filename, yy_language::definition_file_container rootFile);
 
         /// \brief Destructor
         virtual ~import_stage();
@@ -77,7 +77,7 @@ namespace compiler {
 
     public:
         /// \brief Returns the language with the specified name, or NULL if it doesn't exist
-        inline const language::language_block* language_with_name(const std::wstring& languageName) const {
+        inline const yy_language::language_block* language_with_name(const std::wstring& languageName) const {
             language_block_map::const_iterator found = m_LanguageBlock.find(languageName);
             if (found == m_LanguageBlock.end()) return NULL;
             return found->second;

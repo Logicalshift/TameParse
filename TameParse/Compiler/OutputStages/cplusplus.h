@@ -59,9 +59,6 @@ namespace compiler {
         /// \brief Maps item IDs to their class identifiers
         std::map<int, std::string> m_ClassNameForItem;
 
-        /// \brief Reserved words and keywords
-        std::set<std::string> m_ReservedWords;
-
         /// \brief The used class (and other identifier) names for the class (which should not be re-used)
         std::set<std::string> m_UsedClassNames;
 

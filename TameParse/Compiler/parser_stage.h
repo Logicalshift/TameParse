@@ -38,7 +38,7 @@ namespace compiler {
     class parser_stage : public compilation_stage {
     private:
         /// \brief The language parser object
-        language::language_parser m_Parser;
+        yy_language::language_parser m_Parser;
         
     public:
         /// \brief Creates a new compilation stage which will use the specified console object
@@ -48,7 +48,7 @@ namespace compiler {
         virtual void compile();
         
         /// \brief The definition produced by this stage
-        inline language::definition_file_container definition_file() { return m_Parser.file_definition(); }
+        inline yy_language::definition_file_container definition_file() { return m_Parser.file_definition(); }
     };
 }
 

@@ -27,7 +27,7 @@
 
 #include "TameParse/Compiler/Data/lexer_item.h"
 
-using namespace language;
+using namespace yy_language;
 using namespace compiler;
 
 /// \brief Creates a new lexer item

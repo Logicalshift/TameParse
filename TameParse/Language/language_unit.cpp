@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include "TameParse/Language/language_unit.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Defines this as a lexical lanuguage unit
 language_unit::language_unit(unit_type type, lexer_block* lexer)

@@ -29,7 +29,7 @@
 
 using namespace std;
 using namespace dfa;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new empty language block with the specified identifier
 language_block::language_block(const std::wstring& identifier, position start, position end)

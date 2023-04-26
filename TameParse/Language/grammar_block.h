@@ -33,7 +33,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/nonterminal_definition.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief Representation of a block that defines the grammar for a language
     ///

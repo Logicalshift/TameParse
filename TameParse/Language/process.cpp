@@ -28,7 +28,7 @@
 #include "TameParse/Language/process.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Given a string with quotation marks and '\' quoting, returns the literal string
 wstring process::dequote_string(const wstring& string) {

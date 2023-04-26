@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/lexeme_definition.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new lexeme definition
 lexeme_definition::lexeme_definition(type typ, std::wstring identifier, std::wstring definition, bool addToDefinition, bool replaceDefinition, position start, position end, position defnPos)

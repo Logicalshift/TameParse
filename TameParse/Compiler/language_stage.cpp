@@ -35,12 +35,12 @@
 using namespace std;
 using namespace dfa;
 using namespace contextfree;
-using namespace language;
+using namespace yy_language;
 using namespace lr;
 using namespace compiler;
 
 /// \brief Creates a compiler that will compile the specified language block
-language_stage::language_stage(console_container& console, const std::wstring& filename, const language::language_block* block, const import_stage* importStage)
+language_stage::language_stage(console_container& console, const std::wstring& filename, const yy_language::language_block* block, const import_stage* importStage)
 : compilation_stage(console, filename)
 , m_Language(block)
 , m_Import(importStage)
@@ -566,7 +566,7 @@ void language_stage::report_unused_symbols() {
 }
 
 /// \brief Adds any lexer items that are defined by a specific EBNF item to this object
-int language_stage::add_ebnf_lexer_items(language::ebnf_item* item) {
+int language_stage::add_ebnf_lexer_items(yy_language::ebnf_item* item) {
     int count = 0;
 
     // Find/create a filename for this object

@@ -28,7 +28,7 @@
 #include "TameParse/Language/precedence_block.h"
 
 using namespace std;
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new precedence definition
 precedence_block::precedence_block(position& start, position& end)

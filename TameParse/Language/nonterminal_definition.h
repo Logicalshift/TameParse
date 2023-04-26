@@ -34,7 +34,7 @@
 #include "TameParse/Language/block.h"
 #include "TameParse/Language/production_definition.h"
 
-namespace language {
+namespace yy_language {
     ///
     /// \brief A nonterminal definition block from the parser language
     ///

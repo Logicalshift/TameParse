@@ -27,7 +27,7 @@
 
 #include "TameParse/Language/lexer_block.h"
 
-using namespace language;
+using namespace yy_language;
 
 /// \brief Creates a new lexer block
 lexer_block::lexer_block(bool weak, bool caseInsensitive, bool caseSensitive, position start, position end)
