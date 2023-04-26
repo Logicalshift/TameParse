@@ -100,7 +100,7 @@ namespace contextfree {
        
     public:
         /// \brief Standard constructor
-        explicit inline item(int symbol) : m_Symbol(symbol) { }
+        explicit inline item(int symbol) : m_Symbol(symbol), m_CachingClosure(false) { }
         
         /// \brief Destructor
         virtual ~item();
